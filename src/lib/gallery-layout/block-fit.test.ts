@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { artworkListings } from "@/lib/data";
 import { assignEra } from "@/lib/gallery-eras";
 import { trustworthyRealSize } from "@/lib/real-size";
+import { frameExtents, pickFrameDesign } from "./frame-design";
 import { giantSize, tallSize } from "./giants";
 import { BLOCK_PLAN, BLOCK_SPIRALS, BLOCK_WALL_COVERAGE, layoutBlock } from "./layout-block";
 import { computeRoomRuns, runLength, sideClearance, type WallRun } from "./place-paintings";
@@ -146,16 +147,21 @@ describe("the block plan and the catalogue", () => {
           wrong.push(`${room.id} ${p.artwork.id}: other floor`);
         if (!p.giant) wrong.push(`${room.id} ${p.artwork.id}: has a picture light`);
       }
-      // A work on a side wall has its pair on the other, at its height.
+      // A work on a side wall has its pair on the other, their frames
+      // standing at one height.
       const sides = room.placements.filter(
         (p) => Math.abs(Math.abs(p.rotation[1]) - Math.PI / 2) < 1e-6,
       );
+      const bottom = (p: Placement) =>
+        p.position[1] -
+        p.heightM / 2 -
+        frameExtents(p.frame ?? pickFrameDesign(p.artwork), p.widthM, p.heightM).bottom;
       for (const p of sides) {
         const twin = sides.find(
           (q) =>
             q !== p &&
             Math.abs(q.position[2] - p.position[2]) < 1e-6 &&
-            Math.abs(q.position[1] - p.position[1]) < 1e-6,
+            Math.abs(bottom(q) - bottom(p)) < 1e-6,
         );
         if (!twin) wrong.push(`${room.id} ${p.artwork.id}: no pair`);
       }

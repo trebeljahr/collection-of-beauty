@@ -9,9 +9,9 @@ import { buildStair } from "./grand-staircase";
 
 const DESIGNS: GrandStairDesign[] = ["loggia", "imperial", "arcs", "hourglass", "court"];
 const HALF = 13.75;
-/** A loggia's end wall stands a cell inside its square, as in the
- *  block plan. */
-const backOf = (design: GrandStairDesign) => (design === "loggia" ? HALF - 2.5 : HALF);
+/** A loggia's end wall stands three cells inside its square, on its
+ *  landings' far edge, as in the block plan. */
+const backOf = (design: GrandStairDesign) => (design === "loggia" ? HALF - 7.5 : HALF);
 
 /** The stair of one storey of a hall four floors high. */
 function stairOf(design: GrandStairDesign, storey: number) {

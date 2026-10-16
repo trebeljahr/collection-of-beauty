@@ -126,8 +126,10 @@ import {
   type GrandStair,
   type GrandStairDesign,
   grandHallArrival,
+  IMPERIAL,
   openingInWorld,
   SALON_GALLERY,
+  STAIR_SLAB,
 } from "./grand-stair";
 import {
   bucketByEra,
@@ -159,6 +161,7 @@ import type {
 } from "./types";
 import {
   CELL_SIZE,
+  FLOOR_SEPARATION,
   floorY,
   INTER_FLOOR_HEIGHT,
   PORTAL_HEIGHT,
@@ -240,9 +243,9 @@ export const BLOCK_SPIRALS: ReadonlyArray<{ key: RoomKey; rect: CellRect; door: 
  * The two at the ends are stair halls: a loggia, the grand stair on
  * every storey. Each faces the portal of the spine (`hallFront`) and
  * has a door in each side wall (`HALL_SIDE_DOOR`). Its end wall stands
- * a cell inside the building's end wall (cells 0 and 46 of the spine
- * are no room), so a hall is 27.5 m wide and 25 m deep: the floor of
- * each storey reaches that wall round the void (`LOGGIA.endGallery`).
+ * three cells inside the building's end wall (cells 0 to 2 and 44 to 46
+ * of the spine are no room), so a hall is 27.5 m wide and 20 m deep:
+ * the end wall meets the far edge of every half landing (`LOGGIA`).
  * The stair is set out from the front wall (`buildStair`), so it
  * stands where it stood in the square hall.
  *
@@ -254,9 +257,9 @@ export const BLOCK_HALLS: ReadonlyArray<{
   design: Extract<GrandStairDesign, "loggia" | "court" | "salon">;
   turns: GrandStair["turns"];
 }> = [
-  { key: "hall-w", rect: span(1, 10, ROW_M), design: "loggia", turns: 3 },
+  { key: "hall-w", rect: span(3, 10, ROW_M), design: "loggia", turns: 3 },
   { key: "court", rect: span(18, 28, ROW_M), design: "court", turns: 0 },
-  { key: "hall-e", rect: span(36, 45, ROW_M), design: "loggia", turns: 1 },
+  { key: "hall-e", rect: span(36, 43, ROW_M), design: "loggia", turns: 1 },
   { key: "salon", rect: span(16, 30, ROW_SALON), design: "salon", turns: 2 },
 ];
 /** The one room the salon opens from, on every floor: the south
@@ -489,6 +492,26 @@ export function layoutBlock(
           depth: 0,
           base: floors[0].y,
           roof: floors[top].y + INTER_FLOOR_HEIGHT,
+        };
+      }
+      // A loggia's half landings run back to its end wall: the wall's
+      // middle stands over a landing, clear to the next landing's
+      // underside or, over the last, to the roof.
+      if (hall.design === "loggia") {
+        const landing = FLOOR_SEPARATION / 2;
+        room.endWall = {
+          side: OPPOSITE[hallFront(hall)],
+          half: IMPERIAL.half,
+          landing:
+            f === top
+              ? null
+              : {
+                  y: landing,
+                  top:
+                    f === top - 1
+                      ? FLOOR_SEPARATION + INTER_FLOOR_HEIGHT
+                      : landing + FLOOR_SEPARATION - STAIR_SLAB,
+                },
         };
       }
     }

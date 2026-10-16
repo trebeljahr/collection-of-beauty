@@ -130,9 +130,11 @@ export function RoomGeometry({
   const wallInset = wallInsetOf(room);
   const ceilingY = floorY + room.ceilingHeight;
   // Skirting follows the floor: none along a sheer wall on the storeys
-  // where the hall's void lies in front of it.
+  // where the hall's void lies in front of it, and none where a stair's
+  // opening in this floor meets a wall.
   const skirting = (side: Side): SkirtingClip => {
-    if (!room.sheer || !room.floorOpening) return undefined;
+    if (!room.sheer) return openingClip(room, side, width, depth, cxWorld, czWorld);
+    if (!room.floorOpening) return undefined;
     const { side: sheer, depth: strip } = room.sheer;
     if (side === sheer) return null;
     const alongX = side === "north" || side === "south";
@@ -145,7 +147,7 @@ export function RoomGeometry({
       (side === "west" && sheer === "south") ||
       (side === "north" && sheer === "west") ||
       (side === "south" && sheer === "east");
-    return atLow ? { xMin: -half + strip, xMax: half } : { xMin: -half, xMax: half - strip };
+    return atLow ? [{ xMin: -half + strip, xMax: half }] : [{ xMin: -half, xMax: half - strip }];
   };
   const laylights = useMemo(() => laylightPanels(room), [room]);
   // The ceiling, cut where each laylight is recessed into it.
@@ -936,4 +938,51 @@ function StairwellFloor({
       </mesh>
     </>
   );
+}
+
+/** The stretches of a wall left with floor at their foot where a
+ *  stair's opening in the room's floor meets the wall, in the wall's
+ *  local x (see the door mapping in `RoomGeometry`). Unset where none
+ *  meets it. */
+function openingClip(
+  room: RoomLayout,
+  side: Side,
+  width: number,
+  depth: number,
+  cx: number,
+  cz: number,
+): SkirtingClip {
+  const opening = room.floorOpening;
+  if (opening?.kind !== "rects") return undefined;
+  const alongX = side === "north" || side === "south";
+  const half = (alongX ? width : depth) / 2;
+  const line =
+    side === "north"
+      ? cz - depth / 2
+      : side === "south"
+        ? cz + depth / 2
+        : side === "west"
+          ? cx - width / 2
+          : cx + width / 2;
+  const flip = side === "south" || side === "west" ? -1 : 1;
+  const cuts = opening.rects
+    .filter((r) =>
+      alongX
+        ? Math.min(Math.abs(r.zMin - line), Math.abs(r.zMax - line)) < 0.05
+        : Math.min(Math.abs(r.xMin - line), Math.abs(r.xMax - line)) < 0.05,
+    )
+    .map((r) => {
+      const [a, b] = alongX ? [r.xMin - cx, r.xMax - cx] : [r.zMin - cz, r.zMax - cz];
+      return flip > 0 ? { xMin: a, xMax: b } : { xMin: -b, xMax: -a };
+    })
+    .sort((a, b) => a.xMin - b.xMin);
+  if (cuts.length === 0) return undefined;
+  const keep: Array<{ xMin: number; xMax: number }> = [];
+  let from = -half;
+  for (const c of cuts) {
+    if (c.xMin > from) keep.push({ xMin: from, xMax: c.xMin });
+    from = Math.max(from, c.xMax);
+  }
+  if (from < half) keep.push({ xMin: from, xMax: half });
+  return keep;
 }

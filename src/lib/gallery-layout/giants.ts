@@ -14,8 +14,9 @@
 //
 //   The two stair halls. Each storey is one composition about the
 //   stair's axis (`stairHallHang`): the largest work of the floor on
-//   the middle of the end wall, a pair beside it, and pairs that mirror
-//   each other on the walls beside the stair and the door.
+//   the end wall over the half landing, and pairs that mirror each
+//   other on the end wall beside the landing and on the walls beside
+//   the stair and the door.
 //
 //   The spiral rooms' outer walls, 22.5 m with no door, take what no
 //   hall holds: a handscroll 12 m long (`hangGiants` in layout-block).
@@ -40,6 +41,12 @@
 // for that, so the Triumph of Frederick Henry, 7.49 m in its frame,
 // hangs on one.
 //
+// On 17 October 2026 the half landings were run back to the end wall
+// and the piers under them taken out. Rico, of the wall between two
+// landings: hang "all the way along" it. So the axis work hangs over
+// the landing, on a wall clear from there to the next landing up, and
+// its plaque is at eye level over the landing.
+//
 // Every work here hangs at the size its plaque states. One that fits
 // no place hangs in its era's rooms, at its real size, where a wall
 // holds it (`HangOptions.realSize` in place-paintings.ts).
@@ -54,6 +61,7 @@ import {
   frameReachOf,
   MAX_PAINTING_W,
   PAINTING_FLOOR_GAP,
+  PLAQUE_EYE,
   packRun,
   runLength,
   type SizedWork,
@@ -241,11 +249,22 @@ export function hangHallStoreys(
         // it: `packRun` centres the two together.
         const position: Placement["position"] = [...p.position];
         position[run.axis === "x" ? 0 : 2] = stretchMiddle(run);
+        position[1] = seatedCenter(p, room.worldRect.y);
         room.placements.push({ ...p, position, giant: true });
       }
     }
   }
   return left;
+}
+
+/** The canvas centre of a work whose frame stands `PAINTING_FLOOR_GAP`
+ *  over a floor at `floorY`. Every work of a hall starts at that one
+ *  height, whatever its size. Rico, 17 October 2026, of a pair centred
+ *  on one line beside a canvas twice as tall: "the images should start
+ *  at the same height in those rooms". */
+function seatedCenter(p: Placement, floorY: number): number {
+  const e = frameExtents(p.frame ?? pickFrameDesign(p.artwork), p.widthM, p.heightM);
+  return floorY + PAINTING_FLOOR_GAP + e.bottom + p.heightM / 2;
 }
 
 /** True when a work fits one of these stretches, a gap clear at each
@@ -296,10 +315,16 @@ export type StairHallStorey = { room: RoomLayout; end: WallRun["side"]; front: W
 type Bay = {
   storey: StairHallStorey;
   floor: number;
-  /** The end wall, one stretch from corner to corner. Null when a door
-   *  splits it (the south spiral's, into the salon): its two stretches
-   *  then hang a pair and nothing hangs on the axis. */
+  /** Where the axis work hangs: the end wall from corner to corner, or
+   *  the stretch of it over the half landing (`RoomLayout.endWall`).
+   *  Null when a door splits the wall (the south spiral's, into the
+   *  salon): its two stretches then hang a pair and nothing hangs on the
+   *  axis. Null too on a storey whose end wall has no landing in front
+   *  of it. */
   end: WallRun | null;
+  /** The landing `end` stands on, metres over the storey's floor, and
+   *  how high over that floor the wall is clear. Null for the floor. */
+  landing: { y: number; top: number } | null;
   /** The two halves of the end wall either side of the axis work, once
    *  it hangs: a work on the middle of each. */
   flanks: [WallRun, WallRun] | null;
@@ -307,7 +332,7 @@ type Bay = {
    *  the end wall and then those nearer the front; the two stretches
    *  either side of the portal. */
   pairs: Array<[WallRun, WallRun]>;
-  hero: { work: Framed; centerY: number } | null;
+  hero: Framed | null;
 };
 
 /** A run cut to the stretch between two points along it (`u`). */
@@ -319,7 +344,20 @@ function bayOf(storey: StairHallStorey, floor: number): Bay | null {
     runs.filter((r) => r.side === side).sort((a, b) => runLength(b) - runLength(a));
   const ends = longest(storey.end);
   if (ends.length === 0) return null;
-  const end = ends.length === 1 ? ends[0] : null;
+  // A loggia's end wall: the stretch over the half landing, and the
+  // stretches either side of it, where the storey's floor runs up to
+  // the wall.
+  const over = ends.length === 1 ? storey.room.endWall : undefined;
+  const wall = ends[0];
+  const mid = (wall.uMin + wall.uMax) / 2;
+  const end =
+    ends.length !== 1
+      ? null
+      : !over
+        ? wall
+        : over.landing
+          ? stretch(wall, mid - over.half, mid + over.half)
+          : null;
   // Each side wall in two stretches, the one nearer the end wall first:
   // either side of its door, or its halves when it has none. World
   // coordinate along a run is `sign * u`: the end wall lies at the low
@@ -342,45 +380,60 @@ function bayOf(storey: StairHallStorey, floor: number): Bay | null {
     });
   const pairs: Array<[WallRun, WallRun]> = [];
   if (ends.length === 2) pairs.push([ends[0], ends[1]]);
+  if (over) {
+    pairs.push([
+      stretch(wall, wall.uMin, mid - over.half),
+      stretch(wall, mid + over.half, wall.uMax),
+    ]);
+  }
   if (halves.length === 2 && halves[0].length === 2 && halves[1].length === 2) {
     pairs.push([halves[0][0], halves[1][0]], [halves[0][1], halves[1][1]]);
   }
   const fronts = runs.filter((r) => r.side === storey.front).sort((a, b) => a.uMin - b.uMin);
   if (fronts.length === 2) pairs.push([fronts[0], fronts[1]]);
-  return { storey, floor, end, flanks: null, pairs, hero: null };
+  return { storey, floor, end, landing: over?.landing ?? null, flanks: null, pairs, hero: null };
 }
 
-/** A work hung on the middle of a stretch, its canvas centre at
- *  `centerY`, or at the height `packRun` gives it. */
-function hangOn(room: RoomLayout, run: WallRun, work: SizedWork, centerY?: number): number {
+/** A work hung on the middle of a stretch, seated on a floor `lift`
+ *  metres above the room's (`seatedCenter`), or with its canvas centre
+ *  at `centerY`. The plaque is at eye level over that floor. Returns
+ *  the canvas centre. */
+function hangOn(
+  room: RoomLayout,
+  run: WallRun,
+  work: SizedWork,
+  { lift = 0, centerY }: { lift?: number; centerY?: number } = {},
+): number {
   const [p] = packRun(run, [work], Number.POSITIVE_INFINITY);
   const position: Placement["position"] = [...p.position];
   position[run.axis === "x" ? 0 : 2] = stretchMiddle(run);
-  if (centerY !== undefined) position[1] = centerY;
-  room.placements.push({ ...p, position, giant: true });
+  position[1] = centerY ?? seatedCenter(p, room.worldRect.y + lift);
+  const plaque =
+    lift === 0 ? {} : { plaque: { dy: room.worldRect.y + lift + PLAQUE_EYE - position[1] } };
+  room.placements.push({ ...p, position, giant: true, ...plaque });
   return position[1];
-}
-
-/** The centre height `packRun` gives a work on a run. */
-function naturalCenter(run: WallRun, work: SizedWork): number {
-  return packRun(run, [work], Number.POSITIVE_INFINITY)[0].position[1];
 }
 
 /**
  * Hang the giants on the storeys of the stair halls, each storey as one
  * composition about its stair's axis:
  *
- *              end wall
- *     [ flank ]  [  axis  ]  [ flank ]
- *   [b]                              [b]    b: a pair, the back half of
- *   [f]          (void)              [f]       each side wall
- *                                           f: a pair, the front half
- *          [p]    door    [p]               p: a pair beside the door
+ *                    end wall
+ *     [e]  [ flank ]  [ axis ]  [ flank ]  [e]   e: a pair, the end wall
+ *   [b]             (landing)              [b]      beside the landing
+ *   [f]              (stair)               [f]   b: a pair, the back half
+ *                                                   of each side wall
+ *                                                f: a pair, the front half
+ *                [p]    door    [p]              p: a pair beside the door
+ *
+ * The axis work and its flanks hang over the half landing, the rest
+ * over the storey's floor. The top storey has no landing of its own:
+ * the wall there is the one over the landing below.
  *
  * Every work hangs on the middle of its stretch, so a pair mirrors
- * about the axis, and both works of a pair share a centre line. A pair
- * is two works of like size (`unlike`), of one hand or one era where
- * the pool has such two. Nothing hangs alone where a pair belongs.
+ * about the axis, and every frame stands at one height over its floor
+ * or landing (`seatedCenter`). A pair is two works of like size
+ * (`unlike`), of one hand or one era where the pool has such two. Nothing hangs alone where a pair belongs.
  *
  * Two steps, so a caller can hang other rooms between them: `axes`
  * gives each storey's end wall the largest work of its floor, and
@@ -409,15 +462,20 @@ export function stairHallHang(
     for (const bay of bays) {
       const end = bay.end;
       if (bay.hero || !end) continue;
-      const entry = pool.find((e) => e.start === bay.floor && fits(end, e.work));
+      const landing = bay.landing;
+      // Over a landing the wall is clear to the next one up.
+      const tall = (w: SizedWork) =>
+        !landing || framedHeight(w) <= landing.top - landing.y - PAINTING_FLOOR_GAP - 0.14;
+      const entry = pool.find((e) => e.start === bay.floor && fits(end, e.work) && tall(e.work));
       if (!entry) continue;
       pool = pool.filter((e) => e !== entry);
       const work = framed(entry.work);
-      const centerY = hangOn(bay.storey.room, end, work);
-      bay.hero = { work, centerY };
-      // The two halves of the wall beside it, each from the corner to a
-      // gap beyond its frame and plaque. The plaque is on one side only;
-      // both halves keep clear of it, so they mirror each other.
+      hangOn(bay.storey.room, end, work, { lift: landing?.y ?? 0 });
+      bay.hero = work;
+      // The two halves of the wall beside it, each from the end of the
+      // stretch to a gap beyond its frame and plaque. The plaque is on
+      // one side only; both halves keep clear of it, so they mirror
+      // each other.
       const mid = (end.uMin + end.uMax) / 2;
       const { left, right } = sideClearance(work);
       const clear = work.wM / 2 + Math.max(left, right) + GIANT_GAP;
@@ -469,27 +527,26 @@ export function stairHallHang(
       bay: Bay,
       runs: [WallRun, WallRun],
       pair: [Candidate, Candidate],
-      y?: number,
+      lift = 0,
     ) => {
       pool = pool.filter((e) => e !== pair[0] && e !== pair[1]);
-      const centerY = y ?? Math.max(...pair.map((e, i) => naturalCenter(runs[i], e.work)));
       pair.forEach((e, i) => {
-        hangOn(bay.storey.room, runs[i], e.work, centerY);
+        hangOn(bay.storey.room, runs[i], e.work, { lift });
       });
     };
 
-    // The end wall first: a pair beside each axis work, their middles
-    // level with its middle, of the floor's own works before another's.
+    // The end wall first: a pair beside each axis work, on the same
+    // landing, of the floor's own works before another's.
     for (const bay of bays) {
       if (!bay.hero || !bay.flanks) continue;
-      const hero = bay.hero.work;
+      const hero = bay.hero;
       const pair = choose(
         bay,
         bay.flanks,
         (w) => outerHeight(w) <= outerHeight(hero) && w.hM >= FLANK_MIN_HEIGHT * hero.hM,
         hero.artwork,
       );
-      if (pair) hangPair(bay, bay.flanks, pair, bay.hero.centerY);
+      if (pair) hangPair(bay, bay.flanks, pair, bay.landing?.y ?? 0);
     }
     // Then the walls beside the stair and the door, a pair at a time,
     // each storey's next pair in turn so the halls fill alike.
@@ -585,10 +642,9 @@ export function hangSalon(
     return null;
   };
   const hangPair = (room: RoomLayout, runs: [WallRun, WallRun], pair: [Framed, Framed]) => {
-    const centerY = Math.max(...pair.map((w, i) => naturalCenter(runs[i], w)));
     pair.forEach((w, i) => {
       take(w);
-      hangOn(room, runs[i], w, centerY);
+      hangOn(room, runs[i], w);
     });
   };
 
@@ -622,12 +678,9 @@ export function hangSalon(
         const run = farRun(room);
         if (run) {
           take(over);
-          hangOn(
-            room,
-            stretch(run, axis.uMin, axis.uMax),
-            over,
-            bottomY + over.bottom + over.hM / 2,
-          );
+          hangOn(room, stretch(run, axis.uMin, axis.uMax), over, {
+            centerY: bottomY + over.bottom + over.hM / 2,
+          });
           // Over the void: nowhere to stand and read a plaque.
           room.placements[room.placements.length - 1].plaque = null;
         }

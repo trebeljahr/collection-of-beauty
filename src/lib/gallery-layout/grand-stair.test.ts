@@ -525,13 +525,13 @@ describe("an imperial stair in a hall with a sheer wall", () => {
 
 describe("a loggia: the imperial stair on every storey, in the front of its hall", () => {
   const half = 13.75;
-  // The block plan's: the end wall a cell inside the square.
-  const back = half - 2.5;
+  // The block plan's: the end wall three cells inside the square, on
+  // the landings' far edge.
+  const back = half - 7.5;
   const stairs = hall("loggia", 0, 4, half, back);
   const shift = loggiaShift(half);
   const north = IMPERIAL.north + shift;
   const south = IMPERIAL.south + shift;
-  const voidNorth = -(back - LOGGIA.endGallery);
   const door = grandHallArrival(stairs[0]);
   const levels = [1, 2, 3].map((f) => f * FLOOR_SEPARATION);
   let walked: ReturnType<typeof walkFrom> | undefined;
@@ -589,48 +589,44 @@ describe("a loggia: the imperial stair on every storey, in the front of its hall
     );
   });
 
-  it("is open behind its half landings, the stair's width, on every floor over the first", () => {
-    expect(north - voidNorth).toBeCloseTo(3.95, 9);
-    for (const x of [-7.5, 0, 7.5]) {
-      for (const z of [north - 0.5, voidNorth + 0.5]) {
-        const p = at(stairs, x, z);
-        // The hall's own floor is there, under the landing too.
-        expect(grandSurfaceAt(stairs, p.x, p.z, 0)?.floorIndex, `floor, ${x} ${z}`).toBe(0);
-        const over = grandSurfacesAt(stairs, p.x, p.z).filter((s) => s.y > 1);
-        expect(over, `${x} ${z}`).toHaveLength(0);
-      }
+  it("runs each half landing back to the end wall, with no void and no pier behind it", () => {
+    for (const stair of stairs) {
+      const landing = stair.patches.find((p) => p.kind === "flat");
+      expect(landing).toMatchObject({ xMin: -IMPERIAL.half, xMax: IMPERIAL.half, zMin: -back });
+      expect(stair.columns).toHaveLength(0);
     }
-    // Nobody who walks the hall comes to stand out over it.
-    const strays = walk()
-      .map((q) => ({ ...toStairLocal(stairs[0], q.x, q.z), y: q.y }))
-      .filter(
-        (q) =>
-          q.y > 1 &&
-          q.z < north - 0.01 &&
-          q.z > voidNorth + 0.01 &&
-          Math.abs(q.x) < IMPERIAL.half - 0.01,
-      );
-    expect(strays).toHaveLength(0);
+    // Deep enough to stand back from a work 7 m tall on the wall.
+    expect(north + IMPERIAL.landingDepth + back).toBeGreaterThanOrEqual(6.5);
+    // Against the wall, a visitor on a landing stands on it, and every
+    // storey's floor has the stair's opening there.
+    for (const x of [-7.5, 0, 7.5]) {
+      const p = at(stairs, x, -back + 0.3);
+      stairs.forEach((stair) => {
+        const mid = (stair.lowerY + stair.upperY) / 2;
+        const here = grandSurfaceAt(stairs, p.x, p.z, mid);
+        expect(here?.y, `${stair.id} ${x}`).toBeCloseTo(mid, 9);
+        expect(here?.stair, `${stair.id} ${x}`).toBe(stair);
+      });
+      levels.forEach((y) => {
+        expect(
+          grandSurfacesAt(stairs, p.x, p.z).filter((s) => Math.abs(s.y - y) < 1e-6),
+          `${x} ${y}`,
+        ).toHaveLength(0);
+      });
+    }
   });
 
-  it("keeps a floor round the void on every storey: beside the stair and along the end wall", () => {
+  it("keeps a floor beside the stair on every storey, from the lobby to the end wall", () => {
     for (const side of [-1, 1]) {
-      for (const z of [-back + 0.5, voidNorth, north + 0.5, 0, south]) {
+      for (const z of [-back + 0.5, north + 0.5, 0, south]) {
         const p = at(stairs, side * 11, z);
         levels.forEach((y, i) => {
           expect(grandSurfaceAt(stairs, p.x, p.z, y)?.floorIndex, `${side} ${z}`).toBe(i + 1);
         });
       }
     }
-    for (const x of [-7.5, 0, 7.5]) {
-      const p = at(stairs, x, -back + 0.5);
-      levels.forEach((y, i) => {
-        expect(grandSurfaceAt(stairs, p.x, p.z, y)?.floorIndex, `end ${x}`).toBe(i + 1);
-      });
-    }
     // Wide enough to walk and to stand back from a work: 5 m and more.
     expect(half - IMPERIAL.half).toBeGreaterThanOrEqual(5);
-    expect(LOGGIA.endGallery).toBeGreaterThanOrEqual(5);
     // Nothing of the hall lies past its end wall.
     const past = at(stairs, 0, -back - 0.5);
     expect(grandStairsAt(stairs, past.x, past.z)).toHaveLength(0);
@@ -638,7 +634,7 @@ describe("a loggia: the imperial stair on every storey, in the front of its hall
     expect(grandStairsAt(stairs, inside.x, inside.z)).toHaveLength(stairs.length);
   });
 
-  it("fences every edge of a floor but the heads of its flights and the next foot", () => {
+  it("fences every edge of a floor but the heads of its flights, the next foot and the wall", () => {
     stairs.forEach((stair, i) => {
       const y = stair.upperY;
       const rails = stair.rails.filter((r) => r.y0 === y && r.y1 === y);
@@ -652,11 +648,10 @@ describe("a loggia: the imperial stair on every storey, in the front of its hall
           (r) =>
             r.x0 === x && r.x1 === x && Math.min(r.z0, r.z1) === za && Math.max(r.z0, r.z1) === zb,
         );
-      // The edge of the gallery along the end wall, and the edges of
-      // the two beside the stair, over the void and the flights.
-      expect(along(voidNorth, -IMPERIAL.half, IMPERIAL.half), stair.id).toBe(true);
-      expect(down(IMPERIAL.half, voidNorth, south), stair.id).toBe(true);
-      expect(down(-IMPERIAL.half, voidNorth, south), stair.id).toBe(true);
+      // The edges of the galleries beside the stair, from the end wall
+      // to the lobby.
+      expect(down(IMPERIAL.half, -back, south), stair.id).toBe(true);
+      expect(down(-IMPERIAL.half, -back, south), stair.id).toBe(true);
       // The middle of the lobby's edge: open where the next stair
       // leaves, closed on the top floor.
       const last = i === stairs.length - 1;
@@ -671,36 +666,31 @@ describe("a loggia: the imperial stair on every storey, in the front of its hall
     });
   });
 
-  it("is one opening: the stair's own, and the void behind it", () => {
+  it("is one opening, the stair's own, from the end wall to the lobby", () => {
     const o = stairs[0].opening;
     expect(o.kind).toBe("rects");
     if (o.kind !== "rects") return;
-    expect(o.rects).toHaveLength(2);
-    const [strip, own] = o.rects;
-    expect(strip).toEqual({
-      xMin: -IMPERIAL.half,
-      xMax: IMPERIAL.half,
-      zMin: voidNorth,
-      zMax: north,
-    });
-    expect(own).toEqual({ xMin: -IMPERIAL.half, xMax: IMPERIAL.half, zMin: north, zMax: south });
+    expect(o.rects).toEqual([
+      { xMin: -IMPERIAL.half, xMax: IMPERIAL.half, zMin: -back, zMax: south },
+    ]);
     expect(inOpening(stairs[0], 0, south + 0.1)).toBe(false);
-    expect(inOpening(stairs[0], 0, voidNorth - 0.1)).toBe(false);
   });
 
-  it("can be walked under on the hall floor, past the stair to the hall behind it", () => {
+  it("stands its lowest landing on masonry, and is walked past beside it", () => {
     const ground = (x: number, z: number) => {
       const p = at(stairs, x, z);
       return grandSurfaceAt(stairs, p.x, p.z, 0);
     };
-    // Beside the stair, under its landing, and behind it.
+    // Beside the stair, to the end wall, and under the side flights.
     expect(ground(11, 0)?.floorIndex).toBe(0);
-    expect(ground(4, north + 1)?.floorIndex).toBe(0);
-    expect(ground(0, north - 3)?.floorIndex).toBe(0);
-    // The middle flight is masonry.
+    expect(ground(11, -back + 0.5)?.floorIndex).toBe(0);
+    expect(ground(6.5, south - 1)?.floorIndex).toBe(0);
+    // The middle flight and the landing are masonry.
     expect(ground(0, south - 2)).toBeNull();
-    // From the lobby to the hall behind the stair, on foot.
-    const behind = at(stairs, 0, -back + 1);
+    expect(ground(0, north - 1)).toBeNull();
+    expect(ground(4, -back + 0.5)).toBeNull();
+    // From the lobby to the end wall beside the stair, on foot.
+    const behind = at(stairs, 11, -back + 1);
     expect(
       walk().some(
         (q) => q.y === 0 && Math.abs(q.x - behind.x) < 0.3 && Math.abs(q.z - behind.z) < 0.3,

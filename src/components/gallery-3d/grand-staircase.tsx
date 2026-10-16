@@ -286,7 +286,7 @@ const lengthOf = (a: P3) => Math.hypot(a[0], a[1], a[2]);
 /** Treads and landings of one patch, and the carpet on them. */
 function addPatch(stone: Solid, carpet: Solid, p: StairPatch, baseY: number) {
   if (p.kind === "flat") {
-    stone.box(p.xMin, p.xMax, p.y - STAIR_SLAB, p.y, p.zMin, p.zMax);
+    stone.box(p.xMin, p.xMax, p.solid ? baseY : p.y - STAIR_SLAB, p.y, p.zMin, p.zMax);
     const inset = 0.45;
     if (p.xMax - p.xMin > 2 * inset + 0.5 && p.zMax - p.zMin > 2 * inset + 0.5) {
       carpet.box(

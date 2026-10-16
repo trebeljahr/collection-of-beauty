@@ -200,6 +200,12 @@ type Wall = {
   origin: [number, number];
   length: number;
   doors: WashDoor[];
+  /** How far over the room's floor the wall's foot stands: a stair
+   *  hall's end wall over its half landing (`RoomLayout.endWall`). */
+  lift?: number;
+  /** Height over the room's floor the cans hang from, when not the
+   *  ceiling: the underside of the next landing, or the roof. */
+  hangFrom?: number;
 };
 
 /** A wall less `start` metres at the low end of its local x and `end`
@@ -258,6 +264,35 @@ function wholeWall(wall: Wall): Wash {
     rects: washWallRects(row, wall.length, wall.doors),
     floor: [-wall.length / 2, wall.length / 2],
   };
+}
+
+/** The rows of a hall's wall. A stair hall's end wall has no floor in
+ *  front of its middle, where the half landings meet it
+ *  (`RoomLayout.endWall`): a row either side, over the storey's floor,
+ *  and a row over the landing, its cans under the next landing up. */
+function hallWashes(room: RoomLayout, wall: Wall, cx: number, cz: number): Wash[] {
+  const over = room.endWall;
+  if (!over || over.side !== wall.side) return wallStretches(room, wall, cx, cz);
+  const outer = wall.length / 2 - over.half;
+  const out = [
+    ...wallStretches(room, trimWall(wall, 0, wall.length - outer), cx, cz),
+    ...wallStretches(room, trimWall(wall, wall.length - outer, 0), cx, cz),
+  ];
+  if (over.landing) {
+    const { y, top } = over.landing;
+    // The row's cans hang a ceiling's height over the landing, which is
+    // just under the next one. Over the last, they hang on stems from
+    // the roof.
+    out.push(
+      ...wallStretches(
+        room,
+        { ...trimWall(wall, outer, outer), lift: y, hangFrom: Math.max(top, y + CEILING_Y) },
+        cx,
+        cz,
+      ),
+    );
+  }
+  return out;
 }
 
 /** A row for each stretch of a hall's wall, its cones set out about the
@@ -352,10 +387,12 @@ function buildWashGeometry(
   const floorAttr: number[] = [];
   const idx: number[] = [];
   for (const { wall, row, rects, floor: ends } of washes) {
+    const lift = wall.lift ?? 0;
     const quad = (corners: Array<[number, number, number]>, floor: number) => {
       const base = pos.length / 3;
       for (const c of corners) {
-        pos.push(...fromWall(wall, c, true));
+        const p = fromWall(wall, c, true);
+        pos.push(p[0], p[1] + lift, p[2]);
         local.push(...c);
         rowAttr.push(row.spacing, ((row.count - 1) * row.spacing) / 2, floor ? 1 : wallGain);
         floorAttr.push(floor);
@@ -398,12 +435,13 @@ function buildCansGeometry(washes: Wash[]): THREE.BufferGeometry {
   const parts: THREE.BufferGeometry[] = [];
   for (const { wall, row } of washes) {
     const direction = fromWall(wall, [0, row.dirY, row.dirZ], false);
+    const lift = wall.lift ?? 0;
     for (const x of washLampXs(row)) {
       parts.push(
         buildFixtureGeometry(
-          fromWall(wall, [x, row.lampY, row.throwM], true),
+          fromWall(wall, [x, row.lampY + lift, row.throwM], true),
           direction,
-          CEILING_Y,
+          wall.hangFrom ?? CEILING_Y,
         ),
       );
     }
@@ -651,7 +689,7 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
     // nothing has a row to each wall.
     const washes =
       grand !== undefined || room.placements.length > 0
-        ? walls.flatMap((wall) => wallStretches(room, wall, cx, cz))
+        ? walls.flatMap((wall) => hallWashes(room, wall, cx, cz))
         : walls.map(wholeWall);
     const washed = washes.length > 0;
     return {

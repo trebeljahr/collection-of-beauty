@@ -11,7 +11,7 @@ import {
 } from "./giants";
 import { grandStairsAt, grandSurfaceAt } from "./grand-stair";
 import { BLOCK_HALLS, layoutBlock } from "./layout-block";
-import { MAX_PAINTING_W, PAINTING_FLOOR_GAP, sizeWork } from "./place-paintings";
+import { MAX_PAINTING_W, PAINTING_FLOOR_GAP, PLAQUE_EYE, sizeWork } from "./place-paintings";
 import type { Placement, RoomLayout } from "./types";
 import { CELL_SIZE, FLOOR_SEPARATION, INTER_FLOOR_HEIGHT } from "./world-coords";
 
@@ -135,7 +135,14 @@ describe("giants in the block plan's halls", () => {
     const hall = hallOf(room);
     return !!hall && Math.abs(p.position[0] - endWall(hall).x) < 0.05;
   };
-  const middle = (p: Placement) => (frame(p).top + frame(p).bottom) / 2;
+  /** The landing a work hangs over, or null for one over its storey's
+   *  floor: a work over a landing has its plaque moved to eye level
+   *  there. */
+  const landingOf = (room: RoomLayout, p: Placement) =>
+    p.plaque && room.endWall?.landing ? room.endWall.landing : null;
+  /** Height of the floor or landing a work is seen from. */
+  const standOf = (room: RoomLayout, p: Placement) =>
+    room.worldRect.y + (landingOf(room, p)?.y ?? 0);
 
   it("hang at their real size, each once, and nowhere else", () => {
     const ids = ["cana", "san-rocco-a", "san-rocco-b", "sacre", "triumph", "alexander", "horatii"];
@@ -174,16 +181,20 @@ describe("giants in the block plan's halls", () => {
     for (const room of storeyHalls) {
       for (const p of room.placements) {
         const f = frame(p);
-        expect(f.bottom - room.worldRect.y, p.artwork.id).toBeGreaterThanOrEqual(
-          PAINTING_FLOOR_GAP - 1e-6,
-        );
-        expect(f.top - room.worldRect.y, p.artwork.id).toBeLessThan(INTER_FLOOR_HEIGHT - 0.1);
+        const landing = landingOf(room, p);
+        const stand = standOf(room, p);
+        // Every frame starts at one height over its floor or landing.
+        expect(f.bottom - stand, p.artwork.id).toBeCloseTo(PAINTING_FLOOR_GAP, 6);
+        // Under the next landing up, or the storey's ceiling.
+        const clear = landing ? landing.top - landing.y : INTER_FLOOR_HEIGHT;
+        expect(f.top - stand, p.artwork.id).toBeLessThan(clear - 0.1);
         expect(p.sheer, p.artwork.id).toBeUndefined();
       }
     }
   });
 
-  it("hangs every work of a stair hall where its storey has floor in front of it", () => {
+  it("hangs every work of a stair hall where its storey or its landing is in front of it", () => {
+    let over = 0;
     for (const room of halls.filter((r) => hallOf(r))) {
       const stairs = layout.grandStairs!.filter((s) => s.id.startsWith(`${key(room)}-`));
       for (const p of room.placements) {
@@ -192,13 +203,21 @@ describe("giants in the block plan's halls", () => {
         const out = 1.5;
         const x = p.position[0] + (along ? 0 : Math.sin(p.rotation[1]) * out);
         const z = p.position[2] + (along ? Math.cos(p.rotation[1]) * out : 0);
-        const here = grandStairsAt(stairs, x, z, room.worldRect.y);
+        const stand = standOf(room, p);
+        const here = grandStairsAt(stairs, x, z, stand);
         expect(here.length, p.artwork.id).toBeGreaterThan(0);
-        expect(grandSurfaceAt(here, x, z, room.worldRect.y)?.floorIndex, p.artwork.id).toBe(
-          room.floorIndex,
-        );
+        const surface = grandSurfaceAt(here, x, z, stand);
+        if (landingOf(room, p)) {
+          over++;
+          // The landing of the stair that leaves this storey.
+          expect(surface?.stair?.lowerFloor, p.artwork.id).toBe(room.floorIndex);
+          expect(surface?.y, p.artwork.id).toBeCloseTo(stand, 6);
+        } else {
+          expect(surface?.floorIndex, p.artwork.id).toBe(room.floorIndex);
+        }
       }
     }
+    expect(over).toBeGreaterThan(0);
   });
 
   it("gives each storey's end wall the largest work of its floor, on the stair's axis", () => {
@@ -218,8 +237,8 @@ describe("giants in the block plan's halls", () => {
       expect(p.position[2], id).toBeCloseTo(endWall(hall!).midZ, 6);
     }
     expect(key(hung("levi")!.room)).not.toBe(key(hung("cana")!.room));
-    // One work on the axis of each storey that hangs any.
-    for (const room of halls.filter((r) => hallOf(r) && r.placements.length > 0)) {
+    // One work on the axis of each storey with a landing that hangs any.
+    for (const room of halls.filter((r) => r.endWall?.landing && r.placements.length > 0)) {
       const axis = room.placements.filter(
         (p) => onEnd(room, p) && Math.abs(p.position[2] - endWall(hallOf(room)!).midZ) < 1e-6,
       );
@@ -227,30 +246,64 @@ describe("giants in the block plan's halls", () => {
     }
   });
 
-  it("hangs a pair beside the axis work, one to each half of the end wall, their middles level", () => {
-    let flanked = 0;
+  it("hangs the axis work over the landing, and any pair beside it there, their middles level", () => {
+    let axes = 0;
     for (const room of halls.filter((r) => hallOf(r))) {
       const wall = endWall(hallOf(room)!);
-      const end = room.placements.filter((p) => onEnd(room, p));
-      if (end.length < 2) continue;
-      flanked++;
-      expect(end, room.id).toHaveLength(3);
-      const axis = end.find((p) => Math.abs(p.position[2] - wall.midZ) < 1e-6)!;
-      const [a, b] = end.filter((p) => p !== axis);
-      for (const flank of [a, b]) {
-        expect(middle(flank)).toBeCloseTo(middle(axis), 6);
+      const landing = room.placements.filter((p) => onEnd(room, p) && landingOf(room, p));
+      if (landing.length === 0) continue;
+      axes++;
+      expect([1, 3], room.id).toContain(landing.length);
+      const axis = landing.find((p) => Math.abs(p.position[2] - wall.midZ) < 1e-6)!;
+      expect(axis, room.id).toBeDefined();
+      // Inside the landing's ends.
+      for (const p of landing) {
+        expect(Math.abs(p.position[2] - wall.midZ) + frame(p).half, p.artwork.id).toBeLessThan(
+          room.endWall!.half,
+        );
+      }
+      const flanks = landing.filter((p) => p !== axis);
+      for (const flank of flanks) {
+        expect(frame(flank).bottom).toBeCloseTo(frame(axis).bottom, 6);
         // Not as tall as the work between them.
-        expect(frame(flank).bottom).toBeGreaterThanOrEqual(frame(axis).bottom - 1e-6);
         expect(frame(flank).top).toBeLessThanOrEqual(frame(axis).top + 1e-6);
-        // Clear of the axis work by a metre, inside the corner.
+        // Clear of the axis work by a metre.
         const off = Math.abs(flank.position[2] - wall.midZ);
         expect(off - frame(flank).half - frame(axis).half).toBeGreaterThanOrEqual(1 - 1e-6);
-        expect(off + frame(flank).half).toBeLessThan(13.75 - 0.3);
       }
-      // Mirrored about the axis: each on the middle of its half.
-      expect(a.position[2] - wall.midZ).toBeCloseTo(-(b.position[2] - wall.midZ), 6);
+      if (flanks.length === 2) {
+        const [a, b] = flanks;
+        expect(a.position[2] - wall.midZ).toBeCloseTo(-(b.position[2] - wall.midZ), 6);
+      }
     }
-    expect(flanked).toBeGreaterThan(0);
+    expect(axes).toBeGreaterThan(0);
+    // The top storey has no landing of its own, and no axis work.
+    for (const room of halls.filter(
+      (r) => hallOf(r) && r.floorIndex === layout.floors.length - 1,
+    )) {
+      expect(room.endWall?.landing, room.id).toBeNull();
+      expect(
+        room.placements.filter((p) => landingOf(room, p)),
+        room.id,
+      ).toHaveLength(0);
+    }
+  });
+
+  it("hangs the end wall beside the landing in a pair, over the storey's floor", () => {
+    for (const room of halls.filter((r) => hallOf(r))) {
+      const wall = endWall(hallOf(room)!);
+      const beside = room.placements.filter((p) => onEnd(room, p) && !landingOf(room, p));
+      expect([0, 2], room.id).toContain(beside.length);
+      if (beside.length < 2) continue;
+      const [a, b] = beside;
+      expect(a.position[2] - wall.midZ).toBeCloseTo(-(b.position[2] - wall.midZ), 6);
+      expect(frame(a).bottom).toBeCloseTo(frame(b).bottom, 6);
+      for (const p of beside) {
+        expect(Math.abs(p.position[2] - wall.midZ) - frame(p).half, p.artwork.id).toBeGreaterThan(
+          room.endWall!.half,
+        );
+      }
+    }
   });
 
   it("hangs the other walls of a stair hall in pairs that mirror about the axis", () => {
@@ -266,8 +319,8 @@ describe("giants in the block plan's halls", () => {
             Math.abs(o.position[2] - wall.midZ + (p.position[2] - wall.midZ)) < 1e-6,
         );
         expect(q, `${room.id} ${p.artwork.id}`).toBeDefined();
-        // One centre line, and of like size.
-        expect(q!.position[1]).toBeCloseTo(p.position[1], 6);
+        // One bottom line, and of like size.
+        expect(frame(q!).bottom).toBeCloseTo(frame(p).bottom, 6);
         expect(Math.abs(p.heightM - q!.heightM) + Math.abs(p.widthM - q!.widthM) / 2).toBeLessThan(
           1.5 + 1e-9,
         );
@@ -313,12 +366,21 @@ describe("giants in the block plan's halls", () => {
     }
   });
 
-  it("hangs every plaque beside its work, at eye level over its floor", () => {
+  it("hangs every plaque beside its work, at eye level over its floor or its landing", () => {
     for (const room of storeyHalls) {
       for (const p of room.placements) {
-        // No plaque is left out, and none is moved: unset is beside the
-        // frame at eye level over the room's own floor.
-        expect(p.plaque, p.artwork.id).toBeUndefined();
+        // No plaque is left out. Unset is beside the frame at eye level
+        // over the room's own floor; over a landing it is moved up to
+        // eye level there, and stays beside the frame.
+        if (!landingOf(room, p)) {
+          expect(p.plaque, p.artwork.id).toBeUndefined();
+          continue;
+        }
+        expect(p.plaque?.dx, p.artwork.id).toBeUndefined();
+        expect(p.position[1] + p.plaque!.dy, p.artwork.id).toBeCloseTo(
+          standOf(room, p) + PLAQUE_EYE,
+          6,
+        );
       }
     }
   });

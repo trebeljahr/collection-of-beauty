@@ -621,10 +621,10 @@ required by the Dockerfile — don't remove it.
   plan; `build-museum-screenshots.mjs` walks the tower. One rectangular
   block, 117.5 × 62.5 m, on four floors, the same plan on each. Down
   its middle runs a spine of five bays: a stair hall 27.5 m wide and
-  25 m deep at each end, a court 27.5 m square in the centre, and a
+  20 m deep at each end, a court 27.5 m square in the centre, and a
   gallery of 17.5 m between each pair. A stair hall's end wall stands
-  a cell inside the building's end wall; the strip between is no room
-  (`cellOwner` -1, not walkable). North and south of the spine a range runs
+  three cells inside the building's end wall; the strip between is no
+  room (`cellOwner` -1, not walkable). North and south of the spine a range runs
   the length of the block: a long gallery (47.5 × 17.5 m), a stair
   tower (22.5 × 17.5 m) beside the court, a long gallery. So a floor is
   six galleries (`BLOCK_ROOMS`), two stair halls and the court
@@ -675,8 +675,8 @@ required by the Dockerfile — don't remove it.
     - a stair hall does not have to be a room of the grid. Rico: its
       size "doesn't have to match the other parts of the building" as
       long as the way in and out makes sense. The halls are 27.5 m
-      wide because he found 22.5 m cramped, and 25 m deep since
-      17 October 2026. A grand stair's frame is the square its front
+      wide because he found 22.5 m cramped, and 20 m deep since
+      17 October 2026, when the end wall moved onto the landings. A grand stair's frame is the square its front
       wall makes (`half`); `back` is how far its end wall stands from
       the centre.
   - A floor there holds several eras, so read a room's era through
@@ -710,28 +710,34 @@ required by the Dockerfile — don't remove it.
       `hasFlightBelow`). It stands in the front of its hall, a lobby
       6.25 m deep between the door and its foot on every floor
       (`LOGGIA.lobby`). A side flight arrives on the lobby and the next
-      middle flight leaves from it. Behind the half landings the hall
-      is open from the floor to the roof, the stair's width (16 m) and
-      3.95 m deep: the stair's own opening and that void are one hole
-      (`StairOpening`, rectangles that touch). On every floor a gallery
-      runs round it on three sides: 5.75 m wide beside the stair, 5 m
-      deep along the end wall (`LOGGIA.endGallery`), fenced along the
-      void. Every wall of the hall has floor in front of it on every
-      storey.
-    - **Why the end wall stands nearer.** Until 17 October 2026 the
-      void ran on to the end wall, 11.45 m deep and wall to wall, and
-      that wall and 11.45 m of each side wall stood sheer for 24 m. The
-      largest works hung there in a composition across storeys, up to
-      21 m over the floor and 11 m from the nearest gallery, with no
-      plaque. Rico, standing on a side gallery: "this space is still a
-      bit meh". He asked for the wall to move in "slightly", only the
-      stair hall to get smaller, the adjacent rooms to keep their size,
-      and the floors to "extend" to meet the wall, so works hang by the
-      per-floor rules, close enough to see, with room to step back and
-      the plaque beside them. Hence a 25 m hall set out from its front
-      wall (`GrandStair.back`, `buildStair` in `layout-block.ts`): the
-      stair stands where it stood in the square hall. Do not move the
-      wall in further: at two cells the void would be a 2.95 m slot.
+      middle flight leaves from it. Each half landing is 16 m wide and
+      6.95 m deep and runs back to the end wall, which carries it: no
+      void behind it and no piers. The opening in each floor is the
+      stair's footprint, from the end wall to the lobby, and touches
+      the wall (`StairOpening`; the floor and ceiling round it are
+      built from rectangles). On every floor a gallery 5.75 m wide runs
+      beside the stair from the lobby to the end wall. The lowest
+      landing is masonry to the floor (`FlatPatch.solid`), as its
+      middle flight is. The end wall's middle 16 m has a landing in
+      front of it and no floor (`RoomLayout.endWall`): its skirting
+      stops where the opening meets the wall, and its washers hang a
+      ceiling's height over the landing, under the next one. Over the
+      top landing that is mid-air, so those cans hang on stems from
+      the roof.
+    - **Why the end wall stands on the landings.** Until 17 October
+      2026 the void behind the landings ran on to the end wall, 11.45 m
+      deep, and that wall stood sheer for 24 m with the largest works
+      up to 21 m over the floor. Rico: "this space is still a bit meh".
+      The same day the wall moved in a cell, with a void 3.95 m deep
+      behind the landings, a gallery 5 m deep along the wall on every
+      storey and four piers under each landing's far edge. Rico,
+      standing on a landing: the middle section "pushed further out",
+      the wall "brought to touch that stair case floor", the columns
+      removed or spaced to frame one or two works, so that works hang
+      "all the way along" the wall from the landing up. Hence the 20 m
+      hall and the deep landing. A visitor on it stands up to 6.95 m
+      from the wall, and the wall is clear for 8.1 m to the next
+      landing's underside.
     - **Why the void is beside the stair.** The first build stacked a
       stair of every storey in three halls 22.5 m square, cut only to
       the stair's footprint. Rico found the halls cramped and low: the
@@ -1070,8 +1076,9 @@ required by the Dockerfile — don't remove it.
       the ones under it last. The stair halls then hang pairs from
       what is left (`stairHallHang().pairs`, "A stair hall's storey is one
       composition", below).
-    - A frame fits a storey up to 7.66 m (`STOREY_FRAME_ROOM`): every
-      giant of the catalogue. The tallest is the Triumph of Frederick
+    - A frame fits a storey up to 7.66 m (`STOREY_FRAME_ROOM`), and the
+      wall over a landing up to 7.56 m (over the top landing, to the
+      roof): every giant of the catalogue. The tallest is the Triumph of Frederick
       Henry, 7.49 m in its frame. That is why the storey is 8.4 m.
     - `Placement.giant` drops the picture light: the hall's washers
       light the wall ("A hall is lit by rows of wall washers", below). Every plaque hangs
@@ -1081,7 +1088,16 @@ required by the Dockerfile — don't remove it.
       the floor took it to 2.2 m. `Placement.plaque` moves it to the
       eye level of another floor (`dy`), sideways (`dx`), or leaves it
       out (`null`, a work with no floor in front of it at its own
-      height).
+      height). A work over a stair hall's landing has its plaque at eye
+      level over the landing.
+    - **Every frame in a hall starts 0.4 m over its floor or landing**
+      (`seatedCenter` in `giants.ts`), whatever its size. Rico, 17
+      October 2026, of a pair hung on the centre line of a canvas twice
+      as tall beside it: "the images should start at the same height
+      in those rooms". Before, a pair shared a centre line and a
+      smaller work hung by `packRun`'s eye-level rule. The court, the
+      stair halls, the spiral rooms and the salon all hang so; the one
+      exception is the salon's work over its axis work.
     - All 71 giants hang (17 October 2026): 32 in the court, 34 in the
       stair halls, 3 in the spiral rooms and 2 in their era's galleries
       at real size (The Seven Works of Mercy, Heroes), which no pair
@@ -1188,18 +1204,24 @@ required by the Dockerfile — don't remove it.
     axis** (`stairHallHang` in `giants.ts`). Rico asked on 17 October
     2026 for the hall's works to be arranged "more beautifully and not
     as chaotic". Every work hangs on the middle of a stretch:
-    - **End wall**: the axis work, seen from the foot of the stair over
-      the half landing and across the void. Beside it a pair, one on
-      the middle of each half of the wall left over, their middles level
-      with its middle, not taller than it and at least 0.55 of its
-      height (`FLANK_MIN_HEIGHT`). Both halves keep clear of the axis
-      work's plaque, so they mirror each other.
+    - **End wall over the landing**: the axis work, hung from the half
+      landing and seen from the foot of the stair. Beside it on the
+      landing a pair, one on the middle of each part of the 16 m left
+      over, not taller than it and at least 0.55 of its height
+      (`FLANK_MIN_HEIGHT`). Both parts keep clear of the axis work's
+      plaque, so they mirror each other. The axis works are 8.8 to
+      13.1 m wide, so no landing has room for the pair today. The top
+      storey has no landing of its own and no axis work: its wall
+      there is the one over the landing below.
+    - **End wall beside the landing**: a pair, one on each stretch
+      between the landing's end and the corner (5.25 m), over the
+      storey's floor.
     - **Side walls**: each split in two stretches. A pair across the
-      void on the halves nearer the end wall, then a pair on the halves
+      stair on the halves nearer the end wall, then a pair on the halves
       nearer the door.
     - **Front wall**: a pair, one either side of the portal.
-    A pair is two works of like size (`unlike`, at most 1.5 m apart) on
-    one centre line, by one hand or of one era where the pool has such
+    A pair is two works of like size (`unlike`, at most 1.5 m apart),
+    by one hand or of one era where the pool has such
     two (`kin`), and of the storey's own floor unless it has none alike
     (`AWAY_COST`). Nothing hangs alone where a pair belongs: a storey
     with too few works leaves both stretches bare. The East Asian and

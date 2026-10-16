@@ -147,6 +147,15 @@ export type RoomLayout = {
    *  heights the wall stands between: the hall's floor and its glazed
    *  ceiling four storeys up. */
   sheer?: { side: Door["side"]; depth: number; base: number; roof: number };
+  /** A stair hall's end wall where the half landings meet it (`LOGGIA`
+   *  in grand-stair.ts): the middle `2 * half` metres of the wall on
+   *  `side` have no floor in front of them on this storey. `landing` is
+   *  the landing of the stair that leaves this storey, `y` metres over
+   *  its floor, and `top` how high over the floor the wall above it
+   *  stands clear: to the next landing's underside, or to the roof. Null
+   *  on the top storey, where that stretch is the wall over the landing
+   *  below. */
+  endWall?: { side: Door["side"]; half: number; landing: { y: number; top: number } | null };
   /** What a grand stair hall is on this floor, for the map: the stair
    *  leaves it, arrives on it, or only its void passes through. */
   stairGlyph?: "up" | "down" | "both" | "void";

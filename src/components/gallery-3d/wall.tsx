@@ -82,12 +82,13 @@ export function SolidWall({
   );
 }
 
-/** The stretch of a wall that has floor at its foot, in the wall's
- *  local x: skirting is drawn there only. `null` is none of it, unset
- *  all of it. A stair hall's sheer wall has no floor on the storeys
- *  over its lowest, and the walls that meet it none for the strip's
- *  depth. */
-export type SkirtingClip = { xMin: number; xMax: number } | null | undefined;
+/** The stretches of a wall that have floor at their foot, in the
+ *  wall's local x: skirting is drawn there only. `null` is none of it,
+ *  unset all of it. A stair hall's sheer wall has no floor on the
+ *  storeys over its lowest, and the walls that meet it none for the
+ *  strip's depth; a loggia's end wall has none where its landings meet
+ *  it. */
+export type SkirtingClip = ReadonlyArray<{ xMin: number; xMax: number }> | null | undefined;
 
 function clipSpans(
   spans: ReadonlyArray<{ xMin: number; xMax: number }>,
@@ -96,7 +97,9 @@ function clipSpans(
   if (clip === null) return [];
   if (clip === undefined) return [...spans];
   return spans
-    .map((s) => ({ xMin: Math.max(s.xMin, clip.xMin), xMax: Math.min(s.xMax, clip.xMax) }))
+    .flatMap((s) =>
+      clip.map((c) => ({ xMin: Math.max(s.xMin, c.xMin), xMax: Math.min(s.xMax, c.xMax) })),
+    )
     .filter((s) => s.xMax - s.xMin > 0.001);
 }
 

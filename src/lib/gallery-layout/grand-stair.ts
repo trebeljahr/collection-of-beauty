@@ -19,10 +19,8 @@
 //   hourglass  One straight flight that narrows to a landing at its
 //              waist and widens again. Kunstmuseum Bonn.
 //   loggia     The imperial stair on every storey, each over the one
-//              below, in the front of its hall. Behind its half
-//              landings the hall is open from the floor to the roof,
-//              between the side galleries and a gallery along the end
-//              wall.
+//              below, in the front of its hall. Its half landings run
+//              back to the end wall, which stands sheer between them.
 //   court      No stair: a hall open from its floor to the roof, with
 //              a gallery round the opening on every floor above.
 //   salon      No stair: a hall open from its floor to the roof, with a
@@ -38,7 +36,7 @@
 // 5.8 m over every flight and no opening but the stair's own. The block
 // plan then gave each hall one stair, and Rico found that a stair that
 // is in another place on every floor reads worse. The loggia is the
-// stack again with the hall's void beside it instead of over it.
+// stack again, each half landing a floor in front of the end wall.
 //
 // A design is drawn in the hall's own frame, the visitor coming in from
 // +z (south) and the first flight rising toward -z, and turned a quarter
@@ -77,6 +75,8 @@ export type FlatPatch = {
   zMin: number;
   zMax: number;
   y: number;
+  /** Built up from the floor: nothing walks under it. */
+  solid?: boolean;
 };
 
 /** A curved flight, or a level sector when `steps` is 0. Angles are
@@ -384,7 +384,10 @@ export function patchHeight(p: StairPatch, x: number, z: number): number | null 
 /** Height of the patch's underside over a point: the floor it stands on
  *  when solid, else its slab. Null when the patch is not over it. */
 function patchUnderside(p: StairPatch, x: number, z: number, baseY: number): number | null {
-  if (p.kind === "flat") return patchHeight(p, x, z) === null ? null : p.y - STAIR_SLAB;
+  if (p.kind === "flat") {
+    if (patchHeight(p, x, z) === null) return null;
+    return p.solid ? baseY : p.y - STAIR_SLAB;
+  }
   const t = p.kind === "flight" ? flightProgress(p, x, z) : arcProgress(p, x, z);
   if (t === null) return null;
   if (p.solid) return baseY;
@@ -628,20 +631,26 @@ export const IMPERIAL = {
 } as const;
 
 /** A loggia: floor between the hall's door and the foot of the stair,
- *  on every storey. The side flights arrive on it and the next middle
- *  flight leaves from it. Behind the half landings, a gallery along the
- *  end wall (`endGallery`) joins the two beside the stair: the floor of
- *  each storey goes round the void on three sides, and every wall of
- *  the hall has floor in front of it.
+ *  on every storey (`lobby`). The side flights arrive on it and the next
+ *  middle flight leaves from it. Each half landing runs back to the end
+ *  wall, and the wall stands sheer from one landing to the next: one
+ *  tall wall over each landing, seen from the foot of the stair and
+ *  hung from the landing (`stairHallHang`). The floor of each storey is
+ *  the lobby and a gallery beside the stair on each side.
  *
- *  Until 17 October 2026 the void ran on to the end wall, 11.45 m deep,
- *  and that wall and the strips of the side walls beside it stood sheer
- *  for 24 m. The largest works hung there, up to 21 m over the floor
- *  and 11 m off the nearest gallery, with no plaque. Rico: "this space
- *  is still a bit meh". He asked for the wall to move nearer the stair
- *  and the floors to go back to meet it, so that a work hangs on a
- *  storey, near enough to see and with room to step back. */
-export const LOGGIA = { lobby: 6.25, endGallery: HALL_GALLERY } as const;
+ *  Until 17 October 2026 the hall was 25 m deep: behind the half
+ *  landings a void 3.95 m deep ran from the floor to the roof, with a
+ *  gallery 5 m deep along the end wall on every storey and a pier at
+ *  each end and either side of the middle under every landing's far
+ *  edge. Rico, standing on a landing: the middle section "pushed
+ *  further out" and the wall "brought to touch that stair case floor",
+ *  the columns removed, so that works hang the whole height from the
+ *  landing up. The landing is 6.95 m deep for that, which gives a
+ *  visitor room to step back from a work 7 m tall. Before that the void
+ *  ran on to the end wall, 11.45 m deep, the wall sheer for 24 m with
+ *  the largest works up to 21 m over the floor (Rico: "this space is
+ *  still a bit meh"). */
+export const LOGGIA = { lobby: 6.25 } as const;
 
 /** How far south of its place in a hall of its own the imperial stair
  *  stands in a loggia: up against the lobby. */
@@ -719,6 +728,9 @@ function buildImperial(site: Site, loggia = false): Built {
   const north = IMPERIAL.north + shift;
   const south = IMPERIAL.south + shift;
   const landingSouth = north + landingDepth;
+  // A loggia's landing runs back to the end wall, and the wall carries
+  // it: no void behind it and no piers.
+  const far = loggia ? -site.back : north;
   const sideInner = half - sideWidth;
   const sideCx = half - sideWidth / 2;
   const steps = GRAND_RISERS / 2;
@@ -739,7 +751,18 @@ function buildImperial(site: Site, loggia = false): Built {
       steps,
       solid,
     },
-    { kind: "flat", xMin: -half, xMax: half, zMin: north, zMax: landingSouth, y: mid },
+    {
+      kind: "flat",
+      xMin: -half,
+      xMax: half,
+      zMin: far,
+      zMax: landingSouth,
+      y: mid,
+      // The lowest loggia's landing is masonry to the floor, as its
+      // middle flight is: under it would be a low room against the end
+      // wall, 7 m deep and lit by nothing.
+      ...(loggia && solid ? { solid: true } : {}),
+    },
     ...[-1, 1].map(
       (side): FlightPatch => ({
         kind: "flight",
@@ -761,13 +784,21 @@ function buildImperial(site: Site, loggia = false): Built {
     // Central flight.
     rail(-centralHalf, south, lowerY, -centralHalf, landingSouth, mid, skirt),
     rail(centralHalf, south, lowerY, centralHalf, landingSouth, mid, skirt),
-    // Half landing: its far edge, its ends, and the stretches of its
-    // near edge between the flights.
-    rail(-half, north, mid, half, north, mid),
-    rail(-half, north, mid, -half, landingSouth, mid),
-    rail(half, north, mid, half, landingSouth, mid),
-    rail(-sideInner, landingSouth, mid, -centralHalf, landingSouth, mid),
-    rail(centralHalf, landingSouth, mid, sideInner, landingSouth, mid),
+    // Half landing: its far edge (but in a loggia, where the wall is),
+    // its ends, and the stretches of its near edge between the flights.
+    ...(loggia ? [] : [rail(-half, north, mid, half, north, mid)]),
+    rail(-half, far, mid, -half, landingSouth, mid, loggia ? skirt : undefined),
+    rail(half, far, mid, half, landingSouth, mid, loggia ? skirt : undefined),
+    rail(
+      -sideInner,
+      landingSouth,
+      mid,
+      -centralHalf,
+      landingSouth,
+      mid,
+      loggia ? skirt : undefined,
+    ),
+    rail(centralHalf, landingSouth, mid, sideInner, landingSouth, mid, loggia ? skirt : undefined),
   ];
   for (const side of [-1, 1]) {
     rails.push(
@@ -789,10 +820,7 @@ function buildImperial(site: Site, loggia = false): Built {
   // galleries end level with the landing's far edge.
   const sheer = !loggia && courted && site.sheerWall === true;
   const wall = site.half;
-  // A loggia's void runs on north of the landing, the stair's width,
-  // to the edge of the gallery along the end wall.
-  const voidNorth = loggia ? Math.min(north, -(site.back - LOGGIA.endGallery)) : north;
-  const stairRect: PlanRect = { xMin: -half, xMax: half, zMin: north, zMax: south };
+  const stairRect: PlanRect = { xMin: -half, xMax: half, zMin: far, zMax: south };
   // The stair's own edge on the side the visitor comes in from, east to
   // west: the heads of the side flights at its ends, and in the middle
   // the hall floor in front of the middle flight (a court's far edge) or
@@ -824,27 +852,31 @@ function buildImperial(site: Site, loggia = false): Built {
         [-half, north],
         [-wall, north],
       ]
-    : [[-half, voidNorth], [half, voidNorth], ...front];
+    : [[-half, far], [half, far], ...front];
   // Edges with no balustrade. Along a wall: the first two and the last
-  // of a sheer hall's outline. The heads of the two side flights. The
-  // foot of the next stair, where there is one.
+  // of a sheer hall's outline, the first of a loggia's. The heads of the
+  // two side flights. The foot of the next stair, where there is one.
   const first = sheer ? 3 : 1;
-  const onWall = sheer ? [0, 1, outline.length - 1] : [];
+  const onWall = sheer ? [0, 1, outline.length - 1] : loggia ? [0] : [];
   const arrivals = courted
     ? [first + 1, first + 5]
     : [first + 1, first + 5, ...(hasFlightAbove ? [first + 3] : [])];
   rails.push(...fence(outline, upperY, [...onWall, ...arrivals]));
   for (const y of site.balconies) rails.push(...fence(outline, y, onWall));
 
-  // Piers under the landing's far edge. Each stands on the landing of
-  // the stair below, or on the hall floor.
+  // Piers under the landing's far edge, but in a loggia, whose wall
+  // carries it. Each stands on the landing of the stair below, or on
+  // the hall floor.
   const footY = hasFlightBelow ? mid - FLOOR_SEPARATION : lowerY;
-  const columns: StairColumn[] = [
-    -half + 0.3,
-    -centralHalf - 0.5,
-    centralHalf + 0.5,
-    half - 0.3,
-  ].map((x) => ({ x, z: north + 0.3, size: 0.6, y0: footY, y1: mid - STAIR_SLAB }));
+  const columns: StairColumn[] = loggia
+    ? []
+    : [-half + 0.3, -centralHalf - 0.5, centralHalf + 0.5, half - 0.3].map((x) => ({
+        x,
+        z: north + 0.3,
+        size: 0.6,
+        y0: footY,
+        y1: mid - STAIR_SLAB,
+      }));
 
   return {
     patches,
@@ -855,7 +887,6 @@ function buildImperial(site: Site, loggia = false): Built {
       kind: "rects",
       rects: [
         ...(sheer ? [{ xMin: -wall, xMax: wall, zMin: -wall, zMax: north }] : []),
-        ...(voidNorth < north ? [{ xMin: -half, xMax: half, zMin: voidNorth, zMax: north }] : []),
         stairRect,
         ...(courted ? [{ xMin: -sideInner, xMax: sideInner, zMin: south, zMax: court }] : []),
       ],
