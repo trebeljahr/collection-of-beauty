@@ -1808,6 +1808,33 @@ required by the Dockerfile — don't remove it.
   `window.__galleryCamera`: set its position and quaternion, then
   screenshot. Launch with `--use-angle=metal` for a real GPU.
 
+## Museum music
+
+- The 3D museum plays 13 recordings in the background
+  (`use-gallery-music.ts`), a shuffled round at a time: each plays once
+  before any plays again, and a new round never opens with the piece the
+  last one ended on (`src/lib/shuffle-bag.ts`). The rest of the round is
+  in localStorage (`cob-music-bag`). Nothing downloads before the Enter
+  click. It replaced the Pixabay ambient loop on 17 October 2026.
+- The pieces are from Rico's Spotify playlist "Beautiful Stillness",
+  where the composer died before 1956. The Spotify recordings are in
+  copyright, so each is another recording: one its performer released
+  under CC or into the public domain (Musopen, Commons, Free Music
+  Archive), or a 78 published before 1963, which is free in the EU
+  (rights ran 50 years until 2013 and the extension revived none).
+  Four of the 78s are still protected in the US; the site follows
+  German law, as for the paintings. Do not take a recording from
+  Spotify, YouTube or a modern CD reissue's own mastering claim.
+- `src/lib/gallery-music.ts` holds each track's source, SHA-1, licence
+  and rights note; `/gallery-3d/music` prints the credits CC BY and BY-SA
+  require. `pnpm music:build` downloads to `assets/music/` and encodes
+  to `assets-web/music/v1/<id>.mp3` (-18 LUFS, linear gain, 78s mono).
+  The files reach the asset origin only through `pnpm assets:sync`.
+  They are served immutable: a re-encode goes to `music/v2/`
+  (`MUSIC_DIR`), never over v1.
+- Not in `public/audio/`: that folder is copied into every release
+  (`scripts/RETAINED-ASSETS.md`), and 70 MB of music would ride along.
+
 ## Newsletter
 
 - Editions live in `content/newsletter/NNNN-<theme-slug>.md` — one

@@ -14,16 +14,17 @@ import { useCallback, useEffect, useRef, useState } from "react";
 // `storage` event.
 
 export type AudioSettings = {
-  /** Master toggle. When off, ambience is silent. */
+  /** Master toggle. When off, the music is silent. */
   enabled: boolean;
-  /** Background ambience-loop volume, 0..1. */
-  ambienceVolume: number;
+  /** Background music volume, 0..1. */
+  musicVolume: number;
 };
 
 export const DEFAULT_AUDIO_SETTINGS: AudioSettings = {
   enabled: true,
-  // Ambience is meant to sit under everything else, not dominate.
-  ambienceVolume: 0.35,
+  // The music is encoded at -18 LUFS; 0.4 puts it near -26, under a
+  // conversation in the room.
+  musicVolume: 0.4,
 };
 
 const STORAGE_KEY = "cob-audio-settings";
@@ -33,15 +34,16 @@ function clamp01(v: number): number {
   return Math.max(0, Math.min(1, v));
 }
 
-function sanitize(raw: Partial<AudioSettings> | null | undefined): AudioSettings {
+// `ambienceVolume` is the slider's value from before the music replaced
+// the ambient loop; a visitor who set it keeps their level.
+type StoredAudioSettings = Partial<AudioSettings> & { ambienceVolume?: number };
+
+function sanitize(raw: StoredAudioSettings | null | undefined): AudioSettings {
   if (!raw || typeof raw !== "object") return DEFAULT_AUDIO_SETTINGS;
+  const volume = raw.musicVolume ?? raw.ambienceVolume;
   return {
     enabled: typeof raw.enabled === "boolean" ? raw.enabled : DEFAULT_AUDIO_SETTINGS.enabled,
-    ambienceVolume: clamp01(
-      typeof raw.ambienceVolume === "number"
-        ? raw.ambienceVolume
-        : DEFAULT_AUDIO_SETTINGS.ambienceVolume,
-    ),
+    musicVolume: clamp01(typeof volume === "number" ? volume : DEFAULT_AUDIO_SETTINGS.musicVolume),
   };
 }
 
@@ -50,7 +52,7 @@ export function loadAudioSettings(): AudioSettings {
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
     if (!raw) return DEFAULT_AUDIO_SETTINGS;
-    return sanitize(JSON.parse(raw) as Partial<AudioSettings>);
+    return sanitize(JSON.parse(raw) as StoredAudioSettings);
   } catch {
     return DEFAULT_AUDIO_SETTINGS;
   }

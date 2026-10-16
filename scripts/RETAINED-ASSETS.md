@@ -62,8 +62,10 @@ artifacts and has no application-data backup requirement.
 
 ## Release-sensitive public files
 
-Client code loads gallery textures (`public/textures/`) and ambience audio
-(`public/audio/`) after the document. During overlap either replica can answer,
+Client code loads gallery textures (`public/textures/`) and audio
+(`public/audio/`) after the document. (The museum's music is on the asset
+origin under `music/v1/`, not here: 13 pieces, about 70 MB, would add that to
+every release.) During overlap either replica can answer,
 and an unversioned `/textures/...` path would return the other release's bytes
 or a 404. `scripts/release-public.mjs` snapshots those directories into
 `_next/static/release-public/<sha>/` for every release, and

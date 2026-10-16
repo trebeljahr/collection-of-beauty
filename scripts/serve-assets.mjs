@@ -34,6 +34,7 @@ const MIME = /** @type {const} */ ({
   ".tif": "image/tiff",
   ".tiff": "image/tiff",
   ".svg": "image/svg+xml",
+  ".mp3": "audio/mpeg",
 });
 
 function safeResolve(reqPath) {

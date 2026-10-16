@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { useAudioSettings } from "@/lib/audio-settings";
+import type { GalleryMusic } from "./use-gallery-music";
 
 type Props = {
   /** Element to enter into browser fullscreen — pass the gallery host
@@ -12,11 +13,13 @@ type Props = {
    *  modal is up; it also drops pointer-lock to free the cursor. */
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
+  /** The piece playing now, and the way to skip it. */
+  music: GalleryMusic;
 };
 
 /**
- * Consolidated 3D-experience settings: sound (mute + ambience + room
- * transitions), display (browser fullscreen toggle, kept synced with
+ * Consolidated 3D-experience settings: sound (mute, music volume, the
+ * piece playing and a skip), display (browser fullscreen toggle, kept synced with
  * the actual fullscreenchange state), and an exit link back to the
  * home gallery. Replaces the side-by-side AudioControls and
  * FullscreenButton pills.
@@ -27,7 +30,7 @@ type Props = {
  * page viewport. The cog trigger sits at the top-right corner of the
  * gallery (the slot the audio pill used to occupy).
  */
-export function Gallery3DSettings({ fullscreenTarget, isOpen, onOpenChange }: Props) {
+export function Gallery3DSettings({ fullscreenTarget, isOpen, onOpenChange, music }: Props) {
   const [audio, updateAudio] = useAudioSettings();
   const [fs, setFs] = useState(false);
 
@@ -141,11 +144,39 @@ export function Gallery3DSettings({ fullscreenTarget, isOpen, onOpenChange }: Pr
                 </button>
               </div>
               <VolumeRow
-                label="Ambience"
-                value={audio.ambienceVolume}
+                label="Music"
+                value={audio.musicVolume}
                 disabled={!audio.enabled}
-                onChange={(v) => updateAudio({ ambienceVolume: v })}
+                onChange={(v) => updateAudio({ musicVolume: v })}
               />
+              {music.track && (
+                <div className="flex items-start justify-between gap-3 border-t border-white/10 pt-3">
+                  <div className="min-w-0 text-xs leading-snug">
+                    <div className="text-[10px] uppercase tracking-wider text-white/50">
+                      {audio.enabled ? "Playing" : "Paused"}
+                    </div>
+                    <div className="mt-1 font-serif text-sm text-white">{music.track.work}</div>
+                    <div className="text-white/70">{music.track.composer}</div>
+                    <div className="text-white/55">{music.track.performer}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={music.skip}
+                    className="flex-none rounded-md border border-white/20 px-3 py-1 text-xs font-medium transition hover:bg-white/10"
+                  >
+                    Next piece
+                  </button>
+                </div>
+              )}
+              {/* A new tab, so reading the credits does not end the visit. */}
+              <a
+                href="/gallery-3d/music"
+                target="_blank"
+                rel="noopener"
+                className="text-xs text-white/60 underline decoration-white/30 underline-offset-2 hover:text-white"
+              >
+                Music credits and licences
+              </a>
             </Section>
 
             <Section label="Display">

@@ -22,7 +22,6 @@ import {
   galleryLayoutIdentity,
   restoreGalleryVisit,
 } from "@/lib/gallery-release-state";
-import { releasePublicPath } from "@/lib/release-public";
 import { registerReleaseSnapshot, rememberReleaseState } from "@/lib/release-session";
 import { variantProxyUrl } from "@/lib/utils";
 
@@ -45,9 +44,8 @@ import { StaircaseRenderer } from "./staircase";
 import { StairwellLight } from "./stairwell-light";
 import { GrandStairSigns, StairwellAccents } from "./stairwell-rail";
 import { preloadCached } from "./texture-cache";
+import { useGalleryMusic } from "./use-gallery-music";
 import { ZoomModal } from "./zoom-modal";
-
-const AMBIENCE_SRC = releasePublicPath("/audio/ambience-loop.mp3");
 
 // Centre of the look stick's pad, from the viewport's left and bottom
 // edges, as joystick-controller reads it. The jump button is placed
@@ -239,12 +237,15 @@ export function Gallery3D({ artworks }: Props) {
   }, [hasStarted, settingsOpen, setIs3DActive]);
 
   // ── Audio ────────────────────────────────────────────────────────
-  // Ambience: long looping <audio> streamed via HTMLAudioElement, gated
-  // on the user's Start-click (browsers block autoplay). AudioControls
-  // writes to the same localStorage-backed hook, so we only need the
-  // read half here.
+  // Background music, a shuffled round of free recordings
+  // (use-gallery-music.ts), gated on the Enter click because browsers
+  // block autoplay. The settings modal writes the same
+  // localStorage-backed preferences.
   const [audio] = useAudioSettings();
-  const ambienceRef = useRef<HTMLAudioElement | null>(null);
+  const music = useGalleryMusic({
+    playing: hasStarted && audio.enabled,
+    volume: audio.musicVolume,
+  });
 
   const currentFloor = layout.floors[currentFloorIdx];
   const activeRoom = activeRoomIdx >= 0 ? currentFloor.rooms[activeRoomIdx] : undefined;
@@ -483,21 +484,6 @@ export function Gallery3D({ artworks }: Props) {
     setMapOpen(true);
     if (!isTouch && document.pointerLockElement) document.exitPointerLock();
   }, [currentFloorIdx, isTouch]);
-
-  // Ambience follows user preferences + entry gate. play() may reject if
-  // Chrome hasn't yet decided the gesture is "valid enough" — harmless,
-  // the next state change (setting toggle, teleport, stair swap) retries
-  // this effect and succeeds.
-  useEffect(() => {
-    const el = ambienceRef.current;
-    if (!el) return;
-    el.volume = audio.ambienceVolume;
-    if (hasStarted && audio.enabled) {
-      void el.play().catch(() => {});
-    } else {
-      el.pause();
-    }
-  }, [audio.enabled, audio.ambienceVolume, hasStarted]);
 
   const handleStairFloorChange = useCallback(
     (newIdx: number) => {
@@ -1029,6 +1015,7 @@ export function Gallery3D({ artworks }: Props) {
             fullscreenTarget={galleryHostRef}
             isOpen={settingsOpen}
             onOpenChange={setSettingsOpen}
+            music={music}
           />
         </div>
       )}
@@ -1117,19 +1104,6 @@ export function Gallery3D({ artworks }: Props) {
           }}
         />
       )}
-      {/* Ambience player. Streams, loops, hidden from layout but kept
-          in the DOM for the lifetime of the gallery so settings
-          changes don't interrupt the loop. */}
-      {/* biome-ignore lint/a11y/useMediaCaption: ambient music has no spoken content */}
-      {/* biome-ignore lint/a11y/noAriaHiddenOnFocusable: hidden utility audio with no controls — focus path doesn't apply */}
-      <audio
-        ref={ambienceRef}
-        src={AMBIENCE_SRC}
-        loop
-        preload="auto"
-        aria-hidden="true"
-        className="hidden"
-      />
     </div>
   );
 }

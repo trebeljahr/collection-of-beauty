@@ -38,6 +38,7 @@
     "download:kunstformen": "bash scripts/download-kunstformen.sh",
     "assets:shrink": "node scripts/shrink-sources.mjs",
     "assets:tiles": "node scripts/build-tiles.mjs",
+    "music:build": "tsx scripts/build-music.ts",
     "textures": "node scripts/download-textures.mjs",
     "marketing:images": "node scripts/build-marketing-images.mjs",
     "marketing:screenshots": "node scripts/build-museum-screenshots.mjs",
