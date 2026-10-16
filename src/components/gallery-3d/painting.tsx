@@ -15,6 +15,7 @@ import {
 } from "@/lib/gallery-layout/frame-design";
 import {
   PAINTING_WALL_OFFSET,
+  PLAQUE_EYE,
   PLAQUE_GAP,
   PLAQUE_WIDTH,
 } from "@/lib/gallery-layout/place-paintings";
@@ -544,15 +545,22 @@ export const Painting = memo(function Painting({
         : null,
     [lit, dW, dH, frameReach, frameRise, wall, ceilingY],
   );
+  // The plaque hangs at eye level over the room's floor, whatever the
+  // height of the work (`wall.floorY` is in the work's own frame).
+  const plaque = useMemo(
+    () =>
+      placement.plaque === null ? null : (placement.plaque ?? { dy: wall.floorY + PLAQUE_EYE }),
+    [placement.plaque, wall.floorY],
+  );
   const plaqueRect = useMemo(
     () => ({
-      x: dW / 2 + frameReach + PLAQUE_GAP + PLAQUE_MOUNT_W / 2,
-      y: 0,
+      x: plaque?.dx ?? dW / 2 + frameReach + PLAQUE_GAP + PLAQUE_MOUNT_W / 2,
+      y: plaque?.dy ?? 0,
       halfW: PLAQUE_MOUNT_W / 2,
       halfH: (PLAQUE_FACE_H_BASE + PLAQUE_MOUNT_PAD) / 2,
       frontZ: -PAINTING_WALL_OFFSET + PLAQUE_WALL_CLEAR + PLAQUE_MOUNT_DEPTH + PLAQUE_FACE_DEPTH,
     }),
-    [dW, frameReach],
+    [dW, frameReach, plaque],
   );
 
   // How far the work reaches, for room culling (room-culling.ts):
@@ -588,12 +596,12 @@ export const Painting = memo(function Painting({
             onSettled={onSettled}
             onTextureAspect={handleTextureAspect}
           />
-          {placement.plaque !== null && (
+          {plaque && (
             <Plaque
               artwork={artwork}
               palette={palette}
               frameEdgeX={dW / 2 + frameReach}
-              offset={placement.plaque}
+              offset={plaque}
             />
           )}
         </>
@@ -792,8 +800,8 @@ function fitToAspect(
 }
 
 // ── Plaque ────────────────────────────────────────────────────────────
-// A small museum-style label to the right of each painting at canvas
-// centre height. Two-layer construction: a brass mount plate fixed
+// A small museum-style label to the right of each painting, its centre
+// at eye level (PLAQUE_EYE) over the floor. Two-layer construction: a brass mount plate fixed
 // flush to the wall, with a slightly inset cream face card on top
 // carrying title / artist / year / dimensions in three sized lines.
 
@@ -869,8 +877,9 @@ function Plaque({
   /** Local x of the frame's outer right edge: the plaque hangs
    *  PLAQUE_GAP beyond it. */
   frameEdgeX: number;
-  /** Where the hang put the plaque instead (`Placement.plaque`). */
-  offset?: { dy: number; dx?: number };
+  /** From the canvas centre to the plaque's centre: `dy` up, `dx` to
+   *  the right (unset: beside the frame). */
+  offset: { dy: number; dx?: number };
 }) {
   // All three strings and the pre-render estimates derive from the
   // artwork alone, so they are memoised on it: `formatTitle` /
@@ -934,8 +943,8 @@ function Plaque({
   // Plaque always hangs on the painting's right (local +X). Slot sizing
   // in place-paintings.ts guarantees painting + plaque clear the wall
   // margin even at right-corner cells, so no flip is needed.
-  const localX = offset?.dx ?? frameEdgeX + PLAQUE_GAP + PLAQUE_MOUNT_W / 2;
-  const localY = offset?.dy ?? 0;
+  const localX = offset.dx ?? frameEdgeX + PLAQUE_GAP + PLAQUE_MOUNT_W / 2;
+  const localY = offset.dy;
   // Mount sits a few mm off the wall so it doesn't z-fight with it; face
   // is parked just in front of the mount; text floats a hair above the
   // face for the same reason.

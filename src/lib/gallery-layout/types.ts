@@ -35,10 +35,10 @@ export type Placement = {
    *  runs on under and over it, past the floor and the ceiling of the
    *  storey it is filed under. */
   sheer?: true;
-  /** Where the plaque hangs when not beside the middle of the canvas:
-   *  metres from the canvas centre to the plaque's, `dy` up and `dx` to
-   *  the viewer's right (unset: beside the frame). `null` is no plaque,
-   *  for a work hung out of reading distance. */
+  /** Where the plaque hangs when not beside the frame at eye level
+   *  over the room's floor (`PLAQUE_EYE`): metres from the canvas
+   *  centre to the plaque's, `dy` up and `dx` to the viewer's right.
+   *  `null` is no plaque, for a work hung out of reading distance. */
   plaque?: { dy: number; dx?: number } | null;
 };
 

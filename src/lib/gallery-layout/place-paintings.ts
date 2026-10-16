@@ -75,6 +75,11 @@ const CEILING_CLEARANCE = 1.0;
  *  plaque parks itself at -PAINTING_WALL_OFFSET in local space to land
  *  back on the wall surface). */
 export const PAINTING_WALL_OFFSET = 0.02;
+/** Height of a plaque's centre over the floor it is read from. Every
+ *  plaque hangs on this line, whatever the height of its work: a work
+ *  too tall for the canonical centre is lifted, and a plaque beside its
+ *  middle was out of reach (Las Meninas put its plaque at 2.1 m). */
+export const PLAQUE_EYE = 1.45;
 /** Air between a frame's outer edge and the plaque beside it. */
 export const PLAQUE_GAP = 0.05;
 /** Width of the plaque, mount plate included. painting.tsx draws it

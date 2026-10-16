@@ -59,6 +59,7 @@ import {
   MAX_PAINTING_W,
   PAINTING_FLOOR_GAP,
   PAINTING_WALL_OFFSET,
+  PLAQUE_EYE,
   packRun,
   runLength,
   type SizedWork,
@@ -85,11 +86,6 @@ const GIANT_GAP = 1.0;
 /** Room a frame has on a storey of a hall: from the gap over the floor
  *  to a hand under the gallery above. */
 const STOREY_FRAME_ROOM = INTER_FLOOR_HEIGHT - PAINTING_FLOOR_GAP - 0.14;
-/** Height of a plaque's centre over the floor when it cannot hang
- *  beside the middle of its canvas: eye level for reading. */
-const PLAQUE_EYE = 1.45;
-/** A plaque beside the middle of a canvas is read up to this height. */
-const PLAQUE_REACH = 1.9;
 /** Corner kept clear at each end of a sheer wall. */
 const SHEER_MARGIN = 0.3;
 /** Works that are not taller than a storey and still go to a sheer
@@ -187,12 +183,6 @@ export function hallRuns(room: RoomLayout): WallRun[] {
   return out;
 }
 
-/** Give a tall work's plaque a place at reading height. */
-function withPlaqueAtEye(p: Placement, floorY: number): Placement {
-  if (p.position[1] - floorY <= PLAQUE_REACH) return p;
-  return { ...p, plaque: { dy: floorY + PLAQUE_EYE - p.position[1] } };
-}
-
 /** The order a room's stretches are taken in: the longest first; of
  *  one length, the north wall and then the south, each whole, and then
  *  the west and east walls a stretch at a time in turn. A room that is
@@ -270,7 +260,7 @@ export function hangHallStoreys(
         // it: `packRun` centres the two together.
         const position: Placement["position"] = [...p.position];
         position[run.axis === "x" ? 0 : 2] = stretchMiddle(run);
-        room.placements.push(withPlaqueAtEye({ ...p, position, giant: true }, room.worldRect.y));
+        room.placements.push({ ...p, position, giant: true });
       }
     }
   }
@@ -462,12 +452,7 @@ export function hangSheerWalls(
   /** The plaque of a work that stands on a storey of its own: beside
    *  its frame at eye level on the hall floor, where there is floor in
    *  front of it. Over that floor there is none, and no plaque. */
-  const beside = (storeys: RoomLayout[], level: number, work: Framed): Placement["plaque"] => {
-    if (level > 0) return null;
-    const centerY = floorOf(storeys, 0) + work.bottom + work.hM / 2;
-    const up = centerY - storeys[0].worldRect.y;
-    return up <= PLAQUE_REACH ? undefined : { dy: PLAQUE_EYE - up };
-  };
+  const beside = (level: number): Placement["plaque"] => (level > 0 ? null : undefined);
   /** The pair with the lowest score, of the works in `pool`. */
   const bestPair = (
     pool: Framed[],
@@ -622,7 +607,7 @@ export function hangSheerWalls(
       open.delete(site);
       const bottomY = floorOf(site.storeys, level);
       works.forEach((work, i) => {
-        place(site, level, site.sides[i], work, 0, bottomY, beside(site.storeys, level, work));
+        place(site, level, site.sides[i], work, 0, bottomY, beside(level));
       });
     }
   }

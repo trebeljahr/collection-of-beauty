@@ -974,10 +974,14 @@ required by the Dockerfile — don't remove it.
     - A frame fits a storey up to 5.38 m (`STOREY_FRAME_ROOM`): canvases
       to about 4.9 m. Taller ones go to the sheer walls (next point).
     - `Placement.giant` drops the picture light: the hall's washers
-      light the wall (next point but one). `Placement.plaque` moves
-      the plaque to eye level (`dy`),
-      sideways (`dx`), or leaves it out (`null`, a work with no floor in
-      front of it at its own height).
+      light the wall (next point but one). Every plaque hangs
+      beside its frame with its centre 1.45 m over the room's floor
+      (`PLAQUE_EYE`), whatever the height of the work: until 17 October
+      2026 it hung beside the canvas middle, and a tall work lifted off
+      the floor took it to 2.2 m. `Placement.plaque` moves it to the
+      eye level of another floor (`dy`), sideways (`dx`), or leaves it
+      out (`null`, a work with no floor in front of it at its own
+      height).
     - All 71 giants hang (17 October 2026): 16 on the sheer walls, 29
       in the court, 22 on the stair halls' storeys, 4 in the spiral
       rooms. A spiral room takes only what no hall's wall holds on any

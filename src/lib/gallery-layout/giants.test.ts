@@ -400,12 +400,12 @@ describe("giants in the block plan's halls", () => {
           expect(room.floorIndex, p.artwork.id).toBeGreaterThan(0);
           continue;
         }
-        const y = p.position[1] + (p.plaque?.dy ?? 0);
+        // Unset is eye level over the room's own floor.
+        const y = p.plaque ? p.position[1] + p.plaque.dy : room.worldRect.y + 1.45;
         const overFloor = Math.min(
           ...[0, room.worldRect.y].map((floor) => Math.abs(y - floor - 1.45)),
         );
-        const beside = y - room.worldRect.y;
-        expect(overFloor < 1e-6 || (beside > 1.2 && beside <= 1.9 + 1e-6), p.artwork.id).toBe(true);
+        expect(overFloor, p.artwork.id).toBeLessThan(1e-6);
       }
     }
   });
