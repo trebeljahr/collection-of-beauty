@@ -8,8 +8,11 @@
 // frame-maps.ts and one shader patch, `patchFrameShader`, that adds what
 // the stock material cannot do:
 //
-//  - a second normal map, the carve atlas, read with the geometry's
-//    `aCarveUv` and gated per vertex, on top of the surface's own;
+//  - the carve atlas, read with the geometry's `aCarveUv` and gated per
+//    vertex: a second normal map on top of the surface's own, and the
+//    carving's height and occlusion. The cuts between leaves go dark
+//    and matte, gilt stops mirroring the room at the bottom of a cut,
+//    and the leaf rubs through on the carving's high points first;
 //  - per-vertex roughness (burnished high points, matte hollows) and,
 //    on gilt, wear that shows the red bole on the high points;
 //  - shading by distance: a moulding too small on screen to resolve is
@@ -107,6 +110,15 @@ varying vec3 vFrameFace;`,
         "#include <color_fragment>",
         /* glsl */ `#include <color_fragment>
 diffuseColor.rgb *= mix( uRecess, vec3( 1.0 ), smoothstep( 0.45, 0.95, vFrame.w ) );
+#ifdef FRAME_CARVE
+	// RG normal, B height, A occlusion (frame-maps.ts, buildCarveAtlas).
+	vec4 carveTexel = texture2D( uCarveMap, vCarveUv );
+	float carveOn = min( 1.0, abs( vFrame.y ) );
+	float carveAo = mix( 1.0, carveTexel.a, carveOn );
+	float carveHigh = carveTexel.b * carveOn;
+	// The cuts hold what the profile's hollows hold: toned size, dirt.
+	diffuseColor.rgb *= mix( uRecess, vec3( 1.0 ), smoothstep( 0.3, 0.9, carveAo ) );
+#endif
 // Metres of moulding under one pixel (the frame's uv is in metres).
 // From across a room a bead or a carved leaf is smaller than a pixel:
 // each pixel then lands on a different facet, and on polished metal
@@ -121,13 +133,23 @@ float frameFar = smoothstep( 0.002, 0.010, max( framePx.x, framePx.y ) );`,
         "#include <metalnessmap_fragment>",
         /* glsl */ `#include <metalnessmap_fragment>
 roughnessFactor *= vFrame.x;
+#ifdef FRAME_CARVE
+	// Burnished on the carving's high points, matte down in its cuts.
+	roughnessFactor *= 1.0 - 0.2 * carveHigh;
+	roughnessFactor = mix( roughnessFactor, max( roughnessFactor, 0.75 ), 1.0 - carveAo );
+#endif
 #if defined( FRAME_ALPHA_ROUGHNESS ) && defined( USE_MAP )
 	roughnessFactor *= sampledDiffuseColor.a;
 #endif
 #if defined( FRAME_WEAR ) && defined( USE_MAP )
 	// The leaf is thinnest where it is handled: the red clay under it
 	// shows through in patches, matte and no longer metal.
-	float frameWorn = smoothstep( uWear.x, uWear.y, vFrame.z * ( 0.3 + 0.7 * sampledDiffuseColor.a ) );
+	float frameRub = vFrame.z * ( 0.3 + 0.7 * sampledDiffuseColor.a );
+	#ifdef FRAME_CARVE
+		// A carved leaf is handled on its tips and ridges.
+		frameRub *= 0.9 + 0.25 * carveHigh;
+	#endif
+	float frameWorn = smoothstep( uWear.x, uWear.y, frameRub );
 	frameWorn *= 0.7;
 	diffuseColor.rgb = mix( diffuseColor.rgb, uWearColor * vFrame.w, frameWorn );
 	metalnessFactor *= 1.0 - frameWorn;
@@ -144,7 +166,7 @@ roughnessFactor = clamp( mix( roughnessFactor, max( roughnessFactor, 0.62 ), fra
 	vec3 mapN = texture2D( normalMap, vNormalMapUv ).xyz * 2.0 - 1.0;
 	mapN.xy *= normalScale;
 	#ifdef FRAME_CARVE
-		vec3 carveN = texture2D( uCarveMap, vCarveUv ).xyz * 2.0 - 1.0;
+		vec2 carveN = carveTexel.xy * 2.0 - 1.0;
 		carveN.x *= sign( vFrame.y );
 		mapN.xy += carveN.xy * abs( vFrame.y );
 	#endif
@@ -160,6 +182,24 @@ roughnessFactor = clamp( mix( roughnessFactor, max( roughnessFactor, 0.62 ), fra
       .replace(
         "#include <lights_physical_fragment>",
         THREE.ShaderChunk.lights_physical_fragment.replace(/nonPerturbedNormal/g, "normal"),
+      )
+      // The carving's occlusion, as three applies an aoMap's, and on the
+      // direct light too: the picture light reaches no further into a cut
+      // than the room does. No shadow is cast, so this is all the
+      // carving has to stand out from its ground.
+      .replace(
+        "#include <aomap_fragment>",
+        /* glsl */ `#include <aomap_fragment>
+#ifdef FRAME_CARVE
+{
+	float carveNV = saturate( dot( geometryNormal, geometryViewDir ) );
+	reflectedLight.indirectDiffuse *= carveAo;
+	reflectedLight.indirectSpecular *= computeSpecularOcclusion( carveNV, carveAo, material.roughness );
+	float carveDirect = mix( 1.0, carveAo, 0.7 );
+	reflectedLight.directDiffuse *= carveDirect;
+	reflectedLight.directSpecular *= carveDirect;
+}
+#endif`,
       )
       // An emissive surface (the mat) still sits in the frame's shadow,
       // and takes the frame's tint.

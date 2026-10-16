@@ -9,6 +9,7 @@ import {
   CARVE_ATLAS_W,
   CARVE_ROWS,
   heightToNormal,
+  heightToOcclusion,
   tileCracks,
   tileFbm,
   tileNoise,
@@ -110,6 +111,30 @@ describe("heightToNormal", () => {
   });
 });
 
+describe("heightToOcclusion", () => {
+  it("leaves a flat field open and darkens the bottom of a pit", () => {
+    const w = 16;
+    const flat = heightToOcclusion(new Float32Array(w * w), w, w, 1, 1, 1, 4, true);
+    expect(Math.min(...flat)).toBe(1);
+    const pit = new Float32Array(w * w).fill(1);
+    pit[8 * w + 8] = 0;
+    const ao = heightToOcclusion(pit, w, w, 1, 1, 1, 4, true);
+    expect(ao[8 * w + 8]).toBeLessThan(0.4);
+    // The rim round the pit sees nothing rise above it.
+    expect(ao[8 * w + 9]).toBe(1);
+  });
+
+  it("darkens a cut more the deeper it is", () => {
+    const w = 16;
+    const groove = new Float32Array(w * w);
+    for (let y = 0; y < w; y++) for (let x = 0; x < w; x++) groove[y * w + x] = x === 8 ? 0 : 1;
+    const shallow = heightToOcclusion(groove, w, w, 1, 1, 0.5, 4, true)[4 * w + 8];
+    const deep = heightToOcclusion(groove, w, w, 1, 1, 4, 4, true)[4 * w + 8];
+    expect(deep).toBeLessThan(shallow);
+    expect(shallow).toBeLessThan(1);
+  });
+});
+
 describe("carve atlas", () => {
   const rows = Object.values(CARVE_ROWS).sort((a, b) => a.v0 - b.v0);
 
@@ -146,39 +171,48 @@ describe("carve atlas", () => {
     return `texel (${x}, ${y}), ${gap === 0 ? "in" : "beside"} the ${band} row`;
   };
 
-  it("holds unit normals that face out of the surface", () => {
+  it("holds normals that face out of the surface", () => {
     expect(atlas.length).toBe(S * H * 4);
     // Every texel is read, and each limit is asserted once, on the texel
     // nearest to it. An `expect` per texel would be 1.5 million calls. At
     // every seventh texel it was 225,000, which ran past the 5 s timeout
     // whenever the machine was busy.
     let steepest = 0;
-    let shortest = 0;
-    let longest = 0;
+    // Only x and y are stored (B is the height): z is what the shader
+    // rebuilds from them, so x and y must leave room for it.
     let minZ = Infinity;
-    let minLength = Infinity;
-    let maxLength = 0;
     for (let i = 0; i < S * H; i++) {
       const x = atlas[i * 4] / 127.5 - 1;
       const y = atlas[i * 4 + 1] / 127.5 - 1;
-      const z = atlas[i * 4 + 2] / 127.5 - 1;
-      const length = Math.hypot(x, y, z);
-      if (z < minZ) {
+      const z = Math.sqrt(Math.max(0, 1 - x * x - y * y));
+      if (z < minZ || Number.isNaN(z)) {
         minZ = z;
         steepest = i;
       }
-      if (length < minLength) {
-        minLength = length;
-        shortest = i;
-      }
-      if (length > maxLength) {
-        maxLength = length;
-        longest = i;
-      }
     }
     expect(minZ, where(steepest)).toBeGreaterThan(0.3);
-    expect(minLength, where(shortest)).toBeGreaterThan(0.97);
-    expect(maxLength, where(longest)).toBeLessThan(1.03);
+  });
+
+  it("gives every band a full range of height and some occlusion in its cuts", () => {
+    const flat: string[] = [];
+    const open: string[] = [];
+    for (const [name, row] of Object.entries(CARVE_ROWS)) {
+      let low = 255;
+      let high = 0;
+      let darkest = 255;
+      for (let y = Math.ceil(row.v0 * H); y <= Math.floor(row.v1 * H); y++) {
+        for (let x = 0; x < S; x++) {
+          const i = (y * S + x) * 4;
+          low = Math.min(low, atlas[i + 2]);
+          high = Math.max(high, atlas[i + 2]);
+          darkest = Math.min(darkest, atlas[i + 3]);
+        }
+      }
+      if (low > 10 || high < 245) flat.push(name);
+      if (darkest > 200) open.push(name);
+    }
+    expect(flat).toEqual([]);
+    expect(open).toEqual([]);
   });
 
   it("carves relief into every band's row", () => {

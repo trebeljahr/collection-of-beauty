@@ -194,6 +194,78 @@ export function heightToNormal(
   return out;
 }
 
+/** Directions and steps of the horizon search in heightToOcclusion. */
+const AO_DIRECTIONS = 8;
+const AO_STEPS = 5;
+
+/**
+ * Ambient occlusion of a height field: at each texel, the share of the
+ * sky above it that the relief round it hides. Each of eight directions
+ * is marched out to `radius` for the steepest rise; a rise of slope s
+ * hides s / √(1 + s²) of that direction's sky. `texelX`, `texelY`,
+ * `depth` (the height of a height difference of 1) and `radius` are in
+ * one unit, so a map whose texels are not square still gets true
+ * angles. Wraps in x; in y only when `wrapY`. Values in 0..1, 1 open.
+ */
+export function heightToOcclusion(
+  height: Float32Array,
+  w: number,
+  h: number,
+  texelX: number,
+  texelY: number,
+  depth: number,
+  radius: number,
+  wrapY: boolean,
+): Float32Array {
+  // Texel offsets of every step, and the slope a unit rise there makes.
+  const steps: Array<{ dx: number; dy: number; k: number; dir: number }> = [];
+  for (let d = 0; d < AO_DIRECTIONS; d++) {
+    const a = (d / AO_DIRECTIONS) * 2 * Math.PI;
+    let last = "";
+    for (let s = 1; s <= AO_STEPS; s++) {
+      const r = (radius * s) / AO_STEPS;
+      const dx = Math.round((Math.cos(a) * r) / texelX);
+      const dy = Math.round((Math.sin(a) * r) / texelY);
+      const key = `${dx},${dy}`;
+      if ((dx === 0 && dy === 0) || key === last) continue;
+      last = key;
+      steps.push({ dx, dy, k: depth / Math.hypot(dx * texelX, dy * texelY), dir: d });
+    }
+  }
+  const out = new Float32Array(w * h);
+  // A row at a time, step by step: the inner loop is a straight run
+  // along two rows of the field. It is built on the main thread.
+  const rise = new Float32Array(w * AO_DIRECTIONS);
+  for (let y = 0; y < h; y++) {
+    rise.fill(0);
+    const row = y * w;
+    for (const { dx, dy, k, dir } of steps) {
+      let yy = y + dy;
+      if (wrapY) yy = (yy + h) % h;
+      else if (yy < 0) yy = 0;
+      else if (yy >= h) yy = h - 1;
+      const other = yy * w;
+      const shift = ((dx % w) + w) % w;
+      for (let x = 0; x < w; x++) {
+        let xx = x + shift;
+        if (xx >= w) xx -= w;
+        const slope = (height[other + xx] - height[row + x]) * k;
+        const r = x * AO_DIRECTIONS + dir;
+        if (slope > rise[r]) rise[r] = slope;
+      }
+    }
+    for (let x = 0; x < w; x++) {
+      let hidden = 0;
+      for (let d = 0; d < AO_DIRECTIONS; d++) {
+        const s = rise[x * AO_DIRECTIONS + d];
+        hidden += s / Math.sqrt(1 + s * s);
+      }
+      out[row + x] = 1 - hidden / AO_DIRECTIONS;
+    }
+  }
+  return out;
+}
+
 // ── Carve atlas ───────────────────────────────────────────────────────
 
 export const CARVE_ATLAS_W = 512;
@@ -762,11 +834,25 @@ export const CARVE_ROWS: Record<CarveBand, CarveRow> = (() => {
   return out;
 })();
 
-/** The carve atlas as a tangent-space normal map. */
+/** How far round a texel the carving can shade it, in band widths. */
+const CARVE_AO_RADIUS = 0.12;
+
+/**
+ * The carve atlas. A normal map alone embosses the ornament: every
+ * facet turns to the light, but the ground between two leaves is as
+ * bright as the leaves, and gilt mirrors the room just as well at the
+ * bottom of a cut as on its rim. So each texel carries three things:
+ *  - RG: the tangent-space normal's x and y. The shader rebuilds z.
+ *  - B: the carving's height, 0 at its deepest and 1 at its highest
+ *    point in the band. The leaf rubs through there first.
+ *  - A: occlusion (heightToOcclusion). The cuts between leaves, the
+ *    hollow of a shell, the shadow under a bead. Mipmapped, it
+ *    averages to the darker tone a carved band has from across a room.
+ */
 export function buildCarveAtlas(): Uint8Array {
   const S = CARVE_ATLAS_W;
   const out = new Uint8Array(S * CARVE_ATLAS_H * 4);
-  // Flat everywhere a band does not write.
+  // Flat and open everywhere a band does not write.
   for (let i = 0; i < S * CARVE_ATLAS_H; i++) {
     out[i * 4] = 128;
     out[i * 4 + 1] = 128;
@@ -785,14 +871,35 @@ export function buildCarveAtlas(): Uint8Array {
     }
     // One texel is (repeats · aspect / S) band-widths along the rail and
     // 1 / rows across it; the carving is `relief` band-widths deep.
+    const texelX = (spec.repeats * spec.aspect) / S;
     const normals = heightToNormal(
       height,
       S,
       rows,
-      (spec.relief * S) / (spec.repeats * spec.aspect),
+      spec.relief / texelX,
       spec.relief * rows,
       false,
     );
+    const occlusion = heightToOcclusion(
+      height,
+      S,
+      rows,
+      texelX,
+      1 / rows,
+      spec.relief,
+      CARVE_AO_RADIUS,
+      false,
+    );
+    let low = Infinity;
+    let high = -Infinity;
+    for (const v of height) {
+      if (v < low) low = v;
+      if (v > high) high = v;
+    }
+    for (let i = 0; i < S * rows; i++) {
+      normals[i * 4 + 2] = toByte((height[i] - low) / (high - low || 1));
+      normals[i * 4 + 3] = toByte(occlusion[i]);
+    }
     for (let j = -ROW_PAD; j < rows + ROW_PAD; j++) {
       const src = Math.min(rows - 1, Math.max(0, j)) * S * 4;
       out.set(normals.subarray(src, src + S * 4), (y + ROW_PAD + j) * S * 4);

@@ -1731,6 +1731,20 @@ required by the Dockerfile — don't remove it.
     wave scroll, rosette, dentils, bamboo. A profile point names a
     `band`; the geometry's second uv set (`aCarveUv`) points that
     stretch at its row. 150 texel rows are free.
+  - **A carved texel is four numbers**: RG the normal's x and y (the
+    shader rebuilds z), B the carving's height in its band, A its
+    occlusion (`heightToOcclusion`: eight directions marched 0.12 band
+    widths out). Rico, 17 October 2026, asked for the frames' designs
+    to read "more like 3d objects". With the normal alone the ground
+    between two leaves was as bright as the leaves and gilt mirrored
+    the room at the bottom of a cut, so the ornament read as embossed.
+    The shader now darkens a cut in the profile's recess colour, makes
+    it matte, takes the room's reflection and most of the picture light
+    out of it (`aomap_fragment`), and rubs the leaf through on the
+    carving's high points first. The occlusion is not faded by
+    `frameFar`: mipmapped, it is the darker tone a carved band keeps
+    from across a room. The atlas takes about 105 ms to build where it
+    took 50.
   - Carving is set out from the corners (`carvePeriods`): the two halves
     of a rail run mirrored and hold a whole number of periods, and the
     mitre continues at the ornament's own pitch, so the pattern meets
@@ -1752,7 +1766,8 @@ required by the Dockerfile — don't remove it.
   (`frame-design.ts`); add a material only for a surface that needs
   another map. Each is a stock `MeshStandardMaterial` with one patch,
   `patchFrameShader`, which adds:
-  - the carve atlas as a second normal map, per-vertex roughness, red
+  - the carve atlas as a second normal map and its occlusion,
+    per-vertex roughness, red
     bole on worn gilt, and a directional term for the picture light,
     which is shader arithmetic on the frame and not a three.js light;
   - the tangent frame from the metre uv: three builds it from the map's
