@@ -504,19 +504,29 @@ export function layoutBlock(
 
   // The giants go to the halls first; each era then hangs what is left.
   // A giant no hall took hangs in its era's rooms, at its real size,
-  // where a wall holds it.
+  // where a wall holds it. So does a work the salon would take and has
+  // no place for: too coarse a scan for a room at 3.2 m, fine for one
+  // at its real size and seen from across a gallery. Rico, 17 October
+  // 2026: "let the 34 salon-eligible works that have no place in the
+  // salon hang in their era's galleries at real size".
   const { hung: inHalls, spirals } = hangGiants(floors, byEra, allArtworks);
   const forRooms = new Map(
     [...byEra].map(([era, works]) => [era, works.filter((a) => !inHalls.has(a.id))]),
   );
+  const inBuckets = new Set([...byEra.values()].flat().map((a) => a.id));
+  for (const artwork of allArtworks) {
+    if (inHalls.has(artwork.id) || inBuckets.has(artwork.id) || !salonSize(artwork)) continue;
+    const era = assignEra(artwork);
+    if (era) forRooms.set(era, [...(forRooms.get(era) ?? []), artwork]);
+  }
   const leftGiants = new Set(
     [...forRooms.values()]
       .flat()
-      .filter((a) => giantSize(a))
+      .filter((a) => salonSize(a))
       .map((a) => a.id),
   );
   for (const b of built) b.hang(forRooms, leftGiants);
-  hangTallInSpirals(floors, byEra, spirals);
+  hangTallInSpirals(floors, forRooms, spirals);
 
   const ground = floors[0];
   const anchor = ground.rooms.find((r) => r.isAnchor) ?? ground.rooms[0];

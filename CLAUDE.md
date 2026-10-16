@@ -1107,14 +1107,16 @@ required by the Dockerfile — don't remove it.
       sample (`fitsSomeRun` in `hangZone`). The Last Judgment, 13.7 m,
       was such a work; it hangs in the salon now (next point).
     - A giant no hall and no spiral room took hangs first in its era's
-      rooms (`must`). None does today.
+      rooms (`must`), and so does every work the salon's rule admits and
+      the salon has no place for (next point but one), at real size.
     - A work whose size is not trusted keeps the 3.2 m cap: nobody
       knows how large it is. Two hang so on the top floor, Kim
       Hong-do's Gunseondo (5.76 m in the catalogue) and Chen Rong's
       Nine Dragons (9.58 m). Both scans are another shape than the
       museum's size (3.5:1 against 4.3:1, 27:1 against 21:1).
-    - Which works may hang in a gallery is unchanged: the room's rule
-      judges a work at 3.2 m (`sharpEnoughToHang`).
+    - Which works may hang in a gallery: the room's rule judges a work
+      at 3.2 m (`sharpEnoughToHang`), and a work over 3.2 m the salon's
+      rule admits (`salonSize`) hangs too, at real size.
     - The tower keeps the cap.
   - **The salon** (`design: "salon"`, `buildSalon` in `grand-stair.ts`,
     `hangSalon` in `giants.ts`). Rico, 17 October 2026, of the Last
@@ -1145,10 +1147,17 @@ required by the Dockerfile — don't remove it.
       the largest work that has such a partner, so a work with no like
       partner hangs nowhere: Rhythm No. 1 (5.92 × 5.38 m) and the Two
       Willows (17 m).
-    - 34 more works pass the salon's rule and have no place in it: works
+    - 35 more works pass the salon's rule and have no place in it: works
       3.3 to 4.8 m wide that fail the room's rule (the Garden of Earthly
-      Delights, El Jaleo, Wind God and Thunder God). They would fit a
-      gallery at real size.
+      Delights, El Jaleo, Wind God and Thunder God), the Two Willows and
+      Rhythm No. 1. Rico, 17 October 2026: "let the 34 salon-eligible
+      works that have no place in the salon hang in their era's
+      galleries at real size". 34 do, the Two Willows on the long south
+      wall of the third floor's south-west gallery. Rhythm No. 1,
+      5.38 m tall, is taller than a gallery's 5.2 m and hangs nowhere:
+      the spiral rooms, which take the tall works the galleries leave
+      (`hangTallInSpirals`, given the same pool), have no work of like
+      size to pair it with.
     - Below 250 px a metre, waiting on a larger scan: the two Slav Epic
       canvases, Grunwald, Tintoretto's Last Supper, Courbet's Kill of
       the Deer and the Saint Louis Water Lilies. The vault note
