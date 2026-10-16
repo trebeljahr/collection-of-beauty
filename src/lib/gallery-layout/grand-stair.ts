@@ -618,10 +618,12 @@ export const SIGN_POST_X = (IMPERIAL.centralHalf + (IMPERIAL.half - IMPERIAL.sid
 export const SIGN_POST_SETBACK = 0.3;
 
 /**
- * The pylons on one storey of every loggia that meets it, two to a
- * hall, alike so the pair is symmetric about the stair's axis. Each
- * names the floor above (the middle flight, `stairsOut`) and the floor
- * below (the side flights down, `stairsIn`), as the spiral's gates do.
+ * The pylons on one storey of every loggia that meets it. The one on
+ * the visitor's right as they face the stair names the floor above
+ * (the middle flight, `stairsOut`), the one on the left the floor below
+ * (the side flights down, `stairsIn`). The first floor has the right
+ * one only and the top floor the left one only. Rico, 17 October 2026:
+ * two pylons that both said the same thing read as duplicated.
  * A court has no stair and no pylon.
  */
 export function stairSignPosts(floor: {
@@ -643,15 +645,21 @@ export function stairSignPosts(floor: {
     const stair = out ?? arrived;
     if (!stair) continue;
     const z = IMPERIAL.south + loggiaShift(stair.half) + SIGN_POST_SETBACK;
-    for (const side of [-1, 1]) {
+    // The visitor comes in from +z facing -z, so +x is their right.
+    const sides = [
+      { side: 1, up: out?.upperLabel ?? null, down: null },
+      { side: -1, up: null, down: arrived?.lowerLabel ?? null },
+    ];
+    for (const { side, up, down } of sides) {
+      if (up === null && down === null) continue;
       const p = toStairWorld(stair, side * SIGN_POST_X, z);
       posts.push({
         id: `${stair.id}-sign-${side < 0 ? "w" : "e"}`,
         x: p.x,
         z: p.z,
         rotationY: (-stair.turns * Math.PI) / 2,
-        up: out?.upperLabel ?? null,
-        down: arrived?.lowerLabel ?? null,
+        up,
+        down,
       });
     }
   }

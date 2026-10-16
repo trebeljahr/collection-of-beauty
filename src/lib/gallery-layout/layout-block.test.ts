@@ -1147,19 +1147,24 @@ describe("the block plan's rooms as fitted and hung", () => {
     expect(least, leastId).toBeGreaterThanOrEqual(0.5);
   });
 
-  it("signs each stair hall's floors on a pair of pylons that stand on its floor", () => {
+  it("signs each stair hall's floors on pylons, up on the right and down on the left", () => {
     const misplaced: string[] = [];
     floors: for (const floor of layout.floors) {
       const posts = stairSignPosts(floor);
-      if (posts.length !== 4) {
+      const wantCount = floor.index > 0 && floor.index < top ? 4 : 2;
+      if (posts.length !== wantCount) {
         misplaced.push(`floor ${floor.index + 1}: ${posts.length} pylons`);
         continue;
       }
       for (const post of posts) {
         const labels = `${post.up ?? "-"}/${post.down ?? "-"}`;
-        const want = `${floor.index < top ? layout.floors[floor.index + 1].title : "-"}/${
-          floor.index > 0 ? layout.floors[floor.index - 1].title : "-"
-        }`;
+        // The visitor faces the stair from its lobby (local -z), so its
+        // right is local +x.
+        const stair = layout.grandStairs!.find((s) => post.id.startsWith(`${s.id}-sign-`))!;
+        const right = toStairLocal(stair, post.x, post.z).x > 0;
+        const want = right
+          ? `${floor.index < top ? layout.floors[floor.index + 1].title : "-"}/-`
+          : `-/${floor.index > 0 ? layout.floors[floor.index - 1].title : "-"}`;
         if (labels !== want) misplaced.push(`${post.id}: ${labels}, not ${want}`);
         // The pylon's footprint, with 0.3 m either side and in front, is
         // this floor's hall floor: no flight, no void. Its back stands

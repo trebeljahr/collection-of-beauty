@@ -1307,13 +1307,16 @@ required by the Dockerfile — don't remove it.
     stone of the Gothic rooms. Before, each storey took its floor's
     first era, and a hall was four bands. The room's `era` is still the
     floor's, so the HUD names the floor.
-  - **A loggia's floors are signed on two pylons at its foot**
+  - **A loggia's floors are signed on pylons at its foot**
     (`stairSignPosts` in `grand-stair.ts`, drawn by `GrandStairSigns`),
     the spiral gate's post and plaques: either side of the middle
     flight, midway to the side flights' heads, backed onto the
-    balustrade between them, where no one walks. Both carry the floor
-    above over the floor below, so the pair is symmetric. Each is a
-    box collider. Signs name floors by `floorTitle`, on the spiral
+    balustrade between them, where no one walks. The right one, as the
+    visitor faces the stair, names the floor above, the left one the
+    floor below; the first floor has the right one only and the top
+    floor the left one only. Rico, 17 October 2026: two pylons that
+    both carried both floors read as duplicated. Each is a box
+    collider. Signs name floors by `floorTitle`, on the spiral
     gates too; a name over 24 characters is set at 0.07 m.
   - Not built: ornament beyond balustrades, piers, carpet and lamp
     standards. The design, its sheets and Rico's
