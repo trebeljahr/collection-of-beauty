@@ -1097,7 +1097,9 @@ export function StairSign({
       <Text
         position={[0, -0.07, 0.014]}
         layers={UNREFLECTED_LAYER}
-        fontSize={0.09}
+        // A floor name over 24 characters ("Natural History and East
+        // Asian Art") ran to three lines at 0.09 and past the plaque.
+        fontSize={label.length > 24 ? 0.07 : 0.09}
         color="#f2e9d0"
         anchorX="center"
         anchorY="middle"

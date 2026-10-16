@@ -118,6 +118,7 @@ import {
   sizeWork,
   wallFootprint,
 } from "./place-paintings";
+import { floorTitle } from "./room-era";
 import { texturePxPerMetre } from "./sharpness";
 import type {
   Bench,
@@ -344,7 +345,7 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     ],
   },
   {
-    title: "Modern Art",
+    title: "Impressionism and After",
     blurb:
       "Manet and Monet in the 1860s, Cézanne and Van Gogh after them, and the abstraction of the 1910s and 1920s.",
     styles: {
@@ -958,8 +959,8 @@ function buildStair(
     lowerFloor: lower.index,
     upperFloor: upper.index,
     topFloor,
-    lowerLabel: `Floor ${lower.index + 1}`,
-    upperLabel: `Floor ${upper.index + 1}`,
+    lowerLabel: floorTitle(lower),
+    upperLabel: floorTitle(upper),
     lowerY: lower.y,
     upperY: upper.y,
     centerX: centre.x,
@@ -990,8 +991,8 @@ function buildSpiral(
     id: `${shaft.key}-${lower.index}-to-${upper.index}`,
     lowerFloor: lower.index,
     upperFloor: upper.index,
-    lowerLabel: `Floor ${lower.index + 1}`,
-    upperLabel: `Floor ${upper.index + 1}`,
+    lowerLabel: floorTitle(lower),
+    upperLabel: floorTitle(upper),
     centerX: ((r.xMin + r.xMax + 1) / 2) * CELL_SIZE,
     centerZ: ((r.zMin + r.zMax + 1) / 2) * CELL_SIZE,
     innerRadius: SPIRAL_INNER_RADIUS,
