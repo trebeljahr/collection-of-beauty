@@ -344,6 +344,12 @@ function rows(room: Room, panelCells: number, splitCells: number): Seg[] {
       if (last && last[1] === cell) last[1] = cell + 1;
       else free.push([cell, cell + 1]);
     }
+    // A panel too long for its stretch takes the next length down that
+    // fits: a room's panels come in two lengths, three with the short
+    // ones beside a sightline, never cut to whatever is left.
+    const lengths = [panelCells, splitCells, SPLIT_PANEL_CELLS];
+    const fitting = (most: number, space: number) =>
+      lengths.find((n) => n <= most && n <= space) ?? space;
     const pieces: Array<[number, number]> = [];
     for (const [s, e] of free) {
       if (e - s >= PANEL_ROW_MIN_CELLS) {
@@ -358,13 +364,13 @@ function rows(room: Room, panelCells: number, splitCells: number): Seg[] {
         }
       } else if (s < centre && e > centre) {
         // Unbroken through the middle: one panel, centred.
-        const len = Math.min(panelCells, e - s);
+        const len = fitting(panelCells, e - s);
         const start = Math.min(e - len, Math.max(s, Math.round(centre - len / 2)));
         pieces.push([start, start + len]);
       } else {
         // Beside a sightline: a shorter panel, at the end nearer the
         // middle of the room.
-        const len = Math.min(splitCells, e - s);
+        const len = fitting(splitCells, e - s);
         pieces.push(e <= centre ? [e - len, e] : [s, s + len]);
       }
     }

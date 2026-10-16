@@ -20,9 +20,10 @@
 // - A grand stair at each end of the spine (`grand-stair.ts`, the
 //   loggia): one flight up the middle to a half landing and two back
 //   along the sides, storey over storey. It stands in the front of its
-//   hall and faces the hall's one door, the portal of the spine. Behind
-//   its landings the hall is open from the floor to the roof, 11.45 m
-//   deep and 27.5 m wide.
+//   hall and faces the portal of the spine. A door in each side wall
+//   leads from the gallery beside it to a long gallery. Behind its
+//   landings the hall is open from the floor to the roof, 11.45 m deep
+//   and 27.5 m wide.
 // - The tower's spiral north and south of the court, in a room of its
 //   own (22.5 × 17.5 m) with a door to the court and to the gallery on
 //   either side.
@@ -196,9 +197,10 @@ export const BLOCK_SPIRALS: ReadonlyArray<{ key: RoomKey; rect: CellRect; door: 
  * The halls of the spine, open from the first floor to the roof.
  *
  * The two at the ends are stair halls: a loggia, the grand stair on
- * every storey. Each faces its one door (`hallFront`), the portal of
- * the spine, and has the building's end wall behind its landings: that
- * wall and the two beside it stand sheer for 24 m (`RoomLayout.sheer`).
+ * every storey. Each faces the portal of the spine (`hallFront`), has a
+ * door in each side wall (`HALL_SIDE_DOOR`), and has the building's end
+ * wall behind its landings: that wall and the two beside it stand sheer
+ * for 24 m (`RoomLayout.sheer`).
  *
  * The court in the middle has no stair, and a door in every wall.
  */
@@ -225,6 +227,16 @@ const FRONTS: readonly Side[] = ["south", "west", "north", "east"];
 export function hallFront(hall: { turns: GrandStair["turns"] }): Side {
   return FRONTS[hall.turns];
 }
+
+/** A stair hall's side doors, metres in from its front wall. Each opens
+ *  from the gallery beside the stair into the long gallery behind the
+ *  side wall, on every floor, by the foot of the side flight. Rico, 17
+ *  October 2026, of the bare wall between Liberty and the balustrade
+ *  over the void: "here should be a door for the stair ways". The door
+ *  also cuts the stretch a giant hangs in from 15 m to 10 m: one work in
+ *  the middle of 15 m read as a work on an empty wall. A cell's middle,
+ *  so the grid opens there. */
+export const HALL_SIDE_DOOR = 11.25;
 
 /** Doors a portal wide: the spine from end to end, and the short axis
  *  from one spiral through the court to the other. */
@@ -468,9 +480,18 @@ function hangGiants(
   // before the stair halls do.
   const rooms = (floor: FloorLayout, design: (typeof BLOCK_HALLS)[number]["design"]) =>
     BLOCK_HALLS.filter((h) => h.design === design).map((h) => hallRoom(floor, h.key));
+  const unhung = new Set(
+    hangHallStoreys(
+      floors.map((floor) => [rooms(floor, "court"), rooms(floor, "loggia")]),
+      others.filter((o) => left.has(o.work.artwork.id)),
+    ),
+  );
+  // The spiral rooms take only what no hall's wall holds on any floor:
+  // their outer wall, 22.5 m with no door, is the one wall left for a
+  // handscroll 12 m long once the stair halls' side doors cut theirs.
   hangHallStoreys(
-    floors.map((floor) => [rooms(floor, "court"), rooms(floor, "loggia")]),
-    others.filter((o) => left.has(o.work.artwork.id)),
+    floors.map((floor) => [BLOCK_SPIRALS.map((s) => hallRoom(floor, s.key))]),
+    others.filter((o) => unhung.has(o.work)),
   );
 
   const halls = floors.flatMap((f) => f.rooms.filter((r) => r.isStairwell));
@@ -534,11 +555,20 @@ function buildFloor(
     add(key, makeRoom(index, key, r, era, { title: era.title }));
   }
 
-  // A door in every wall two rooms share, but for a stair hall: it has
-  // the one door its stair faces, on every floor.
+  // A door in the middle of every wall two rooms share, but for a stair
+  // hall: on every floor the portal its stair faces, and a door in each
+  // side wall by the foot of the side flight (`HALL_SIDE_DOOR`). The
+  // back wall is the building's.
   const fronts = new Map<RoomKey, Side>(
     BLOCK_HALLS.filter((h) => h.design === "loggia").map((h) => [h.key, hallFront(h)]),
   );
+  const sideDoorAt = (hall: RoomLayout, front: Side): number => {
+    const r = hall.cellBounds;
+    if (front === "east") return (r.xMax + 1) * CELL_SIZE - HALL_SIDE_DOOR;
+    if (front === "west") return r.xMin * CELL_SIZE + HALL_SIDE_DOOR;
+    if (front === "south") return (r.zMax + 1) * CELL_SIZE - HALL_SIDE_DOOR;
+    return r.zMin * CELL_SIZE + HALL_SIDE_DOOR;
+  };
   const keys = [...byKey.keys()];
   const isPortal = (a: RoomKey, b: RoomKey) =>
     PORTALS.some(([x, y]) => (x === a && y === b) || (x === b && y === a));
@@ -550,7 +580,11 @@ function buildFloor(
       if (!side) continue;
       const aFront = fronts.get(keys[i]);
       const bFront = fronts.get(keys[j]);
-      if ((aFront && aFront !== side) || (bFront && bFront !== OPPOSITE[side])) continue;
+      // A hall's back wall stands against no room, so a wall it shares
+      // is its front or a side.
+      let along: number | undefined;
+      if (aFront && aFront !== side) along = sideDoorAt(a, aFront);
+      if (bFront && bFront !== OPPOSITE[side]) along = sideDoorAt(b, bFront);
       const portal = isPortal(keys[i], keys[j]);
       connect(
         a,
@@ -558,6 +592,7 @@ function buildFloor(
         side,
         portal ? PORTAL_WIDTH : BLOCK_DOOR_WIDTH,
         portal ? PORTAL_HEIGHT : BLOCK_DOOR_HEIGHT,
+        along,
       );
     }
   }
@@ -803,14 +838,22 @@ function wallBetween(a: CellRect, b: CellRect): Side | null {
 
 const OPPOSITE: Record<Side, Side> = { north: "south", south: "north", east: "west", west: "east" };
 
-/** A door between two rooms that share a wall, in the middle of the
- *  stretch they share. `side` is the side of `a` that `b` is on. */
-function connect(a: RoomLayout, b: RoomLayout, side: Side, width: number, height: number) {
+/** A door between two rooms that share a wall, at `along` (world metres
+ *  along the wall) or in the middle of the stretch they share. `side` is
+ *  the side of `a` that `b` is on. */
+function connect(
+  a: RoomLayout,
+  b: RoomLayout,
+  side: Side,
+  width: number,
+  height: number,
+  along?: number,
+) {
   const ra = a.cellBounds;
   const rb = b.cellBounds;
   let worldX: number;
   let worldZ: number;
-  const mid = (lo: number, hi: number) => (Math.floor((lo + hi) / 2) + 0.5) * CELL_SIZE;
+  const mid = (lo: number, hi: number) => along ?? (Math.floor((lo + hi) / 2) + 0.5) * CELL_SIZE;
   if (side === "east" || side === "west") {
     worldX = (side === "east" ? ra.xMax + 1 : ra.xMin) * CELL_SIZE;
     worldZ = mid(Math.max(ra.zMin, rb.zMin), Math.min(ra.zMax, rb.zMax));

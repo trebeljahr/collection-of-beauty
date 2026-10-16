@@ -5,7 +5,13 @@ import { galleryLayoutIdentity } from "@/lib/gallery-release-state";
 import { arrangementOf } from "./divider-plans";
 import { benchClearOfDividers, centredIsland } from "./feature-benches";
 import { benchRect, longAxis } from "./fittings";
-import { grandStairsAt, grandSurfaceAt, openingReach, toStairLocal } from "./grand-stair";
+import {
+  grandStairsAt,
+  grandSurfaceAt,
+  openingReach,
+  sheerStripDepth,
+  toStairLocal,
+} from "./grand-stair";
 import {
   BLOCK_DOOR_WIDTH,
   BLOCK_GRID,
@@ -15,6 +21,7 @@ import {
   BLOCK_SPIRALS,
   BLOCK_WALL_COVERAGE,
   blockArrivalPoint,
+  HALL_SIDE_DOOR,
   hallFront,
   layoutBlock,
 } from "./layout-block";
@@ -186,12 +193,12 @@ describe("the block plan", () => {
     }
   });
 
-  it("enters a stair hall by one door on every floor: the portal its stair faces", () => {
+  it("enters a stair hall by the portal its stair faces, and from the galleries beside it", () => {
     for (const floor of layout.floors) {
       for (const hall of floor.rooms.filter(isStairHall)) {
-        expect(hall.doors, hall.id).toHaveLength(1);
-        const [door] = hall.doors;
-        expect(door.side).toBe(hallFront(hallOf(hall)!));
+        expect(hall.doors, hall.id).toHaveLength(3);
+        const front = hallFront(hallOf(hall)!);
+        const door = hall.doors.find((d) => d.side === front)!;
         expect(door.width).toBe(PORTAL_WIDTH);
         // The design is drawn with the visitor coming in from +z, the
         // foot of its first flight toward them: the door is there.
@@ -202,6 +209,30 @@ describe("the block plan", () => {
         // It opens on the spine's gallery.
         const from = floor.rooms.find((r) => r.id === door.connectsTo.roomId)!;
         expect(keyOf(from)).toBe(keyOf(hall) === "hall-w" ? "cw" : "ce");
+
+        // A door in each side wall, from the gallery beside the stair
+        // into a long gallery: clear of the open strip behind the
+        // landings, with the hall's own floor inside it.
+        const sides = hall.doors.filter((d) => d !== door);
+        const galleries = keyOf(hall) === "hall-w" ? ["nw", "sw"] : ["ne", "se"];
+        expect(
+          sides.map((d) => keyOf(floor.rooms.find((r) => r.id === d.connectsTo.roomId)!)).sort(),
+        ).toEqual(galleries);
+        const here = stairsOf(keyOf(hall)).filter(
+          (s) => s.lowerFloor === floor.index || s.upperFloor === floor.index,
+        );
+        for (const side of sides) {
+          expect(side.width).toBe(BLOCK_DOOR_WIDTH);
+          const local = toStairLocal(stair, side.worldX, side.worldZ);
+          expect(Math.abs(local.x)).toBeCloseTo(stair.half, 9);
+          expect(local.z).toBeCloseTo(stair.half - HALL_SIDE_DOOR, 9);
+          expect(local.z - side.width / 2).toBeGreaterThan(-stair.half + sheerStripDepth(stair));
+          // A step inside: the hall's floor on this storey.
+          const inX = side.worldX + (side.side === "east" ? -1 : side.side === "west" ? 1 : 0);
+          const inZ = side.worldZ + (side.side === "south" ? -1 : side.side === "north" ? 1 : 0);
+          const surface = grandSurfaceAt(here, inX, inZ, floor.y);
+          expect(surface?.floorIndex, `${hall.id} ${side.side}`).toBe(floor.index);
+        }
       }
     }
   });
@@ -671,15 +702,10 @@ describe("the block plan", () => {
     }
   });
 
-  it("gives every room a door to every neighbour, but into the side of a stair hall", () => {
+  it("gives every room a door to every neighbour", () => {
     for (const floor of layout.floors) {
-      // A stair hall opens in the one wall its stair faces.
-      const opens = (a: RoomLayout, b: RoomLayout) =>
-        !isStairHall(a) || sideToward(a, b) === hallFront(hallOf(a)!);
       for (const a of floor.rooms) {
-        const neighbours = floor.rooms
-          .filter((b) => b !== a && sideToward(a, b) && opens(a, b) && opens(b, a))
-          .map((b) => b.id);
+        const neighbours = floor.rooms.filter((b) => b !== a && sideToward(a, b)).map((b) => b.id);
         expect(a.doors.map((d) => d.connectsTo.roomId).sort(), a.id).toEqual(neighbours.sort());
       }
       // A long gallery meets the court at its corner, along one cell:

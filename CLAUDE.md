@@ -603,15 +603,24 @@ required by the Dockerfile — don't remove it.
       visitor sent to a floor lands (`GREAT_HALL`, `isAnchor`).
     From the court's floor one axis ends in the two grand stairs and
     the other in the two spirals.
-  - **A stair hall has one door, on every floor: the portal of the
-    spine, which its stair's foot faces** (`hallFront`). Rico's verdict
-    on the plan with three halls wall to wall, 13 October 2026: two
-    stairs stood in adjoining rooms, and the rooms were "accessible
-    from their backs/sides". So:
+  - **A stair hall has three doors, on every floor: the portal of the
+    spine, which its stair's foot faces** (`hallFront`), **and one in
+    each side wall** (`HALL_SIDE_DOOR`). Rico's verdict on the plan
+    with three halls wall to wall, 13 October 2026: two stairs stood in
+    adjoining rooms, and the rooms were "accessible from their
+    backs/sides". So:
     - no two halls share a wall. Keep a gallery between them;
-    - no second door, not even one that opens in front of the foot from
-      the side. A stair leaves every floor but the top, and the top
-      follows the rest;
+    - no door behind the stair or into its flights. The side doors
+      open from the gallery beside the stair into the long gallery
+      behind the side wall, 11.25 m in from the front wall, by the foot
+      of the side flight and 3.6 m short of the balustrade over the
+      void. Rico asked for them on 17 October 2026, pointing at the
+      bare wall between Liberty and that balustrade: "here should be a
+      door for the stair ways". Until then a hall had the portal only.
+      The door cuts the side wall's stretch from 15 m to 10 m,
+      so the giant there hangs with less bare wall round it, and the
+      long galleries were divided and seated again for the new door:
+      54 benches where there were 61;
     - a room in a corner of the block would then have one door. That is
       why each range is two long galleries and not five rooms.
       `layout-block.test.ts` fails on a gallery with one door;
@@ -774,7 +783,8 @@ required by the Dockerfile — don't remove it.
       there, each centred on its bench, cuts the run in two either side
       of the work, and hangs the rest of the room on what is left
       (`hangForBenches`). On 13 October 2026 all 61 benches of the
-      galleries had a work centred on them.
+      galleries had a work centred on them. There are 54 since the
+      stair halls' side doors (17 October); not recounted.
     - The court's first floor has four islands of two (`courtIslands`),
       one in front of each stretch of its north and south walls, 6.5 m
       off the wall and beside both lines between its doors. The giant
@@ -837,11 +847,12 @@ required by the Dockerfile — don't remove it.
     not fixed: 0.21 to 0.23 in the three that are not the Grand Hall.
     One room fewer is not possible there (rooms open in mirrored
     pairs), and the one room behind the stair alone would be at 0.69.
-  - It hangs 1,390 works (13 October 2026): 1,321 in 24 galleries, 28
-    to 83 a room, and 69 in the halls. The two spiral rooms a floor
-    hang nothing, and each corner of the block is part of a long
-    gallery, which has less wall than the rooms it could be: the plan
-    before hung 1,726, 1,663 of them in 43 rooms.
+  - It hangs 1,425 works (17 October 2026): 1,354 in 24 galleries, 28
+    to 80 a room, and 71 in the halls and spiral rooms. The spiral
+    rooms hang only what no hall holds (next point but several), and
+    each corner of the block is part of a long gallery, which has less
+    wall than the rooms it could be: the plan before hung 1,726, 1,663
+    of them in 43 rooms.
   - **Works in full take the texture pool, nearest room first**
     ([`reveal-budget.ts`](src/lib/gallery-layout/reveal-budget.ts);
     `useRoomWorks` and `RoomReveals` in `room-geometry.tsx`). The rule
@@ -967,10 +978,14 @@ required by the Dockerfile — don't remove it.
       the plaque to eye level (`dy`),
       sideways (`dx`), or leaves it out (`null`, a work with no floor in
       front of it at its own height).
-    - 69 of 71 giants hang (13 October 2026): 16 on the sheer walls,
-      29 in the court, 24 on the stair halls' storeys. Two of Monet's
-      Orangerie panels, 12.75 m long, have no wall and hang in their
-      rooms at 3.2 m.
+    - All 71 giants hang (17 October 2026): 16 on the sheer walls, 29
+      in the court, 22 on the stair halls' storeys, 4 in the spiral
+      rooms. A spiral room takes only what no hall's wall holds on any
+      floor (a second `hangHallStoreys` pass): its outer wall is 22.5 m
+      with no door. That is two of Monet's Orangerie panels, 12.75 m
+      long, which hung in their rooms at 3.2 m before, and the two East
+      Asian handscrolls, 11.86 and 11.15 m, which hung on a stair
+      hall's side wall until its door cut the wall to 10 m.
     - The tower has no such wall: its stairwell is one storey high
       between slabs. Giants hang there as before, at 3.2 m.
   - **Three walls of a stair hall are sheer** (`GrandStair.sheerWall`,
@@ -1012,8 +1027,10 @@ required by the Dockerfile — don't remove it.
       with four. Rico, 13 October 2026: the arrangement on the back
       wall "is a bit meh".
     What it costs and what it needs:
-    - No door in a stair hall's side walls on any floor, and a gallery
-      that ends at the landing's far edge, fenced.
+    - No door in the sheer part of a stair hall's side walls on any
+      floor (the side doors stand clear of it, `layout-block.test.ts`
+      checks), and a gallery that ends at the landing's far edge,
+      fenced.
     - A hole that touches a shape's edge does not triangulate. A hall's
       floor and ceiling round an opening of rectangles are built from
       the rectangles left (`rectsAround` in `stair-opening.ts`).
@@ -1054,8 +1071,9 @@ required by the Dockerfile — don't remove it.
     - A stretch lights the half of each door's lintel next to it. The
       shader adds a fragment's own can and one each side, so a stretch
       under 5 m lights itself only.
-    - The tower's stairwell and the spiral rooms hang nothing and keep
-      one row to a wall.
+    - The tower's stairwell hangs nothing and keeps one row to a wall,
+      and so does a spiral room with no work. One that hangs a work is
+      washed a row to each stretch, like a hall.
     - A work's cans are one mesh (`PaintingLight`): a wide work in a
       room had two draw calls for them.
   - **A hall or a stair room is one colour through every storey**

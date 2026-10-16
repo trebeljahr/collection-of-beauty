@@ -569,10 +569,11 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
     const cz = (zMin + zMax) / 2;
     const walls = washedWalls(room, roomWalls(room, width, depth, cx, cz));
     // A hall of the block plan hangs a giant on the middle of each
-    // stretch of wall, and has a row to each stretch. A stairwell hangs
-    // nothing and has a row to each wall.
+    // stretch of wall, and has a row to each stretch; so does a spiral
+    // room given a work too long for any hall. A stairwell that hangs
+    // nothing has a row to each wall.
     const washes =
-      grand !== undefined
+      grand !== undefined || room.placements.length > 0
         ? walls.flatMap((wall) => wallStretches(room, wall, cx, cz))
         : walls.map(wholeWall);
     const washed = washes.length > 0;
