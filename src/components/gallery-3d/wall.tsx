@@ -2,6 +2,7 @@
 
 import { type Ref, useCallback, useEffect, useMemo } from "react";
 import type * as THREE from "three";
+import { DOOR_TRIM, PORTAL_TRIM } from "@/lib/gallery-layout/world-coords";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { darkWoodTrimMaterial } from "./palette-materials";
 import { buildSkirtingGeometry } from "./skirting-geometry";
@@ -257,7 +258,6 @@ export function WallWithDoors({
  *  both put a casing on the same spot and its faces lie in one plane.
  *  In one material that shows nothing. Lit as two rooms, the jambs
  *  flickered in stripes of the two. */
-const PORTAL_TRIM = 0.14;
 const PORTAL_TRIM_DEPTH = 0.32;
 
 function DoorTrim({
@@ -273,7 +273,7 @@ function DoorTrim({
   wallHeight: number;
   portal?: boolean;
 }) {
-  const trim = portal ? PORTAL_TRIM : 0.06;
+  const trim = portal ? PORTAL_TRIM : DOOR_TRIM;
   const depth = portal ? PORTAL_TRIM_DEPTH : 0.08;
   // A door's trim is too slight to show in the floor. A portal's casing
   // is not: it stays in the floor's reflection.

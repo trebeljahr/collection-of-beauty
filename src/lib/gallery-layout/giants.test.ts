@@ -43,7 +43,7 @@ function catalogue(): ArtworkListing[] {
     // A storey of a hall.
     work("alexander", "baroque", 707, 450),
     work("horatii", "enlightenment", 425, 330),
-    work("nympheas", "fin-de-siecle", 850, 200),
+    work("nympheas", "fin-de-siecle", 780, 200),
     work("screen", "ukiyo-e", 366, 150),
     // Not tall, and longer than any stretch of a storey.
     work("orangerie", "fin-de-siecle", 1275, 200),

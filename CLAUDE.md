@@ -847,8 +847,10 @@ required by the Dockerfile — don't remove it.
     not fixed: 0.21 to 0.23 in the three that are not the Grand Hall.
     One room fewer is not possible there (rooms open in mirrored
     pairs), and the one room behind the stair alone would be at 0.69.
-  - It hangs 1,425 works (17 October 2026): 1,354 in 24 galleries, 28
-    to 80 a room, and 71 in the halls and spiral rooms. The spiral
+  - It hangs 1,352 works (17 October 2026): 1,281 in 24 galleries, 27
+    to 77 a room, and 71 in the halls and spiral rooms. The galleries
+    hung 1,352 before the wider clearances ("A work keeps 0.5 m of
+    plaster", below). The spiral
     rooms hang only what no hall holds (next point but several), and
     each corner of the block is part of a long gallery, which has less
     wall than the rooms it could be: the plan before hung 1,726, 1,663
@@ -1151,6 +1153,20 @@ required by the Dockerfile — don't remove it.
   largest first, each to the run whose gap is widest. A run's gap is
   its bare wall divided by its works plus one, which is the spacing
   `packRun` hangs it at, ends included. Before changing it:
+  - **A work keeps 0.5 m of plaster** to a door's casing, to a corner
+    and to the face of a wing wall (`DOOR_CLEARANCE`, `WALL_MARGIN`),
+    and a run under 1.4 m hangs nothing (`MIN_RUN_LENGTH`). Until
+    17 October 2026 it was 0.35 m from the opening, which left 0.21 m
+    to a portal's casing, and 0.3 m from a corner, and a 1.15 m pier
+    between a portal and a wing wall hung a small canvas. Rico: "too
+    close to the divider wall and also too close to the door frame".
+    22 works of the block plan and 46 of the tower hung on such piers.
+    The casing widths are `DOOR_TRIM` and `PORTAL_TRIM`
+    (`world-coords.ts`), which `wall.tsx` draws. The tower opened 6
+    rooms more for the wall it lost (108 → 114 galleries), and the
+    block plan takes 71 works fewer to keep its coverage. A door
+    screen's face is 4 m now, and its picture is the largest that fits
+    with its canvas on the screen's middle (`centredFootprint`).
   - Until 13 October 2026 a run took works by the share of its length
     they covered, and `packRun` stopped a gap at 2 m and centred the
     group. A long wall with a few works then stood bare for metres at

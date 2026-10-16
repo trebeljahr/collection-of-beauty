@@ -15,14 +15,14 @@ import {
   type WallRun,
 } from "./place-paintings";
 import type { FloorLayout, Placement, RoomLayout } from "./types";
-import { CELL_SIZE } from "./world-coords";
+import { CELL_SIZE, DOOR_TRIM, PORTAL_TRIM, PORTAL_WIDTH } from "./world-coords";
 
 // Expected wall-margin and door clearance, mirrored from
 // place-paintings.ts. Kept here rather than exported so the production
 // module's surface stays minimal — if either moves, this test fails
 // fast and we update.
-const WALL_MARGIN = 0.3;
-const DOOR_CLEARANCE = 0.35;
+const WALL_MARGIN = 0.5;
+const DOOR_CLEARANCE = 0.5;
 
 /** Where a hung work's claim on the wall starts and ends: its frame on
  *  the left, its frame and plaque on the right. */
@@ -109,9 +109,10 @@ describe("computeRoomRuns", () => {
     );
     const north = runs.filter((r) => r.normalZ === 1);
     expect(north).toHaveLength(2);
-    // Neither run overlaps the door opening plus its clearance.
-    const cutLo = doorX - 0.7 - DOOR_CLEARANCE;
-    const cutHi = doorX + 0.7 + DOOR_CLEARANCE;
+    // Neither run overlaps the door opening, its casing and the
+    // clearance beyond it.
+    const cutLo = doorX - 0.7 - DOOR_TRIM - DOOR_CLEARANCE;
+    const cutHi = doorX + 0.7 + DOOR_TRIM + DOOR_CLEARANCE;
     for (const run of north) {
       // north wall has sign +1, so u is world x directly.
       expect(run.uMax <= cutLo + 1e-9 || run.uMin >= cutHi - 1e-9).toBe(true);
@@ -430,6 +431,37 @@ describe("divider runs", () => {
     expect(placement.divider).toBeUndefined();
   });
 
+  it("leaves a pier between a portal and a wing wall bare", () => {
+    // Rico, 17 October 2026, of a small canvas on 1.15 m of wall between
+    // a portal's casing and a wing wall: "too close to the divider wall
+    // and also too close to the door frame". A portal centred on cell 1
+    // and a wing wall on line 3: 1.66 m of plaster between the casing
+    // and the wing wall's face, the shape of the wall he saw.
+    const pier = computeRoomRuns(
+      makeRoom({
+        ...bounds,
+        dividers: [wing],
+        doors: [
+          {
+            side: "north",
+            worldX: 1.5 * CELL_SIZE,
+            worldZ: 0,
+            worldY: 0,
+            width: PORTAL_WIDTH,
+            height: 3,
+            portal: true,
+            connectsTo: { kind: "room", roomId: "h" },
+          },
+        ],
+      }),
+    ).filter((r) => r.side === "north" && r.divider === undefined);
+    // 1.86 m of plaster between the corner and the casing, 1.66 m
+    // between the casing and the wing wall: neither hangs.
+    expect(pier.map((r) => r.uMin)).toEqual([3 * CELL_SIZE + 0.2 + WALL_MARGIN]);
+    const casing = 1.5 * CELL_SIZE + PORTAL_WIDTH / 2 + PORTAL_TRIM;
+    expect(3 * CELL_SIZE - 0.2 - casing).toBeCloseTo(1.66, 9);
+  });
+
   it("cuts the wall a wing wall is built off, and no other", () => {
     const north = runs.filter((r) => r.side === "north" && r.divider === undefined);
     expect(north).toHaveLength(2);
@@ -486,7 +518,7 @@ describe("a door screen", () => {
       sheet("small", 60, 45),
       sheet("large", 240, 180),
       sheet("middle", 120, 90),
-      // 4.4 m of wall less a frame and a plaque: too wide for it.
+      // 4 m of wall less a frame and a plaque: too wide for it.
       ...Array.from({ length: 12 }, (_, i) => sheet(`more-${i}`, 90, 70)),
     ]);
     const onScreen = placements.filter((p) => p.divider === 0);
@@ -530,6 +562,9 @@ describe("ceiling height and the hang", () => {
 
 describe("estimateWallMetres", () => {
   it("takes a portal's extra width off the wall", () => {
-    expect(estimateWallMetres(20, 10, 3, 1)).toBeCloseTo(estimateWallMetres(20, 10, 3) - 2.1, 9);
+    expect(estimateWallMetres(20, 10, 3, 1)).toBeCloseTo(
+      estimateWallMetres(20, 10, 3) - 2.1 - 2 * (PORTAL_TRIM - DOOR_TRIM),
+      9,
+    );
   });
 });

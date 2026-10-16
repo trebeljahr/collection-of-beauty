@@ -26,7 +26,13 @@ import {
   layoutBlock,
 } from "./layout-block";
 import { layoutMuseum } from "./layout-museum";
-import { computeRoomRuns, runLength, wallFootprint } from "./place-paintings";
+import {
+  centredFootprint,
+  computeRoomRuns,
+  runLength,
+  sizeWork,
+  wallFootprint,
+} from "./place-paintings";
 import { eraOfRoom, floorTitle } from "./room-era";
 import type { Door, RoomLayout } from "./types";
 import { CELL_SIZE, doorOpenHalfSpan, PORTAL_WIDTH, SPIRAL_OUTER_RADIUS } from "./world-coords";
@@ -636,9 +642,12 @@ describe("the block plan", () => {
           along,
           6,
         );
-        // The largest work of the room that the screen can take.
-        const faceMetres = 5 - 0.6;
-        const fitting = room.placements.filter((p) => wallFootprint(p.artwork) <= faceMetres);
+        // The largest work of the room that the screen can take
+        // centred, 0.5 m clear of either end.
+        const faceMetres = 5 - 1;
+        const fitting = room.placements.filter(
+          (p) => centredFootprint(sizeWork(p.artwork)) <= faceMetres,
+        );
         const largest = Math.max(...fitting.map((p) => p.widthM * p.heightM));
         expect(work.widthM * work.heightM, room.id).toBeCloseTo(largest, 6);
       }

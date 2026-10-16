@@ -33,7 +33,14 @@ import {
 import { artworkBand } from "./painting-bands";
 import { eraOfRoom } from "./room-era";
 import type { CellRect, Divider, Door, FloorLayout, Placement, RoomLayout } from "./types";
-import { CELL_SIZE, DIVIDER_THICKNESS, DOOR_WIDTH, PORTAL_WIDTH } from "./world-coords";
+import {
+  CELL_SIZE,
+  DIVIDER_THICKNESS,
+  DOOR_TRIM,
+  DOOR_WIDTH,
+  PORTAL_TRIM,
+  PORTAL_WIDTH,
+} from "./world-coords";
 
 /** Eye-height-ish centre for every wall-mounted painting. A work too
  *  tall to hang there without coming within PAINTING_FLOOR_GAP of the
@@ -88,8 +95,14 @@ export const PLAQUE_WIDTH = 0.308;
 /** Wall the plaque takes beyond the frame. Plaques always hang on the
  *  painting's right (museum convention). */
 export const PLAQUE_FOOTPRINT = PLAQUE_GAP + PLAQUE_WIDTH;
-/** Minimum gap from a run's end to the perpendicular room wall. */
-const WALL_MARGIN = 0.3;
+/** Plaster kept bare between a work (frame or plaque) and a corner of
+ *  the room, or the face of a wing wall built off its wall. It was
+ *  0.3 m until 17 October 2026, with 0.35 m from a door opening: a run
+ *  1.15 m long between a portal's casing and a wing wall then hung a
+ *  small canvas and its plaque with 0.2 m of plaster to the casing and
+ *  0.3 m to the wing wall. Rico: "too close to the divider wall and
+ *  also too close to the door frame". */
+const WALL_MARGIN = 0.5;
 /** Minimum gap between a painting's plaque and the next frame.
  *  Only binds when a run is packed to capacity; normally the leftover
  *  plaster opens the gap well past this. */
@@ -100,12 +113,22 @@ const ADJACENT_GAP = 0.1;
  *  one work on each, and an 11.9 m wall stood with 4.9 m bare either
  *  side of its one canvas. */
 const BARE_RUN_WEIGHT = 2;
-/** Plaster either side of a door opening that stays empty, so a
- *  painting never crowds the doorframe. */
-const DOOR_CLEARANCE = 0.35;
-/** A run shorter than this can't hold even the smallest work plus its
- *  plaque, so it's discarded rather than carried around empty. */
-const MIN_RUN_LENGTH = 0.6;
+/** Plaster kept bare between a work and a door's casing, so a painting
+ *  never crowds the doorframe. Measured from the casing's outer edge,
+ *  which is wider on a portal (`PORTAL_TRIM`) than on a door. */
+const DOOR_CLEARANCE = 0.5;
+
+/** Wall cut out either side of a door's centre: the opening, its
+ *  casing and the clearance beyond. */
+function doorCut(door: Pick<Door, "width" | "portal">): number {
+  return door.width / 2 + (door.portal ? PORTAL_TRIM : DOOR_TRIM) + DOOR_CLEARANCE;
+}
+/** A run shorter than this stays bare. With the margins above, a pier
+ *  of 1.21 m between a portal's casing and a wing wall still took a
+ *  portrait with 0.15 m to spare either side, and a strip that narrow
+ *  reads as a work squeezed in where it fits. Its works go to a longer
+ *  wall. A wing wall's 1.5 m face is the shortest run that hangs. */
+const MIN_RUN_LENGTH = 1.4;
 /** Minimum air gap between a frame's bottom edge and the floor. The
  *  canonical wallY centre puts a max-height (3.2 m) painting's bottom at
  *  ~0.05 m, which reads as touching the floor. For tall paintings we lift
@@ -235,7 +258,7 @@ export function computeRoomRuns(room: RoomLayout, options: HangOptions = {}): Wa
     for (const door of room.doors) {
       if (door.side !== wall.side) continue;
       const coord = wall.axis === "x" ? door.worldX : door.worldZ;
-      cut(coord - door.width / 2 - DOOR_CLEARANCE, coord + door.width / 2 + DOOR_CLEARANCE);
+      cut(coord - doorCut(door), coord + doorCut(door));
     }
     // So does a wing wall built off this wall: it covers its own
     // thickness, and a work needs the same margin from that corner as
@@ -393,6 +416,13 @@ export function fitsSomeRun(work: SizedWork, runs: readonly WallRun[]): boolean 
   return runs.some((run) => runLength(run) >= need && work.hM <= run.maxHeight + 1e-9);
 }
 
+/** Wall a work needs to hang with its canvas on the middle of it: the
+ *  plaque's side on both sides. */
+export function centredFootprint(work: SizedWork): number {
+  const { left, right } = sideClearance(work);
+  return work.wM + 2 * Math.max(left, right);
+}
+
 /** One room's runs plus the works assigned to each, tracked with a
  *  running footprint total so "does this still fit?" is O(1). */
 type Container = {
@@ -528,10 +558,10 @@ const FEATURE_MIN_SHARE = 0.3;
 
 /**
  * Hang each door screen of a room with one picture: the largest of the
- * room's works that fits its face, in the middle of the screen with its
- * plaque beside it. Centred with its plaque it would hang 18 cm off the
- * middle of a wall that is seen head-on. The face then takes nothing
- * more.
+ * room's works that fits its face with its canvas on the middle of the
+ * screen and its plaque beside it. Centred with its plaque, the canvas
+ * would hang 18 cm off the middle of a wall that is seen head-on. The
+ * face then takes nothing more.
  */
 function hangFeatures(container: Container) {
   for (let i = container.runs.length - 1; i >= 0; i--) {
@@ -542,16 +572,11 @@ function hangFeatures(container: Container) {
     for (const artwork of container.room.artworks) {
       if (container.fixedIds.has(artwork.id)) continue;
       const work = sizeWork(artwork, container);
-      if (footprintOf(work) > length || !holds(container, run, work)) continue;
+      if (centredFootprint(work) > length || !holds(container, run, work)) continue;
       if (!best || work.wM * work.hM > best.wM * best.hM) best = work;
     }
     if (!best || footprintOf(best) < length * FEATURE_MIN_SHARE) continue;
-    const { left, right } = sideClearance(best);
-    const centre = Math.max(
-      run.uMin + left + best.wM / 2,
-      Math.min((run.uMin + run.uMax) / 2, run.uMax - right - best.wM / 2),
-    );
-    container.fixed.push({ run, work: best, u: centre });
+    container.fixed.push({ run, work: best, u: (run.uMin + run.uMax) / 2 });
     container.fixedMetres += footprintOf(best);
     container.fixedIds.add(best.artwork.id);
     container.runs.splice(i, 1);
@@ -1003,8 +1028,9 @@ export function wallFootprint(artwork: ArtworkListing, options: HangOptions = {}
 /**
  * Hangable wall the four walls of a room this size offer, before it
  * exists. Exact for the room shapes this museum uses: `computeRoomRuns`
- * trims WALL_MARGIN off both ends of all four walls and DOOR_CLEARANCE
- * off both sides of every door opening, so the only estimate here is
+ * trims WALL_MARGIN off both ends of all four walls and a door's casing
+ * and DOOR_CLEARANCE off both sides of every door opening, so the only
+ * estimate here is
  * the door count. `portalCount` of the doors are portals. Dividers are
  * counted apart, by `dividerWallMetres`.
  */
@@ -1018,8 +1044,10 @@ export function estimateWallMetres(
   return (
     perimeter -
     8 * WALL_MARGIN -
-    doorCount * (DOOR_WIDTH + 2 * DOOR_CLEARANCE) -
-    portalCount * (PORTAL_WIDTH - DOOR_WIDTH)
+    doorCount * 2 * doorCut({ width: DOOR_WIDTH, portal: false }) -
+    portalCount *
+      (2 * doorCut({ width: PORTAL_WIDTH, portal: true }) -
+        2 * doorCut({ width: DOOR_WIDTH, portal: false }))
   );
 }
 

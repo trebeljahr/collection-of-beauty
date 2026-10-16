@@ -37,6 +37,11 @@ export const DOOR_HEIGHT = 2.4;
 // lintel under the lowest ceiling (ROOM_HEIGHT_LOW).
 export const PORTAL_WIDTH = 3.5;
 export const PORTAL_HEIGHT = 3.0;
+// Width of the casing round an opening, on the wall either side of it
+// (wall.tsx draws it). A portal's is wider, to read as cut through
+// masonry. The hang measures a work's clearance from its outer edge.
+export const DOOR_TRIM = 0.06;
+export const PORTAL_TRIM = 0.14;
 // Freestanding divider walls are real boxes, seen end-on, where every
 // other wall is a zero-thickness plane between two rooms.
 export const DIVIDER_THICKNESS = 0.4;
