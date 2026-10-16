@@ -544,6 +544,29 @@ export function getEra(id: EraId): Era {
   return era;
 }
 
+/** Colours of rooms that hang no one era: the museum's court and salon.
+ *  Rico, 17 October 2026, asked for them to differ from the grey stone
+ *  of the stair halls and stair towers, and to stay light. Not modelled
+ *  on a room: a warm sandstone beside the stairs' cool grey. */
+export const HALL_PALETTES = {
+  court: {
+    wallColor: "#e2cfa9",
+    floorColor: "#3a2a1f",
+    ceilingColor: "#f3eee2",
+    accent: "#c68642",
+    roomAccents: ["#3a2a1f"],
+  },
+} as const satisfies Record<string, Palette>;
+
+/** An era's palette, or one of `HALL_PALETTES`. */
+export type PaletteId = EraId | keyof typeof HALL_PALETTES;
+
+export function getPalette(id: PaletteId): Palette {
+  return id in HALL_PALETTES
+    ? HALL_PALETTES[id as keyof typeof HALL_PALETTES]
+    : getEra(id as EraId).palette;
+}
+
 /**
  * Nth accent of an era's palette, wrapping. Floor tints are handed out
  * by movement rank rather than by hashing a room id, so every distinct

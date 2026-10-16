@@ -405,7 +405,7 @@ function wrapLines(
 }
 
 /** A room's colour on the map: the colour of its walls. */
-export function mapFillOf(room: Pick<RoomLayout, "era" | "floorIndex" | "paletteEra">): string {
+export function mapFillOf(room: Pick<RoomLayout, "era" | "floorIndex" | "paletteId">): string {
   return paletteOfRoom(room).wallColor;
 }
 

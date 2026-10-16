@@ -967,7 +967,7 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
   const domed = closed && (grand === undefined || room.domed === true);
   const ceilingY = ceilingYOf(room);
   // A stair hall is one colour through every storey.
-  const palette = room.paletteEra ? paletteOfRoom(room) : floor.era.palette;
+  const palette = room.paletteId ? paletteOfRoom(room) : floor.era.palette;
   const { wallColor } = palette;
 
   const built = useMemo(() => {

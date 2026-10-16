@@ -89,7 +89,14 @@
 //   gallery seen from above.
 
 import type { ArtworkListing } from "@/lib/data";
-import { assignEra, type Era, type EraId, eraAccentColor, getEra } from "@/lib/gallery-eras";
+import {
+  assignEra,
+  type Era,
+  type EraId,
+  eraAccentColor,
+  getEra,
+  type PaletteId,
+} from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
 import { computeBlockedEdges } from "./blocked-edges";
 import { curatedQueue, roomDescription, roomTitle } from "./curation";
@@ -278,10 +285,17 @@ export const SALON_TOP_STOREY = 10.67;
  *  wall and have no door to it: a door there stood in the line of the
  *  door screen in front of their door to the spiral. */
 const SALON_DOOR: RoomKey = "stair-s";
-/** The era whose colours every storey of every hall and stair tower
- *  takes: the pale stone of the first floor's first rooms. A hall is one
- *  room four storeys high, seen through all of them at once. */
-const HALL_PALETTE: EraId = "gothic";
+/** The colours every storey of the stair halls and stair towers takes:
+ *  the pale stone of the Gothic rooms. A hall is one room four storeys
+ *  high, seen through all of them at once. */
+const STAIR_PALETTE: PaletteId = "gothic";
+/** The court and the salon hang no one era and are no stair: a warm
+ *  sandstone of their own, so the spine does not read as one band of
+ *  grey from end to end. */
+const HALL_PALETTE: Readonly<Partial<Record<RoomKey, PaletteId>>> = {
+  court: "court",
+  salon: "court",
+};
 /** Where a visit starts, and where a visitor sent to a floor lands. */
 export const GREAT_HALL: RoomKey = "court";
 
@@ -354,25 +368,29 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     title: "Old Masters",
     blurb:
       "European painting up to about 1700, with Botticelli and Dürer in the first room and Poussin in the last.",
+    // The mirror of the other floors' walk: out of the court to the
+    // east, round by the north and back by the south-west. Rico, 17
+    // October 2026: with the Gothic and Renaissance rooms in the west
+    // and the Baroque ones in the east the map read as the French flag.
     styles: {
-      sw: "long-rows",
-      cw: "bays",
-      ne: "bays",
-      ce: "long-rows",
-      se: "staggered",
+      se: "long-rows",
+      ce: "bays",
+      nw: "bays",
+      cw: "long-rows",
+      sw: "staggered",
     },
     screens: [
-      ["sw", "stair-s"],
-      ["nw", "cw"],
-      ["ce", "se"],
+      ["se", "stair-s"],
+      ["ne", "ce"],
+      ["cw", "sw"],
     ],
     zones: [
       // One long gallery. The era has 69 works that are sharp enough to
       // hang: in three rooms they covered a third of the wall and read
       // as a collection with works missing.
-      { era: "gothic", cells: ["sw"] },
-      { era: "renaissance", cells: ["cw", "nw"] },
-      { era: "baroque", cells: ["ne", "ce", "se"] },
+      { era: "gothic", cells: ["se"] },
+      { era: "renaissance", cells: ["ce", "ne"] },
+      { era: "baroque", cells: ["nw", "cw", "sw"] },
     ],
   },
   {
@@ -774,7 +792,7 @@ function buildFloor(
       isStairwell: true,
       isAnchor: key === GREAT_HALL,
     });
-    room.paletteEra = HALL_PALETTE;
+    room.paletteId = HALL_PALETTE[key] ?? STAIR_PALETTE;
     add(key, room);
   }
   for (const { key, rect: r } of BLOCK_SPIRALS) {
@@ -782,7 +800,7 @@ function buildFloor(
       title: HALL_NAMES[key] ?? "Stairs",
       isStairwell: true,
     });
-    room.paletteEra = HALL_PALETTE;
+    room.paletteId = STAIR_PALETTE;
     add(key, room);
   }
   for (const { key, rect: r } of BLOCK_ROOMS) {

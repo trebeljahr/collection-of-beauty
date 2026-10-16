@@ -3,7 +3,7 @@
 // the R3F renderer lives here.
 
 import type { ArtworkListing } from "@/lib/data";
-import type { Era, EraId } from "@/lib/gallery-eras";
+import type { Era, EraId, PaletteId } from "@/lib/gallery-eras";
 import type { FrameDesign } from "./frame-design";
 import type { GrandStair } from "./grand-stair";
 
@@ -100,10 +100,10 @@ export type RoomLayout = {
   /** The era this room shows: a floor holds more than one. Read it
    *  through `eraOfRoom`. */
   era?: EraId;
-  /** The era whose colours the room takes when they are not its own
-   *  era's: a stair hall is one colour through every storey. Read a
-   *  room's palette through `paletteOfRoom`. */
-  paletteEra?: EraId;
+  /** The colours the room takes when they are not its own era's: a
+   *  hall is one colour through every storey. Read a room's palette
+   *  through `paletteOfRoom`. */
+  paletteId?: PaletteId;
   movement: string;
   title: string;
   description: string;
