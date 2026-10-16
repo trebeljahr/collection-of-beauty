@@ -45,6 +45,60 @@ export const RING_ROWS = Math.round((RING_OUTER_R - RING_INNER_R) / RING_ROW_M);
 export const OCULUS_ROWS = 6;
 export const OCULUS_HUB_R = RING_OUTER_R - OCULUS_ROWS * RING_ROW_M;
 
+/** Plain ceiling kept between a washer's can and the glass. */
+export const GLAZING_CAN_CLEAR = 1.0;
+
+/**
+ * Outer radius of the glazing in a stair room `width` by `depth`: the
+ * ring's own, or less where the washers' cans would hang over the glass.
+ * The ring was drawn for the tower's stairwell, 22.5 m square. A spiral
+ * room of the block plan is 17.5 m deep, and the glass reached to 0.4 m
+ * of its long walls, under the cans that hang 1.9 m out from them.
+ */
+export function glazingOuterR(width: number, depth: number): number {
+  return Math.min(RING_OUTER_R, Math.min(width, depth) / 2 - WASH_THROW - GLAZING_CAN_CLEAR);
+}
+
+/** Whether a glazed ring round the well fits inside `outerR`: one row of
+ *  panes at least. Where it does not, the ceiling round the well is
+ *  plain. */
+export function ringFits(outerR: number): boolean {
+  return outerR - RING_INNER_R >= RING_ROW_M;
+}
+
+/** How high the dome that closes the top floor rises over its rim, as a
+ *  share of the rim's radius. */
+export const DOME_RISE = 0.75;
+
+/** The dome over a rim of radius `rimR`: a spherical cap, `rise` high,
+ *  whose height over the rim at a distance `r` from the axis is
+ *  `heightAt(r)`. `rows` rows of panes run from the hub to the rim,
+ *  each about RING_ROW_M long on the curve. */
+export function dome(rimR: number): {
+  rise: number;
+  rows: number;
+  heightAt: (r: number) => number;
+  /** Distance from the axis and height over the rim of the row edge
+   *  `j` of `rows` (0 at the hub, `rows` at the rim). */
+  rowEdge: (j: number) => { r: number; y: number };
+} {
+  const rise = rimR * DOME_RISE;
+  const sphere = (rimR * rimR + rise * rise) / (2 * rise);
+  const centreY = rise - sphere;
+  const hubAngle = Math.asin(OCULUS_HUB_R / sphere);
+  const rimAngle = Math.asin(rimR / sphere);
+  const rows = Math.max(3, Math.round((sphere * (rimAngle - hubAngle)) / RING_ROW_M));
+  return {
+    rise,
+    rows,
+    heightAt: (r) => centreY + Math.sqrt(Math.max(0, sphere * sphere - r * r)),
+    rowEdge: (j) => {
+      const a = hubAngle + ((rimAngle - hubAngle) * j) / rows;
+      return { r: sphere * Math.sin(a), y: centreY + sphere * Math.cos(a) };
+    },
+  };
+}
+
 export type WashRow = {
   /** Cans along the wall, and the gap between them. */
   count: number;

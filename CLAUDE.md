@@ -518,7 +518,9 @@ required by the Dockerfile — don't remove it.
     4. a wall for the picture light: `wallContextFor` takes the
        divider's face, so the pool stops at its ends.
     Laylights are cut where a divider reaches under them
-    (`laylight-layout.ts`).
+    (`laylight-layout.ts`). Each sits 10 cm up in a hole in the ceiling
+    with a plaster reveal round it (`RECESS_M`, `ceilingAround` in
+    `laylight.tsx`); Rico asked for 5 to 10 cm on 17 October 2026.
   - **Portals.** The doors between the rooms of the stair column
     (`Door.portal`, 3.5 × 3.0 m; every other door is 1.4 × 2.4 m). A
     door centre sits mid-cell, so a portal opens three cell edges
@@ -573,9 +575,12 @@ required by the Dockerfile — don't remove it.
   in `use-joystick.ts`). A touch control is a sibling of the canvas: a tap
   on it must not reach the canvas's `pointerdown`, which opens the work
   under the crosshair.
-- **A second floor plan sits behind `/gallery-3d?plan=block`**
-  (`src/lib/gallery-layout/layout-block.ts`). The tower is the museum;
-  the block plan exists so Rico can walk it and decide. One rectangular
+- **The museum is the block plan** (`/gallery-3d`,
+  `src/lib/gallery-layout/layout-block.ts`) since 17 October 2026. The
+  tower before it is behind `/gallery-3d?plan=tower`, and its code stays
+  (tag `museum-tower-default-2026-10-17` is the last main with the tower
+  as default). `precomputed.ts` and `/gallery-3d/plan` show the block
+  plan; `build-museum-screenshots.mjs` walks the tower. One rectangular
   block, 117.5 × 62.5 m, on four floors, the same plan on each. Down
   its middle runs a spine of five bays: a stair hall 27.5 m square at
   each end, a court of the same size in the centre, and a gallery of
@@ -1305,7 +1310,14 @@ required by the Dockerfile — don't remove it.
   each stretch of its walls ("A hall is lit by rows of wall washers",
   above):
   - a plaster ceiling a storey up, with a glazed ring round the well.
-    On the top floor the ring closes into an oculus;
+    On the top floor a glazed dome closes it, rising 0.75 of its rim's
+    radius over the ceiling (`dome()`, `DOME_RISE`), shaded darker
+    toward the rim because the glass is unlit;
+  - the glass stops a metre short of the washers' cans
+    (`glazingOuterR`). Rico, 17 October 2026: no light hangs on the
+    glass. A spiral room of the block plan is 17.5 m deep, so its dome
+    has a 5.85 m rim and its lower floors have no ring (`ringFits`);
+    the tower's stairwell keeps its 8.35 m ring;
   - six wall washers along each wall. Their pools are one mesh for the
     room. A fragment adds the can it stands under and that can's two
     neighbours, so a cone may not reach a gap and a half along the wall

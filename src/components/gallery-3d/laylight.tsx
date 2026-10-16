@@ -31,7 +31,7 @@ const PANE_M = 1.25;
 /** How far the glass sits above the ceiling plane. The slab above is at
  *  least 0.2 m over the highest ceiling, so this stays inside the
  *  plenum. */
-export const RECESS_M = 0.08;
+export const RECESS_M = 0.1;
 const FRAME_WIDTH = 0.09;
 /** Depth of the frame's bars under the glass. Shallow, so the reveal
  *  shows below them. */
