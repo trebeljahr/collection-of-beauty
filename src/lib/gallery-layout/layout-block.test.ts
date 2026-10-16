@@ -1147,7 +1147,7 @@ describe("the block plan's rooms as fitted and hung", () => {
     expect(least, leastId).toBeGreaterThanOrEqual(0.5);
   });
 
-  it("signs each stair hall's floors on pylons, up on the right and down on the left", () => {
+  it("signs each stair hall's floors on pylons, up on the left and down on the right", () => {
     const misplaced: string[] = [];
     floors: for (const floor of layout.floors) {
       const posts = stairSignPosts(floor);
@@ -1158,11 +1158,11 @@ describe("the block plan's rooms as fitted and hung", () => {
       }
       for (const post of posts) {
         const labels = `${post.up ?? "-"}/${post.down ?? "-"}`;
-        // The visitor faces the stair from its lobby (local -z), so its
-        // right is local +x.
+        // The visitor faces the stair from its lobby (local +z), so its
+        // left is local -x.
         const stair = layout.grandStairs!.find((s) => post.id.startsWith(`${s.id}-sign-`))!;
-        const right = toStairLocal(stair, post.x, post.z).x > 0;
-        const want = right
+        const left = toStairLocal(stair, post.x, post.z).x < 0;
+        const want = left
           ? `${floor.index < top ? layout.floors[floor.index + 1].title : "-"}/-`
           : `-/${floor.index > 0 ? layout.floors[floor.index - 1].title : "-"}`;
         if (labels !== want) misplaced.push(`${post.id}: ${labels}, not ${want}`);

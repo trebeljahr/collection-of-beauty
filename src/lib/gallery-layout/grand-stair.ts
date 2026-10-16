@@ -619,11 +619,12 @@ export const SIGN_POST_SETBACK = 0.3;
 
 /**
  * The pylons on one storey of every loggia that meets it. The one on
- * the visitor's right as they face the stair names the floor above
- * (the middle flight, `stairsOut`), the one on the left the floor below
- * (the side flights down, `stairsIn`). The first floor has the right
- * one only and the top floor the left one only. Rico, 17 October 2026:
- * two pylons that both said the same thing read as duplicated.
+ * the visitor's left as they face the stair names the floor above
+ * (the middle flight, `stairsOut`), the one on the right the floor
+ * below (the side flights down, `stairsIn`), as at a spiral's gate.
+ * The first floor has the left one only and the top floor the right
+ * one only. Rico, 17 October 2026: two pylons that both said the same
+ * thing read as duplicated.
  * A court has no stair and no pylon.
  */
 export function stairSignPosts(floor: {
@@ -647,8 +648,8 @@ export function stairSignPosts(floor: {
     const z = IMPERIAL.south + loggiaShift(stair.half) + SIGN_POST_SETBACK;
     // The visitor comes in from +z facing -z, so +x is their right.
     const sides = [
-      { side: 1, up: out?.upperLabel ?? null, down: null },
-      { side: -1, up: null, down: arrived?.lowerLabel ?? null },
+      { side: -1, up: out?.upperLabel ?? null, down: null },
+      { side: 1, up: null, down: arrived?.lowerLabel ?? null },
     ];
     for (const { side, up, down } of sides) {
       if (up === null && down === null) continue;

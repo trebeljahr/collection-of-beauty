@@ -1311,10 +1311,11 @@ required by the Dockerfile — don't remove it.
     (`stairSignPosts` in `grand-stair.ts`, drawn by `GrandStairSigns`),
     the spiral gate's post and plaques: either side of the middle
     flight, midway to the side flights' heads, backed onto the
-    balustrade between them, where no one walks. The right one, as the
-    visitor faces the stair, names the floor above, the left one the
-    floor below; the first floor has the right one only and the top
-    floor the left one only. Rico, 17 October 2026: two pylons that
+    balustrade between them, where no one walks. The left one, as the
+    visitor faces the stair, names the floor above, the right one the
+    floor below, as at a spiral's gate (where up is the way the flight
+    climbs); the first floor has the left one only and the top floor
+    the right one only. Rico, 17 October 2026: two pylons that
     both carried both floors read as duplicated. Each is a box
     collider. Signs name floors by `floorTitle`, on the spiral
     gates too; a name over 24 characters is set at 0.07 m.

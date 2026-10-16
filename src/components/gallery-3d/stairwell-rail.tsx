@@ -562,7 +562,8 @@ function ShaftAccents({ floor, shaft }: { floor: FloorLayout; shaft: StairShaft 
 
 /** The pylons at the foot of each loggia on this storey
  *  (`stairSignPosts`): the spiral gate's post and plaques, standing
- *  free on the lobby, up on the right and down on the left. */
+ *  free on the lobby, up on the left and down on the right, as at a
+ *  spiral's gate. */
 export function GrandStairSigns({ floor }: { floor: FloorLayout }) {
   const posts = useMemo(() => stairSignPosts(floor), [floor]);
   if (posts.length === 0) return null;
