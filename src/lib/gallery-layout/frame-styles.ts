@@ -1,8 +1,8 @@
-// The mouldings: 29 frame styles, each a cross-section drawn from the
+// The mouldings: 30 frame styles, each a cross-section drawn from the
 // sight edge outward and ending on the wall, at the size it has on a
-// work about 1.7 m long (scale 1). 27 are mitred. Two are built from
-// straight rails cut square (`Rail`): the tabernacle frame and the
-// Oxford frame.
+// work about 1.7 m long (scale 1). 27 are mitred. Three are built from
+// straight rails cut square (`Rail`): the tabernacle frame, the Oxford
+// frame, and the frame Franz von Stuck designed for his Salome.
 //
 // A style is a builder, not one fixed profile. It takes the ornament to
 // carve on its sight moulding, its field and its crown, and two
@@ -62,7 +62,8 @@ export type FrameStyleId =
   | "deco"
   | "canted"
   | "tabernacle"
-  | "oxford";
+  | "oxford"
+  | "stuck";
 
 export type StyleOptions = {
   /** Ornament on the sight moulding, the field and the crown. null
@@ -138,6 +139,10 @@ type StyleSpec = {
   /** The moulding can take a liner inside it (`StyleOptions.liner`). */
   liner?: boolean;
 };
+
+/** Where the flat panels of Stuck's frame lie in its rails, at scale 1:
+ *  from `from` to `to` outward of the canvas edge, `z` above the wall. */
+export const STUCK_PANEL = { from: 0.041, to: 0.139, z: 0.0435 } as const;
 
 // ── Parts ─────────────────────────────────────────────────────────────
 
@@ -1205,6 +1210,57 @@ const STYLES: Record<FrameStyleId, StyleSpec> = {
   // Oxford frame: four bars that cross at the corners and run on past
   // them, round a mat (slot 1). The mat is mitred; the bars are rails.
   // Detail sets the mat's width.
+  // Franz von Stuck's own frame for his Salome of 1906, as the scan of
+  // the framed picture shows it, at its real size (scale 1, measured at
+  // 34.2 px/cm on the scan). Flat gilt panels between reeded mouldings,
+  // like a little temple front: a reeded band 4.1 cm wide round the
+  // canvas, a panel 9.8 cm wide beyond it, a reeded edge 1.5 cm wide.
+  // The top and bottom bands and panels run the full width, over the
+  // pilasters. What Stuck painted on the panels in grey-blue (columns,
+  // a pediment, two roundels and the title) is not moulding: the
+  // renderer lays it on the panels (`FrameDesign.painted`), at
+  // `STUCK_PANEL` below.
+  stuck: {
+    scale: [1, 1],
+    sight: [null],
+    field: [null],
+    crown: [null],
+    variants: 1,
+    details: 1,
+    build: () => [],
+    rails: () => {
+      // Sanded flat gilt, open to the light: shadeProfile would read the
+      // panel as a hollow between two mouldings and darken it.
+      const panel = { rough: 1.15, wear: 0.15, ao: 0.97 };
+      const rail = (lift: number) =>
+        join(
+          lip(0.004, 0.047 + lift),
+          p(0.0005, 0.047 + lift, hard),
+          // The inner band: seven reeds rising a little outward, the
+          // fourth beaded.
+          ...reeds(0.0005, 0.047 + lift, 3, 0.0028, 0.0006),
+          ...reeds(0.0173, 0.0488 + lift, 1, 0.0028, 0, { band: "pearl" }),
+          ...reeds(0.0229, 0.0494 + lift, 3, 0.0028, 0.0006),
+          p(0.0397, 0.0506 + lift, hard),
+          p(0.041, 0.0506 + lift, hard),
+          p(0.041, 0.0435, { ...panel, crease: true }),
+          p(0.139, 0.0435, { ...panel, crease: true }),
+          p(0.139, 0.047, hard),
+          ...reeds(0.139, 0.047, 2, 0.0035, 0, { band: "pearl" }),
+          p(0.153, 0.047, hard),
+          p(0.154, 0.045, hard),
+          ...backEdge(0.154, 0.045),
+        );
+      // The bands of the top and bottom stand 1.5 mm proud of the
+      // pilasters' bands where the two meet, so they share no surface.
+      return [
+        { side: "left", profile: rail(0), past: 0 },
+        { side: "right", profile: rail(0), past: 0 },
+        { side: "top", profile: rail(0.0015), past: 0.154 },
+        { side: "bottom", profile: rail(0.0015), past: 0.154 },
+      ];
+    },
+  },
   oxford: {
     scale: [0.8, 1.2],
     sight: [null],

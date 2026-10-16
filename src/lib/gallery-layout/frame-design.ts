@@ -372,7 +372,8 @@ export type LookId =
   | "oakBlocks"
   | "hammered"
   | "deco"
-  | "canted";
+  | "canted"
+  | "stuck";
 
 type Look = {
   style: FrameStyleId;
@@ -462,6 +463,9 @@ const LOOKS: Record<LookId, Look> = {
   japanBamboo: { style: "print", main: ["kiri", "maple", "ash", "stained", "walnut"], inner: ["mat"], accent: ["blackMatte"], variants: [5] },
   // Silk.
   silkMount: { style: "mount", main: ["walnut", "blackLacquer", "redLacquer", "rosewood"], inner: ["silk"], accent: ["brocade"] },
+  // One frame, for one work: Franz von Stuck's own design for his
+  // Salome (PINNED_FRAMES). No school draws it.
+  stuck: { style: "stuck", main: ["gilt"] },
 };
 
 export const LOOK_IDS = Object.keys(LOOKS) as LookId[];
@@ -1081,7 +1085,14 @@ export type FrameDesign = {
   slots: SlotLook[];
   /** A framer's choice of a slimmer or a heavier cut of the moulding. */
   weight: number;
+  /** What an artist painted on the frame's flat panels, which the
+   *  renderer lays over them. Only on a pinned frame. */
+  painted?: FramePainting;
 };
+
+/** Paintwork on a frame's panels, drawn by the renderer
+ *  (components/gallery-3d/frame-paint.ts). */
+export type FramePainting = "stuckSalome";
 
 /** How strongly the picture sways the choice. At 1 the fit multiplies
  *  the weights as written; above it a good match wins more often. */
@@ -1364,7 +1375,7 @@ function designOf(
     };
   });
 
-  const weight = 0.9 + 0.22 * draw(id, "weight");
+  const weight = pin?.weight ?? 0.9 + 0.22 * draw(id, "weight");
   const round = (x: number) => Math.round(x * 1000);
   const key = [
     lookId,
@@ -1380,7 +1391,17 @@ function designOf(
       used[slot] ? [s.finish, ...s.tint.map(round), round(s.wear)] : [],
     ),
   ].join("|");
-  return { key, look: lookId, style: look.style, options, slots, weight };
+  return pin?.painted
+    ? {
+        key: `${key}|${pin.painted}`,
+        look: lookId,
+        style: look.style,
+        options,
+        slots,
+        weight,
+        painted: pin.painted,
+      }
+    : { key, look: lookId, style: look.style, options, slots, weight };
 }
 
 /** A frame chosen for one work by hand. */
@@ -1391,6 +1412,10 @@ type FramePin = {
   variant?: number;
   /** The moulding's finish. */
   main?: FinishId;
+  /** The cut of the moulding (`FrameDesign.weight`). 1 with a style
+   *  whose scale is fixed at 1 hangs the frame at its real size. */
+  weight?: number;
+  painted?: FramePainting;
 };
 
 /**
@@ -1405,6 +1430,18 @@ type FramePin = {
  * the scan reads as the inner edge of the frame round it.
  */
 const PINNED_FRAMES: Record<string, FramePin> = {
+  // Stuck designed the frame of his small Salome of 1906 (24.7 × 45.7 cm)
+  // as a temple front in gilt: pilasters, a pediment, a plinth with its
+  // title. The scan showed it round the canvas, so the scan is cut to
+  // the canvas (metadata/scan-crops.json) and the frame is built again
+  // in the round at its real size, 56.1 × 76.5 cm, with his paintwork
+  // on its panels (Rico, 17 October 2026).
+  "collection-of-beauty-franz-von-stuck-salome": {
+    look: "stuck",
+    main: "gilt",
+    weight: 1,
+    painted: "stuckSalome",
+  },
   "collection-of-beauty-resting-girl-by-francois-boucher-1753-alte-pinakothek-munich-germany-2017-crop":
     { look: "louisXV", variant: 1, main: "gilt" },
 };

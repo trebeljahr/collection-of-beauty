@@ -14,6 +14,7 @@ import { ERAS, isEraId } from "@/lib/gallery-eras";
 import {
   type FrameDesign,
   frameMoulding,
+  frameScale,
   pickFrameDesign,
   roomHanging,
   wallHanging,
@@ -23,6 +24,7 @@ import { variantProxyUrl } from "@/lib/utils";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { buildFrameGeometry } from "./frame-geometry";
 import { frameMaterials } from "./frame-materials";
+import { FramePaint } from "./frame-paint";
 import { RoomEnvironment } from "./room-env-map";
 import { isDeepWall } from "./wall-light";
 
@@ -103,6 +105,14 @@ function SheetWork({
   return (
     <group position={[x, y, PAINTING_WALL_OFFSET]}>
       <mesh geometry={geometry} material={frameMaterials(design)} />
+      {design.painted && (
+        <FramePaint
+          painted={design.painted}
+          widthM={w}
+          heightM={h}
+          scale={frameScale(design, w, h)}
+        />
+      )}
       <mesh position={[0, 0, 0.014]}>
         <planeGeometry args={[w, h]} />
         {/* Keyed on the texture: a material compiled without a map does

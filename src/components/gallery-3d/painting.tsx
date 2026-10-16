@@ -11,6 +11,7 @@ import {
   type FrameDesign,
   frameExtents,
   frameMoulding,
+  frameScale,
   pickFrameDesign,
 } from "@/lib/gallery-layout/frame-design";
 import {
@@ -28,6 +29,7 @@ import { GALLERY_LOD_WIDTH, variantProxyUrl } from "@/lib/utils";
 import { FOV_DEFAULT_DEG, ladderHeightPx, ZOOM_PIXEL_HEADROOM } from "./camera-config";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { buildFrameGeometry } from "./frame-geometry";
+import { FramePaint } from "./frame-paint";
 import { PaintingLight } from "./painting-light";
 import { buildLightRig, wallContextFor } from "./painting-light-rig";
 import { createPaintingPreview } from "./painting-preview";
@@ -663,11 +665,22 @@ function FrameMesh({
   );
   useEffect(() => () => geometry.dispose(), [geometry]);
   return (
-    <mesh
-      geometry={geometry}
-      material={frameMaterials(design, palette)}
-      layers={UNREFLECTED_LAYER}
-    />
+    <>
+      <mesh
+        geometry={geometry}
+        material={frameMaterials(design, palette)}
+        layers={UNREFLECTED_LAYER}
+      />
+      {design.painted && (
+        <FramePaint
+          painted={design.painted}
+          widthM={widthM}
+          heightM={heightM}
+          scale={frameScale(design, widthM, heightM)}
+          palette={palette}
+        />
+      )}
+    </>
   );
 }
 

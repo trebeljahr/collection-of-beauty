@@ -253,6 +253,25 @@ describe("pinned frames", () => {
   });
 });
 
+describe("Stuck's frame for his Salome", () => {
+  const salome = artworkListings.find(
+    (a) => a.id === "collection-of-beauty-franz-von-stuck-salome",
+  );
+
+  it("hangs at its real size, about 56 × 76.5 cm round a canvas of 24.7 × 45.7", () => {
+    expect(salome).toBeDefined();
+    const design = pickFrameDesign(salome as Work);
+    expect([design.look, design.painted]).toEqual(["stuck", "stuckSalome"]);
+    const e = frameExtents(design, 0.247, 0.457);
+    const outer = [0.247 + 2 * e.side, 0.457 + e.top + e.bottom].map((m) => Math.round(m * 1000));
+    expect(outer).toEqual([555, 765]);
+  });
+
+  it("is drawn by no school", () => {
+    expect(looksOf("Symbolism", 1906)).not.toContain("stuck");
+  });
+});
+
 describe("pickPairDesign", () => {
   it("draws from the looks both schools hang in", () => {
     // Baroque and Dutch Golden Age share one look: the wood bolection.

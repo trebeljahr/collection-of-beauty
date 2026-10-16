@@ -212,6 +212,15 @@ required by the Dockerfile — don't remove it.
   in a pinned gilt Louis XV frame that swells at the corners
   (`PINNED_FRAMES` in `frame-design.ts`), so the carving reads as the
   inner edge of the frame round it.
+- Stuck's small Salome of 1906 (`Franz_von_Stuck_Salome.jpg`) was
+  scanned in the frame he designed for it, a temple front in gilt. The
+  scan is cut to the canvas, its size is the canvas's (24.7 × 45.7 cm;
+  the 56.1 × 76.5 cm stored before was the frame), and the museum
+  builds his frame again: the `stuck` style, rails of reeded bands and
+  flat panels at real size (scale fixed at 1, pinned weight 1), with
+  his grey-blue paintwork (columns, pediment, roundels, title) drawn
+  on the panels by `frame-paint.tsx` (`FrameDesign.painted`). A new
+  painted frame needs a style, a pin and a drawing there.
 - Editing an entry makes that work's variants and tiles stale (they are
   older than the table). Run `pnpm assets:shrink --folder=… --only=…`,
   then build-data, then `assets:tiles --only=…`. A cut can drop a work
@@ -1628,8 +1637,8 @@ required by the Dockerfile — don't remove it.
     straight frame, and `plain` leaves it bare between them (a panel
     frame). A swept frame is about 2,600 triangles (3,900 at most) where
     the mean over the catalogue is 860. `frameReach` counts the swell.
-  - **Rails and blocks.** Two styles are not mitred. A tabernacle
-    frame and an Oxford frame return `rails`: straight
+  - **Rails and blocks.** Three styles are not mitred. A tabernacle
+    frame, an Oxford frame and Stuck's frame return `rails`: straight
     lengths along one side of the canvas, cut square and closed at the
     ends (`addRail`). Rails that cross must not share a surface: the
     Oxford frame's uprights stand 2 mm proud, and a tabernacle's
