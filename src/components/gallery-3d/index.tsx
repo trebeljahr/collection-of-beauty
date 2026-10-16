@@ -43,7 +43,7 @@ import { RoomEnvironment } from "./room-env-map";
 import { RoomGeometry, RoomReveals } from "./room-geometry";
 import { Gallery3DSettings } from "./settings-modal";
 import { StaircaseRenderer } from "./staircase";
-import { StairwellLight } from "./stairwell-light";
+import { StairwellLight, StairwellSpill } from "./stairwell-light";
 import { GrandStairSigns, StairwellAccents } from "./stairwell-rail";
 import { preloadCached } from "./texture-cache";
 import { useGalleryMusic } from "./use-gallery-music";
@@ -1226,6 +1226,7 @@ function FloorScene({
             like the one the player stands on. */}
         {showOnly !== "stairs" && <StairwellLight floor={floor} />}
       </group>
+      {showOnly !== "stairs" && <StairwellSpill floor={floor} />}
     </group>
   );
 }

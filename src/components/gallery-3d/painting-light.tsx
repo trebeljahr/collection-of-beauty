@@ -52,23 +52,26 @@ export const SURFACE_LIFT = 0.002;
 const NO_THRESHOLD = 1e6;
 
 /**
- * GLSL for the share of a floor pool left at `p`, which falls to nothing
- * at each of `count` doorway thresholds (`THRESHOLD_FADE_M` in
- * painting-light-rig.ts says why). `uDoor[i]` holds a threshold's two
- * ends in the frame `p` is in. The steps are multiplied, not the nearest
- * taken, so two doors close together leave no ridge between them.
+ * GLSL for the share of a floor pool left at `p`, which falls to
+ * `uDoorShare` at each of `count` doorway thresholds (`THRESHOLD_FADE_M`
+ * in painting-light-rig.ts says why). A picture light's pool falls to
+ * nothing; a stairwell's washers keep a share, which goes on through the
+ * door (stairwell-light.tsx). `uDoor[i]` holds a threshold's two ends in
+ * the frame `p` is in. The steps are multiplied, not the nearest taken,
+ * so two doors close together leave no ridge between them.
  */
 export function thresholdFadeGlsl(count: number): string {
   return /* glsl */ `
 uniform vec4 uDoor[${count}];
 uniform float uDoorFade;
+uniform float uDoorShare;
 float thresholdFade(vec2 p) {
   float k = 1.0;
   for (int i = 0; i < ${count}; i++) {
     vec2 a = uDoor[i].xy;
     vec2 ab = uDoor[i].zw - a;
     float t = clamp(dot(p - a, ab) / max(dot(ab, ab), 1e-6), 0.0, 1.0);
-    k *= smoothstep(0.0, uDoorFade, distance(p, a + ab * t));
+    k *= mix(uDoorShare, 1.0, smoothstep(0.0, uDoorFade, distance(p, a + ab * t)));
   }
   return k;
 }
@@ -85,6 +88,7 @@ export function thresholdUniforms(count: number) {
       ),
     },
     uDoorFade: { value: THRESHOLD_FADE_M },
+    uDoorShare: { value: 0 },
   };
 }
 

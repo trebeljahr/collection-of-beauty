@@ -1428,8 +1428,17 @@ required by the Dockerfile — don't remove it.
     wall the door is. A pool stops where its room does, and in a doorway
     nothing hides the stop: it showed as a line across the floor from
     jamb to jamb, about 30 % brighter on the side with a work or a
-    washer near the door. The stairwell's washers fade the same way.
-    Anything new that lights a floor has to reach a threshold at zero;
+    washer near the door. Anything new that lights a floor has to reach
+    a threshold at zero, or carry its light on through the door as a
+    stair room's washers do. Their band on the floor reached zero too,
+    and from the room next door the hall's floor still lit up within a
+    metre and a half of the threshold, and where two washed rooms met
+    (the court and a spiral room) the floor dipped dark on both sides
+    of it. Since 17 October 2026 the band falls to half over 2.5 m and
+    that half goes on onto the next room's floor, dying away over 2 m,
+    faster past a jamb (`washSpills`, `StairwellSpill`). The spill is
+    one mesh a floor outside the stairwell's culled fittings, since it
+    lies on the neighbour's floor;
   - frames, canvas and plaque sit in front of the quad and are not lit
     by it. The plaque card and the mat board carry their own emissive
     for that reason, and frame materials add the light themselves (see

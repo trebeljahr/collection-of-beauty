@@ -15,9 +15,12 @@ import {
   WASH_CORNER_GAP,
   WASH_PEAK,
   WASH_SIDE_REACH,
+  WASH_SPILL_JAMB,
+  WASH_SPILL_M,
   WASH_THROW,
   type WashRow,
   washLampXs,
+  washSpills,
   washStretches,
   washWallRects,
 } from "./stairwell-light-rig";
@@ -388,4 +391,25 @@ describe("dome", () => {
       expect(row).toBeLessThan(RING_ROW_M * 1.33);
     });
   }
+});
+
+describe("washSpills", () => {
+  const door = { center: 0, width: 3.5, height: 3 };
+  const jamb = WASH_SPILL_M / WASH_SPILL_JAMB;
+
+  it("carries a band that crosses a door on past its threshold", () => {
+    expect(washSpills([-10, 10], [door])).toEqual([
+      { xMin: -1.75 - jamb, xMax: 1.75 + jamb, zMin: -WASH_SPILL_M, door: [-1.75, 1.75] },
+    ]);
+  });
+
+  it("stops at the band's end, as a stretch's band stops at the door's middle", () => {
+    const [spill] = washSpills([0, 10], [door]);
+    expect(spill.xMin).toBe(0);
+    expect(spill.xMax).toBe(1.75 + jamb);
+  });
+
+  it("spills nothing from a band that reaches the door only past a jamb", () => {
+    expect(washSpills([2, 10], [door])).toEqual([]);
+  });
 });

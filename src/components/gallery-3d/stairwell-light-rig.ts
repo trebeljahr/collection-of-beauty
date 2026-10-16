@@ -372,3 +372,47 @@ export function washStretches(
   }
   return out;
 }
+
+// ── Through the door ──────────────────────────────────────────────────
+// A row's band of light on the floor used to fade to nothing at each
+// doorway (`THRESHOLD_FADE_M`), so the floor of the next room met it at
+// one brightness. The band runs 3.9 m out from the wall of a hall, with
+// the cans 7.9 m up, and from the next room it still read as a line:
+// dark parquet to the threshold, and the hall's lit one rising within a
+// metre and a half past it. Now the band falls to a share at the
+// threshold over a longer reach and that share goes on through the door
+// onto the next room's floor, dying away there. The step from one room's
+// light to the other's is spread over both floors.
+
+/** What is left of the band on a threshold. The rest of it is on either
+ *  side: the band rises to full on this side, the share dies away on
+ *  the other. */
+export const WASH_DOOR_SHARE = 0.5;
+/** Over how far inside the room the band falls to that share. */
+export const WASH_DOOR_FADE_M = 2.5;
+/** Over how far past the threshold the share dies away. */
+export const WASH_SPILL_M = 2;
+/** Past a jamb the spill dies this many times faster than it does
+ *  straight on: that floor is in the jamb's shadow. */
+export const WASH_SPILL_JAMB = 2;
+
+/** The floor past a door that a row's band spills onto, in the row's
+ *  frame: x along the wall, z out of the wall (so negative here), and
+ *  the door's two ends along the wall that the spill is measured from.
+ *  `floor` is the row's band (`WashStretch.floor`); `doors` are along
+ *  the wall from the row's middle. */
+export type WashSpill = { xMin: number; xMax: number; zMin: number; door: [number, number] };
+
+export function washSpills(floor: [number, number], doors: WashDoor[]): WashSpill[] {
+  const out: WashSpill[] = [];
+  for (const d of doors) {
+    const door: [number, number] = [d.center - d.width / 2, d.center + d.width / 2];
+    const xMin = Math.max(floor[0], door[0] - WASH_SPILL_M / WASH_SPILL_JAMB);
+    const xMax = Math.min(floor[1], door[1] + WASH_SPILL_M / WASH_SPILL_JAMB);
+    // A band that reaches the door's span only past a jamb lights none
+    // of the threshold, so it has nothing to carry through.
+    if (Math.min(floor[1], door[1]) - Math.max(floor[0], door[0]) <= 1e-6) continue;
+    out.push({ xMin, xMax, zMin: -WASH_SPILL_M, door });
+  }
+  return out;
+}

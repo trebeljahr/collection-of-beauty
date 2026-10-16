@@ -14,10 +14,11 @@
 // the length of the wall. The room adds five draw calls: ceiling,
 // glass, glazing frame, pools, cans.
 //
-// On the floor the pools fade out toward each doorway, as the picture
+// On the floor the pools fade toward each doorway, as the picture
 // lights' do (`THRESHOLD_FADE_M` in painting-light-rig.ts): the band a
 // row of washers lays along the foot of its wall ran through the door
-// openings and stopped dead on the threshold.
+// openings and stopped dead on the threshold. They fade to half, not to
+// nothing, and the half goes on through the door (`StairwellSpill`).
 
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
@@ -61,9 +62,14 @@ import {
   ringFits,
   spanWashRow,
   WASH_CORNER_GAP,
+  WASH_DOOR_FADE_M,
+  WASH_DOOR_SHARE,
+  WASH_SPILL_JAMB,
+  WASH_SPILL_M,
   type WashDoor,
   type WashRow,
   washLampXs,
+  washSpills,
   washStretches,
   washWallRects,
 } from "./stairwell-light-rig";
@@ -107,7 +113,9 @@ void main() {
  *  program. */
 const washSlots = (doors: number) => Math.max(4, Math.ceil(doors / 4) * 4);
 
-const washFragmentShader = (slots: number) => /* glsl */ `
+/** The light of a row of cans at a fragment, `washLight()`. The pools
+ *  in the room and the spill past its doors both take it. */
+const washLightGlsl = /* glsl */ `
 uniform vec2 uLamp;   // height, distance from the wall
 uniform vec2 uAxis;   // beam axis (y, z) in the wall's frame
 uniform vec2 uCone;
@@ -119,8 +127,6 @@ varying vec3 vWall;   // position in the wall's frame
 varying vec3 vRow;    // can spacing, end can's distance from the middle, pool gain
 varying float vFloor; // 0 on the wall, 1 on the floor
 varying float vDepth;
-varying vec2 vRoom;   // position on the room's floor, from its middle
-${thresholdFadeGlsl(slots)}
 float lamp(float x) {
   if (abs(x) > vRow.y + 1e-3) return 0.0;
   vec3 toL = vec3(x - vWall.x, uLamp.x - vWall.y, uLamp.y - vWall.z);
@@ -129,8 +135,7 @@ float lamp(float x) {
   float spot = smoothstep(uCone.x, uCone.y, -(l.y * uAxis.x + l.z * uAxis.y));
   return uLampI * max(mix(l.z, l.y, vFloor), 0.0) * spot / d2;
 }
-
-void main() {
+vec3 washLight() {
   // The can nearest this fragment, then that one and its neighbours: a
   // cone is narrower than two spacings. The cans stand vRow.x apart from
   // -vRow.y to vRow.y, an odd count or an even one.
@@ -138,10 +143,82 @@ void main() {
   float e = lamp(x - vRow.x) + lamp(x) + lamp(x + vRow.x);
   e = e / (1.0 + uShoulder * e);
   float k = 1.0 - smoothstep(uFog.x, uFog.y, vDepth);
-  if (vFloor > 0.5) k *= thresholdFade(vRoom);
-  gl_FragColor = vec4(uColor * e * k * vRow.z, 1.0);
+  return uColor * e * k * vRow.z;
 }
 `;
+
+const washFragmentShader = (slots: number) => /* glsl */ `
+${washLightGlsl}
+varying vec2 vRoom;   // position on the room's floor, from its middle
+${thresholdFadeGlsl(slots)}
+void main() {
+  float k = vFloor > 0.5 ? thresholdFade(vRoom) : 1.0;
+  gl_FragColor = vec4(washLight() * k, 1.0);
+}
+`;
+
+const spillVertexShader = /* glsl */ `
+attribute vec3 aWall;
+attribute vec3 aRow;
+attribute vec2 aDoor;
+varying vec3 vWall;
+varying vec3 vRow;
+varying float vFloor;
+varying float vDepth;
+varying vec2 vDoor;
+void main() {
+  vWall = aWall;
+  vRow = aRow;
+  vFloor = 1.0;
+  vDoor = aDoor;
+  vec4 mv = modelViewMatrix * vec4(position, 1.0);
+  vDepth = -mv.z;
+  gl_Position = projectionMatrix * mv;
+}
+`;
+
+/** The band's share on the threshold, dying away past it: straight on
+ *  over WASH_SPILL_M, faster past a jamb. */
+const spillFragmentShader = /* glsl */ `
+${washLightGlsl}
+varying vec2 vDoor;   // the door's two ends along the wall
+uniform float uSpill;
+uniform float uJamb;
+uniform float uShare;
+void main() {
+  float aside = max(max(vDoor.x - vWall.x, vWall.x - vDoor.y), 0.0);
+  float d = length(vec2(aside * uJamb, vWall.z));
+  gl_FragColor = vec4(washLight() * uShare * (1.0 - smoothstep(0.0, uSpill, d)), 1.0);
+}
+`;
+
+/** The uniforms every row shares: the cans hang at one height. */
+function washUniforms(row: WashRow) {
+  return {
+    uLamp: { value: new THREE.Vector2(row.lampY, row.throwM) },
+    uAxis: { value: new THREE.Vector2(row.dirY, row.dirZ) },
+    uCone: { value: new THREE.Vector2(row.cosOuter, row.cosInner) },
+    uLampI: { value: row.intensity },
+    uColor: { value: LIGHT_TINT.clone().multiplyScalar(POOL_GAIN) },
+    uShoulder: { value: POOL_SHOULDER },
+    uFog: { value: new THREE.Vector2(FOG_NEAR, FOG_FAR) },
+  };
+}
+
+/** dst · src.rgb + dst · src.a, as for the picture lights' pools. */
+const POOL_BLEND = {
+  transparent: true,
+  depthWrite: false,
+  blending: THREE.CustomBlending,
+  blendEquation: THREE.AddEquation,
+  blendSrc: THREE.DstColorFactor,
+  blendDst: THREE.SrcAlphaFactor,
+  blendSrcAlpha: THREE.ZeroFactor,
+  blendDstAlpha: THREE.OneFactor,
+  polygonOffset: true,
+  polygonOffsetFactor: -1,
+  polygonOffsetUnits: -2,
+} as const;
 
 const washMaterials = new Map<string, THREE.ShaderMaterial>();
 
@@ -157,34 +234,36 @@ function getWashMaterial(row: WashRow, thresholds: Threshold[]): THREE.ShaderMat
   const slots = washSlots(thresholds.length);
   const doors = thresholdUniforms(slots);
   setThresholds(doors.uDoor.value, thresholds);
+  // The band keeps a share on each threshold, which the spill carries on.
+  doors.uDoorFade.value = WASH_DOOR_FADE_M;
+  doors.uDoorShare.value = WASH_DOOR_SHARE;
   const washMaterial = new THREE.ShaderMaterial({
     vertexShader: washVertexShader,
     fragmentShader: washFragmentShader(slots),
-    uniforms: {
-      ...doors,
-      uLamp: { value: new THREE.Vector2(row.lampY, row.throwM) },
-      uAxis: { value: new THREE.Vector2(row.dirY, row.dirZ) },
-      uCone: { value: new THREE.Vector2(row.cosOuter, row.cosInner) },
-      uLampI: { value: row.intensity },
-      uColor: { value: LIGHT_TINT.clone().multiplyScalar(POOL_GAIN) },
-      uShoulder: { value: POOL_SHOULDER },
-      uFog: { value: new THREE.Vector2(FOG_NEAR, FOG_FAR) },
-    },
-    transparent: true,
-    depthWrite: false,
-    // dst · src.rgb + dst · src.a, as for the picture lights' pools.
-    blending: THREE.CustomBlending,
-    blendEquation: THREE.AddEquation,
-    blendSrc: THREE.DstColorFactor,
-    blendDst: THREE.SrcAlphaFactor,
-    blendSrcAlpha: THREE.ZeroFactor,
-    blendDstAlpha: THREE.OneFactor,
-    polygonOffset: true,
-    polygonOffsetFactor: -1,
-    polygonOffsetUnits: -2,
+    uniforms: { ...doors, ...washUniforms(row) },
+    ...POOL_BLEND,
   });
   washMaterials.set(key, washMaterial);
   return washMaterial;
+}
+
+let spillMaterial: THREE.ShaderMaterial | null = null;
+
+/** One for the building: what differs from door to door rides on the
+ *  vertices. */
+function getSpillMaterial(row: WashRow): THREE.ShaderMaterial {
+  spillMaterial ??= new THREE.ShaderMaterial({
+    vertexShader: spillVertexShader,
+    fragmentShader: spillFragmentShader,
+    uniforms: {
+      ...washUniforms(row),
+      uSpill: { value: WASH_SPILL_M },
+      uJamb: { value: WASH_SPILL_JAMB },
+      uShare: { value: WASH_DOOR_SHARE },
+    },
+    ...POOL_BLEND,
+  });
+  return spillMaterial;
 }
 
 /** A wall in the room's frame (origin at the middle of the floor): the
@@ -248,7 +327,15 @@ function washedWalls(room: RoomLayout, walls: Wall[]): Wall[] {
 /** A row of washers and what it lights. The rectangles on the wall and
  *  the floor's two ends are in the frame of `wall`, whose origin is the
  *  middle of the row. */
-type Wash = { wall: Wall; row: WashRow; rects: Rect2[]; floor: [number, number] };
+type Wash = {
+  wall: Wall;
+  row: WashRow;
+  rects: Rect2[];
+  floor: [number, number];
+  /** Where the row's middle stands along the wall: `wall.doors` are
+   *  measured from the wall's own middle. */
+  along: number;
+};
 
 /** One row for a whole wall: a stairwell's, which hangs nothing. Its end
  *  cans stand WASH_CORNER_GAP from the corners. */
@@ -259,6 +346,7 @@ function wholeWall(wall: Wall): Wash {
     row,
     rects: washWallRects(row, wall.length, wall.doors),
     floor: [-wall.length / 2, wall.length / 2],
+    along: 0,
   };
 }
 
@@ -312,6 +400,7 @@ function wallStretches(room: RoomLayout, wall: Wall, cx: number, cz: number): Wa
     row: stretch.row,
     rects: stretch.rects,
     floor: stretch.floor,
+    along: stretch.center,
   }));
 }
 
@@ -421,6 +510,51 @@ function buildWashGeometry(
   g.setAttribute("aWall", new THREE.Float32BufferAttribute(local, 3));
   g.setAttribute("aRow", new THREE.Float32BufferAttribute(rowAttr, 3));
   g.setAttribute("aFloor", new THREE.Float32BufferAttribute(floorAttr, 1));
+  g.setIndex(idx);
+  g.computeBoundingSphere();
+  return g;
+}
+
+/** The floor past each door that a row's band reaches, as one geometry
+ *  in world space: `origin` is the room's middle on its floor. */
+function buildSpillGeometry(
+  rooms: Array<{ washes: Wash[]; origin: [number, number, number] }>,
+): THREE.BufferGeometry | null {
+  const pos: number[] = [];
+  const local: number[] = [];
+  const rowAttr: number[] = [];
+  const doorAttr: number[] = [];
+  const idx: number[] = [];
+  for (const { washes, origin } of rooms) {
+    for (const { wall, row, floor, along } of washes) {
+      // A row over a half landing lights no door.
+      if (wall.lift) continue;
+      const doors = wall.doors.map((d) => ({ ...d, center: d.center - along }));
+      for (const spill of washSpills(floor, doors)) {
+        const base = pos.length / 3;
+        const corners: Array<[number, number, number]> = [
+          [spill.xMin, SURFACE_LIFT, 0],
+          [spill.xMax, SURFACE_LIFT, 0],
+          [spill.xMax, SURFACE_LIFT, spill.zMin],
+          [spill.xMin, SURFACE_LIFT, spill.zMin],
+        ];
+        for (const c of corners) {
+          const [x, y, z] = fromWall(wall, c, true);
+          pos.push(x + origin[0], y + origin[1], z + origin[2]);
+          local.push(...c);
+          rowAttr.push(row.spacing, ((row.count - 1) * row.spacing) / 2, 1);
+          doorAttr.push(...spill.door);
+        }
+        idx.push(base, base + 1, base + 2, base, base + 2, base + 3);
+      }
+    }
+  }
+  if (idx.length === 0) return null;
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute("aWall", new THREE.Float32BufferAttribute(local, 3));
+  g.setAttribute("aRow", new THREE.Float32BufferAttribute(rowAttr, 3));
+  g.setAttribute("aDoor", new THREE.Float32BufferAttribute(doorAttr, 2));
   g.setIndex(idx);
   g.computeBoundingSphere();
   return g;
@@ -644,6 +778,54 @@ export function StairwellLight({ floor }: { floor: FloorLayout }) {
   );
 }
 
+/** A stair room's footprint and its rows of washers. */
+function roomWashes(room: RoomLayout) {
+  const { cellBounds } = room;
+  const xMin = cellBounds.xMin * CELL_SIZE;
+  const xMax = (cellBounds.xMax + 1) * CELL_SIZE;
+  const zMin = cellBounds.zMin * CELL_SIZE;
+  const zMax = (cellBounds.zMax + 1) * CELL_SIZE;
+  const width = xMax - xMin;
+  const depth = zMax - zMin;
+  const cx = (xMin + xMax) / 2;
+  const cz = (zMin + zMax) / 2;
+  const walls = washedWalls(room, roomWalls(room, width, depth, cx, cz));
+  // A hall of the block plan hangs a giant on the middle of each
+  // stretch of wall, and has a row to each stretch; so does a spiral
+  // room given a work too long for any hall. A stairwell that hangs
+  // nothing has a row to each wall.
+  const washes =
+    room.ceilingOpening !== undefined || room.placements.length > 0
+      ? walls.flatMap((wall) => hallWashes(room, wall, cx, cz))
+      : walls.map(wholeWall);
+  return { xMin, xMax, zMin, zMax, width, depth, cx, cz, washes };
+}
+
+/**
+ * The washers' light that goes on through each door of a floor's stair
+ * rooms onto the floor of the room next door (`washSpills`). One mesh
+ * for the floor, and not with the stairwell's fittings: room culling
+ * hides those while no stair room is seen, and the spill lies on the
+ * neighbour's floor, which can be in view with the door behind the
+ * visitor.
+ */
+export function StairwellSpill({ floor }: { floor: FloorLayout }) {
+  const built = useMemo(() => {
+    const rooms = floor.rooms
+      .filter((r) => r.isStairwell)
+      .map((room) => {
+        const { cx, cz, washes } = roomWashes(room);
+        return { washes, origin: [cx, room.worldRect.y, cz] as [number, number, number] };
+      });
+    const row = rooms.find((r) => r.washes.length > 0)?.washes[0].row;
+    const geometry = row ? buildSpillGeometry(rooms) : null;
+    return geometry && row ? { geometry, material: getSpillMaterial(row) } : null;
+  }, [floor.rooms]);
+  useEffect(() => () => built?.geometry.dispose(), [built]);
+  if (!built) return null;
+  return <mesh geometry={built.geometry} material={built.material} renderOrder={1} />;
+}
+
 function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout }) {
   // No flight climbs through the top floor's ceiling, so its well is
   // closed with a glazed dome instead of left open to nothing. A grand stair
@@ -663,28 +845,11 @@ function StairHallLight({ floor, room }: { floor: FloorLayout; room: RoomLayout 
   const { wallColor } = palette;
 
   const built = useMemo(() => {
-    const { cellBounds } = room;
-    const xMin = cellBounds.xMin * CELL_SIZE;
-    const xMax = (cellBounds.xMax + 1) * CELL_SIZE;
-    const zMin = cellBounds.zMin * CELL_SIZE;
-    const zMax = (cellBounds.zMax + 1) * CELL_SIZE;
-    const width = xMax - xMin;
-    const depth = zMax - zMin;
-    const cx = (xMin + xMax) / 2;
-    const cz = (zMin + zMax) / 2;
-    const walls = washedWalls(room, roomWalls(room, width, depth, cx, cz));
+    const { xMin, xMax, zMin, zMax, width, depth, cx, cz, washes } = roomWashes(room);
     // The glass stops short of the washers' cans. Round the well of a
     // room too narrow for a row of panes there is none.
     const outerR = glazingOuterR(width, depth);
     const glazed = roundGlass && (closed || ringFits(outerR));
-    // A hall of the block plan hangs a giant on the middle of each
-    // stretch of wall, and has a row to each stretch; so does a spiral
-    // room given a work too long for any hall. A stairwell that hangs
-    // nothing has a row to each wall.
-    const washes =
-      grand !== undefined || room.placements.length > 0
-        ? walls.flatMap((wall) => hallWashes(room, wall, cx, cz))
-        : walls.map(wholeWall);
     const washed = washes.length > 0;
     return {
       position: [cx, room.worldRect.y, cz] as [number, number, number],

@@ -37,9 +37,9 @@ export const floorMirrorUniforms = {
 };
 
 /** A floor fragment takes the mirror image only within this distance of
- *  the mirrored plane. Room floors sit on it, their slab tops 1 mm and
- *  the stairwell floor 5 mm below; every other storey is 6 m away and
- *  keeps the plain environment reflection. */
+ *  the mirrored plane. Floors sit on it, their slab tops 1 mm below;
+ *  every other storey is 8.4 m away and keeps the plain environment
+ *  reflection. */
 const PLANE_TOLERANCE_M = 0.02;
 
 const reflectiveFloors = new Set<THREE.MeshStandardMaterial>();
