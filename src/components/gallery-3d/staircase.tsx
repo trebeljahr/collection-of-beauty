@@ -16,7 +16,12 @@ import {
   RAIL_BAR_HEIGHT,
   RAIL_HEIGHT,
 } from "./rail-constants";
-import { findStairAbove, findStairBelow, spiralGateHalfArc } from "./spiral-physics";
+import {
+  findStairAbove,
+  findStairBelow,
+  spiralGateHalfArc,
+  topLandingDepth,
+} from "./spiral-physics";
 
 // The pure physics rules live in `spiral-physics.ts` so they can be
 // imported without Three.js; re-exported here because every existing
@@ -672,41 +677,112 @@ function buildSpiralRail(
   return { rail: geom, balusters, endpoints };
 }
 
-/** Build a flat annular-sector slab at the spiral's upper end, filling
- *  the half of the well OPPOSITE the entry gate. Used only for the
- *  topmost staircase: the up-half of the gate is a dead end (no further
- *  flight above), so there's no spiral wrapping that side at upperY —
- *  visually a yawning gap into the well below. The slab caps the
- *  staircase: the player arriving at the top now stands across from a
- *  proper flat landing instead of empty air, and the helix reads as
- *  "ending in a platform" rather than just stopping mid-spiral.
+/** Build the slab the topmost flight ends on: the patch between the
+ *  gate and the handrail that closes the top floor's dead-end side.
  *
- *  Geometry is the same wedge-of-annulus the spiral treads use — full
- *  spiral annulus radially, dead-end half angularly — at upperY with
- *  one tread's worth of thickness. */
+ *  That rail is an L from the spiral's inner rail out to the cutout
+ *  rail (`lBridge` in `stairwell-rail.tsx`): a short arm on from the
+ *  inner rail's top, then one parallel to the line from the well's
+ *  centre through the gate, `topLandingDepth` past it. The slab fills
+ *  what the L fences in, from the inner rail's line to the treads'
+ *  outer edge, one riser above the last tread. Until 17 October 2026
+ *  it ran half a revolution round the well behind that rail, a ledge
+ *  nobody could reach that showed from every floor below. */
 function buildTopLandingGeometry(staircase: Staircase): THREE.BufferGeometry {
-  const { innerRadius, outerRadius, direction, lowerY, upperY, entryAngle, numSteps } = staircase;
-  // Span the half-revolution past the entry gate, in the direction the
-  // ascending player WOULD continue if there were a flight above. On
-  // the topmost staircase that direction is a dead end at upperY; the
-  // landing occupies its angular footprint as a flat platform.
-  const start = entryAngle;
-  const end = entryAngle + direction * Math.PI;
-  const lo = Math.min(start, end);
-  const hi = Math.max(start, end);
-  const stepRise = (upperY - lowerY) / numSteps;
-  // The landing's edge is the last riser of the climb, so it takes a
-  // step light like the rest; its top is a floor, not a tread.
-  const { positions, colors, indices } = buildTreadGeometry(
-    innerRadius,
-    outerRadius,
-    lo,
-    hi,
-    upperY,
-    stepRise,
-    32,
-    risingCap(direction),
+  const { innerRadius, outerRadius, entryAngle, direction, lowerY, upperY, numSteps } = staircase;
+  const depth = topLandingDepth(staircase);
+  const bottomY = upperY - (upperY - lowerY) / numSteps;
+  // Outline in the gate's frame: `along` from the well's centre through
+  // the gate, `across` round the way the spiral climbs. It runs the
+  // gate's riser, the outer edge, the rail's line and the inner edge.
+  const outerEnd = Math.asin(depth / outerRadius);
+  const ARC_SEGMENTS = 12;
+  const outline: Array<[number, number]> = [[innerRadius, 0]];
+  for (let i = 0; i <= ARC_SEGMENTS; i++) {
+    const a = (outerEnd * i) / ARC_SEGMENTS;
+    outline.push([outerRadius * Math.cos(a), outerRadius * Math.sin(a)]);
+  }
+  outline.push([innerRadius, depth]);
+
+  const cos = Math.cos(entryAngle);
+  const sin = Math.sin(entryAngle);
+  const toWorld = ([along, across]: [number, number]): [number, number] => {
+    const turned = direction * across;
+    return [along * cos - turned * sin, along * sin + turned * cos];
+  };
+  const plan = outline.map(toWorld);
+  const centre = plan.reduce(
+    ([x, z], [px, pz]) => [x + px / plan.length, z + pz / plan.length],
+    [0, 0],
   );
+
+  const positions: number[] = [];
+  const colors: number[] = [];
+  const indices: number[] = [];
+  const vertex = ([x, z]: [number, number], y: number, color: Rgb = UNLIT): number => {
+    positions.push(x, y, z);
+    colors.push(color[0], color[1], color[2]);
+    return positions.length / 3 - 1;
+  };
+  // A triangle wound so its normal points along `facing`.
+  const triangle = (i: number, j: number, k: number, facing: [number, number, number]) => {
+    const p = (n: number) => positions.slice(n * 3, n * 3 + 3);
+    const [a, b, c] = [p(i), p(j), p(k)];
+    const u = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+    const v = [c[0] - a[0], c[1] - a[1], c[2] - a[2]];
+    const normal = [
+      u[1] * v[2] - u[2] * v[1],
+      u[2] * v[0] - u[0] * v[2],
+      u[0] * v[1] - u[1] * v[0],
+    ];
+    const dot = normal[0] * facing[0] + normal[1] * facing[1] + normal[2] * facing[2];
+    if (dot >= 0) indices.push(i, j, k);
+    else indices.push(i, k, j);
+  };
+  // A wall under one edge of the outline, from y0 to y1, facing away
+  // from the slab's middle.
+  const wall = (
+    from: [number, number],
+    to: [number, number],
+    y0: number,
+    y1: number,
+    c0: Rgb = UNLIT,
+    c1: Rgb = UNLIT,
+  ) => {
+    const out: [number, number, number] = [
+      (from[0] + to[0]) / 2 - centre[0],
+      0,
+      (from[1] + to[1]) / 2 - centre[1],
+    ];
+    const fb = vertex(from, y0, c0);
+    const ft = vertex(from, y1, c1);
+    const tb = vertex(to, y0, c0);
+    const tt = vertex(to, y1, c1);
+    triangle(fb, ft, tb, out);
+    triangle(ft, tt, tb, out);
+  };
+
+  // Top and bottom: the outline is convex, so a fan from its first
+  // corner covers it.
+  for (const [y, facing] of [
+    [upperY, 1],
+    [bottomY, -1],
+  ] as const) {
+    const ring = plan.map((p) => vertex(p, y));
+    for (let i = 1; i < ring.length - 1; i++) {
+      triangle(ring[0], ring[i], ring[i + 1], [0, facing, 0]);
+    }
+  }
+
+  // The gate's edge is the last riser of the climb, so it takes a step
+  // light like every tread; the other edges are plain.
+  const stripY = upperY - STEP_LIGHT_HEIGHT;
+  wall(plan[0], plan[1], bottomY, stripY, wash(RISER_WASH_FOOT), wash(RISER_WASH_TOP));
+  wall(plan[0], plan[1], stripY, upperY, STRIP, STRIP);
+  for (let i = 1; i < plan.length; i++) {
+    wall(plan[i], plan[(i + 1) % plan.length], bottomY, upperY);
+  }
+
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geom.setAttribute("color", new THREE.Float32BufferAttribute(colors, 3));
@@ -860,10 +936,10 @@ export function StaircaseRenderer({
       ),
     [staircase],
   );
-  // Top landing — only the helix's topmost flight gets one. It caps
-  // the spiral with a flat half-revolution at upperY so the climb has
-  // a visible architectural ending; intermediate flights stack
-  // continuously into the next revolution above and don't need it.
+  // Top landing — only the helix's topmost flight gets one: the patch
+  // past the gate as far as the handrail that closes the well.
+  // Intermediate flights stack continuously into the next revolution
+  // above and don't need it.
   const landingGeom = useMemo(
     () => (hasFlightAbove ? null : buildTopLandingGeometry(staircase)),
     [staircase, hasFlightAbove],
@@ -904,8 +980,8 @@ export function StaircaseRenderer({
         <primitive object={treadMaterial} attach="material" />
       </mesh>
 
-      {/* Top landing — flat half-revolution slab capping the helix's
-          topmost flight. Renders only when there's no flight above
+      {/* Top landing — the slab between the gate and the rail that
+          closes the well. Renders only when there's no flight above
           this one. */}
       {landingGeom && (
         <mesh geometry={landingGeom} castShadow receiveShadow>

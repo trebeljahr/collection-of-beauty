@@ -35,7 +35,7 @@ import {
   RAIL_BAR_HALF_WIDTH,
   RAIL_HEIGHT,
 } from "./rail-constants";
-import { findStairAbove, floorShafts, type StairShaft, spiralGateHalfArc } from "./spiral-physics";
+import { floorShafts, type StairShaft, spiralGateHalfArc } from "./spiral-physics";
 
 type RapierModule = typeof RAPIER;
 
@@ -85,12 +85,7 @@ export class GalleryCollisionController {
   private readonly floorY: number;
   private readonly benchHandles: ReadonlySet<number>;
 
-  constructor(
-    rapier: RapierModule,
-    floor: FloorLayout,
-    allStaircases: readonly Staircase[],
-    radius: number,
-  ) {
+  constructor(rapier: RapierModule, floor: FloorLayout, radius: number) {
     this.world = new rapier.World({ x: 0, y: 0, z: 0 });
     this.body = this.world.createRigidBody(rapier.RigidBodyDesc.kinematicPositionBased());
     this.collider = this.world.createCollider(
@@ -102,7 +97,7 @@ export class GalleryCollisionController {
     this.controller.enableAutostep(0.32, radius * 2, false);
     this.controller.enableSnapToGround(0.12);
     this.floorY = floor.y;
-    this.benchHandles = buildStaticColliders(rapier, this.world, floor, allStaircases);
+    this.benchHandles = buildStaticColliders(rapier, this.world, floor);
   }
 
   move(fromFeet: Vec3, desired: Vec3): Vec3 {
@@ -135,20 +130,14 @@ export class GalleryCollisionController {
 
 export async function createGalleryCollisionController(
   floor: FloorLayout,
-  allStaircases: readonly Staircase[],
   radius: number,
 ): Promise<GalleryCollisionController> {
   const rapier = await loadRapier();
-  return new GalleryCollisionController(rapier, floor, allStaircases, radius);
+  return new GalleryCollisionController(rapier, floor, radius);
 }
 
 /** Builds the floor's colliders and returns the handles of its benches. */
-function buildStaticColliders(
-  rapier: RapierModule,
-  world: World,
-  floor: FloorLayout,
-  allStaircases: readonly Staircase[],
-): Set<number> {
+function buildStaticColliders(rapier: RapierModule, world: World, floor: FloorLayout): Set<number> {
   const fixedBody = world.createRigidBody(rapier.RigidBodyDesc.fixed());
   const addCuboid = (
     cx: number,
@@ -218,7 +207,7 @@ function buildStaticColliders(
   addWallColliders(floor, addCuboid);
   addPortalJambColliders(floor, addCuboid);
   const benchHandles = addFittingColliders(floor, addCuboid);
-  addStairwellColliders(floor, allStaircases, addCuboid, addCylinder, addArc);
+  addStairwellColliders(floor, addCuboid, addCylinder, addArc);
   addGrandStairColliders(floor, addCuboid);
   return benchHandles;
 }
@@ -585,7 +574,6 @@ function addFittingColliders(
 
 function addStairwellColliders(
   floor: FloorLayout,
-  allStaircases: readonly Staircase[],
   addCuboid: (
     cx: number,
     cy: number,
@@ -618,9 +606,6 @@ function addStairwellColliders(
     );
     addSpiralRailColliders(stair, "inner", addArc);
     addSpiralRailColliders(stair, "outer", addArc);
-    if (!findStairAbove(stair, allStaircases) && floor.index === stair.upperFloor) {
-      addTopLandingEdgeCollider(stair, addCuboid);
-    }
   }
 
   for (const shaft of floorShafts(floor)) addCutoutRailColliders(floor, shaft, addCuboid, addArc);
@@ -775,34 +760,6 @@ function addTopBridgeColliders(
   const postY = floor.y + BALUSTER_HEIGHT / 2;
   addCuboid(cornerX, postY, cornerZ, BALUSTER_SIZE / 2, BALUSTER_HEIGHT / 2, BALUSTER_SIZE / 2);
   addCuboid(bx, postY, bz, BALUSTER_SIZE / 2, BALUSTER_HEIGHT / 2, BALUSTER_SIZE / 2);
-}
-
-function addTopLandingEdgeCollider(
-  stair: Staircase,
-  addCuboid: (
-    cx: number,
-    cy: number,
-    cz: number,
-    hx: number,
-    hy: number,
-    hz: number,
-    rotY?: number,
-  ) => void,
-) {
-  const angle = stair.entryAngle + stair.direction * Math.PI;
-  const innerX = stair.centerX + stair.innerRadius * Math.cos(angle);
-  const innerZ = stair.centerZ + stair.innerRadius * Math.sin(angle);
-  const outerX = stair.centerX + stair.outerRadius * Math.cos(angle);
-  const outerZ = stair.centerZ + stair.outerRadius * Math.sin(angle);
-  addRunCollider(
-    innerX,
-    innerZ,
-    outerX,
-    outerZ,
-    stair.upperY + RAIL_HEIGHT / 2,
-    RAIL_HEIGHT,
-    addCuboid,
-  );
 }
 
 function addRunCollider(

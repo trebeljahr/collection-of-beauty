@@ -1,5 +1,6 @@
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import { hasStairwellCutout } from "@/lib/gallery-layout/world-coords";
+import { CUTOUT_RAIL_RADIUS } from "./rail-constants";
 
 // Pure spiral-staircase physics. Split out of `staircase.tsx` so the
 // rules can be imported (and tested) without dragging Three.js and
@@ -173,26 +174,46 @@ export function floorShafts(floor: FloorLayout): StairShaft[] {
   return shafts;
 }
 
+/** How far the top landing reaches past the gate, measured square to
+ *  the line from the well's centre through the gate. The landing ends
+ *  under the handrail that closes the top floor's dead-end side: the
+ *  L-shaped bar from the spiral's inner rail out to the cutout rail
+ *  (`lBridge` in `stairwell-rail.tsx`). Its outer arm runs parallel to
+ *  that line and lands on the cutout rail one gate half-arc round. */
+export function topLandingDepth(stair: Staircase): number {
+  return CUTOUT_RAIL_RADIUS * Math.sin(spiralGateHalfArc(stair.numSteps));
+}
+
+/** True when a point of the topmost flight's annulus, given by its
+ *  angle past the gate and its radius, lies on the top landing: the
+ *  patch between the gate and the handrail that closes the well. */
+export function onTopLanding(stair: Staircase, rawAngle: number, radius: number): boolean {
+  const along = radius * Math.cos(rawAngle);
+  const across = radius * Math.sin(rawAngle);
+  return across >= 0 && across <= topLandingDepth(stair) && along >= stair.innerRadius;
+}
+
 /** Y of the walking surface at `rawAngle` on `stair`, as seen from a
  *  player standing on floor `floorIndex`.
  *
  *  Almost always the tread height. The exception is the top of the
- *  helix: the topmost flight is capped by a flat landing occupying the
- *  half-revolution past the gate, all of it at `upperY`, so on that
- *  floor the whole arc reads as floor level rather than as treads
- *  three metres down. Intermediate flights stack into the next
- *  revolution, so there only the short arc around the gate itself is
- *  at floor level. */
+ *  climb. Intermediate flights stack into the next revolution, so
+ *  there the short arc around the gate itself is at floor level. The
+ *  topmost flight ends in a small landing past the gate, as far as the
+ *  handrail that fences the well (`onTopLanding`); past that rail the
+ *  well is open and there is nothing to stand on. */
 export function stairSurfaceYAt(
   floorIndex: number,
   stair: Staircase,
   rawAngle: number,
+  radius: number,
   hasFlightAbove: boolean,
 ): number {
   if (floorIndex === stair.upperFloor) {
     const stepAngle = (Math.PI * 2) / stair.numSteps;
-    const landingSweep = hasFlightAbove ? stepAngle * 1.5 : Math.PI;
-    if (rawAngle < landingSweep) return stair.upperY;
+    if (hasFlightAbove ? rawAngle < stepAngle * 1.5 : onTopLanding(stair, rawAngle, radius)) {
+      return stair.upperY;
+    }
   }
   return stairHeightAt(stair, rawAngle);
 }
@@ -204,12 +225,13 @@ export function isAtStairSurface(
   floorIndex: number,
   stair: Staircase,
   rawAngle: number,
+  radius: number,
   feetY: number,
   hasFlightAbove: boolean,
 ): boolean {
   const stepRise = (stair.upperY - stair.lowerY) / stair.numSteps;
   return (
-    Math.abs(stairSurfaceYAt(floorIndex, stair, rawAngle, hasFlightAbove) - feetY) <=
+    Math.abs(stairSurfaceYAt(floorIndex, stair, rawAngle, radius, hasFlightAbove) - feetY) <=
     stepRise * 1.75
   );
 }
@@ -239,7 +261,8 @@ export function stairSurfaceAt(
     if (!isInsideStair(stair, worldX, worldZ)) continue;
     const raw = spiralRawAngle(stair, worldX, worldZ);
     const hasFlightAbove = !!findStairAbove(stair, allStaircases);
-    if (isAtStairSurface(floor.index, stair, raw, feetY, hasFlightAbove)) return stair;
+    const radius = Math.hypot(worldX - stair.centerX, worldZ - stair.centerZ);
+    if (isAtStairSurface(floor.index, stair, raw, radius, feetY, hasFlightAbove)) return stair;
   }
   return null;
 }

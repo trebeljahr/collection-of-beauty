@@ -11,6 +11,7 @@ import {
   spiralGateHalfArc,
   stairSurfaceAt,
   stairUndersideY,
+  topLandingDepth,
   UNDER_STAIR_HEADROOM,
 } from "./spiral-physics";
 
@@ -118,17 +119,28 @@ describe("stairSurfaceAt", () => {
   });
 
   describe("the top of the helix", () => {
-    // The topmost flight is capped by a flat landing spanning the half
-    // revolution past the gate, so on that floor the arc is floor
-    // level, not treads three metres down.
+    // The topmost flight ends in a landing past the gate, as far as the
+    // handrail that closes the well. On that floor the landing is floor
+    // level, not treads three metres down; past the rail is the well.
     const down2 = flight(1);
     const top = floorAt(2, [down2], []);
     const feetY = 2 * FLOOR_SEPARATION;
 
-    it("treats the landing as standable along its whole arc", () => {
-      for (const theta of [0.2, Math.PI / 2, Math.PI * 0.9]) {
+    it("treats the landing as standable up to the rail", () => {
+      // Angles at which a point at R lies a fraction of the way from
+      // the gate to the rail.
+      const depth = topLandingDepth(down2);
+      for (const theta of [0.1, 0.5, 0.95].map((f) => Math.asin((f * depth) / R))) {
         const [x, z] = at(theta);
         expect(stairSurfaceAt(top, [down2], x, z, feetY), `theta=${theta}`).not.toBeNull();
+      }
+    });
+
+    it("has nothing to stand on past the rail", () => {
+      const pastRail = Math.asin((1.1 * topLandingDepth(down2)) / R);
+      for (const theta of [pastRail, Math.PI / 2, Math.PI * 0.9]) {
+        const [x, z] = at(theta);
+        expect(stairSurfaceAt(top, [down2], x, z, feetY), `theta=${theta}`).toBeNull();
       }
     });
 

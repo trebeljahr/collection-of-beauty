@@ -310,7 +310,7 @@ export function Player({
     physicsRef.current?.dispose();
     physicsRef.current = null;
 
-    createGalleryCollisionController(floor, allStaircases, PLAYER_RADIUS)
+    createGalleryCollisionController(floor, PLAYER_RADIUS)
       .then((controller) => {
         if (cancelled) {
           controller.dispose();
@@ -327,7 +327,7 @@ export function Player({
       physicsRef.current?.dispose();
       physicsRef.current = null;
     };
-  }, [floor, allStaircases]);
+  }, [floor]);
 
   // Latest `floor` mirrored into a ref so the spawn effect below can
   // pick the floor's central spiral as a lookAt target without taking
