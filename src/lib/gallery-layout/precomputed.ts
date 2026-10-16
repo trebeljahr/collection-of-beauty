@@ -1,5 +1,5 @@
 // Build-time museum layout. The artwork JSON is immutable per build, and
-// `layoutMuseum` is deterministic on its input, so the multi-floor plan
+// `layoutBlock` is deterministic on its input, so the multi-floor plan
 // can be computed once at module init and reused by every server caller
 // (debug floor plan, future SEO surfaces) instead of recomputing on every
 // request.
@@ -11,6 +11,6 @@
 // `components/gallery-3d/index.tsx`).
 
 import { artworkListings } from "@/lib/data";
-import { layoutMuseum } from "./layout-museum";
+import { layoutBlock } from "./layout-block";
 
-export const museumLayout = layoutMuseum(artworkListings);
+export const museumLayout = layoutBlock(artworkListings);

@@ -1,4 +1,5 @@
-// A second floor plan for the museum, behind a switch (`?plan=block`).
+// The museum's floor plan. The tower before it (layout-museum.ts) is
+// behind a switch (`?plan=tower`).
 //
 // One rectangular block, 117.5 × 62.5 m, on four floors, the same plan
 // on each. Down its middle runs a spine of five bays: a stair hall 27.5

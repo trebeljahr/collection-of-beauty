@@ -66,13 +66,13 @@ type Props = { artworks: ArtworkListing[] };
  * organic floor-to-floor walking.
  */
 export function Gallery3D({ artworks }: Props) {
-  // `?plan=block` walks the second floor plan (layout-block.ts): four
-  // floors of long galleries round a court, a grand stair at each end
-  // and a spiral either side of the court. The tower is the
-  // museum until that plan has been judged on foot. Read once: the
-  // layout must not change under a running visit.
+  // The museum is the block plan (layout-block.ts): four floors of long
+  // galleries round a court, a grand stair at each end and a spiral
+  // either side of the court. `?plan=tower` walks the plan before it
+  // (layout-museum.ts), kept so it can be compared or taken up again.
+  // Read once: the layout must not change under a running visit.
   const [plan] = useState(() =>
-    new URLSearchParams(window.location.search).get("plan") === "block" ? "block" : "tower",
+    new URLSearchParams(window.location.search).get("plan") === "tower" ? "tower" : "block",
   );
   const layout = useMemo(
     () => (plan === "block" ? layoutBlock(artworks) : layoutMuseum(artworks)),

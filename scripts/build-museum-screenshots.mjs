@@ -151,8 +151,8 @@ async function main() {
   await page.addInitScript(fakePointerLock);
   const settled = trackImages(page);
 
-  console.log(`opening ${BASE_URL}/gallery-3d`);
-  await page.goto(`${BASE_URL}/gallery-3d`, { waitUntil: "domcontentloaded" });
+  console.log(`opening ${BASE_URL}/gallery-3d?plan=tower`);
+  await page.goto(`${BASE_URL}/gallery-3d?plan=tower`, { waitUntil: "domcontentloaded" });
   const enter = page.getByRole("button", { name: /^Enter/ });
   await enter.waitFor({ timeout: 180_000 });
   await page.waitForFunction(
