@@ -69,6 +69,7 @@ import {
   GALLERY_LOD_WIDTH,
   VARIANT_WIDTHS,
 } from "../src/lib/variant-config.mjs";
+import { cropRect, loadScanCrops, orientedSize } from "./lib/scan-crops.mjs";
 import { SOURCE_FOLDERS } from "./lib/source-folders.mjs";
 import { loadTakedowns } from "./lib/takedowns.mjs";
 
@@ -285,12 +286,12 @@ function variantPaths(folder, name, sourceWidth, sourceHeight) {
  *  all present — the change doesn't widen that. `--force` rebuilds
  *  unconditionally and is the escape hatch when encoder settings change,
  *  since settings are not part of the freshness signal. */
-async function staleVariants(srcStat, files) {
+async function staleVariants(sinceMs, files) {
   const stale = [];
   for (const v of files) {
     try {
       const s = await stat(v.path);
-      if (s.mtimeMs < srcStat.mtimeMs) stale.push(v);
+      if (s.mtimeMs < sinceMs) stale.push(v);
     } catch {
       stale.push(v);
     }
@@ -304,6 +305,7 @@ async function collectJobs() {
   // variant dir shrink writes, so skipping here is what keeps a
   // re-downloaded original off the bucket.
   const takedowns = loadTakedowns();
+  const scanCrops = loadScanCrops();
   let withheld = 0;
   for (const folder of FOLDERS) {
     const srcDir = path.join(SRC_ROOT, folder);
@@ -322,6 +324,11 @@ async function collectJobs() {
       // header here, so it's fast even on the 700 MB Wikimedia scans.
       let sourceWidth = 0;
       let sourceHeight = 0;
+      // A scan that shows its frame is cut before anything is encoded
+      // (metadata/scan-crops.json), so the planned widths are those of the
+      // cut image, and editing the table makes its variants stale.
+      const crop = scanCrops.get(folder, name);
+      let extract = null;
       try {
         const meta = await sharp(srcPath, {
           unlimited: true,
@@ -329,6 +336,12 @@ async function collectJobs() {
         }).metadata();
         sourceWidth = meta.width ?? 0;
         sourceHeight = meta.height ?? 0;
+        if (crop && sourceWidth && sourceHeight) {
+          const shown = orientedSize(sourceWidth, sourceHeight, meta.orientation);
+          extract = cropRect(crop, shown.width, shown.height);
+          sourceWidth = extract.width;
+          sourceHeight = extract.height;
+        }
       } catch {
         // Probe failure → just emit the standard variants; processFile
         // will fail loudly if the source is truly unreadable.
@@ -339,6 +352,8 @@ async function collectJobs() {
         name,
         srcPath,
         srcStat,
+        sinceMs: extract ? Math.max(srcStat.mtimeMs, scanCrops.mtimeMs) : srcStat.mtimeMs,
+        extract,
         sourceWidth,
         sourceHeight,
         destDir,
@@ -352,6 +367,19 @@ async function collectJobs() {
   // rather than clustering at the end and spiking memory.
   jobs.sort((a, b) => a.srcStat.size - b.srcStat.size);
   return jobs;
+}
+
+/** The source as every variant sees it: EXIF rotation applied, then the
+ *  frame cut off when scan-crops.json lists the work. The order matters:
+ *  sharp extracts after rotating only when rotate() is called first, and
+ *  the crop is measured on the displayed image. */
+function decodeSource(job) {
+  const img = sharp(job.srcPath, {
+    failOn: "none",
+    unlimited: true,
+    limitInputPixels: false,
+  }).rotate(); // apply EXIF rotation then discard the tag
+  return job.extract ? img.extract(job.extract) : img;
 }
 
 async function processFile(job, build) {
@@ -369,12 +397,7 @@ async function processFile(job, build) {
   let base = null;
   let info = null;
   if (needsIntermediate) {
-    ({ data: base, info } = await sharp(job.srcPath, {
-      failOn: "none",
-      unlimited: true,
-      limitInputPixels: false,
-    })
-      .rotate() // apply EXIF rotation then discard the tag
+    ({ data: base, info } = await decodeSource(job)
       .flatten({ background: "#ffffff" }) // PNG/webp alpha → flat white
       .resize({
         width: LADDER_MAX_WIDTH,
@@ -394,12 +417,7 @@ async function processFile(job, build) {
   //    need. Encoding either one from `base` would silently upscale.
   for (const v of build) {
     if (v.isFullSize || v.fromSource) {
-      await sharp(job.srcPath, {
-        failOn: "none",
-        unlimited: true,
-        limitInputPixels: false,
-      })
-        .rotate()
+      await decodeSource(job)
         .flatten({ background: "#ffffff" })
         .resize({
           width: v.isFullSize ? FULL_SIZE_MAX : v.width,
@@ -450,7 +468,7 @@ async function runPool(jobs, onProgress) {
       const job = queue.shift();
       totals.done++;
 
-      const build = FORCE ? job.variants : await staleVariants(job.srcStat, job.variants);
+      const build = FORCE ? job.variants : await staleVariants(job.sinceMs, job.variants);
       if (build.length === 0) {
         totals.fresh++;
         onProgress(totals, job, null);

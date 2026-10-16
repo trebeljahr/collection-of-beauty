@@ -16,6 +16,7 @@ import {
   matchArtistExact,
 } from "./lib/artist-alias.mjs";
 import { artworkId, ID_MAX_LENGTH, slugify } from "./lib/artwork-id.mjs";
+import { cropRect, cropSignature, loadScanCrops } from "./lib/scan-crops.mjs";
 import { SOURCE_FOLDERS } from "./lib/source-folders.mjs";
 import { loadTakedowns } from "./lib/takedowns.mjs";
 
@@ -90,6 +91,10 @@ function applyExifOrientation(width, height, orientation) {
   return { width, height };
 }
 
+// A scan that shows its frame is catalogued at the size of the cut image,
+// which is what every variant and tile holds (scan-crops.json).
+const scanCrops = loadScanCrops();
+
 async function dimensionsFor(folderKey, filename) {
   const key = `${folderKey}/${filename}`;
   if (dimensionCache.has(key)) return dimensionCache.get(key);
@@ -128,6 +133,11 @@ async function dimensionsFor(folderKey, filename) {
         console.log(`[build-data] warning: dimension probe failed for ${key} (${err.message})`);
       }
     }
+  }
+  const crop = result && scanCrops.get(folderKey, filename);
+  if (crop) {
+    const r = cropRect(crop, result.width, result.height);
+    result = { width: r.width, height: r.height };
   }
   dimensionCache.set(key, result);
   return result;
@@ -240,7 +250,7 @@ function probeSignature(folderKey, filename) {
   let sig;
   try {
     const st = statSync(path.join(ASSETS, folderKey, filename));
-    sig = `${Math.round(st.mtimeMs)}:${st.size}`;
+    sig = `${Math.round(st.mtimeMs)}:${st.size}${cropSignature(scanCrops.get(folderKey, filename))}`;
   } catch {
     return null;
   }

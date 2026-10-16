@@ -1247,6 +1247,7 @@ function designOf(
   tone: PictureTone,
   c: Candidates,
   hanging: Hanging | undefined,
+  pin?: FramePin,
 ): FrameDesign {
   const look = LOOKS[lookId];
   const id = artwork.id;
@@ -1256,9 +1257,12 @@ function designOf(
   const choices = styleChoices(look.style);
   const edge = longEdge(artwork);
 
-  const variant = look.variants
-    ? drawFrom(look.variants, id, "variant")
-    : Math.floor(draw(id, "variant") * choices.variants);
+  const variant =
+    pin?.variant != null
+      ? pin.variant
+      : look.variants
+        ? drawFrom(look.variants, id, "variant")
+        : Math.floor(draw(id, "variant") * choices.variants);
   let detail = look.details
     ? drawFrom(look.details, id, "detail")
     : Math.floor(draw(id, "detail") * choices.details);
@@ -1327,7 +1331,9 @@ function designOf(
 
   const slots: SlotLook[] = pools.map((pool, slot) => {
     let finish = pool[0];
-    if (pool.length > 1 && used[slot]) {
+    if (slot === 0 && pin?.main) {
+      finish = pin.main;
+    } else if (pool.length > 1 && used[slot]) {
       finish =
         slot === 0
           ? drawWeighted(
@@ -1377,6 +1383,45 @@ function designOf(
   return { key, look: lookId, style: look.style, options, slots, weight };
 }
 
+/** A frame chosen for one work by hand. */
+type FramePin = {
+  look: LookId;
+  /** The style's variant (e.g. 1: a swept frame that swells at its
+   *  corners only). */
+  variant?: number;
+  /** The moulding's finish. */
+  main?: FinishId;
+};
+
+/**
+ * Works that hang in a frame chosen for them, whatever their school or
+ * room. Keyed by artwork id.
+ *
+ * Boucher's Resting Girl (Alte Pinakothek) was photographed in its
+ * Louis XV frame, and the scan keeps the frame's four gilt corner
+ * cartouches inside the picture. Cutting them off takes about a tenth of
+ * the canvas, so the scan stays whole (Rico, 17 October 2026) and hangs
+ * in a gilt swept frame that swells at the corners only: the carving in
+ * the scan reads as the inner edge of the frame round it.
+ */
+const PINNED_FRAMES: Record<string, FramePin> = {
+  "collection-of-beauty-resting-girl-by-francois-boucher-1753-alte-pinakothek-munich-germany-2017-crop":
+    { look: "louisXV", variant: 1, main: "gilt" },
+};
+
+const pinnedDesigns = new WeakMap<Framed, FrameDesign>();
+
+function pinnedDesign(artwork: Framed): FrameDesign | null {
+  const pin = PINNED_FRAMES[artwork.id];
+  if (!pin) return null;
+  const hit = pinnedDesigns.get(artwork);
+  if (hit) return hit;
+  const { tone, c } = readingOf(artwork, null);
+  const design = designOf(pin.look, artwork, tone, c, undefined, pin);
+  pinnedDesigns.set(artwork, design);
+  return design;
+}
+
 // The hang asks for a work's frame every time it measures the work, a
 // few thousand times a floor. Keyed by the record itself, so the cache
 // goes when the catalogue does.
@@ -1404,6 +1449,8 @@ function drawDesign(
  * frame for that wall among those neighbours.
  */
 export function pickFrameDesign(artwork: Framed, hanging?: Hanging): FrameDesign {
+  const pinned = pinnedDesign(artwork);
+  if (pinned) return pinned;
   const hit = hanging ? undefined : designs.get(artwork);
   if (hit) return hit;
   const { tone, c } = readingOf(artwork, hanging?.wall ?? null);
@@ -1420,6 +1467,10 @@ export function pickFrameDesign(artwork: Framed, hanging?: Hanging): FrameDesign
  * frame. Two schools with no look in common keep the lead's own design.
  */
 export function pickPairDesign(lead: Framed, partner: Framed, hanging?: Hanging): FrameDesign {
+  // A work whose scan shows part of its own frame keeps that frame, and
+  // its partner hangs in the same one.
+  const pinned = pinnedDesign(lead) ?? pinnedDesign(partner);
+  if (pinned) return pinned;
   const wall = hanging?.wall ?? null;
   const c = pairCandidates(lead, partner, wall);
   if (!c) return pickFrameDesign(lead, hanging);

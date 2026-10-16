@@ -1,0 +1,101 @@
+{
+  "_comment": "Scans that show more than the work: the picture frame, a miniature's case, a mount. Keyed '<folder>/<filename>'. l/t/r/b: percent of the displayed original (after EXIF rotation) cut from the left, top, right and bottom. The original stays the Commons file; shrink-sources, build-tiles and build-data apply the cut (scripts/lib/scan-crops.mjs). Editing an entry makes the cropped works' variants and tiles stale: rerun assets:shrink, assets:build-data and assets:tiles with --only for them. Measured on the 1280 variant and checked by eye on 17 October 2026; Rico approved each from before/after proofs.",
+  "collection-of-beauty/La_Fornarina_by_Raffaello.jpg": {
+    "l": 16.3,
+    "t": 12.7,
+    "r": 16.6,
+    "b": 12.7,
+    "_why": "the scan shows its picture frame (La Fornarina, Raphael)"
+  },
+  "collection-of-beauty/Peter_Paul_Rubens_-_Descent_from_the_Cross_(outside_right)_-_WGA20217.jpg": {
+    "l": 4.1,
+    "t": 2.1,
+    "r": 3.6,
+    "b": 2.0,
+    "_why": "the scan shows its picture frame (Saint Christopher (outside right wing of the Descent from the Cross triptych), Peter Paul Rubens)"
+  },
+  "collection-of-beauty/François_boucher,_diana_che_esce_dal_bagno,_1742,_01.jpg": {
+    "l": 16.9,
+    "t": 21.3,
+    "r": 16.9,
+    "b": 21.3,
+    "_why": "the scan shows its picture frame (Diana Leaving her Bath, François Boucher)"
+  },
+  "collection-of-beauty/Alte_Nationalgalerie-Krüger-Parade_auf_dem_Opernplatz_im_Jahre_1822_DSC8028.jpg": {
+    "l": 6.5,
+    "t": 9.6,
+    "r": 7.2,
+    "b": 9.6,
+    "_why": "the scan shows its picture frame (Parade on Opernplatz in 1822, Franz Krüger)"
+  },
+  "collection-of-beauty/Sarah_Goodridge_Beauty_Revealed_The_Metropolitan_Museum_of_Art.jpg": {
+    "l": 10.3,
+    "t": 11.6,
+    "r": 10.4,
+    "b": 12.2,
+    "_why": "the scan shows the miniature's red case and its velvet liner (Beauty Revealed, Sarah Goodridge)"
+  },
+  "collection-of-beauty/James_McNeill_Whistler_-_The_Thames_in_Ice_-_Google_Art_Project.jpg": {
+    "l": 2.1,
+    "t": 2.0,
+    "r": 1.7,
+    "b": 1.7,
+    "_why": "the scan shows its picture frame (The Thames in Ice, James McNeill Whistler)"
+  },
+  "collection-of-beauty/Alte_Nationalgalerie-Gentz-Einzug_des_Kronprinzen_Friedrich_Wilhelm_von_Preußen_in_Jerusalem_1869_DSC7998.jpg": {
+    "l": 9.2,
+    "t": 15.5,
+    "r": 9.7,
+    "b": 15.3,
+    "_why": "the scan shows its picture frame (Entry of Crown Prince Friedrich Wilhelm of Prussia into Jerusalem in 1869, Wilhelm Gentz)"
+  },
+  "collection-of-beauty/Lady_with_the_Rose_(Charlotte_Louise_Burckhardt)_MET_DT1151.jpg": {
+    "l": 10.0,
+    "t": 6.1,
+    "r": 10.4,
+    "b": 5.5,
+    "_why": "the scan shows its picture frame (Lady with the Rose, John Singer Sargent)"
+  },
+  "collection-of-beauty/Female_Nude_with_Foliage_Shadows.jpg": {
+    "l": 22.6,
+    "t": 20.5,
+    "r": 22.6,
+    "b": 20.2,
+    "_why": "the scan shows its picture frame (Female Nude with Foliage Shadows, Ernst Ludwig Kirchner)"
+  },
+  "collection-of-beauty/Stuck,_Franz_von_-_Salome_-_Google_Art_Project.jpg": {
+    "l": 5.8,
+    "t": 3.9,
+    "r": 5.1,
+    "b": 4.5,
+    "_why": "the scan shows a flat surround round the picture (Salome, Franz von Stuck)"
+  },
+  "collection-of-beauty/Water_Lilies_(Agapanthus),_by_Claude_Monet,_Cleveland_Museum_of_Art,_1960.81.jpg": {
+    "l": 1.4,
+    "t": 3.2,
+    "r": 1.7,
+    "b": 4.6,
+    "_why": "the scan shows its picture frame (Water Lilies (Agapanthus, Cleveland Museum of Art), Claude Monet)"
+  },
+  "collection-of-beauty/Robert_Delaunay,_Rythmes,_1934.jpg": {
+    "l": 2.3,
+    "t": 2.4,
+    "r": 2.3,
+    "b": 2.2,
+    "_why": "the scan shows its picture frame (Rhythms, Robert Delaunay)"
+  },
+  "collection-of-beauty/La_caída_de_Faetón_(Jan_Carel_van_Eyck).jpg": {
+    "l": 1.1,
+    "t": 1.5,
+    "r": 1.85,
+    "b": 1.1,
+    "_why": "the scan shows its picture frame (The Fall of Phaethon, None)"
+  },
+  "collection-of-beauty/Queensland_Art_Gallery_-_Joy_of_Museums_-__Figure_with_Snow_Falling__by_Takahashi_Hiroaki (1).jpg": {
+    "l": 2.95,
+    "t": 2.0,
+    "r": 2.95,
+    "b": 1.8,
+    "_why": "the scan shows a flat surround round the picture (Figure with Snow Falling, Takahashi Shōtei)"
+  }
+}

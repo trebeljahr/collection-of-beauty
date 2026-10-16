@@ -29,16 +29,18 @@ function hash(text: string): number {
   return h >>> 0;
 }
 
-/** Works for one sheet: all of a school or of a look in a stable
- *  shuffle, or with neither named, the same number from each school in
- *  turn. */
+/** Works for one sheet: the works named by id, all of a school or of a
+ *  look in a stable shuffle, or with none named, the same number from
+ *  each school in turn. */
 function pickWorks(
+  ids: string[] | null,
   movement: string | null,
   look: string | null,
   count: number,
   page: number,
 ): ArtworkListing[] {
   const hung = artworkListings.filter((a) => a.objectKey && a.width && a.height);
+  if (ids) return ids.flatMap((id) => hung.filter((a) => a.id === id));
   const shuffled = [...hung].sort((a, b) => hash(a.id) - hash(b.id));
   if (look) {
     const of = shuffled.filter((a) => pickFrameDesign(a).look === look);
@@ -79,7 +81,7 @@ export default async function FramesPage({
   const count = Math.min(96, Math.max(1, Number(one("n")) || 32));
   const cols = Math.min(16, Math.max(1, Number(one("cols")) || 8));
   const page = Math.max(0, Number(one("page")) || 0);
-  const works = pickWorks(one("m"), one("look"), count, page);
+  const works = pickWorks(one("id")?.split(",") ?? null, one("m"), one("look"), count, page);
   const era = one("era") ?? (works[0] && assignEra(works[0])) ?? "baroque";
   return (
     <FrameSheetClient

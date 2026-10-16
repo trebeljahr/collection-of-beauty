@@ -26,6 +26,7 @@ const work = (id: string, movement: string | null, year: number | null, more = {
   year,
   ...more,
 });
+const work_ = (id: string) => work(id, "Rococo", 1750);
 const ids = Array.from({ length: 80 }, (_, i) => `w${i}`);
 const looksOf = (movement: string | null, year: number | null, more = {}) =>
   ids.map((id) => pickFrameDesign(work(id, movement, year, more)).look);
@@ -229,6 +230,26 @@ describe("variety", { timeout: 300_000 }, () => {
   it("uses every look and every moulding somewhere in the catalogue", () => {
     const looks = new Set(artworkListings.map((a) => pickFrameDesign(a).look));
     for (const look of LOOK_IDS) expect(looks.has(look), look).toBe(true);
+  });
+});
+
+describe("pinned frames", () => {
+  const restingGirl = artworkListings.find((a) =>
+    a.id.startsWith("collection-of-beauty-resting-girl-by-francois-boucher-1753"),
+  );
+
+  it("hangs Boucher's Resting Girl in a gilt swept frame that swells at its corners", () => {
+    expect(restingGirl).toBeDefined();
+    const own = pickFrameDesign(restingGirl as Work);
+    expect([own.look, own.options.variant, own.slots[0].finish]).toEqual(["louisXV", 1, "gilt"]);
+  });
+
+  it("keeps the pinned frame on any wall and in any pair", () => {
+    const work = restingGirl as Work;
+    const own = pickFrameDesign(work);
+    const hanging = roomHanging("r1", "#2e3b4f", [work, ...ids.slice(0, 6).map((id) => work_(id))]);
+    expect(pickFrameDesign(work, hanging)).toBe(own);
+    expect(pickPairDesign(work_("w1"), work)).toBe(own);
   });
 });
 

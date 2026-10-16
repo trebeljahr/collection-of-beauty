@@ -195,6 +195,35 @@ required by the Dockerfile — don't remove it.
   scan. New artworks have `variantWidths: null` until shrink + build-data
   run.
 
+## Scans that show their frame
+
+- `metadata/scan-crops.json` cuts a scan before anything is derived
+  from it: percent off each side of the displayed original, keyed
+  `<folder>/<filename>`. The original stays the Commons file (its SHA-1
+  still matches the page). shrink, tiles and build-data apply the cut
+  through `scripts/lib/scan-crops.mjs`, so `width`/`height` in the
+  catalogue are the cut size. All three must agree: a reader of an
+  original that skips the table gets the frame back.
+- 14 works were cut on 17 October 2026 after a pass over all 3,376
+  scans of the `collection-of-beauty` folder. Rico approved each from
+  before/after proofs. He rejected Massys's Portrait of a Woman (the
+  arch and columns are painted). Boucher's Resting Girl keeps its
+  scan: the frame's four carved corners show inside it, and it hangs
+  in a pinned gilt Louis XV frame that swells at the corners
+  (`PINNED_FRAMES` in `frame-design.ts`), so the carving reads as the
+  inner edge of the frame round it.
+- Editing an entry makes that work's variants and tiles stale (they are
+  older than the table). Run `pnpm assets:shrink --folder=… --only=…`,
+  then build-data, then `assets:tiles --only=…`. A cut can drop a work
+  under a full-size rung: the old `<width>.avif` stays in the variant
+  folder and build-data lists it. Move it to
+  `assets/.rejected/frame-crop-stale-variants/`, never under
+  `assets-web/.rejected/`.
+- Triptychs and diptychs whose scan shows the frames between the panels
+  (Bosch's Garden and its closed wings, van der Weyden's Crucifixion)
+  are not cut yet: an outer cut leaves the inner frames standing. See
+  the vault note `collection-of-beauty-polyptychs.md`.
+
 ## Originals saved as previews
 
 - Most of `assets/collection-of-beauty` was saved by hand from a
@@ -1506,7 +1535,8 @@ required by the Dockerfile — don't remove it.
     plinth. `buildLightRig` still aims by the larger reach.
   - `/gallery-3d/frames` is a debug sheet of works in their own frames,
     lit as in the galleries: `?m=Baroque` for a school, `?look=hogarth`
-    for a look, `?n=12&cols=4` for fewer and larger, `?page=2` for more.
+    for a look, `?id=<id>,<id>` for named works, `?n=12&cols=4` for
+    fewer and larger, `?page=2` for more.
     `?hung=1` frames the sheet as a room would, each row as one wall,
     and `?era=baroque` puts it on another era's wall.
 - **Frame maps** (`frame-maps.ts`) are procedural: 13 tiling

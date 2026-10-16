@@ -77,6 +77,7 @@ import {
   TILE_OVERLAP,
   TILE_SIZE,
 } from "../src/lib/deep-zoom-config.mjs";
+import { cropRect, loadScanCrops, orientedSize } from "./lib/scan-crops.mjs";
 
 // One libvips thread per op; parallelize at the JS level instead — same
 // tradeoff scripts/shrink-sources.mjs makes, for the same reason.
@@ -141,6 +142,7 @@ function tileCountAtDeepestLevel(width, height) {
 // construction the same set the viewer will try to fetch tiles for.
 function collectJobs() {
   const artworks = JSON.parse(readFileSync(CATALOGUE, "utf8"));
+  const scanCrops = loadScanCrops();
   const jobs = [];
   for (const art of artworks) {
     const size = deepZoomSize(art.variantWidths, art.width, art.height);
@@ -152,6 +154,9 @@ function collectJobs() {
     jobs.push({
       id: art.id,
       srcPath: path.join(SRC_ROOT, art.objectKey),
+      // The catalogue's width/height are already those of the cut scan.
+      crop: scanCrops.get(art.folder, filename),
+      cropsMtimeMs: scanCrops.mtimeMs,
       destDir: path.join(DEST_ROOT, art.folder, basename, TILE_DIR),
       width: size.width,
       height: size.height,
@@ -168,7 +173,8 @@ async function isFresh(job, srcStat) {
   const deepest = path.join(job.destDir, String(maxLevelFor(job.width, job.height)));
   try {
     const dirStat = await stat(deepest);
-    if (dirStat.mtimeMs < srcStat.mtimeMs) return false;
+    const since = job.crop ? Math.max(srcStat.mtimeMs, job.cropsMtimeMs) : srcStat.mtimeMs;
+    if (dirStat.mtimeMs < since) return false;
     const files = await readdir(deepest);
     return files.length >= tileCountAtDeepestLevel(job.width, job.height);
   } catch {
@@ -197,8 +203,18 @@ async function buildPyramid(job) {
     `.tiles-tmp-${process.pid}-${Math.random().toString(36).slice(2, 8)}`,
   );
   try {
-    await sharp(job.srcPath, { failOn: "none", unlimited: true, limitInputPixels: false })
-      .rotate() // bake EXIF orientation, matching the variant ladder
+    let img = sharp(job.srcPath, {
+      failOn: "none",
+      unlimited: true,
+      limitInputPixels: false,
+    }).rotate(); // bake EXIF orientation, matching the variant ladder
+    if (job.crop) {
+      // Cut the frame off exactly as shrink-sources does (scan-crops.json).
+      const meta = await sharp(job.srcPath, { limitInputPixels: false }).metadata();
+      const shown = orientedSize(meta.width, meta.height, meta.orientation);
+      img = img.extract(cropRect(job.crop, shown.width, shown.height));
+    }
+    await img
       .flatten({ background: "#ffffff" }) // PNG/WebP alpha -> flat white
       // Resize to exactly the dimensions deepZoomSize() computes rather
       // than letting `fit: "inside"` round on its own. The runtime derives
