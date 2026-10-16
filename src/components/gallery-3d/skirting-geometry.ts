@@ -15,10 +15,12 @@ import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js
 export const SKIRTING_HEIGHT = 0.15;
 export const SKIRTING_PROUD = 0.014;
 /** How far the board runs on below the floor. The stairwell's floor
- *  lies 5 mm under the level its walls start at, which left a slit
- *  under the board there: through it showed the floor slab of the room
- *  behind the wall, or the dark outside once room culling hid that room
- *  (room-culling.ts). */
+ *  lay 5 mm under the level its walls start at until 17 October 2026,
+ *  which left a slit under the board there: through it showed the floor
+ *  slab of the room behind the wall, or the dark outside once room
+ *  culling hid that room (room-culling.ts). It is level with every other
+ *  floor now; the sink stays so no floor has to sit exactly on the
+ *  board's foot. */
 export const SKIRTING_SINK = 0.012;
 /** Moulded cap along the top: a thinner, slightly deeper bead. */
 export const SKIRTING_CAP_HEIGHT = 0.022;

@@ -917,15 +917,21 @@ function StairwellFloor({
     },
     [topGeom, slabGeom],
   );
+  // The walking surface lies at floorY and the slab 1 mm under it, as
+  // in every other room. Until 17 October 2026 both sat 5 mm lower, and
+  // at each door of a stairwell the neighbour's slab stood 4 mm proud
+  // of this floor: its edge face showed as a bright line across the
+  // threshold. Nothing else stands at floorY here: the flights that
+  // arrive on this floor end inside the opening.
   return (
     <>
-      <mesh geometry={topGeom} position={[cxWorld, floorY - 0.005, czWorld]} receiveShadow>
+      <mesh geometry={topGeom} position={[cxWorld, floorY, czWorld]} receiveShadow>
         <primitive object={floorMat} attach="material" />
       </mesh>
       {/* Slab body — extruded floor underneath the walking surface,
           with the cutout punched through. Visible from below (open
           well) and provides the cylindrical inner wall of the hole. */}
-      <mesh geometry={slabGeom} position={[cxWorld, floorY - 0.006, czWorld]}>
+      <mesh geometry={slabGeom} position={[cxWorld, floorY - 0.001, czWorld]}>
         <primitive object={floorMat} attach="material" />
       </mesh>
     </>
