@@ -336,9 +336,13 @@ export const ERAS: Era[] = [
     // belongs with the Impressionism-era floor, not Romanticism.
     movements: ["Impressionism", "Neo-Impressionism", "Pointillism", "Tonalism"],
     palette: {
-      // Musée de l'Orangerie, the two Nymphéas rooms: off-white walls
-      // under daylight from above, restored in 2006.
-      wallColor: "#efeadd",
+      // Musée d'Orsay, the Galerie des Impressionnistes as Wilmotte
+      // reopened it in October 2011: deep slate grey over dark parquet,
+      // where the walls had been off-white. The hex is read from
+      // photographs. Until 17 October 2026 this floor was the off-white
+      // of the Orangerie's Nymphéas rooms, and beside the Modernism
+      // room it read as a second white room.
+      wallColor: "#4a5058",
       floorColor: "#2a1d14",
       ceilingColor: "#f8f6f0",
       accent: "#c88a47",
