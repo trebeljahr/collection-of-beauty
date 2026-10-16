@@ -74,6 +74,7 @@
 import type { ArtworkListing } from "@/lib/data";
 import { type Era, type EraId, eraAccentColor, getEra } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
+import { curatedQueue, roomDescription, roomTitle } from "./curation";
 import type { DividerStyle } from "./divider-plans";
 import { centredIsland, courtIslands, planPanelBenches, wallIsland } from "./feature-benches";
 import {
@@ -103,10 +104,8 @@ import {
 import {
   bucketByEra,
   computeBlockedEdges,
-  describeRoom,
   dominantMovement,
   fillRooms,
-  groupMovements,
   selectFloorWorks,
   shuffleByIdHash,
 } from "./layout-museum";
@@ -282,11 +281,21 @@ type FloorPlan = {
    *  second. Never both sides of one door, and never a portal. */
   screens: ReadonlyArray<readonly [RoomKey, RoomKey]>;
 };
+/** The names the halls and stairs go by on the plan and the map: the
+ *  same on every floor, so a visitor can say where they are. */
+const HALL_NAMES: Readonly<Partial<Record<RoomKey, string>>> = {
+  "hall-w": "West Stair Hall",
+  "hall-e": "East Stair Hall",
+  court: "Central Court",
+  "stair-n": "North Stair",
+  "stair-s": "South Stair",
+};
+
 /** What hangs on each floor and where. The two collections that stand
  *  beside the timeline share the top floor. */
 export const BLOCK_PLAN: readonly FloorPlan[] = [
   {
-    title: "Gothic to Baroque",
+    title: "Old Masters",
     styles: {
       sw: "long-rows",
       cw: "bays",
@@ -309,7 +318,7 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     ],
   },
   {
-    title: "Rococo to Realism",
+    title: "Salon and Academy",
     styles: {
       sw: "bays",
       nw: "long-rows",
@@ -328,7 +337,7 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     ],
   },
   {
-    title: "Impressionism to Modernism",
+    title: "Modern Art",
     styles: {
       cw: "bays",
       nw: "long-rows",
@@ -347,7 +356,7 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     ],
   },
   {
-    title: "Natural History and East Asia",
+    title: "Natural History and East Asian Art",
     styles: {
       sw: "long-rows",
       cw: "staggered",
@@ -552,7 +561,7 @@ function buildFloor(
   for (const { key, rect: r, design } of BLOCK_HALLS) {
     const court = design === "court";
     const room = makeRoom(index, key, r, floorEra, {
-      title: court ? "Court" : "Stair hall",
+      title: HALL_NAMES[key] ?? (court ? "Court" : "Stair Hall"),
       isStairwell: true,
       isAnchor: key === GREAT_HALL,
     });
@@ -560,7 +569,10 @@ function buildFloor(
     add(key, room);
   }
   for (const { key, rect: r } of BLOCK_SPIRALS) {
-    const room = makeRoom(index, key, r, floorEra, { title: "Stairs", isStairwell: true });
+    const room = makeRoom(index, key, r, floorEra, {
+      title: HALL_NAMES[key] ?? "Stairs",
+      isStairwell: true,
+    });
     room.paletteEra = HALL_PALETTE;
     add(key, room);
   }
@@ -722,8 +734,8 @@ function buildFloor(
       room.artworks = room.placements.map((p) => p.artwork);
       room.roomNumber = ++roomNumber;
       room.movement = dominantMovement(room.artworks, era) ?? era.title;
-      room.title = room.movement;
-      room.description = describeRoom(room.title, room.artworks);
+      room.title = roomTitle(room.artworks, era);
+      room.description = roomDescription(room.artworks, room.title);
     }
   };
   return { floor, hang };
@@ -780,9 +792,9 @@ function hangZone(
     return true;
   });
 
-  const queue = [...groupMovements(era, chosen).entries()]
-    .sort((a, b) => b[1].length - a[1].length || a[0].localeCompare(b[0]))
-    .map(([name, artworks]) => ({ name, artworks }));
+  // Hung as a museum hangs them: school by school, each artist's works
+  // together (curation.ts), dealt into the rooms in the order of the walk.
+  const queue = curatedQueue(era, chosen);
   const fills = fillRooms(walls, queue, era);
   zoneRooms.forEach((room, i) => {
     room.artworks = fills[i].artworks;

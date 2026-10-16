@@ -629,6 +629,13 @@ function hangGap(container: Container, runIdx: number): number {
   return (runLength(run) - container.used[runIdx]) / (count + 1);
 }
 
+/** How near the widest gap a run's must be for it to take a work
+ *  because it already hangs the artist's others. At 1 a room is dealt
+ *  for its gaps alone and an artist's works land on every wall. */
+const ARTIST_GAP_SHARE = 0.8;
+
+const artistOf = (artwork: ArtworkListing) => artwork.artistSlug ?? artwork.artist;
+
 /**
  * Deal a room's works over its runs again, so that every run ends at
  * about the same gap. `tryAssign` decides which room a work hangs in;
@@ -667,6 +674,19 @@ function evenOutRoom(container: Container): void {
         widestGap = gap;
       }
     }
+    // An artist's works hang together: a run that already holds some of
+    // theirs takes the next one while its gap is near the widest.
+    const artist = artistOf(work.artwork);
+    let kin = 0;
+    for (let i = 0; artist && widest >= 0 && i < container.runs.length; i++) {
+      if (slack(container, i) < need) continue;
+      if (hangGap(container, i) < ARTIST_GAP_SHARE * widestGap) continue;
+      const count = container.assigned[i].filter((w) => artistOf(w.artwork) === artist).length;
+      if (count > kin) {
+        widest = i;
+        kin = count;
+      }
+    }
     if (widest < 0) {
       container.assigned = before.assigned;
       container.used = before.used;
@@ -674,6 +694,60 @@ function evenOutRoom(container: Container): void {
     }
     container.assigned[widest].push(work);
     container.used[widest] += need;
+  }
+}
+
+/** How much two works' claims on the wall may differ for them to change
+ *  runs (`gatherArtists`). Spread over a run's gaps it moves each by a
+ *  few centimetres. */
+const SWAP_TOLERANCE_M = 0.25;
+
+/**
+ * Bring each artist's works in a room onto fewer walls. `evenOutRoom`
+ * deals by size, largest first, so an artist's large canvas and their
+ * small panels land wherever a gap is widest. Here two works of about
+ * the same width on different runs change places when that puts more
+ * of an artist's works side by side, and both runs still hold their
+ * works. The gaps move by a few centimetres (`SWAP_TOLERANCE_M`).
+ */
+function gatherArtists(container: Container): void {
+  const { runs, assigned, used } = container;
+  /** Works on run `i` by `artist`, leaving out the work at `skip`. */
+  const kin = (i: number, artist: string | null, skip: number) =>
+    artist == null
+      ? 0
+      : assigned[i].reduce(
+          (n, w, j) => n + (j !== skip && artistOf(w.artwork) === artist ? 1 : 0),
+          0,
+        );
+  for (let pass = 0; pass < 4; pass++) {
+    let swapped = false;
+    for (let i = 0; i < runs.length; i++) {
+      for (let a = 0; a < assigned[i].length; a++) {
+        for (let k = i + 1; k < runs.length; k++) {
+          for (let b = 0; b < assigned[k].length; b++) {
+            const x = assigned[i][a];
+            const y = assigned[k][b];
+            const ax = artistOf(x.artwork);
+            const ay = artistOf(y.artwork);
+            if (ax === ay) continue;
+            const nx = footprintOf(x);
+            const ny = footprintOf(y);
+            if (Math.abs(nx - ny) > SWAP_TOLERANCE_M) continue;
+            // Each run must still hold its works after the trade.
+            if (slack(container, i) + nx - ny < 0 || slack(container, k) + ny - nx < 0) continue;
+            const gain = kin(k, ax, b) + kin(i, ay, a) - kin(i, ax, a) - kin(k, ay, b);
+            if (gain <= 0) continue;
+            assigned[i][a] = y;
+            assigned[k][b] = x;
+            used[i] += ny - nx;
+            used[k] += nx - ny;
+            swapped = true;
+          }
+        }
+      }
+    }
+    if (!swapped) break;
   }
 }
 
@@ -762,7 +836,10 @@ export function distributePaintings(
   }
 
   // Every work has its room. Now each room is hung for the eye.
-  for (const container of containers) evenOutRoom(container);
+  for (const container of containers) {
+    evenOutRoom(container);
+    gatherArtists(container);
+  }
 
   let wallMetres = 0;
   let hungMetres = 0;

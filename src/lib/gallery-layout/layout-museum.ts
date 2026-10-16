@@ -34,8 +34,9 @@
 // plaster a floor has open.
 
 import type { ArtworkListing } from "@/lib/data";
-import { assignEra, ERAS, type Era, type EraId, eraAccentColor, getEra } from "@/lib/gallery-eras";
+import { assignEra, ERAS, type Era, type EraId, eraAccentColor } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
+import { curatedQueue, roomDescription, roomTitle } from "./curation";
 import type { DividerStyle } from "./divider-plans";
 import {
   arrivalPoint,
@@ -537,21 +538,13 @@ function buildFloor(era: Era, allEraArtworks: ArtworkListing[]): FloorLayout {
   // A storey hangs a bounded number of works, so an era with more of
   // them goes in as a sample rather than a stack — see
   // selectFloorWorks.
-  let eraArtworks = [
+  const eraArtworks = [
     ...hallPool,
     ...selectFloorWorks(
       allEraArtworks.filter((a) => !hallPoolIds.has(a.id)),
       MAX_WORKS_PER_FLOOR - hallPool.length,
     ),
   ];
-  // Interleave artists across the floor. The source data is grouped by
-  // folder (audubon-birds, kunstformen-images, collection-of-beauty),
-  // so left untouched the natural-history floor reads Audubon-then-
-  // Haeckel and other eras clump by artist/year. Sorting by a stable
-  // hash of `id` shuffles within the era without breaking determinism.
-  eraArtworks = shuffleByIdHash(eraArtworks);
-  const byMovement = groupMovements(era, eraArtworks);
-  const anchorMovement = resolveAnchorMovement(era, byMovement);
 
   // How much plaster this floor actually needs. Each work claims its
   // display width plus its plaque; dividing by the target coverage
@@ -619,30 +612,15 @@ function buildFloor(era: Era, allEraArtworks: ArtworkListing[]): FloorLayout {
   const hungInHall = new Set(hallPlacements?.map((p) => p.artwork.id));
   if (hallPlacements) hall.placements = hallPlacements;
 
-  // Deal the remaining works into the rooms, biggest movement first. A
-  // room takes from one movement until that movement runs dry, then keeps
-  // taking from the next — clumping two schools into one room is a
-  // smaller compromise than leaving half a room of bare plaster, and
-  // the room's sign names whatever ended up dominant. The `· Part 2 /
-  // Part 3` suffixes went with it: a movement that spans four rooms
-  // now simply reads as four rooms of that movement, which is what a
-  // museum wing looks like.
-  const queue: Array<{ name: string; artworks: ArtworkListing[] }> = Array.from(
-    byMovement.entries(),
-  )
-    .sort((a, b) => {
-      if (a[0] === anchorMovement) return -1;
-      if (b[0] === anchorMovement) return 1;
-      const aAsian = isEastAsianMovement(a[0]);
-      const bAsian = isEastAsianMovement(b[0]);
-      if (aAsian && !bAsian) return -1;
-      if (!aAsian && bAsian) return 1;
-      return b[1].length - a[1].length;
-    })
-    .map(([name, artworks]) => ({
-      name,
-      artworks: artworks.filter((a) => !hungInHall.has(a.id)),
-    }));
+  // Deal the remaining works into the rooms as a museum hangs them:
+  // school by school in date order, each artist's works together
+  // (curation.ts). A room takes from one school until it runs dry, then
+  // keeps taking from the next, and its sign names what it ended up
+  // holding.
+  const queue = curatedQueue(
+    era,
+    eraArtworks.filter((a) => !hungInHall.has(a.id)),
+  );
 
   // A composed hall is finished; only when the floor had too few large
   // works to compose one does the hall join the ordinary deal.
@@ -722,8 +700,8 @@ function buildFloor(era: Era, allEraArtworks: ArtworkListing[]): FloorLayout {
       room === hall && hallPlacements
         ? era.title
         : (dominantMovement(room.artworks, era) ?? room.movement);
-    room.title = room.movement;
-    room.description = describeRoom(room.movement, room.artworks);
+    room.title = room === hall && hallPlacements ? era.title : roomTitle(room.artworks, era);
+    room.description = roomDescription(room.artworks, room.title);
     // Floor tint by movement, not by room, so the enfilade of rooms
     // showing one school reads as a single wing underfoot and as one
     // colour zone on the map.
@@ -850,54 +828,6 @@ function fnv1aHash(s: string): number {
     h = Math.imul(h, 0x01000193);
   }
   return h >>> 0;
-}
-
-export function groupMovements(
-  era: Era,
-  eraArtworks: ArtworkListing[],
-): Map<string, ArtworkListing[]> {
-  const byMovement = new Map<string, ArtworkListing[]>();
-  for (const a of eraArtworks) {
-    const key = a.movement?.trim() ? a.movement : era.title;
-    if (!byMovement.has(key)) byMovement.set(key, []);
-    byMovement.get(key)!.push(a);
-  }
-  return byMovement;
-}
-
-/** Movement names the East Asian floor claims, read from that era's own
- *  `movements` list rather than a hand-kept pattern here — a tradition
- *  added in gallery-eras.ts can't silently desync from the room
- *  ordering below (a regex that had no clause for "Classical East
- *  Asian" is exactly how the floor ended up with a room of Song-dynasty
- *  ink signed "Nihonga"). */
-const EAST_ASIAN_MOVEMENTS: ReadonlySet<string> = new Set(
-  getEra("ukiyo-e").movements.map((m) => m.toLowerCase()),
-);
-
-/**
- * True if the movement describes an East Asian tradition (Japanese
- * woodblock prints, Nihonga, Song-dynasty ink, etc.) rather than a
- * European school. These works earn their own dedicated room because
- * they belong to an entirely different art-history lineage than the
- * European Renaissance / Baroque / Romantic schools the rest of the
- * museum is organised around.
- */
-function isEastAsianMovement(name: string): boolean {
-  return EAST_ASIAN_MOVEMENTS.has(baseMovementName(name).toLowerCase());
-}
-
-/** Movement name without the ` · Part N` suffix `buildFloor` appends
- *  when one movement is split across several rooms. */
-function baseMovementName(name: string): string {
-  return name.replace(/ · Part \d+$/, "");
-}
-
-function resolveAnchorMovement(era: Era, byMovement: Map<string, ArtworkListing[]>): string {
-  const configured = era.anchor.movement;
-  if ((byMovement.get(configured)?.length ?? 0) > 0) return configured;
-  const biggest = Array.from(byMovement.entries()).sort((a, b) => b[1].length - a[1].length)[0];
-  return biggest ? biggest[0] : era.title;
 }
 
 function buildRoom(opts: {

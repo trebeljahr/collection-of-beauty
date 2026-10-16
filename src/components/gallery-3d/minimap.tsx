@@ -2,7 +2,7 @@
 
 import { type RefObject, useEffect, useRef } from "react";
 import { benchRect, dividerRect, type Rect } from "@/lib/gallery-layout/fittings";
-import { floorTitle } from "@/lib/gallery-layout/room-era";
+import { floorTitle, paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import type { FloorLayout, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 
@@ -91,22 +91,19 @@ export function Minimap({
     ctx.lineTo(size, size);
     ctx.stroke();
 
-    // Per-room minimap fills, brightened from the 3D floor tint so the
-    // hue still reads against the dark panel background. The active
-    // room overrides this with a saturated gold so the player can
-    // locate themselves at a glance.
-    const roomFills = floor.rooms.map((r) => boostForMap(r.floorColor));
+    // Each room in the colour of its walls, so the map reads as the
+    // building does: crimson where the walls are crimson. The room the
+    // visitor stands in keeps its colour and gets a rim (below).
+    const roomFills = floor.rooms.map(mapFillOf);
+    const roomInks = roomFills.map(inkOn);
 
-    // Walkable cells — corridors stay muted; rooms take their hashed
-    // accent.
+    // Walkable cells — corridors stay muted.
     for (let z = 0; z < gz; z++) {
       for (let x = 0; x < gx; x++) {
         const idx = z * gx + x;
         if (!floor.walkable[idx]) continue;
         const owner = floor.cellOwner[idx];
-        if (owner === activeRoomIdx && owner >= 0) {
-          ctx.fillStyle = "#d19a3d";
-        } else if (owner >= 0) {
+        if (owner >= 0) {
           ctx.fillStyle = roomFills[owner] ?? "#5a4c35";
         } else {
           ctx.fillStyle = "#3a362d";
@@ -115,17 +112,15 @@ export function Minimap({
       }
     }
 
-    // Room walls — thin outline around each room's cell bounds. The
-    // active room gets a brighter, thicker stroke so it pops out of
-    // the surrounding block.
-    for (const [i, room] of floor.rooms.entries()) {
+    // Room walls — thin dark outline around each room's cell bounds,
+    // which separates two rooms of one colour as a wall does.
+    ctx.strokeStyle = "rgba(10, 8, 5, 0.9)";
+    ctx.lineWidth = 1;
+    for (const room of floor.rooms) {
       const rx = ox + room.cellBounds.xMin * scale;
       const ry = oy + room.cellBounds.zMin * scale;
       const rw = (room.cellBounds.xMax - room.cellBounds.xMin + 1) * scale;
       const rh = (room.cellBounds.zMax - room.cellBounds.zMin + 1) * scale;
-      const isActive = i === activeRoomIdx;
-      ctx.strokeStyle = isActive ? "#fff1c8" : "rgba(255, 240, 210, 0.45)";
-      ctx.lineWidth = isActive ? 1.6 : 0.8;
       ctx.strokeRect(rx + 0.5, ry + 0.5, rw - 1, rh - 1);
     }
 
@@ -155,11 +150,11 @@ export function Minimap({
     }
     ctx.lineCap = "butt";
 
-    // Dividers and benches, to scale. A divider is a wall like the
-    // room's own, so it takes the outline's colour at its real 0.4 m; a
-    // bench is furniture and stays faint.
+    // Dividers and benches, to scale. A divider is a wall: drawn at its
+    // real 0.4 m in the ink that reads on the room's colour. A bench is
+    // furniture and stays faint.
     for (const [i, room] of floor.rooms.entries()) {
-      const isActive = i === activeRoomIdx;
+      const ink = roomInks[i];
       const toMap = (r: Rect) =>
         [
           ox + (r.xMin / CELL_SIZE) * scale,
@@ -167,10 +162,28 @@ export function Minimap({
           Math.max(1, ((r.xMax - r.xMin) / CELL_SIZE) * scale),
           Math.max(1, ((r.zMax - r.zMin) / CELL_SIZE) * scale),
         ] as const;
-      ctx.fillStyle = isActive ? "#fff1c8" : "rgba(255, 240, 210, 0.6)";
+      ctx.fillStyle = ink.strong;
       for (const divider of room.dividers) ctx.fillRect(...toMap(dividerRect(divider)));
-      ctx.fillStyle = isActive ? "rgba(26, 18, 11, 0.55)" : "rgba(20, 14, 8, 0.45)";
+      ctx.fillStyle = ink.faint;
       for (const bench of room.benches) ctx.fillRect(...toMap(benchRect(bench)));
+    }
+
+    // The room the visitor is in: a rim inside its walls, so its own
+    // colour still shows.
+    const active = floor.rooms[activeRoomIdx];
+    if (active) {
+      const rx = ox + active.cellBounds.xMin * scale;
+      const ry = oy + active.cellBounds.zMin * scale;
+      const rw = (active.cellBounds.xMax - active.cellBounds.xMin + 1) * scale;
+      const rh = (active.cellBounds.zMax - active.cellBounds.zMin + 1) * scale;
+      const rim = Math.max(2, Math.min(4, scale * 0.35));
+      ctx.lineJoin = "miter";
+      ctx.strokeStyle = "rgba(10, 8, 5, 0.85)";
+      ctx.lineWidth = rim + 2;
+      ctx.strokeRect(rx + (rim + 2) / 2, ry + (rim + 2) / 2, rw - rim - 2, rh - rim - 2);
+      ctx.strokeStyle = "#f2b84b";
+      ctx.lineWidth = rim;
+      ctx.strokeRect(rx + rim / 2 + 1, ry + rim / 2 + 1, rw - rim - 2, rh - rim - 2);
     }
 
     // Spiral staircase footprint — annulus (treads) around an open
@@ -222,7 +235,6 @@ export function Minimap({
       const ry = oy + room.cellBounds.zMin * scale;
       const rw = (room.cellBounds.xMax - room.cellBounds.xMin + 1) * scale;
       const rh = (room.cellBounds.zMax - room.cellBounds.zMin + 1) * scale;
-      const isActive = i === activeRoomIdx;
       const cx = rx + rw / 2;
       const cy = ry + rh / 2;
       // A grand stair hall says what it is on this floor: the stair
@@ -234,7 +246,7 @@ export function Minimap({
       // 220 px minimap and doesn't look lost on the 600 px big map.
       const px = Math.max(10, Math.min(20, Math.round(scale * 1.5)));
       ctx.font = `${room.isStairwell ? "bold " : "600 "}${px}px ui-sans-serif, system-ui, sans-serif`;
-      ctx.fillStyle = isActive ? "#1a120b" : "rgba(255, 240, 210, 0.8)";
+      ctx.fillStyle = roomInks[i].strong;
       ctx.fillText(glyph, cx, cy);
     }
 
@@ -392,29 +404,23 @@ function wrapLines(
   return lines;
 }
 
-/** Convert an authored 3D-floor hex (intentionally dark, ~L 18-25) into
- *  a brighter minimap-fill colour. Same hue, saturation lifted, lightness
- *  pinned around 0.42 so all rooms stay legible against the dark panel
- *  while keeping the era's identity. Returns a CSS hsl() string. */
-export function boostForMap(hex: string): string {
+/** A room's colour on the map: the colour of its walls. */
+export function mapFillOf(room: Pick<RoomLayout, "era" | "floorIndex" | "paletteEra">): string {
+  return paletteOfRoom(room).wallColor;
+}
+
+/** Ink that reads on `hex`: dark on a pale wall, light on a deep one.
+ *  Split at a relative luminance of 0.3, where cream (#efeadd, 0.82)
+ *  and stone (#e0dcd0) take dark ink and ochre (#c2a15e, 0.37) does
+ *  too, while crimson, midnight blue and charcoal take light ink. */
+export function inkOn(hex: string): { strong: string; faint: string } {
   const c = hex.startsWith("#") ? hex.slice(1) : hex;
-  if (c.length !== 6) return hex;
-  const r = Number.parseInt(c.slice(0, 2), 16) / 255;
-  const g = Number.parseInt(c.slice(2, 4), 16) / 255;
-  const b = Number.parseInt(c.slice(4, 6), 16) / 255;
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const l = (max + min) / 2;
-  let h = 0;
-  let s = 0;
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
-    else if (max === g) h = (b - r) / d + 2;
-    else h = (r - g) / d + 4;
-    h *= 60;
-  }
-  const sBoosted = Math.min(1, Math.max(s, 0.35) * 1.6);
-  return `hsl(${h.toFixed(0)}, ${(sBoosted * 100).toFixed(0)}%, 42%)`;
+  const lin = (i: number) => {
+    const v = Number.parseInt(c.slice(i, i + 2), 16) / 255;
+    return v <= 0.04045 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+  };
+  const lum = c.length === 6 ? 0.2126 * lin(0) + 0.7152 * lin(2) + 0.0722 * lin(4) : 0;
+  return lum > 0.3
+    ? { strong: "rgba(26, 18, 11, 0.85)", faint: "rgba(26, 18, 11, 0.3)" }
+    : { strong: "rgba(255, 244, 222, 0.9)", faint: "rgba(255, 244, 222, 0.28)" };
 }

@@ -1199,6 +1199,32 @@ required by the Dockerfile — don't remove it.
     of the wall covered in its last room and 0.39 in the room that
     mirrors it (now 0.48 and 0.46), and a 17.5 m room of the block plan
     with 0.56.
+  - **What `fillRooms` deals is in curated order**
+    ([`curation.ts`](src/lib/gallery-layout/curation.ts)). Until 17
+    October 2026 an era's works were shuffled by id hash and grouped by
+    movement, so a room was a random draw from a wide movement: one
+    Baroque gallery hung 17 artists of four countries, and two rooms of
+    a floor were both "Baroque". Rico asked for rooms that "make sense".
+    Now `curatedQueue` orders by school (movement and country:
+    "Flemish Baroque", "Spanish Golden Age"), a country's schools
+    together, countries and schools by median year, each artist's works
+    together by date. Natural history goes by author. A room's sign is
+    `roomTitle`: the artist with half its works, else the school with
+    half, else a pair of schools, else the era. Duplicate signs on a
+    floor are allowed (the `· Part N` suffixes were dropped earlier).
+    The sampling and the wall budget are unchanged, so the coverage
+    tests hold; `galleryLayoutIdentity` changed on both plans.
+  - After `evenOutRoom`, `gatherArtists` swaps works of near-equal
+    claim (within 0.25 m) between runs when that puts more of one
+    artist's works on one run, and `evenOutRoom` prefers a run already
+    holding the artist when its gap is within 0.8 of the widest. Runs
+    an artist's works span in a room: block plan 2.66 → 1.97, tower
+    3.24 → 2.76.
+- **The map draws each room in its wall colour** (`mapFillOf` in
+  `minimap.tsx`), with ink chosen for contrast (`inkOn`), and marks the
+  visitor's room with a gold rim inside its walls, not a fill. Before
+  17 October 2026 the fill was the floor tint brightened, and the
+  visitor's room turned gold.
 - **There are no three.js lights on the works, on purpose.** Each
   painting has a picture light (`painting-light.tsx`, geometry in
   `painting-light-rig.ts`): a ceiling can and the pool it throws, drawn

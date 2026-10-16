@@ -34,7 +34,7 @@ import { GrandStaircase } from "./grand-staircase";
 import { HallwayRenderer } from "./hallway";
 import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
-import { boostForMap, Minimap, type PlayerSample, roomRect } from "./minimap";
+import { Minimap, mapFillOf, type PlayerSample, roomRect } from "./minimap";
 import { Player, type PlayerHandle } from "./player";
 import { RoomCulling, registerShaftFittings } from "./room-culling";
 import { RoomEnvironment } from "./room-env-map";
@@ -247,11 +247,17 @@ export function Gallery3D({ artworks }: Props) {
 
   const currentFloor = layout.floors[currentFloorIdx];
   const activeRoom = activeRoomIdx >= 0 ? currentFloor.rooms[activeRoomIdx] : undefined;
-  // The era the visitor stands in, for the HUD. In the tower that is
-  // the floor's; in the block plan it changes from room to room. The
-  // light does not follow it: every room is lit by its own palette
-  // wherever the visitor stands (room-light.ts).
-  const activeEra = activeRoom ? eraOfRoom(activeRoom) : currentFloor.era;
+  // Where the visitor is, for the HUD: the floor's name, and the era of
+  // the gallery they stand in where that is not the floor's name. In the
+  // tower a floor is an era; in the block plan a floor holds two or
+  // three, and its halls and stairs belong to none of them. The light
+  // does not follow it: every room is lit by its own palette wherever
+  // the visitor stands (room-light.ts).
+  const floorLabel = useMemo(() => {
+    const floor = floorTitle(currentFloor);
+    const era = activeRoom && !activeRoom.isStairwell ? eraOfRoom(activeRoom).title : null;
+    return era && era !== floor ? `${floor} · ${era}` : floor;
+  }, [currentFloor, activeRoom]);
   // The stairs belong to no room and take the palette of the stair
   // column: the floor's in the tower, one stone through every storey in
   // the block plan.
@@ -907,7 +913,7 @@ export function Gallery3D({ artworks }: Props) {
           }`}
         >
           <div className="text-xs text-neutral-500">
-            Floor {currentFloorIdx + 1} · {activeEra.title}
+            Floor {currentFloorIdx + 1} · {floorLabel}
           </div>
           {activeRoom && (
             <>
@@ -1523,6 +1529,7 @@ function BigMapOverlay({
           <ul className="flex flex-col gap-1">
             {floor.rooms
               .filter((room) => room.roomNumber != null)
+              .sort((a, b) => (a.roomNumber ?? 0) - (b.roomNumber ?? 0))
               .map((room) => {
                 const isActive = floor.rooms[activeRoomIdx]?.id === room.id;
                 return (
@@ -1534,8 +1541,8 @@ function BigMapOverlay({
                   >
                     <span
                       aria-hidden
-                      className="inline-block h-2.5 w-2.5 shrink-0 rounded-[2px]"
-                      style={{ background: boostForMap(room.floorColor) }}
+                      className="inline-block h-2.5 w-2.5 shrink-0 rounded-[2px] ring-1 ring-white/30"
+                      style={{ background: mapFillOf(room) }}
                     />
                     <span className="min-w-[1.25rem] text-right font-mono text-xs text-white/55">
                       {room.roomNumber}
