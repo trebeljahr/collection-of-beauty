@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
   FLOOR_SEPARATION,
+  SPIRAL_EDGE_SEGMENTS,
   SPIRAL_INNER_RADIUS,
   SPIRAL_OUTER_RADIUS,
   SPIRAL_STEPS_PER_FLOOR,
@@ -9,6 +10,10 @@ import {
 import {
   isWalkableUnderStair,
   spiralGateHalfArc,
+  spiralPieces,
+  spiralRailLineY,
+  spiralSoffitY,
+  stairHeightAt,
   stairSurfaceAt,
   stairUndersideY,
   topLandingDepth,
@@ -55,7 +60,7 @@ function at(theta: number): [number, number] {
   return [CENTER + R * Math.cos(a), CENTER + R * Math.sin(a)];
 }
 
-const GATE = spiralGateHalfArc(SPIRAL_STEPS_PER_FLOOR);
+const GATE = spiralGateHalfArc();
 
 describe("stairSurfaceAt", () => {
   const up0 = flight(0);
@@ -154,11 +159,11 @@ describe("stairSurfaceAt", () => {
 describe("isWalkableUnderStair", () => {
   const up0 = flight(0);
   const ground = floorAt(0, [], [up0]);
-  const STEP_RISE = FLOOR_SEPARATION / SPIRAL_STEPS_PER_FLOOR;
-  /** First arc whose soffit clears UNDER_STAIR_HEADROOM. Step `i`'s
-   *  underside is `(i-1)*STEP_RISE` above the slab. */
-  const CLEAR_STEP = Math.ceil(UNDER_STAIR_HEADROOM / STEP_RISE) + 1;
-  const STEP_ANGLE = (Math.PI * 2) / SPIRAL_STEPS_PER_FLOOR;
+  /** The first tread whose soffit clears UNDER_STAIR_HEADROOM all the
+   *  way across, and the one before it. */
+  const treads = spiralPieces(up0).filter((p) => p.kind === "tread");
+  const clear = treads.find((p) => spiralSoffitY(up0, p.from) >= UNDER_STAIR_HEADROOM)!;
+  const low = treads[treads.indexOf(clear) - 2];
 
   it("opens the far side of the footprint, where the flight is a storey up", () => {
     for (const theta of [Math.PI, (3 * Math.PI) / 2, Math.PI * 1.9]) {
@@ -168,16 +173,16 @@ describe("isWalkableUnderStair", () => {
   });
 
   it("stops where the soffit drops below head height", () => {
-    for (const theta of [0, GATE, Math.PI / 4, (CLEAR_STEP - 1) * STEP_ANGLE]) {
+    for (const theta of [0, GATE, Math.PI / 4, (low.from + low.to) / 2]) {
       const [x, z] = at(theta);
       expect(isWalkableUnderStair(ground, x, z), `theta=${theta}`).toBe(false);
     }
   });
 
-  it("hands back the exact tread the headroom arithmetic promises", () => {
-    const [x, z] = at(CLEAR_STEP * STEP_ANGLE + STEP_ANGLE / 2);
+  it("hands back the tread the headroom arithmetic promises", () => {
+    const [x, z] = at((clear.from + clear.to) / 2);
     expect(isWalkableUnderStair(ground, x, z)).toBe(true);
-    const [bx, bz] = at((CLEAR_STEP - 1) * STEP_ANGLE + STEP_ANGLE / 2);
+    const [bx, bz] = at((low.from + low.to) / 2);
     expect(isWalkableUnderStair(ground, bx, bz)).toBe(false);
   });
 
@@ -190,7 +195,7 @@ describe("isWalkableUnderStair", () => {
   });
 
   // Every floor above ground has the annulus punched out of the slab,
-  // so "under the stairs" is a six-metre drop, not a room.
+  // so "under the stairs" is a storey's drop, not a room.
   it("refuses on a floor whose stairwell is a hole", () => {
     const first = floorAt(1, [flight(0)], [flight(1)]);
     const [x, z] = at(Math.PI);
@@ -198,21 +203,88 @@ describe("isWalkableUnderStair", () => {
   });
 });
 
+describe("the flight's pieces", () => {
+  const up0 = flight(0);
+  const pieces = spiralPieces(up0);
+  const rise = FLOOR_SEPARATION / SPIRAL_STEPS_PER_FLOOR;
+
+  it("is half a landing, a riser fewer treads than risers, and half a landing", () => {
+    expect(pieces[0]).toMatchObject({ kind: "landing-low", from: 0, top: 0 });
+    expect(pieces.at(-1)).toMatchObject({ kind: "landing-high", to: Math.PI * 2 });
+    expect(pieces.at(-1)!.top).toBeCloseTo(FLOOR_SEPARATION, 9);
+    expect(pieces.filter((p) => p.kind === "tread")).toHaveLength(SPIRAL_STEPS_PER_FLOOR - 1);
+  });
+
+  it("joins piece to piece, each a rise above the last", () => {
+    const bad: string[] = [];
+    for (let i = 1; i < pieces.length; i++) {
+      if (Math.abs(pieces[i].from - pieces[i - 1].to) > 1e-9) bad.push(`gap before ${i}`);
+      if (Math.abs(pieces[i].top - pieces[i - 1].top - rise) > 1e-9) bad.push(`rise before ${i}`);
+    }
+    expect(bad).toEqual([]);
+  });
+
+  it("puts the feet on the piece under them", () => {
+    const bad: string[] = [];
+    for (const p of pieces) {
+      const y = stairHeightAt(up0, (p.from + p.to) / 2);
+      if (Math.abs(y - p.top) > 1e-9) bad.push(`${p.kind} ${p.from}`);
+    }
+    expect(bad).toEqual([]);
+  });
+
+  it("keeps the landing level across the gate, flight to flight", () => {
+    const up1 = flight(1);
+    for (const g of [-GATE * 0.9, -GATE / 2]) {
+      expect(stairHeightAt(up0, Math.PI * 2 + g)).toBeCloseTo(FLOOR_SEPARATION, 9);
+    }
+    for (const g of [GATE / 2, GATE * 0.9]) {
+      expect(stairHeightAt(up1, g)).toBeCloseTo(FLOOR_SEPARATION, 9);
+    }
+  });
+
+  // One edge of the floor's hole and of every piece (SPIRAL_EDGE_SEGMENTS).
+  it("ends every piece on a vertex of the floor's hole", () => {
+    const step = (Math.PI * 2) / SPIRAL_EDGE_SEGMENTS;
+    let worst = 0;
+    for (const p of pieces) {
+      for (const a of [p.from, p.to]) {
+        const off = Math.abs(a / step - Math.round(a / step));
+        worst = Math.max(worst, off);
+      }
+    }
+    expect(worst).toBeLessThan(1e-9);
+  });
+
+  it("runs one soffit and one rail line under and over the whole helix", () => {
+    const up1 = flight(1);
+    expect(spiralSoffitY(up0, Math.PI * 2)).toBeCloseTo(spiralSoffitY(up1, 0), 9);
+    expect(spiralRailLineY(up0, Math.PI * 2)).toBeCloseTo(spiralRailLineY(up1, 0), 9);
+    let worst = 0;
+    let at = 0;
+    for (let c = 0.001; c < Math.PI * 2; c += 0.001) {
+      const jump = Math.abs(spiralSoffitY(up0, c) - spiralSoffitY(up0, c - 0.001));
+      if (jump > worst) [worst, at] = [jump, c];
+    }
+    expect(worst, `at ${at}`).toBeLessThan(rise / 10);
+  });
+});
+
 describe("stairUndersideY", () => {
   const up0 = flight(0);
   const stepRise = FLOOR_SEPARATION / SPIRAL_STEPS_PER_FLOOR;
 
-  // Treads are full-rise blocks, so the soffit hangs one rise below the
-  // tread the player would be standing on at the same angle.
+  // Treads are full-rise blocks, so under a tread's middle the soffit
+  // hangs one rise below the tread the player would be standing on.
   it("sits one rise under the tread top", () => {
-    const stepAngle = (Math.PI * 2) / SPIRAL_STEPS_PER_FLOOR;
+    const treads = spiralPieces(up0).filter((p) => p.kind === "tread");
     for (const i of [1, 5, 13, 25]) {
-      const raw = i * stepAngle + stepAngle / 2;
-      expect(stairUndersideY(up0, raw)).toBeCloseTo((i - 1) * stepRise, 6);
+      const t = treads[i - 1];
+      expect(stairUndersideY(up0, (t.from + t.to) / 2)).toBeCloseTo((i - 1) * stepRise, 6);
     }
   });
 
-  it("reports no room at all under the bottom tread", () => {
+  it("reports no room at all under the bottom of the flight", () => {
     expect(stairUndersideY(up0, 0)).toBeLessThan(0);
   });
 });

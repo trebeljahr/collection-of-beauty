@@ -1,5 +1,5 @@
 import type { FloorLayout, Staircase } from "@/lib/gallery-layout/types";
-import { hasStairwellCutout } from "@/lib/gallery-layout/world-coords";
+import { hasStairwellCutout, SPIRAL_LANDING_ARC } from "@/lib/gallery-layout/world-coords";
 import { CUTOUT_RAIL_RADIUS } from "./rail-constants";
 
 // Pure spiral-staircase physics. Split out of `staircase.tsx` so the
@@ -7,17 +7,91 @@ import { CUTOUT_RAIL_RADIUS } from "./rail-constants";
 // drei into the module graph — `staircase.tsx` re-exports them for the
 // renderer's own use.
 
-/** Half-arc of the entry/exit gate on the OUTER rail — the rail is
- *  omitted across this arc so the player can step onto/off the
- *  spiral. The cutout-edge rail on each floor uses the same value
- *  (computed from each stair's numSteps), so the two gates align
- *  vertically and the spiral rail flows smoothly out of one floor's
- *  cutout rail and into the next. */
-export function spiralGateHalfArc(numSteps: number): number {
-  // A little over one step of arc on each side. One exact step felt
-  // visually and physically too narrow once the sign pylon sat on the
-  // post instead of floating beside it.
-  return ((Math.PI * 2) / numSteps) * 1.35;
+/** Half the landing's arc: how far the landing reaches either side of
+ *  the gate. The outer rail and the cutout rail leave the same arc
+ *  open, so the gate is the landing's width, and the gate posts stand
+ *  where its edges meet the floor. */
+export function spiralGateHalfArc(): number {
+  return SPIRAL_LANDING_ARC / 2;
+}
+
+/** Rise of one step: the storey over the flight's risers. */
+export function spiralStepRise(stair: Staircase): number {
+  return (stair.upperY - stair.lowerY) / stair.numSteps;
+}
+
+/** Arc of one tread. A flight is a half landing, `numSteps - 1`
+ *  treads and a half landing, one revolution in all. */
+export function spiralTreadArc(stair: Staircase): number {
+  return (Math.PI * 2 - 2 * spiralGateHalfArc()) / (stair.numSteps - 1);
+}
+
+/** One level piece of a flight, by cumulative angle from the gate on
+ *  its lower floor: `from` to `to`, its top at `top`. */
+export type SpiralPiece = {
+  kind: "landing-low" | "tread" | "landing-high";
+  from: number;
+  to: number;
+  top: number;
+};
+
+/** A flight's pieces in the order they are climbed: the half of the
+ *  landing on its lower floor, its treads, the half of the landing on
+ *  its upper floor. Every piece is level; each riser between two is one
+ *  step's rise. */
+export function spiralPieces(stair: Staircase): SpiralPiece[] {
+  const half = spiralGateHalfArc();
+  const arc = spiralTreadArc(stair);
+  const rise = spiralStepRise(stair);
+  const pieces: SpiralPiece[] = [{ kind: "landing-low", from: 0, to: half, top: stair.lowerY }];
+  for (let k = 1; k < stair.numSteps; k++) {
+    pieces.push({
+      kind: "tread",
+      from: half + (k - 1) * arc,
+      to: half + k * arc,
+      top: stair.lowerY + k * rise,
+    });
+  }
+  pieces.push({
+    kind: "landing-high",
+    from: Math.PI * 2 - half,
+    to: Math.PI * 2,
+    top: stair.upperY,
+  });
+  return pieces;
+}
+
+/** Y of the flight's underside at a cumulative angle. The treads have
+ *  one sloped soffit, a rise and a half under a tread's top at its
+ *  riser and half a rise under it at its far edge. Under the landing it
+ *  slopes at a third of that, so it meets the soffit of the flight on
+ *  either side: a rise and a half under the floor where the flight from
+ *  below arrives, half a rise where the flight up leaves, one rise at
+ *  the gate, where the two flights' halves meet. */
+export function spiralSoffitY(stair: Staircase, cum: number): number {
+  const half = spiralGateHalfArc();
+  const rise = spiralStepRise(stair);
+  if (cum <= half) return stair.lowerY - rise + 0.5 * rise * (Math.max(0, cum) / half);
+  if (cum >= Math.PI * 2 - half) {
+    const t = Math.min(1, (cum - (Math.PI * 2 - half)) / half);
+    return stair.upperY - 1.5 * rise + 0.5 * rise * t;
+  }
+  const arc = spiralTreadArc(stair);
+  const f = (cum - half) / arc;
+  const k = Math.min(stair.numSteps - 1, Math.floor(f) + 1);
+  return stair.lowerY + k * rise - 1.5 * rise + rise * (f - (k - 1));
+}
+
+/** Y of the line the handrails follow, at a cumulative angle: level
+ *  over the landings, and over the flight the line through the treads'
+ *  nosings. It leaves the landing one tread's arc before the first
+ *  riser and reaches the upper landing at the last, as a stair's
+ *  handrail runs on at the pitch past the end of the flight. */
+export function spiralRailLineY(stair: Staircase, cum: number): number {
+  const half = spiralGateHalfArc();
+  const rise = spiralStepRise(stair);
+  const y = stair.lowerY + rise * (1 + (cum - half) / spiralTreadArc(stair));
+  return Math.min(stair.upperY, Math.max(stair.lowerY, y));
 }
 
 /** True if (worldX, worldZ) sits inside the spiral's walking annulus
@@ -31,8 +105,8 @@ export function isInsideStair(stair: Staircase, worldX: number, worldZ: number):
 }
 
 /** Normalised raw angle around the spiral, measured from `entryAngle`
- *  in the spiral's walking direction. Returns a value in [0, 2π);
- *  step `i` occupies [i*stepAngle, (i+1)*stepAngle]. */
+ *  in the spiral's walking direction. Returns a value in [0, 2π), on
+ *  the scale the flight's pieces are laid out on (`spiralPieces`). */
 export function spiralRawAngle(stair: Staircase, worldX: number, worldZ: number): number {
   const dx = worldX - stair.centerX;
   const dz = worldZ - stair.centerZ;
@@ -42,47 +116,28 @@ export function spiralRawAngle(stair: Staircase, worldX: number, worldZ: number)
 }
 
 /** Y the player's feet should sit at given a cumulative angle on this
- *  stair. Mostly a tread-locked step function: while the player walks
- *  tread `i` their feet are pinned to that tread's top (`lowerY +
- *  i*stepRise`), exactly matching the rendered geometry instead of
- *  gliding along an invisible ramp above it.
- *
- *  EXCEPT the FIRST and LAST tread's arcs, which are smoothed into
- *  ramps so on/off-ramping is flush with the destination floor. A
- *  pure step function leaves the player one stepRise below the upper
- *  floor for the entire last tread (cum ∈ [21*stepAngle, 2π) → idx=21
- *  → Y = upperY−stepRise), and the player only "lands" on upperY at
- *  the cum=2π boundary — by which point canStepTo's STAIR_LANDING_TOL
- *  has already permitted them to step off the spiral. Result: the
- *  camera was 40 cm under the upper floor mesh as they walked toward
- *  the gate, with the floor slab clipping through their view, and the
- *  exit move triggered a Y-snap teleport. The smoothed first/last
- *  arc lifts the player flush with the destination floor by the time
- *  they reach the landing arc. The middle treads stay discrete so
- *  the per-step "climbing stairs" feel is preserved. */
+ *  stair: the top of the piece under them (`spiralPieces`). Feet on a
+ *  landing are level with its floor, so stepping off onto the floor
+ *  is flush, and the camera's damping eases each riser. */
 export function stairHeightAt(stair: Staircase, cumulativeAngle: number): number {
-  const stepAngle = (Math.PI * 2) / stair.numSteps;
-  const stepRise = (stair.upperY - stair.lowerY) / stair.numSteps;
-  if (cumulativeAngle <= 0) return stair.lowerY;
-  if (cumulativeAngle >= Math.PI * 2) return stair.upperY;
-  const idx = Math.floor(cumulativeAngle / stepAngle);
-  if (idx === 0) {
-    const t = cumulativeAngle / stepAngle;
-    return stair.lowerY + t * stepRise;
-  }
-  if (idx >= stair.numSteps - 1) {
-    const t = (cumulativeAngle - (stair.numSteps - 1) * stepAngle) / stepAngle;
-    return stair.lowerY + (stair.numSteps - 1) * stepRise + t * stepRise;
-  }
-  return stair.lowerY + idx * stepRise;
+  const half = spiralGateHalfArc();
+  if (cumulativeAngle <= half) return stair.lowerY;
+  if (cumulativeAngle >= Math.PI * 2 - half) return stair.upperY;
+  const k = Math.min(
+    stair.numSteps - 1,
+    Math.floor((cumulativeAngle - half) / spiralTreadArc(stair)) + 1,
+  );
+  return stair.lowerY + k * spiralStepRise(stair);
 }
 
-/** Height the camera rides at on the spiral: the straight helix from
- *  floor to floor, up to one riser over the tread `stairHeightAt` gives.
- *  The view climbs at an even rate instead of a riser at a time. */
+/** Height the camera rides at on the spiral: level on the landings,
+ *  and over the flight the straight line through the nosings
+ *  (`spiralRailLineY`), up to one riser over the tread `stairHeightAt`
+ *  gives. The view climbs at an even rate instead of a riser at a
+ *  time, and is level with the floor wherever the visitor can step
+ *  off. */
 export function stairWalkHeightAt(stair: Staircase, cumulativeAngle: number): number {
-  const t = Math.min(1, Math.max(0, cumulativeAngle / (Math.PI * 2)));
-  return stair.lowerY + (stair.upperY - stair.lowerY) * t;
+  return spiralRailLineY(stair, cumulativeAngle);
 }
 
 /** Vertical clearance the soffit of the helix has to give before the
@@ -92,20 +147,11 @@ export function stairWalkHeightAt(stair: Staircase, cumulativeAngle: number): nu
  *  the camera would end up inside the stone. */
 export const UNDER_STAIR_HEADROOM = 2.3;
 
-/** Y of the helix's underside at this raw angle.
- *
- *  Each tread is a FULL-RISE block (see `buildSpiralStepsGeometry`):
- *  step `i`'s top is `lowerY + i*stepRise` and its bottom sits one rise
- *  below, so the soffit over step `i`'s arc is at
- *  `lowerY + (i-1)*stepRise`. Step 0's block sinks a rise below the
- *  lower floor — hidden inside the slab — so the first arc reports
- *  negative clearance, which is exactly right: there is no room under
- *  the bottom of the flight. */
+/** Y of the helix's underside at this raw angle (`spiralSoffitY`).
+ *  The landing on the lower floor reports negative clearance, which is
+ *  right: there is no room under the bottom of the flight. */
 export function stairUndersideY(stair: Staircase, rawAngle: number): number {
-  const stepAngle = (Math.PI * 2) / stair.numSteps;
-  const stepRise = (stair.upperY - stair.lowerY) / stair.numSteps;
-  const idx = Math.min(stair.numSteps - 1, Math.max(0, Math.floor(rawAngle / stepAngle)));
-  return stair.lowerY + (idx - 1) * stepRise;
+  return spiralSoffitY(stair, rawAngle);
 }
 
 /** True when (worldX, worldZ) is inside a spiral's footprint but the
@@ -188,8 +234,8 @@ export function floorShafts(floor: FloorLayout): StairShaft[] {
  *  L-shaped bar from the spiral's inner rail out to the cutout rail
  *  (`lBridge` in `stairwell-rail.tsx`). Its outer arm runs parallel to
  *  that line and lands on the cutout rail one gate half-arc round. */
-export function topLandingDepth(stair: Staircase): number {
-  return CUTOUT_RAIL_RADIUS * Math.sin(spiralGateHalfArc(stair.numSteps));
+export function topLandingDepth(_stair: Staircase): number {
+  return CUTOUT_RAIL_RADIUS * Math.sin(spiralGateHalfArc());
 }
 
 /** True when a point of the topmost flight's annulus, given by its
@@ -205,11 +251,12 @@ export function onTopLanding(stair: Staircase, rawAngle: number, radius: number)
  *  player standing on floor `floorIndex`.
  *
  *  Almost always the tread height. The exception is the top of the
- *  climb. Intermediate flights stack into the next revolution, so
- *  there the short arc around the gate itself is at floor level. The
- *  topmost flight ends in a small landing past the gate, as far as the
- *  handrail that fences the well (`onTopLanding`); past that rail the
- *  well is open and there is nothing to stand on. */
+ *  climb, where the flight ends at the gate. On a floor with a flight
+ *  above, the landing runs on past the gate as that flight's first
+ *  half, level with the floor. The topmost flight ends in a landing
+ *  past the gate as far as the handrail that fences the well
+ *  (`onTopLanding`); past that rail the well is open and there is
+ *  nothing to stand on. */
 export function stairSurfaceYAt(
   floorIndex: number,
   stair: Staircase,
@@ -218,8 +265,7 @@ export function stairSurfaceYAt(
   hasFlightAbove: boolean,
 ): number {
   if (floorIndex === stair.upperFloor) {
-    const stepAngle = (Math.PI * 2) / stair.numSteps;
-    if (hasFlightAbove ? rawAngle < stepAngle * 1.5 : onTopLanding(stair, rawAngle, radius)) {
+    if (hasFlightAbove ? rawAngle <= spiralGateHalfArc() : onTopLanding(stair, rawAngle, radius)) {
       return stair.upperY;
     }
   }
@@ -237,10 +283,9 @@ export function isAtStairSurface(
   feetY: number,
   hasFlightAbove: boolean,
 ): boolean {
-  const stepRise = (stair.upperY - stair.lowerY) / stair.numSteps;
   return (
     Math.abs(stairSurfaceYAt(floorIndex, stair, rawAngle, radius, hasFlightAbove) - feetY) <=
-    stepRise * 1.75
+    spiralStepRise(stair) * 1.75
   );
 }
 

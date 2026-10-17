@@ -46,9 +46,9 @@ const gatePostMaterial = new THREE.MeshStandardMaterial({
 // Lit by the same lamp map as the stair they fence (see staircase.tsx).
 HIGHLIGHT_ENV_MATERIALS.push(balusterMaterial, gatePostMaterial);
 
-// Half-arc of the entry gate is now derived per-stair from the
-// spiral's numSteps (`spiralGateHalfArc(numSteps)`), so the cutout-edge
-// gate aligns exactly with the spiral rail's gap above and below.
+// The gate is the landing's width (`spiralGateHalfArc`), so the
+// cutout-edge gate aligns exactly with the spiral rail's gap above and
+// below.
 
 /** Build the cutout-edge top rail as a CLOSED RECTANGULAR TUBE
  *  following a circle of radius `radius` at height `y + RAIL_HEIGHT`,
@@ -184,7 +184,7 @@ function ShaftAccents({ floor, shaft }: { floor: FloorLayout; shaft: StairShaft 
     const cx = reference.centerX;
     const cz = reference.centerZ;
     const railR = CUTOUT_RAIL_RADIUS;
-    const gateHalfArc = spiralGateHalfArc(reference.numSteps);
+    const gateHalfArc = spiralGateHalfArc();
     // The "up" half of the gate is only meaningful when this floor
     // actually has an upgoing stair; same for the "down" half. On the
     // top floor, stairsOut is empty so the up-half is a dead end and

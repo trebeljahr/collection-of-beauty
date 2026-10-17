@@ -756,6 +756,18 @@ required by the Dockerfile — don't remove it.
     `floorOpening` unset; a hall's is `isStairwell` with it set. The
     player tries the spiral first and a hall after it, so the two never
     answer for one point.
+  - **A spiral has a landing on every floor** (`spiralPieces` in
+    `spiral-physics.ts`). Rico, 17 October 2026: the helix ran on through
+    each floor with one tread at its height, and the treads coming up
+    under the slab left a slit to its edge that closed to a crack. Now
+    a flight is half a landing, 35 treads of 9° and half a landing; the
+    landing is 45° wide (`SPIRAL_LANDING_ARC`), level with the floor,
+    and the gate and its posts are its width. The last six treads have
+    a closed walnut string up to the slab (`STRING_TREADS`) where the
+    outer rail would pass less than its height under it. Feet height,
+    soffit, rail line and brackets all read the pieces; the floor's
+    hole has a vertex every 2.25° (`SPIRAL_EDGE_SEGMENTS` 160), so every
+    piece ends on one.
   - **The stair halls are loggias and the middle hall is a court**
     ([`grand-stair.ts`](src/lib/gallery-layout/grand-stair.ts), drawn
     by `grand-staircase.tsx`). They are in `FloorLayout.grandStairsIn`

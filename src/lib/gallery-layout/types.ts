@@ -209,7 +209,8 @@ export type Staircase = {
   innerRadius: number;
   /** Outer radius — outer edge of the treads. */
   outerRadius: number;
-  /** Tread count for one full revolution. */
+  /** Risers in the flight: one revolution, from the landing on the
+   *  lower floor to the landing on the upper one (`spiralPieces`). */
   numSteps: number;
   /** +1 = atan2 angle increases as the player walks "up the stair". */
   direction: 1 | -1;
@@ -217,9 +218,9 @@ export type Staircase = {
   lowerY: number;
   /** Y of the highest tread (= lowerY + FLOOR_SEPARATION). */
   upperY: number;
-  /** World atan2 angle (atan2(dz, dx)) at which step 0 sits. The player
-   *  walking onto the spiral from the stairwell door enters at this
-   *  angle, so the on-ramp greets them flush with the floor. */
+  /** World atan2 angle (atan2(dz, dx)) of the gate: the middle of the
+   *  landing on every floor, where one flight ends and the next begins.
+   *  The player walking in from the stairwell door enters here. */
   entryAngle: number;
 };
 

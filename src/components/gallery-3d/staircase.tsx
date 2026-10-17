@@ -5,7 +5,7 @@ import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import type { Staircase } from "@/lib/gallery-layout/types";
-import { SPIRAL_COLUMN_RADIUS } from "@/lib/gallery-layout/world-coords";
+import { FLOOR_THICKNESS, SPIRAL_COLUMN_RADIUS } from "@/lib/gallery-layout/world-coords";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { getFrameMaps } from "./frame-maps";
 import { LIGHT_TINT } from "./painting-light";
@@ -21,6 +21,11 @@ import {
   findStairAbove,
   findStairBelow,
   spiralGateHalfArc,
+  spiralPieces,
+  spiralRailLineY,
+  spiralSoffitY,
+  spiralStepRise,
+  spiralTreadArc,
   topLandingDepth,
 } from "./spiral-physics";
 import { getStairMaps } from "./stair-maps";
@@ -63,11 +68,6 @@ const treadMaterial = new THREE.MeshStandardMaterial({
 treadMaterial.userData.envScale = 0.6;
 /** The walnut's mean colour: what the step lights are reckoned against. */
 const TREAD_WOOD = new THREE.Color("#3a2a1f");
-/** How far the soffit stays under a tread's top at its back edge: half a
- *  rise. Each tread a block with a flat bottom made the underside of
- *  the flight above a staircase upside down; now it is one helicoid, and
- *  the column's brackets still meet it under each tread's middle. */
-const SOFFIT_WAIST_RISES = 0.5;
 
 // ── Step lights ───────────────────────────────────────────────────────
 // A strip under the nosing of every tread, washing the riser below it
@@ -387,34 +387,40 @@ function buildTreadGeometry(
   thetaStart: number,
   thetaEnd: number,
   topY: number,
-  thickness: number,
   segments: number,
-  /** Which radial cap is the block's riser, the face a climber walks
-   *  toward. It takes a step light; null leaves the block unlit. */
-  riser: "start" | "end" | null = null,
-  /** Whether the top takes the spill of the next riser up, which
-   *  stands on the far side from this block's own. */
-  spill = false,
-  /** With a riser: how far the soffit stays under the top at the far
-   *  cap. The bottom then rises across the block by `thickness`, from
-   *  `thickness + waist` under the top at the riser, so the blocks of a
-   *  flight have one sloped underside. */
-  waist = 0,
-  /** Where in the wood the block is cut from: a uv offset, metres. */
-  offset: readonly [number, number] = [0, 0],
+  {
+    rising,
+    riser,
+    spill,
+    bottom,
+    offset = [0, 0],
+  }: {
+    /** The radial cap a climber walks toward: the one at the lower
+     *  angle when the spiral climbs with increasing angle. */
+    rising: "start" | "end";
+    /** Whether that cap is a riser, which takes a step light. */
+    riser: boolean;
+    /** How far the spill of the next riser up, standing at the far
+     *  cap, reaches in: a tread's depth, as a share of this block's. 1
+     *  on a tread, less on a landing, 0 for none. */
+    spill: number;
+    /** Y of the block's underside at the rising cap and at the far one;
+     *  it slopes straight between them. */
+    bottom: readonly [number, number];
+    /** Where in the wood the block is cut from: a uv offset, metres. */
+    offset?: readonly [number, number];
+  },
 ): { positions: number[]; colors: number[]; uvs: number[]; indices: number[] } {
   const positions: number[] = [];
   const colors: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
   const midR = (innerR + outerR) / 2;
-  // The bottom's height at a place along the arc, 0 at thetaStart.
-  const bottomAt = (t: number) =>
-    riser === "start"
-      ? topY - thickness - waist + thickness * t
-      : riser === "end"
-        ? topY - waist - thickness * t
-        : topY - thickness;
+  // Place along the climb, 0 at the rising cap, from place along the
+  // arc, 0 at thetaStart.
+  const climbed = (t: number) => (rising === "start" ? t : 1 - t);
+  // The bottom's height at a place along the arc.
+  const bottomAt = (t: number) => bottom[0] + (bottom[1] - bottom[0]) * climbed(t);
 
   const pushVertex = (
     x: number,
@@ -457,9 +463,12 @@ function buildTreadGeometry(
   // Spill on the top: brightest in the row under the next riser,
   // gone by the middle of the tread.
   const spillAt =
-    spill && riser
+    spill > 0
       ? (t: number): Rgb => {
-          const fromRiser = (riser === "start" ? 1 - t : t) * (TREAD_SPILL.length - 1);
+          const fromRiser = Math.min(
+            TREAD_SPILL.length - 1,
+            ((1 - climbed(t)) / spill) * (TREAD_SPILL.length - 1),
+          );
           const i = Math.min(TREAD_SPILL.length - 2, Math.floor(fromRiser));
           const f = fromRiser - i;
           return wash(TREAD_SPILL[i] * (1 - f) + TREAD_SPILL[i + 1] * f);
@@ -523,7 +532,7 @@ function buildTreadGeometry(
       if (end === "start") indices.push(ib, it, ob, it, ot, ob);
       else indices.push(ib, ob, it, it, ob, ot);
     };
-    if (riser !== end) {
+    if (!riser || rising !== end) {
       if (topY - bottomY > 1e-6) {
         quad(at(innerR, bottomY), at(innerR, topY), at(outerR, bottomY), at(outerR, topY));
       }
@@ -557,45 +566,38 @@ function risingCap(direction: number): "start" | "end" {
   return direction > 0 ? "start" : "end";
 }
 
-/** Merge all the spiral's tread wedges into one BufferGeometry. The
- *  tread tops are placed to match the discrete physics in
- *  `stairHeightAt` exactly: while the player walks the arc of step
- *  `i`, both their feet AND the tread under them sit at
- *  `lowerY + i * stepRise`. Step 0 is flush with the lower floor.
- *  When the player crosses cumulative=2π onto the next stair, that
- *  stair's step 0 is at `upperY`, giving the final +stepRise climb
- *  onto the upper floor with no visual gap or floating tread.
+/** Merge the flight's pieces into one BufferGeometry: the half of the
+ *  landing on its lower floor, its treads and the half of the landing
+ *  on its upper floor, each level and placed where `stairHeightAt` puts
+ *  the player's feet (`spiralPieces`). Two flights' halves meet at the
+ *  gate of the floor between them and make one landing.
  *
- *  Each wedge is a FULL-RISE-THICK block: bottom at the previous
- *  step's top Y, top at this step's top Y. The radial side cap
- *  between adjacent steps therefore covers the entire step rise,
- *  so there's no see-through gap between treads from any angle.
- *  The lowest step's bottom sinks one rise below `lowerY`; on the
- *  ground revolution that's hidden under the slab, on upper
- *  revolutions it stacks flush on the previous revolution's last
- *  tread, giving the spiral a single continuous helical mass. */
+ *  Each piece is a block whose underside is one sloped soffit for the
+ *  whole helix (`spiralSoffitY`), so there's no see-through gap
+ *  between pieces from any angle. The lowest flight's landing sinks a
+ *  rise below the ground floor, deeper than the slab, which has a hole
+ *  of the half landing's shape (`groundLandingHole`). */
 function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
-  const { innerRadius, outerRadius, numSteps, direction, lowerY, upperY, entryAngle } = staircase;
-  const stepAngle = ((Math.PI * 2) / numSteps) * direction;
-  const stepRise = (upperY - lowerY) / numSteps;
+  const { innerRadius, outerRadius, direction, lowerY, entryAngle } = staircase;
+  const stepRise = spiralStepRise(staircase);
+  const treadArc = spiralTreadArc(staircase);
   const positions: number[] = [];
   const colors: number[] = [];
   const uvs: number[] = [];
   const indices: number[] = [];
-  // The floor's hole is cut at these vertices (`SPIRAL_EDGE_SEGMENTS`).
-  const segPerStep = 4;
-  // Steps of every flight count on from the floor below, so the boards
+  // The floor's hole is cut at these vertices (`SPIRAL_EDGE_SEGMENTS`):
+  // one every quarter of a tread's arc.
+  const segmentArc = treadArc / 4;
+  // Pieces of every flight count on from the floor below, so the boards
   // of two flights never repeat one another.
   const firstStep = Math.round(lowerY / stepRise);
 
-  for (let i = 0; i < numSteps; i++) {
-    const aStart = entryAngle + i * stepAngle;
-    const aEnd = entryAngle + (i + 1) * stepAngle;
-    const lo = Math.min(aStart, aEnd);
-    const hi = Math.max(aStart, aEnd);
-    const topY = lowerY + i * stepRise;
+  spiralPieces(staircase).forEach((piece, i) => {
+    const a = entryAngle + direction * piece.from;
+    const b = entryAngle + direction * piece.to;
     const n = firstStep + i;
     const grain = Math.sin(n * 12.9898) * 43758.5453;
+    const depth = (piece.to - piece.from) / treadArc;
     const {
       positions: p,
       colors: c,
@@ -604,22 +606,28 @@ function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
     } = buildTreadGeometry(
       innerRadius,
       outerRadius,
-      lo,
-      hi,
-      topY,
-      stepRise,
-      segPerStep,
-      risingCap(direction),
-      true,
-      SOFFIT_WAIST_RISES * stepRise,
-      [(grain - Math.floor(grain)) * 5.12, n * 0.37],
+      Math.min(a, b),
+      Math.max(a, b),
+      piece.top,
+      Math.max(1, Math.round((piece.to - piece.from) / segmentArc)),
+      {
+        rising: risingCap(direction),
+        // The landing on the lower floor is reached from the floor, not
+        // up a riser; the other pieces each stand a rise above the last.
+        riser: piece.kind !== "landing-low",
+        // The upper landing's next riser is the next flight's, half a
+        // landing on.
+        spill: piece.kind === "landing-high" ? 0 : 1 / depth,
+        bottom: [spiralSoffitY(staircase, piece.from), spiralSoffitY(staircase, piece.to)],
+        offset: [(grain - Math.floor(grain)) * 5.12, n * 0.37],
+      },
     );
     const base = positions.length / 3;
     for (let k = 0; k < p.length; k++) positions.push(p[k]);
     for (let k = 0; k < c.length; k++) colors.push(c[k]);
     for (let k = 0; k < uv.length; k++) uvs.push(uv[k]);
     for (let k = 0; k < idx.length; k++) indices.push(idx[k] + base);
-  }
+  });
 
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
@@ -630,212 +638,126 @@ function buildSpiralStepsGeometry(staircase: Staircase): THREE.BufferGeometry {
   return geom;
 }
 
-/** Build a spiral railing as a CLOSED RECTANGULAR TUBE following the
- *  rail path. Each ring sample contributes 4 vertices — TO (top-out),
- *  TI (top-in), BI (bot-in), BO (bot-out) — and adjacent rings are
- *  stitched by 4 longitudinal faces (top, inner, bottom, outer) so
- *  the rail has real 3D volume in every direction. No DoubleSide
- *  hack: the tube is closed, every face has correct outward-facing
- *  normals, lighting is consistent.
+/** Treads at the top of a flight whose outer side is a closed string
+ *  up to the slab above (`buildOuterStringGeometry`) and not a rail.
+ *  The flight comes up under the floor it arrives on, and between the
+ *  last treads and the slab's edge was a slit that closed to a crack at
+ *  the landing (Rico, 17 October 2026). Six treads take it to 1.2 m
+ *  under the slab, where the rail, ending 0.15 m under it, takes over. */
+const STRING_TREADS = 6;
+
+/** Cumulative angle at which a flight's outer rail ends and its string
+ *  begins. */
+function stringStart(staircase: Staircase): number {
+  return Math.PI * 2 - spiralGateHalfArc() - STRING_TREADS * spiralTreadArc(staircase);
+}
+
+/** Cumulative angles to sample a rail at between `from` and `to`: three
+ *  to a tread's arc, and every place the rail's line bends. */
+function railSamples(staircase: Staircase, from: number, to: number): number[] {
+  const half = spiralGateHalfArc();
+  const arc = spiralTreadArc(staircase);
+  const marks = [0, half - arc, ...spiralPieces(staircase).map((p) => p.to), from, to];
+  const out: number[] = [];
+  const sorted = [...new Set(marks.map((m) => +m.toFixed(9)))].sort((a, b) => a - b);
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const a = sorted[i];
+    const b = sorted[i + 1];
+    if (b <= from || a >= to) continue;
+    const n = Math.max(1, Math.round((b - a) / (arc / 3)));
+    for (let k = out.length === 0 ? 0 : 1; k <= n; k++) out.push(a + ((b - a) * k) / n);
+  }
+  return out;
+}
+
+/** Build a spiral railing as a closed tube of the rail's profile
+ *  (`pushRailRing`) following the rail path (`spiralRailLineY`) from
+ *  cumulative angle `from` to `to`. Its ends are capped by finials.
  *
- *  Used for both the inner edge (around the open well) and the outer
- *  edge (between treads and the stairwell room). The outer rail
- *  skips a configurable number of steps at the entry direction to
- *  leave a gate for the player to walk onto the spiral. */
+ *  Used for both the inner edge (around the open well, the whole
+ *  revolution) and the outer edge (between treads and the stairwell
+ *  room, from the landing's edge to the string). */
 function buildSpiralRail(
   staircase: Staircase,
   side: "inner" | "outer",
-  gateHalfArc: number,
-  /** Whether to seal each contiguous segment with flat end caps. The
-   *  outer rail wants caps at its gate (so the rail butts cleanly
-   *  against the gate posts). The inner rail is a continuous helix
-   *  across all revolutions — caps at the per-revolution boundary
-   *  would Z-fight against the next storey's start cap and read as
-   *  visible seams every time the rail crosses a floor. */
-  closeEnds: boolean,
+  from: number,
+  to: number,
 ): {
   rail: THREE.BufferGeometry;
-  /** One entry per baluster.
-   *  - `angle` is the world-space theta of the baluster's centre, used
-   *    by the renderer to rotate each box so its faces lie on radial /
-   *    tangential planes (instead of pointing at world ±X / ±Z, which
-   *    made every other baluster around the spiral read as visibly
-   *    cocked relative to the step it stands on).
-   *  - `height` is the per-baluster vertical extent. The helical rail
-   *    rises continuously with angle, so a baluster shifted along its
-   *    step's tangent — to seat it fully on the tread instead of
-   *    straddling the riser — needs to be slightly taller than the
-   *    nominal BALUSTER_HEIGHT to reach the rail's bottom. */
+  /** One entry per baluster: its centre and its height, from the
+   *  walking surface to the rail's underside. */
   balusters: Array<{
     pos: [number, number, number];
-    angle: number;
     height: number;
   }>;
-  /** Centre-line positions where each contiguous tube segment starts
-   *  and ends — one entry per visible rail end. A finial sphere is
-   *  placed on each so the open tube cross-section is hidden and any
-   *  tiny seam between abutting segments is covered. */
+  /** Centre-line positions where the tube starts and ends. A finial
+   *  sphere is placed on each so the open tube cross-section is hidden
+   *  and any tiny seam between abutting segments is covered. */
   endpoints: Array<[number, number, number]>;
 } {
-  const { innerRadius, outerRadius, numSteps, direction, lowerY, upperY, entryAngle } = staircase;
-  const stepAngle = ((Math.PI * 2) / numSteps) * direction;
-  const stepRise = (upperY - lowerY) / numSteps;
+  const { innerRadius, outerRadius, direction, entryAngle } = staircase;
   // Rail and balusters sit so their step-side face is FLUSH with the
   // step's edge — the rail's outer face at outerRadius (or its inner
   // face at innerRadius for the inner rail), and each baluster's
-  // matching face on the same plane. So the line of posts marches
-  // along the step corner, not 2 cm shy of it.
-  //
-  // Rail centre and baluster centre differ by 1.5 cm because the rail
-  // tube (10 cm) is wider than the baluster (7 cm); aligning both
-  // outer faces to the step edge means the centres can't coincide.
-  // The baluster top still sits inside the rail-bottom footprint
-  // (baluster half-width 3.5 cm, rail half-width 5 cm) so there's no
-  // sliver protruding through — just an asymmetric overhang on the
-  // well-facing side, which reads naturally as a rail mounted to the
-  // posts from above.
+  // matching face on the same plane.
   const railR =
     side === "inner" ? innerRadius + RAIL_BAR_HALF_WIDTH : outerRadius - RAIL_BAR_HALF_WIDTH;
   const balR = side === "inner" ? innerRadius + BALUSTER_SIZE / 2 : outerRadius - BALUSTER_SIZE / 2;
   const positions: number[] = [];
   const indices: number[] = [];
-  const segPerStep = 3;
-
-  // Gap is an ANGULAR window centred on entryAngle (rather than a
-  // count of skipped step indices), so it can match the cutout-edge
-  // rail's gate exactly regardless of how the spiral's steps line up
-  // with it.
-  const inGap = (theta: number): boolean => {
-    if (gateHalfArc <= 0) return false;
-    const angDiff = Math.atan2(Math.sin(theta - entryAngle), Math.cos(theta - entryAngle));
-    return Math.abs(angDiff) < gateHalfArc;
-  };
-
-  const balusters: Array<{
-    pos: [number, number, number];
-    angle: number;
-    height: number;
-  }> = [];
   const endpoints: Array<[number, number, number]> = [];
-  // Track the start of each contiguous tube segment so we can cap
-  // both ends — when a gap interrupts the rail, or when the loop
-  // finishes, we close the last open segment with a flat end cap so
-  // it doesn't read as an open tube end. We also record the centreline
-  // position at each end so the renderer can place a finial sphere
-  // there.
-  let segmentStartIdx = -1;
-  let prevBaseIdx = -1;
-  let segmentStartCenter: [number, number, number] | null = null;
-  let lastSampleCenter: [number, number, number] | null = null;
+  const samples = railSamples(staircase, from, to);
 
-  const closeSegment = () => {
-    if (segmentStartIdx === -1 || prevBaseIdx === -1) return;
-    if (segmentStartIdx === prevBaseIdx) {
-      // Single-sample segment, nothing to cap.
-      segmentStartIdx = -1;
-      prevBaseIdx = -1;
-      segmentStartCenter = null;
-      lastSampleCenter = null;
-      return;
+  samples.forEach((cum, s) => {
+    const theta = entryAngle + direction * cum;
+    const yTop = spiralRailLineY(staircase, cum) + RAIL_HEIGHT;
+    const cx = railR * Math.cos(theta);
+    const cz = railR * Math.sin(theta);
+    // Outward radial unit vector at this angle.
+    const ox = Math.cos(theta);
+    const oz = Math.sin(theta);
+    const c = positions.length / 3;
+    pushRailRing(positions, cx, yTop, cz, ox, oz);
+    if (s === 0 || s === samples.length - 1) {
+      endpoints.push([cx, yTop - RAIL_BAR_HEIGHT / 2, cz]);
     }
-    if (closeEnds) {
-      pushRailCap(indices, segmentStartIdx, "start");
-      pushRailCap(indices, prevBaseIdx, "end");
-    }
-    if (segmentStartCenter) endpoints.push(segmentStartCenter);
-    if (lastSampleCenter) endpoints.push(lastSampleCenter);
-    segmentStartIdx = -1;
-    prevBaseIdx = -1;
-    segmentStartCenter = null;
-    lastSampleCenter = null;
-  };
+    if (s > 0) pushRailSides(indices, c - RAIL_PROFILE.length, c);
+  });
 
-  for (let i = 0; i < numSteps; i++) {
-    const aStart = entryAngle + i * stepAngle;
-    const aEnd = entryAngle + (i + 1) * stepAngle;
-    const lo = Math.min(aStart, aEnd);
-    const hi = Math.max(aStart, aEnd);
-    // Skip s=0 for every step after the first: it sits at the same
-    // theta and Y as the previous step's s=segPerStep sample, so
-    // emitting both produces duplicate vertices at every step
-    // boundary with zero-area "bridge" faces between them.
-    // computeVertexNormals then averages each duplicate's normal
-    // from one side only (each duplicate is incident only to its
-    // OWN step's faces), so the two coincident vertices end up with
-    // DIFFERENT normals — a hard shading kink that reads as a flat
-    // panel-shaped seam every ~16° around the spiral. Step 0 keeps
-    // s=0 because that sample is the segment's first ring and has
-    // no predecessor to duplicate.
-    const sStart = i === 0 ? 0 : 1;
-    for (let s = sStart; s <= segPerStep; s++) {
-      const t = s / segPerStep;
-      const theta = lo + (hi - lo) * t;
-      // Per-sample gating: the gap is an angular window around the
-      // entry direction, not a count of skipped step indices, so it
-      // can be smaller or larger than a step's worth of arc and still
-      // align with the cutout-rail's gate.
-      if (inGap(theta)) {
-        closeSegment();
-        continue;
+  // One baluster per tread, its trailing face flush against the riser,
+  // and on the landing at the same pitch, so the posts march on round
+  // the gate unbroken from one flight to the next. Each reaches from
+  // the surface it stands on to the rail's underside above it.
+  const half = spiralGateHalfArc();
+  const arc = spiralTreadArc(staircase);
+  const shift = BALUSTER_SIZE / (2 * balR);
+  const posts: Array<{ cum: number; floorY: number }> = [];
+  for (const piece of spiralPieces(staircase)) {
+    if (piece.kind === "tread") {
+      posts.push({ cum: piece.from + shift, floorY: piece.top });
+    } else if (piece.kind === "landing-low") {
+      for (let c = half - arc; c > 0; c -= arc) posts.push({ cum: c, floorY: piece.top });
+    } else {
+      for (let c = piece.from + arc; c < piece.to; c += arc) {
+        posts.push({ cum: c, floorY: piece.top });
       }
-      // Smooth helical Y — the rail rises continuously with angular
-      // progress along the spiral instead of holding flat across a
-      // step and jumping at every boundary. tGlobal interpolates
-      // through the same step + sample fraction the treads use, so
-      // the rail meets the baluster top at every step's start angle
-      // exactly (one rise above the previous step's top).
-      const tGlobal = (i + t) / numSteps;
-      const yTop = lowerY + tGlobal * (upperY - lowerY) + RAIL_HEIGHT;
-      const cx = railR * Math.cos(theta);
-      const cz = railR * Math.sin(theta);
-      // Outward radial unit vector at this angle.
-      const ox = Math.cos(theta);
-      const oz = Math.sin(theta);
-
-      const baseIdx = positions.length / 3;
-      pushRailRing(positions, cx, yTop, cz, ox, oz);
-      // Centre-line of the tube cross-section at this sample — used
-      // for finial placement at each segment end.
-      const centerY = yTop - RAIL_BAR_HEIGHT / 2;
-      const sampleCenter: [number, number, number] = [cx, centerY, cz];
-      if (segmentStartIdx === -1) {
-        segmentStartIdx = baseIdx;
-        segmentStartCenter = sampleCenter;
-      }
-      lastSampleCenter = sampleCenter;
-
-      if (prevBaseIdx !== -1) pushRailSides(indices, prevBaseIdx, baseIdx);
-      prevBaseIdx = baseIdx;
-    }
-    // One baluster per step, mounted on step i's tread with its
-    // trailing face flush against the riser at aStart. Shift the
-    // centre angle by half a baluster-width along the spiral's
-    // ascending direction so the trailing corner lands exactly on the
-    // step's leading edge instead of straddling the riser halfway
-    // into step i-1's territory.
-    //
-    // The helical rail rises continuously with angle, so the rail's Y
-    // at the SHIFTED baluster angle is slightly higher than at aStart.
-    // We compute the per-baluster height to bridge the gap: bottom
-    // still sits on step i's tread, top reaches the rail's bottom
-    // face at this baluster's angle. Without this extension a visible
-    // ~1 cm gap opens up between baluster top and rail underside.
-    const balAngle = aStart + (direction * BALUSTER_SIZE) / (2 * balR);
-    if (!inGap(balAngle)) {
-      // tStep = how far along step i the baluster sits, in [0, 1] —
-      // same parametrisation the rail uses to interpolate Y.
-      const tStep = (balAngle - Math.min(aStart, aEnd)) / Math.abs(stepAngle);
-      const balHeight = BALUSTER_HEIGHT + tStep * stepRise;
-      const balBottomY = lowerY + i * stepRise;
-      balusters.push({
-        pos: [balR * Math.cos(balAngle), balBottomY + balHeight / 2, balR * Math.sin(balAngle)],
-        angle: balAngle,
-        height: balHeight,
-      });
     }
   }
-  // Cap the final segment that ran off the loop's end.
-  closeSegment();
+  const balusters = posts
+    .filter((p) => p.cum >= from && p.cum <= to)
+    .map(({ cum, floorY }) => {
+      const theta = entryAngle + direction * cum;
+      const height = spiralRailLineY(staircase, cum) + BALUSTER_HEIGHT - floorY;
+      return {
+        pos: [balR * Math.cos(theta), floorY + height / 2, balR * Math.sin(theta)] as [
+          number,
+          number,
+          number,
+        ],
+        height,
+      };
+    });
+
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
   geom.setIndex(indices);
@@ -843,8 +765,10 @@ function buildSpiralRail(
   return { rail: geom, balusters, endpoints };
 }
 
-/** Build the slab the topmost flight ends on: the patch between the
- *  gate and the handrail that closes the top floor's dead-end side.
+/** Build the slab the topmost flight's landing runs on into past the
+ *  gate, where on any other floor the next flight's half would be: the
+ *  patch between the gate and the handrail that closes the top floor's
+ *  dead-end side.
  *
  *  That rail is an L from the spiral's inner rail out to the cutout
  *  rail (`lBridge` in `stairwell-rail.tsx`): a short arm on from the
@@ -855,9 +779,9 @@ function buildSpiralRail(
  *  it ran half a revolution round the well behind that rail, a ledge
  *  nobody could reach that showed from every floor below. */
 function buildTopLandingGeometry(staircase: Staircase): THREE.BufferGeometry {
-  const { innerRadius, outerRadius, entryAngle, direction, lowerY, upperY, numSteps } = staircase;
+  const { innerRadius, outerRadius, entryAngle, direction, upperY } = staircase;
   const depth = topLandingDepth(staircase);
-  const bottomY = upperY - (upperY - lowerY) / numSteps;
+  const bottomY = spiralSoffitY(staircase, Math.PI * 2);
   // Outline in the gate's frame: `along` from the well's centre through
   // the gate, `across` round the way the spiral climbs. It runs the
   // gate's riser, the outer edge, the rail's line and the inner edge.
@@ -940,11 +864,9 @@ function buildTopLandingGeometry(staircase: Staircase): THREE.BufferGeometry {
     }
   }
 
-  // The gate's edge is the last riser of the climb, so it takes a step
-  // light like every tread; the other edges are plain.
-  const stripY = upperY - STEP_LIGHT_HEIGHT;
-  wall(plan[0], plan[1], bottomY, stripY, wash(RISER_WASH_FOOT), wash(RISER_WASH_TOP));
-  wall(plan[0], plan[1], stripY, upperY, STRIP, STRIP);
+  // The gate's edge meets the flight's own half of the landing, level
+  // with it and as deep (`spiralSoffitY` at the gate), so it has no
+  // face; the other edges are plain.
   for (let i = 1; i < plan.length; i++) {
     wall(plan[i], plan[(i + 1) % plan.length], bottomY, upperY);
   }
@@ -955,6 +877,109 @@ function buildTopLandingGeometry(staircase: Staircase): THREE.BufferGeometry {
   geom.setIndex(indices);
   geom.computeVertexNormals();
   boxUv(geom);
+  return geom;
+}
+
+/** Thickness of the closed string, metres. */
+const STRING_THICKNESS = 0.06;
+
+/** Build the closed string along the outside of a flight's last
+ *  treads (`STRING_TREADS`): a curved board just outside the treads'
+ *  outer edge, from the flight's soffit up to the underside of the slab
+ *  the flight arrives through, ending where the landing begins. Where a
+ *  rail would stand less than its height under the slab, the slab's
+ *  edge and the treads now meet in a wall, and the room below sees the
+ *  board's outer face. Its top lies against the slab and has no face. */
+function buildOuterStringGeometry(staircase: Staircase): THREE.BufferGeometry {
+  const { outerRadius, direction, entryAngle, upperY } = staircase;
+  const from = stringStart(staircase);
+  const to = Math.PI * 2 - spiralGateHalfArc();
+  const topY = upperY - FLOOR_THICKNESS;
+  const rIn = outerRadius;
+  const rOut = outerRadius + STRING_THICKNESS;
+  // The vertices the treads' outer edge has (`buildSpiralStepsGeometry`).
+  const segments = STRING_TREADS * 4;
+  const positions: number[] = [];
+  const uvs: number[] = [];
+  const indices: number[] = [];
+  const vertex = (r: number, cum: number, y: number, u: number, v: number) => {
+    const theta = entryAngle + direction * cum;
+    positions.push(r * Math.cos(theta), y, r * Math.sin(theta));
+    uvs.push(u, v);
+    return positions.length / 3 - 1;
+  };
+  // A strip of quads along the arc between two edges, each given as
+  // (cum) => [radius, y]. Unflipped, a strip from a lower edge to an
+  // upper one faces out from the well, and one from an inner edge to
+  // an outer one faces down.
+  const strip = (
+    a: (cum: number) => [number, number],
+    b: (cum: number) => [number, number],
+    flip: boolean,
+    uvOf: (cum: number, r: number, y: number) => [number, number],
+  ) => {
+    let prev: [number, number] | null = null;
+    for (let i = 0; i <= segments; i++) {
+      const cum = from + ((to - from) * i) / segments;
+      const [ra, ya] = a(cum);
+      const [rb, yb] = b(cum);
+      const ia = vertex(ra, cum, ya, ...uvOf(cum, ra, ya));
+      const ib = vertex(rb, cum, yb, ...uvOf(cum, rb, yb));
+      if (prev) {
+        const [pa, pb] = prev;
+        if (flip !== direction < 0) indices.push(pa, ib, pb, pa, ia, ib);
+        else indices.push(pa, pb, ib, pa, ib, ia);
+      }
+      prev = [ia, ib];
+    }
+  };
+  const soffit = (cum: number) => spiralSoffitY(staircase, cum);
+  // Grain along the board, round the arc.
+  const alongArc = (cum: number, r: number, y: number): [number, number] => [cum * r, y];
+  const across = (cum: number, r: number): [number, number] => [cum * rOut, r];
+  // Inner face, toward the well; outer face, toward the room below;
+  // underside, along the soffit.
+  strip(
+    (c) => [rIn, soffit(c)],
+    () => [rIn, topY],
+    true,
+    alongArc,
+  );
+  strip(
+    (c) => [rOut, soffit(c)],
+    () => [rOut, topY],
+    false,
+    alongArc,
+  );
+  strip(
+    (c) => [rIn, soffit(c)],
+    (c) => [rOut, soffit(c)],
+    false,
+    across,
+  );
+  // End caps: where the rail ends and where the landing begins.
+  for (const [cum, flip] of [
+    [from, false],
+    [to, true],
+  ] as const) {
+    const y0 = soffit(cum);
+    const a = vertex(rIn, cum, y0, rIn, y0);
+    const b = vertex(rOut, cum, y0, rOut, y0);
+    const c = vertex(rOut, cum, topY, rOut, topY);
+    const d = vertex(rIn, cum, topY, rIn, topY);
+    if (flip !== direction < 0) indices.push(a, b, c, a, c, d);
+    else indices.push(a, c, b, a, d, c);
+  }
+
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geom.setAttribute(
+    "color",
+    new THREE.Float32BufferAttribute(new Array(positions.length).fill(1), 3),
+  );
+  geom.setAttribute("uv", new THREE.Float32BufferAttribute(uvs, 2));
+  geom.setIndex(indices);
+  geom.computeVertexNormals();
   return geom;
 }
 
@@ -977,43 +1002,54 @@ const BRACKET_EMBED = 0.02;
  *  floor than this is left out: it would lie on the parquet. */
 const BRACKET_FLOOR_CLEAR = 0.5;
 
-/** The column's iron arms, one to every `BRACKET_EVERY_STEPS` treads, as
- *  one geometry. Each runs from inside the column out under its tread,
- *  along the radial line through the tread's middle. The soffit is a
- *  helicoid: along that line it is level, across it it slopes with the
- *  climb, steepest at the inner edge. Until 17 October 2026 the arm was
- *  level both ways and stopped 4 cm inside the edge, so one side of its
- *  top stood 3 cm clear of the wood at the edge, and the lowest arm's
- *  top lay in the floor's plane and flickered with it. Now the arm is
- *  tilted to the soffit's slope at the inner edge, its top 2 cm up in
- *  the wood; further out the soffit slopes less and the arm only sits
- *  deeper in it. */
+/** The column's iron arms, one to every `BRACKET_EVERY_STEPS` treads and
+ *  one under the gate, as one geometry. Each runs from inside the column
+ *  out under its tread, along the radial line through the tread's
+ *  middle. The soffit is a helicoid: along that line it is level, across
+ *  it it slopes with the climb, steepest at the inner edge. Until 17
+ *  October 2026 the arm was level both ways and stopped 4 cm inside the
+ *  edge, so one side of its top stood 3 cm clear of the wood at the
+ *  edge, and the lowest arm's top lay in the floor's plane and flickered
+ *  with it. Now the arm is tilted to the soffit's slope at the inner
+ *  edge, its top 2 cm up in the wood; further out the soffit slopes less
+ *  and the arm only sits deeper in it. */
 function buildStepBrackets(
   staircase: Staircase,
   hasFlightBelow: boolean,
 ): THREE.BufferGeometry | null {
-  const { numSteps, direction, lowerY, upperY, innerRadius, entryAngle } = staircase;
-  const stepAngle = ((Math.PI * 2) / numSteps) * direction;
-  const stepRise = (upperY - lowerY) / numSteps;
+  const { direction, lowerY, innerRadius, entryAngle } = staircase;
   const innerR = SPIRAL_COLUMN_RADIUS - 0.05;
   const outerR = innerRadius + BRACKET_UNDER_TREAD;
   const length = outerR - innerR;
   const midR = (innerR + outerR) / 2;
-  // The soffit's rise per metre round the arc at the tread's inner edge,
-  // toward increasing angle.
-  const slope = (direction * stepRise) / (Math.abs(stepAngle) * innerRadius);
-  // After rotateY(-a) the box's +z points toward increasing angle; a
-  // turn of -atan(slope) about its length lifts its top on that side.
-  const tilt = -Math.atan(slope);
+  // Where each arm goes, by cumulative angle. Treads are counted from
+  // the flight's foot, so a turn's last bracket and the next turn's
+  // first keep the same pitch; the one at the gate, under the middle of
+  // the landing, comes with the flight that leaves it and keeps that
+  // pitch across the landing.
+  const pieces = spiralPieces(staircase);
+  const cums = [0];
+  pieces.forEach((piece, k) => {
+    if (piece.kind === "tread" && k % BRACKET_EVERY_STEPS === BRACKET_STEP_OFFSET) {
+      cums.push((piece.from + piece.to) / 2);
+    }
+  });
   const boxes: THREE.BufferGeometry[] = [];
-  for (let i = BRACKET_STEP_OFFSET; i < numSteps; i += BRACKET_EVERY_STEPS) {
-    // Under a tread's middle its soffit is one rise below its top
-    // (`SOFFIT_WAIST_RISES`).
-    const soffitY = lowerY + i * stepRise - stepRise;
-    const yCentre = soffitY + BRACKET_EMBED - BRACKET_SIZE / 2;
+  for (const cum of cums) {
+    // The soffit's rise per metre round the arc at the inner edge,
+    // toward increasing angle: a tread's rise over its arc, or a third
+    // of that under the landing (`spiralSoffitY`).
+    const h = 1e-4;
+    const slope =
+      (direction * (spiralSoffitY(staircase, cum + h) - spiralSoffitY(staircase, cum))) /
+      (h * innerRadius);
+    // After rotateY(-a) the box's +z points toward increasing angle; a
+    // turn of -atan(slope) about its length lifts its top on that side.
+    const tilt = -Math.atan(slope);
+    const yCentre = spiralSoffitY(staircase, cum) + BRACKET_EMBED - BRACKET_SIZE / 2;
     const lowest = yCentre - BRACKET_SIZE / 2 - (BRACKET_SIZE / 2) * Math.abs(slope);
     if (!hasFlightBelow && lowest < lowerY + BRACKET_FLOOR_CLEAR) continue;
-    const a = entryAngle + (i + 0.5) * stepAngle;
+    const a = entryAngle + direction * cum;
     // rotationY = -a, NOT +a: three.js's Y-rotation maps local +X
     // to (cos θ, 0, -sin θ), but the radial outward direction at
     // angle a is (cos a, 0, sin a).
@@ -1031,14 +1067,16 @@ function buildStepBrackets(
 }
 
 /**
- * Render one revolution of the open-well spiral. Treads are real
- * wedge geometry (top, bottom, inner curve, outer curve, riser caps)
- * so each step reads as a step rather than a smoothed ramp. Two
- * railings — one along the inner edge of the open well, one along
- * the outer edge — give the player a clear handhold on either side
- * as they climb. The outer rail has a one-step gap at the entry
- * direction so the player can step onto / off the spiral; the
- * directional signs themselves live on gate posts placed by the
+ * Render one revolution of the open-well spiral: from half the
+ * landing on its lower floor, up its treads, to half the landing on
+ * its upper floor. Treads are real wedge geometry (top, bottom, inner
+ * curve, outer curve, riser caps) so each step reads as a step rather
+ * than a smoothed ramp. Two railings — one along the inner edge of the
+ * open well, one along the outer edge — give the player a clear
+ * handhold on either side as they climb. The outer rail leaves the
+ * landing open so the player can step onto / off the spiral, and gives
+ * way to a closed string where the flight passes under the slab above;
+ * the directional signs themselves live on gate posts placed by the
  * stairwell-accents component, where they can sit flush against
  * substantial railing posts at floor level.
  *
@@ -1067,11 +1105,14 @@ export function StaircaseRenderer({
   const hasFlightAbove = findStairAbove(staircase, allStaircases) !== undefined;
 
   const stepsGeom = useMemo(() => buildSpiralStepsGeometry(staircase), [staircase]);
-  const innerRail = useMemo(() => buildSpiralRail(staircase, "inner", 0, false), [staircase]);
+  const innerRail = useMemo(() => buildSpiralRail(staircase, "inner", 0, Math.PI * 2), [staircase]);
+  // The outer rail runs from the landing's edge, where the gate is, to
+  // where the string takes over under the slab above.
   const outerRail = useMemo(
-    () => buildSpiralRail(staircase, "outer", spiralGateHalfArc(staircase.numSteps), false),
+    () => buildSpiralRail(staircase, "outer", spiralGateHalfArc(), stringStart(staircase)),
     [staircase],
   );
+  const stringGeom = useMemo(() => buildOuterStringGeometry(staircase), [staircase]);
   const balusterGeom = useMemo(
     () =>
       mergeBars(
@@ -1087,9 +1128,8 @@ export function StaircaseRenderer({
     [staircase, hasFlightBelow],
   );
   // Top landing — only the helix's topmost flight gets one: the patch
-  // past the gate as far as the handrail that closes the well.
-  // Intermediate flights stack continuously into the next revolution
-  // above and don't need it.
+  // past the gate as far as the handrail that closes the well. On any
+  // other floor the next flight's own half of the landing is there.
   const landingGeom = useMemo(
     () => (hasFlightAbove ? null : buildTopLandingGeometry(staircase)),
     [staircase, hasFlightAbove],
@@ -1100,13 +1140,14 @@ export function StaircaseRenderer({
   useEffect(
     () => () => {
       stepsGeom.dispose();
+      stringGeom.dispose();
       innerRail.rail.dispose();
       outerRail.rail.dispose();
       landingGeom?.dispose();
       balusterGeom?.dispose();
       bracketGeom?.dispose();
     },
-    [stepsGeom, innerRail, outerRail, landingGeom, balusterGeom, bracketGeom],
+    [stepsGeom, stringGeom, innerRail, outerRail, landingGeom, balusterGeom, bracketGeom],
   );
   const columnHeight = upperY - lowerY;
   const columnY = (lowerY + upperY) / 2;
@@ -1165,6 +1206,11 @@ export function StaircaseRenderer({
 
       {/* Treads — single merged mesh per stair. */}
       <mesh geometry={stepsGeom} castShadow receiveShadow>
+        <primitive object={treadMaterial} attach="material" />
+      </mesh>
+
+      {/* Closed string along the last treads, up to the slab above. */}
+      <mesh geometry={stringGeom} castShadow receiveShadow>
         <primitive object={treadMaterial} attach="material" />
       </mesh>
 

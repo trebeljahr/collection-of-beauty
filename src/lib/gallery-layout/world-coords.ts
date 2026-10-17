@@ -55,7 +55,18 @@ export const DIVIDER_THICKNESS = 0.4;
 // cramped.
 export const SPIRAL_INNER_RADIUS = 2.6; // inner edge of treads
 export const SPIRAL_OUTER_RADIUS = 5.4; // outer edge of treads
-export const SPIRAL_STEPS_PER_FLOOR = 36; // 10° per step (rise ≈ 0.23 m)
+/** Risers in one storey's flight (rise ≈ 0.23 m). The flight has one
+ *  tread fewer: its first and last riser step onto a landing. */
+export const SPIRAL_STEPS_PER_FLOOR = 36;
+/** Arc of the landing on every floor, centred on the gate. The flight
+ *  that arrives takes its second half and the flight that leaves its
+ *  first, both level with the floor. Rico, 17 October 2026: the helix
+ *  ran on through each floor with one tread at its height, and the
+ *  treads that came up under the slab left a slit between them and its
+ *  edge that closed to a crack at the floor. He asked for a level
+ *  platform on every floor that the flights above and below both reach.
+ *  45° leaves the 35 treads 9° each, 0.63 m on the 4 m walking line. */
+export const SPIRAL_LANDING_ARC = Math.PI / 4;
 /** Radius of the stone spine running through the centre of the spiral.
  *  Sized well inside SPIRAL_INNER_RADIUS so it never intrudes on the
  *  walking annulus, but visible from the well — gives the helix a
@@ -84,9 +95,10 @@ export const INTER_FLOOR_HEIGHT = FLOOR_SEPARATION - FLOOR_THICKNESS;
  *  `stair-opening.ts`), so the two edges lie on one line and nothing
  *  that stands at floor level overlaps the floor to z-fight. */
 export const SPIRAL_FLOOR_CUTOUT_RADIUS = SPIRAL_OUTER_RADIUS;
-/** Vertices of the treads' outer edge in one revolution: 4 a step.
- *  The floor's hole is cut at the same angles. */
-export const SPIRAL_EDGE_SEGMENTS = SPIRAL_STEPS_PER_FLOOR * 4;
+/** Vertices of the treads' outer edge in one revolution: one every
+ *  2.25°, 4 to a 9° tread and 10 to each half of the landing. The
+ *  floor's hole is cut at the same angles. */
+export const SPIRAL_EDGE_SEGMENTS = 160;
 
 /**
  * Half the stretch of wall whose cell edges a door opens, metres either

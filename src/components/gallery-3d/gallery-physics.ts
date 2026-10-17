@@ -36,7 +36,7 @@ import {
   RAIL_BAR_HALF_WIDTH,
   RAIL_HEIGHT,
 } from "./rail-constants";
-import { floorShafts, type StairShaft, spiralGateHalfArc } from "./spiral-physics";
+import { floorShafts, type StairShaft, spiralGateHalfArc, spiralRailLineY } from "./spiral-physics";
 
 type RapierModule = typeof RAPIER;
 
@@ -638,7 +638,7 @@ function addSpiralRailColliders(
     side === "inner"
       ? stair.innerRadius + RAIL_BAR_HALF_WIDTH
       : stair.outerRadius - RAIL_BAR_HALF_WIDTH;
-  const gate = side === "outer" ? spiralGateHalfArc(stair.numSteps) : 0;
+  const gate = side === "outer" ? spiralGateHalfArc() : 0;
   const ranges = gate > 0 ? [[gate, Math.PI * 2 - 2 * gate]] : [[0, Math.PI * 2]];
   for (const [rawStart, rawSweep] of ranges) {
     addArc(
@@ -649,8 +649,7 @@ function addSpiralRailColliders(
       stair.direction * rawSweep,
       (_theta, t) => {
         const raw = rawStart + rawSweep * t;
-        const treadY = stair.lowerY + (raw / (Math.PI * 2)) * (stair.upperY - stair.lowerY);
-        return treadY + RAIL_HEIGHT / 2;
+        return spiralRailLineY(stair, raw) + RAIL_HEIGHT / 2;
       },
       () => RAIL_HEIGHT,
       Math.max(BALUSTER_SIZE, RAIL_BAR_HALF_WIDTH * 2),
@@ -685,7 +684,7 @@ function addCutoutRailColliders(
   const hasCutout = hasStairwellCutout(floor.index);
   const upSideOpen = !!stairOut;
   const downSideOpen = !!stairIn;
-  const gateHalfArc = spiralGateHalfArc(reference.numSteps);
+  const gateHalfArc = spiralGateHalfArc();
   const hasSpiralEnd = !upSideOpen && !!stairIn;
   const bridgeArcSweep = hasSpiralEnd ? gateHalfArc : 0;
   const upGap = upSideOpen ? gateHalfArc : bridgeArcSweep;

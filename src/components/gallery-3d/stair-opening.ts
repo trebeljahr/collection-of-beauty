@@ -4,10 +4,11 @@ import {
   SPIRAL_EDGE_SEGMENTS,
   SPIRAL_FLOOR_CUTOUT_RADIUS,
 } from "@/lib/gallery-layout/world-coords";
+import { spiralGateHalfArc } from "./spiral-physics";
 
 /**
  * The hole round a spiral, drawn about the well's centre. Its vertices
- * stand where the treads' outer edge has its own, a multiple of 2.5°
+ * stand where the treads' outer edge has its own, a multiple of 2.25°
  * from +x, as every spiral's entry angle is a quarter turn. So the hole
  * and the treads share one polygon, and the floor meets them edge to
  * edge. `absarc` puts its own vertices elsewhere: the floor's chords
@@ -29,20 +30,21 @@ export function spiralHole(): THREE.Path {
 
 /**
  * The hole the lowest spiral leaves in the ground floor: the plan of its
- * first tread, whose top lies at the floor's height. The ground floor has
- * no well (nothing climbs to it), so without this hole the floor and that
- * tread are one plane and z-fight. The tread's body reaches a rise below
- * the floor, deeper than the slab, so nothing below shows through. Drawn
- * in the floor shape's plane about the room's centre: shape y is world -z.
- * The vertices are the tread's own (`buildSpiralStepsGeometry`, 4 a step).
+ * half of the landing, whose top lies at the floor's height. The ground
+ * floor has no well (nothing climbs to it), so without this hole the
+ * floor and that landing are one plane and z-fight. The landing's body
+ * reaches a rise below the floor, deeper than the slab, so nothing below
+ * shows through. Drawn in the floor shape's plane about the room's
+ * centre: shape y is world -z. The vertices are the landing's own
+ * (`buildSpiralStepsGeometry`, one every 2.25°).
  */
-export function firstTreadHole(stair: Staircase, cxWorld: number, czWorld: number): THREE.Path {
-  const stepAngle = ((Math.PI * 2) / stair.numSteps) * stair.direction;
+export function groundLandingHole(stair: Staircase, cxWorld: number, czWorld: number): THREE.Path {
+  const sweep = spiralGateHalfArc() * stair.direction;
   const a = stair.entryAngle;
-  const b = stair.entryAngle + stepAngle;
+  const b = stair.entryAngle + sweep;
   const lo = Math.min(a, b);
   const hi = Math.max(a, b);
-  const segments = 4;
+  const segments = Math.round((Math.abs(sweep) / (Math.PI * 2)) * SPIRAL_EDGE_SEGMENTS);
   const at = (r: number, i: number): [number, number] => {
     const theta = lo + (hi - lo) * (i / segments);
     return [

@@ -80,7 +80,7 @@ describe("ground-floor spiral perimeter", () => {
   });
 
   it("leaves the entry gate clear", async () => {
-    const gate = stair.entryAngle + spiralGateHalfArc(stair.numSteps) * 0.35;
+    const gate = stair.entryAngle + spiralGateHalfArc() * 0.35;
     const reached = await walkInwardAt(gate);
     expect(reached).toBeLessThan(SPIRAL_OUTER_RADIUS);
   });

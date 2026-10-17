@@ -33,6 +33,7 @@ import {
   findStairBelow,
   isInsideStair,
   isWalkableUnderStair,
+  spiralGateHalfArc,
   spiralRawAngle,
   stairSurfaceAt,
   stairWalkHeightAt,
@@ -101,14 +102,14 @@ const MOVE_DEADZONE = 0.15;
 const STAIR_PROXIMITY_RADIUS = 12;
 const STAIR_PROXIMITY_RADIUS_SQ = STAIR_PROXIMITY_RADIUS * STAIR_PROXIMITY_RADIUS;
 // Width of the "you're at a real floor" arc at each end of a spiral
-// revolution. Stepping off the spiral (canStepTo's exit branch) is only
-// allowed inside one of these arcs, AND the player's `floor.index` is
-// promoted to the destination floor when they enter one — without that
-// promotion an upper-landing exit would teleport them into the lower
-// floor's grid frame and they'd fall through the upper floor's annular
-// ring on the way down. Tied to ~28° of revolution = ~0.49 m of vertical
-// slack at FLOOR_SEPARATION = 6.12 m (0.65 m at 8.4 m).
-const STAIR_LANDING_TOL = 0.5;
+// revolution: the flight's half of the landing, level with the floor.
+// Stepping off the spiral (canStepTo's exit branch) is only allowed
+// inside one of these arcs, AND the player's `floor.index` is promoted
+// to the destination floor when they enter one — without that promotion
+// an upper-landing exit would teleport them into the lower floor's grid
+// frame and they'd fall through the upper floor's annular ring on the
+// way down.
+const STAIR_LANDING_TOL = spiralGateHalfArc();
 const NO_GRAND_STAIRS: readonly GrandStair[] = [];
 // How far above a grand stair's tread the feet may be and still be
 // walking it: more than a riser, less than a jump.
@@ -850,10 +851,15 @@ export function Player({
         const raw = spiralRawAngle(activeStair, camera.position.x, camera.position.z);
         let st = spiralState.current;
         if (!st || st.staircaseId !== activeStair.id) {
-          // Stepping onto the spiral fresh. If we're entering at the
-          // floor that is this stair's lowerFloor, start at cumulative=0
-          // (bottom). If we're entering at upperFloor, start at 2π (top).
-          const initial = floor.index === activeStair.upperFloor ? Math.PI * 2 : 0;
+          // Stepping onto the spiral fresh, somewhere on the landing. On
+          // the stair's lowerFloor the cumulative angle is the raw one;
+          // on its upperFloor it is a revolution on. A raw angle past
+          // the gate on the far side belongs to the flight next door,
+          // and the roll-over below hands the player to it. Until 17
+          // October 2026 a fresh ride started at exactly 0 or 2π, which
+          // was off by as much as the player stood from the gate.
+          const past = raw < Math.PI ? raw : raw - Math.PI * 2;
+          const initial = floor.index === activeStair.upperFloor ? Math.PI * 2 + past : past;
           st = { staircaseId: activeStair.id, cumulativeAngle: initial, lastRaw: raw };
           spiralState.current = st;
         } else {
