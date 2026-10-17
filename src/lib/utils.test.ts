@@ -8,7 +8,7 @@ import {
   fallbackVariantUrl,
   publicVariantUrl,
   slugify,
-  variantProxyUrl,
+  textureVariantUrl,
   variantSrcSet,
   variantUrl,
 } from "./utils";
@@ -131,14 +131,14 @@ describe("publicVariantUrl", () => {
   });
 });
 
-describe("variantProxyUrl / deepZoomTileUrl", () => {
-  it("resolves variantProxyUrl to the same path shape as variantUrl", () => {
-    // variantProxyUrl is the only URL builder the 3D gallery uses. It
+describe("textureVariantUrl / deepZoomTileUrl", () => {
+  it("resolves textureVariantUrl to the same path shape as variantUrl", () => {
+    // textureVariantUrl is the only URL builder the 3D gallery uses. It
     // used to carry its own copy of the basename split, so a change to
     // the on-disk variant layout would have left every WebGL texture
     // fetch pointing at the old one while the 2D site moved on.
     const key = "collection/D\u00fcsseldorf Ansicht.jpg";
-    expect(variantProxyUrl(key, 4096, "avif")).toBe(
+    expect(textureVariantUrl(key, 4096, "avif")).toBe(
       "/assets-raw/collection/D%C3%BCsseldorf%20Ansicht/4096.avif",
     );
     // Same tail as the CDN builder (ASSETS_BASE_URL is captured at
@@ -146,6 +146,20 @@ describe("variantProxyUrl / deepZoomTileUrl", () => {
     expect(variantUrl(key, 4096, "avif")).toBe(
       "/assets-raw/collection/D%C3%BCsseldorf%20Ansicht/4096.avif",
     );
+  });
+
+  it("fetches textures straight from the CDN in production", async () => {
+    // Through the /assets-raw rewrite every texture took a detour via the
+    // app server, three times as slow cold. The base is read at module
+    // load, so load a fresh copy under production env.
+    vi.stubEnv("NODE_ENV", "production");
+    vi.stubEnv("NEXT_PUBLIC_ASSETS_BASE_URL", "https://assets.example.test/");
+    vi.resetModules();
+    const prod = await import("./utils");
+    expect(prod.textureVariantUrl("collection/Foo.jpg", 480, "avif")).toBe(
+      "https://assets.example.test/collection/Foo/480.avif",
+    );
+    vi.resetModules();
   });
 
   it("hangs the tile pyramid off the same variant directory", () => {
@@ -163,7 +177,7 @@ describe("variantProxyUrl / deepZoomTileUrl", () => {
     const [key, version] = Object.entries(assetVersions as Record<string, string>)[0];
     expect(assetVersion(key)).toBe(version);
     expect(variantUrl(key, 960, "avif")).toMatch(new RegExp(`/960\\.avif\\?v=${version}$`));
-    expect(variantProxyUrl(key, 960, "avif")).toMatch(new RegExp(`\\?v=${version}$`));
+    expect(textureVariantUrl(key, 960, "avif")).toMatch(new RegExp(`\\?v=${version}$`));
     expect(publicVariantUrl(key, 960, "avif")).toMatch(new RegExp(`\\?v=${version}$`));
     expect(deepZoomTileUrl(key, 7, 3, 2)).toMatch(
       new RegExp(`/tiles/7/3_2\\.webp\\?v=${version}$`),
@@ -173,7 +187,7 @@ describe("variantProxyUrl / deepZoomTileUrl", () => {
   });
 
   it("keeps the empty-objectKey guard", () => {
-    expect(variantProxyUrl("", 256, "avif")).toBe("");
+    expect(textureVariantUrl("", 256, "avif")).toBe("");
     expect(deepZoomTileUrl("", 0, 0, 0)).toBe("");
   });
 });

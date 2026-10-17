@@ -27,7 +27,7 @@ import { paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 import { formatCm, trustworthyRealSize } from "@/lib/real-size";
-import { GALLERY_LOD_WIDTH, variantProxyUrl } from "@/lib/utils";
+import { GALLERY_LOD_WIDTH, textureVariantUrl } from "@/lib/utils";
 import { FOV_DEFAULT_DEG, ladderHeightPx, ZOOM_PIXEL_HEADROOM } from "./camera-config";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { buildFrameGeometry } from "./frame-geometry";
@@ -456,7 +456,7 @@ export const Painting = memo(function Painting({
   // A modest base fills rooms quickly. The proximity ladder adds detail
   // only as the player approaches, including 960 px for larger canvases.
   const baseWidth = baseVariantWidth(artwork);
-  const url = variantProxyUrl(artwork.objectKey, baseWidth, "avif");
+  const url = textureVariantUrl(artwork.objectKey, baseWidth, "avif");
 
   // Aspect-corrected plane size. The slot's widthM/heightM are derived
   // from realDimensions (or pixel aspect, or a default) — but those can
@@ -621,7 +621,7 @@ export const Painting = memo(function Painting({
             url={url}
             baseWidth={baseWidth}
             origin={position}
-            thumbUrl={variantProxyUrl(artwork.objectKey, 256, "avif")}
+            thumbUrl={textureVariantUrl(artwork.objectKey, 256, "avif")}
             widthM={dW}
             heightM={dH}
             artwork={artwork}
@@ -1556,7 +1556,7 @@ function PaintingPlane({
       derivationHeightPx,
       gl.capabilities.maxTextureSize,
     );
-    const tierUrls = tiers.map((t) => variantProxyUrl(artwork.objectKey, t.width, "avif"));
+    const tierUrls = tiers.map((t) => textureVariantUrl(artwork.objectKey, t.width, "avif"));
     const tierLoadOpts: LoadHiResOpts[] = tiers.map(() => ({ origin }));
     const pending: (AbortController | null)[] = tiers.map(() => null);
 

@@ -41,7 +41,15 @@ function assetsBaseUrl(): string {
 }
 
 const ASSETS_BASE_URL = assetsBaseUrl();
-const ASSETS_PROXY_BASE_URL = "/assets-raw";
+// Base for the 3D gallery's WebGL textures. They must be fetched with CORS
+// or the canvas is tainted. The CDN answers with
+// Access-Control-Allow-Origin, so production fetches it directly. Through
+// the /assets-raw rewrite each texture went browser → Cloudflare → the app
+// server → R2: 1.2 s a cold 480 px texture from Australia against 0.45 s
+// straight from the CDN (17 October 2026), and a room's textures kept
+// landing, each a GPU upload, while the visitor walked. The local rclone
+// server sends no CORS headers, so dev keeps the same-origin rewrite.
+const TEXTURE_BASE_URL = process.env.NODE_ENV === "production" ? ASSETS_BASE_URL : "/assets-raw";
 const DEFAULT_PUBLIC_ASSETS_BASE_URL = "https://assets.collectionofbeauty.com";
 
 // Variant set is shared from `variant-config.mjs` so the encoder
@@ -210,13 +218,14 @@ export function publicVariantUrl(objectKey: string, width: number, format: Varia
   return `${publicAssetsBaseUrl()}/${variantPath(objectKey, width, format)}`;
 }
 
-// Same-origin variant URL, routed through the /assets-raw rewrite. The
-// only URL builder the 3D gallery uses (painting.tsx, texture-cache.ts,
-// index.tsx), so it must resolve to the same path shape as variantUrl()
-// — hence the shared variantPath(), not a second copy of the split.
-export function variantProxyUrl(objectKey: string, width: number, format: VariantFormat): string {
+// Variant URL for a WebGL texture: the CDN in production, the same-origin
+// /assets-raw rewrite in dev (see TEXTURE_BASE_URL). The only URL builder
+// the 3D gallery uses (painting.tsx, texture-cache.ts, index.tsx), so it
+// must resolve to the same path shape as variantUrl() — hence the shared
+// variantPath(), not a second copy of the split.
+export function textureVariantUrl(objectKey: string, width: number, format: VariantFormat): string {
   if (!objectKey) return "";
-  return `${ASSETS_PROXY_BASE_URL}/${variantPath(objectKey, width, format)}`;
+  return `${TEXTURE_BASE_URL}/${variantPath(objectKey, width, format)}`;
 }
 
 // Full srcSet string for a <source> element. Emits only the widths the

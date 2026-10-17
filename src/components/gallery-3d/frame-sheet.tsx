@@ -21,7 +21,7 @@ import {
 } from "@/lib/gallery-layout/frame-design";
 import { PAINTING_WALL_OFFSET, sizeWork } from "@/lib/gallery-layout/place-paintings";
 import { layoutPanels } from "@/lib/gallery-layout/polyptych";
-import { variantProxyUrl } from "@/lib/utils";
+import { textureVariantUrl } from "@/lib/utils";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { buildFrameGeometry } from "./frame-geometry";
 import { frameMaterials } from "./frame-materials";
@@ -104,7 +104,7 @@ function SheetWork({
   useEffect(() => {
     let live = true;
     const loaded = new THREE.TextureLoader().load(
-      variantProxyUrl(work.objectKey, 480, "avif"),
+      textureVariantUrl(work.objectKey, 480, "avif"),
       (t) => {
         t.colorSpace = THREE.SRGBColorSpace;
         if (live) setTexture(t);

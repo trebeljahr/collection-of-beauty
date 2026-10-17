@@ -23,7 +23,7 @@ import {
   restoreGalleryVisit,
 } from "@/lib/gallery-release-state";
 import { registerReleaseSnapshot, rememberReleaseState } from "@/lib/release-session";
-import { variantProxyUrl } from "@/lib/utils";
+import { textureVariantUrl } from "@/lib/utils";
 
 import { FOV_DEFAULT_DEG } from "./camera-config";
 import { DebugOverlay, DebugProbe, useGalleryDebug } from "./debug-overlay";
@@ -1307,7 +1307,7 @@ function FloorPreloader({
       const objectKey = p.artwork.objectKey;
       if (!objectKey || seen.has(objectKey)) continue;
       seen.add(objectKey);
-      preloadCached(variantProxyUrl(objectKey, 256, "avif"), gl, controller.signal, p.position);
+      preloadCached(textureVariantUrl(objectKey, 256, "avif"), gl, controller.signal, p.position);
     }
     return () => {
       controller.abort();

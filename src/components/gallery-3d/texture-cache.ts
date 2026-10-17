@@ -35,7 +35,7 @@
 
 import * as THREE from "three";
 import { BASE_POOL_BYTE_BUDGET, estimateTextureBytes } from "@/lib/gallery-layout/reveal-budget";
-import { variantProxyUrl, variantUrl } from "@/lib/utils";
+import { textureVariantUrl, variantUrl } from "@/lib/utils";
 
 // Base-texture pool. Two limits, whichever bites first:
 //
@@ -746,7 +746,7 @@ export function peekBestCachedTexture(
   for (let i = widths.length - 1; i >= 0; i--) {
     const w = widths[i];
     const hit =
-      peekAny(variantProxyUrl(objectKey, w, "avif")) ?? peekAny(variantUrl(objectKey, w, "avif"));
+      peekAny(textureVariantUrl(objectKey, w, "avif")) ?? peekAny(variantUrl(objectKey, w, "avif"));
     if (hit) return hit;
   }
   return undefined;

@@ -37,7 +37,7 @@ const SECURITY_HEADERS = [
   },
 ];
 
-// Same-origin rewrite target for the rclone asset server. Used by
+// Same-origin rewrite target for the rclone asset server. Used in dev by
 // /gallery-3d to pull textures into <canvas> without tripping over CORS
 // (rclone doesn't emit Access-Control-Allow-Origin). Points at the same
 // URL the browser would use directly — we just re-expose it under a
