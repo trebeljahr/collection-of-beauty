@@ -7,17 +7,30 @@ by two Cloudflare Workers. Design and the reasons for each choice:
 | Worker | Code | Serves |
 | --- | --- | --- |
 | `collection-of-beauty` | none, assets only ([`wrangler.jsonc`](../wrangler.jsonc)) | every page, chunk and data file in `out/` |
-| `collection-of-beauty-api` | [`workers/api`](../workers/api) | `/api/newsletter/*` (double opt-in) and `/api/download/*` (one variant with a filename) |
+| `collection-of-beauty-api` | [`workers/api`](../workers/api) | `/api/newsletter/*` (signup, confirm, unsubscribe) and `/api/download/*` (one variant with a filename) |
 
-Requests to static files are not counted against the Workers quota; each
-newsletter or download request is.
+Requests to static files are free and unlimited on every Workers plan,
+and have no requests-per-second limit; each newsletter or download
+request counts as a Worker request. On Workers Free that is 100,000 a day
+across the account and 10 ms of CPU each (so the emails are rendered at
+build time), and 20,000 files per upload, which the export does not fit.
+On Workers Paid ($5 a month, account-wide): 100,000 files, no daily cap,
+10 million requests a month included.
 
 ## What replaced the server
 
 - **Pages.** Every artwork, artist, era, colour, plate set and published
   edition is prebuilt (`generateStaticParams`, `dynamicParams = false`).
-  No page reads `searchParams`: `/play`, `/sub/*` and the frames sheet
-  read the query in the browser.
+  No page reads `searchParams`: `/play`, `/sub/*` (the confirm and
+  unsubscribe buttons included) and the frames sheet read the query in
+  the browser.
+- **Newsletter.** The Next route handlers became the API Worker
+  (`workers/api/src/newsletter.ts`, same behaviour as on 11 November 2026):
+  signup answers before ListMonk is asked about the address and mails
+  through `ctx.waitUntil`, confirm is a button that posts, unsubscribe
+  takes the page's button and RFC 8058 one-click. Emails are rendered at
+  build time with placeholders for the tokens
+  (`src/lib/newsletter/worker-emails.ts`).
 - **Data.** What `/api/artworks/page`, `/scope`, `/timeline/*`,
   `/surprise` and `/not-found` computed per request is prebuilt under
   `/data/` (`src/app/data/**`, keys in
@@ -59,6 +72,12 @@ canary; keep upload and activation apart. Do not mark `/_next/static/*`
 immutable in `_headers`: the rule also covers 404s, which the edge and the
 browser then keep for a year.
 
+Nothing runs until the repository variable
+`COLLECTION_OF_BEAUTY_SITE_ROLLOUT_MODE` is set: `manual` uploads on push
+and waits for a dispatch of `deploy`; `automatic` uploads, activates and
+verifies. Unset, a push changes nothing anywhere: the Coolify app keeps
+serving its last image until the routes below move the site.
+
 Rollback: dispatch `deploy` with the earlier commit, or
 `npx wrangler versions deploy <version>@100% -c <config>`.
 
@@ -85,6 +104,39 @@ Redirect rules: `www.collectionofbeauty.com` → apex, and `http://` →
 itself). `beauty.trebeljahr.com` → apex is a rule on the `trebeljahr.com`
 zone. Deleting the `collectionofbeauty.com/*` route sends the site back to
 the origin within seconds.
+
+## Press kit
+
+`public/press-kit.zip` (about 35 MB, over the 25 MiB a Workers static file
+may be) is a local build output, gitignored, and never uploaded: while
+`scripts/press-kit-download.json` says `"published": true`, `_redirects`
+answers `/press-kit.zip` with a 307 to the content-addressed object
+`/downloads/v1/<sha256>/collection-of-beauty-press-kit.zip` on the asset
+host, which serves ranges for resumed downloads. With `"published": false`
+the path is a 404. Published 2026-10-05, on 2026-10-17 with the
+block-plan screenshots, and on 2026-11-02 with the current English titles
+in its credits (each object verified by full SHA-256 from the public
+origin). To publish a changed press kit, with release authorization:
+
+1. `pnpm marketing:press-kit-zip`. It reads the vault's press-kit note, so it
+   runs on Rico's machine. Changed bytes write a new `sha256`, `bytes` and
+   `path` to the metadata and set `"published": false`; the same bytes change
+   nothing.
+2. `pnpm exec dotenvx run -f .env.production -- bash scripts/publish-press-kit.sh`
+   (the local zip must match the metadata; append-only
+   `rclone copyto --immutable`, attachment and immutable headers).
+3. `node scripts/press-kit-download.mjs --full`: status, length, attachment,
+   ranges, caching and the full SHA-256 from the public origin.
+4. Set `"published": true`, commit, deploy.
+
+CI runs `press-kit-download.mjs --ci` before a build: the metadata must say
+`"published": true`, and the object must pass every check of step 3, full
+SHA-256 included. To release while a rebuild waits, restore the last
+published metadata: its object is still there. `scripts/sync-assets.sh`
+excludes `downloads/**`, because `rclone sync` would delete these objects
+(the plate-set ZIPs live there too). Never delete a published object; a new
+press kit gets a new SHA path. Confirm the production `R2_ASSETS_BUCKET`
+serves `https://assets.collectionofbeauty.com` before step 2.
 
 ## Limits
 

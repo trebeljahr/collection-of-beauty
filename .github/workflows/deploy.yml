@@ -177,10 +177,13 @@ jobs:
 
   deploy:
     needs: build
+    # dependency-updates.yml dispatches `build` after merging a Dependabot PR
+    # (a merge made with GITHUB_TOKEN triggers no push); it releases like one.
     if: >-
       always() && !cancelled() &&
       github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' &&
-      ((github.event_name == 'push' && vars.COLLECTION_OF_BEAUTY_SITE_ROLLOUT_MODE == 'automatic' && needs.build.result == 'success') ||
+      (((github.event_name == 'push' || inputs.operation == 'build') &&
+        vars.COLLECTION_OF_BEAUTY_SITE_ROLLOUT_MODE == 'automatic' && needs.build.result == 'success') ||
        (github.event_name == 'workflow_dispatch' && inputs.operation == 'deploy'))
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -200,9 +203,9 @@ jobs:
       # back to what was live and the job still fails.
       - name: Activate and verify the release
         env:
-          TARGET_SHA: ${{ github.event_name == 'push' && github.sha || inputs.target_sha }}
-          SITE_VERSION: ${{ github.event_name == 'push' && needs.build.outputs.site_version || '' }}
-          API_VERSION: ${{ github.event_name == 'push' && needs.build.outputs.api_version || '' }}
+          TARGET_SHA: ${{ (github.event_name == 'push' || inputs.operation == 'build') && github.sha || inputs.target_sha }}
+          SITE_VERSION: ${{ (github.event_name == 'push' || inputs.operation == 'build') && needs.build.outputs.site_version || '' }}
+          API_VERSION: ${{ (github.event_name == 'push' || inputs.operation == 'build') && needs.build.outputs.api_version || '' }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: node scripts/worker-release.mjs deploy "$TARGET_SHA" $SITE_VERSION $API_VERSION

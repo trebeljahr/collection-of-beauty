@@ -83,7 +83,7 @@ function ratio(w: number, h: number): string {
 export default async function ReplaceLowResPage() {
   // Dev-only surface. In production builds NODE_ENV is "production" and
   // this short-circuits to 404 before reading any data — the candidates
-  // file isn't even shipped in the standalone Docker image.
+  // file isn't part of the static export.
   if (process.env.NODE_ENV !== "development") notFound();
 
   const entries = await loadEntries();

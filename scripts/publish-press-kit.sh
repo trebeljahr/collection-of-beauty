@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Publish public/press-kit.zip as an append-only content-addressed object on
-# the public asset bucket (see scripts/RETAINED-ASSETS.md, "Press kit"). The zip
+# the public asset bucket (see docs/static-site.md, "Press kit"). The zip
 # is gitignored: build it first with `pnpm marketing:press-kit-zip`.
 #
 # Run only with explicit release authorization, through dotenvx so the R2

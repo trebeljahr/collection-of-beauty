@@ -4,10 +4,10 @@ import { setDefaultAutoSelectFamilyAttemptTimeout } from "node:net";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
-// /press-kit.zip outlives a 20-second app drain on slow links, so no image
-// carries it (public/press-kit.zip is gitignored). The app redirects to the
-// content-addressed object on the independent asset origin; storage owns the
-// transfer and serves ranges for resumes.
+// /press-kit.zip is about 35 MB, over the 25 MiB a Workers static file may
+// be. Once its content-addressed object is published on the independent
+// asset origin, the site only redirects; storage owns the transfer and
+// serves ranges for resumes.
 const root = fileURLToPath(new URL("../", import.meta.url));
 export const PRESS_KIT_METADATA = resolve(root, "scripts/press-kit-download.json");
 export const PRESS_KIT_SOURCE = resolve(root, "public/press-kit.zip");
@@ -145,7 +145,7 @@ export async function checkRemotePressKit({
 export async function checkPressKitForRelease({ meta = readPressKit(), fetchImpl = fetch } = {}) {
   if (!meta.published)
     throw new Error(
-      "Press kit is not published, so /press-kit.zip would be a 404; see scripts/RETAINED-ASSETS.md.",
+      "Press kit is not published, so /press-kit.zip would be a 404; see docs/static-site.md (Press kit).",
     );
   return checkRemotePressKit({ meta, full: true, fetchImpl });
 }

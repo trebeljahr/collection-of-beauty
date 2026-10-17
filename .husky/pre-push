@@ -1,4 +1,4 @@
-# Catch objectKey↔R2 drift before a push triggers a Coolify deploy.
+# Catch objectKey↔R2 drift before a push triggers a deploy.
 # Replaces the old CI verify-assets gate, which false-failed on network
 # blips during a 38k-key HEAD sweep. Runs only when the catalogue
 # (src/data/artworks.json) is part of what's being pushed, and uses

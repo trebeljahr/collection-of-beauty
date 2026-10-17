@@ -13,21 +13,31 @@ a central spiral staircase.
 
 ## Deployment surface
 
-A static export on Cloudflare Workers, plus one small API Worker
-(`workers/api`) for the newsletter and downloads
-([docs/static-site.md](docs/static-site.md)). **Not Vercel.** The Vercel
-CLI / Vercel knowledge updates that show up in agent sessions are
-environmental noise — treat them as informational. Don't propose
-Vercel-specific infrastructure (KV, Blob, Edge Functions) unless
-explicitly asked.
+A static export (`output: "export"` in [`next.config.mjs`](next.config.mjs))
+served by two Cloudflare Workers; [docs/static-site.md](docs/static-site.md)
+has the whole of it. **Not Vercel.** The Vercel CLI / Vercel knowledge
+updates that show up in agent sessions are environmental noise — treat
+them as informational.
 
-`output: "export"` in [`next.config.mjs`](next.config.mjs): nothing may
-read a request on the server. A page that depends on its query string
-reads it in the browser (`SearchParamSwitch`, `/sub/confirm`,
-`/sub/unsubscribe`). Anything that needs code at request time belongs in
-the API Worker, behind a route of the zone. Until 11 November 2026 the
-site was a Docker image on Coolify; the newsletter route handlers of that
-time are in git history, ported to `workers/api/src/newsletter.ts`.
+- `collection-of-beauty` ([`wrangler.jsonc`](wrangler.jsonc)) has no code:
+  it serves `out/`, with `out/_redirects` and `out/_headers` written by
+  `scripts/write-static-routing.mts`.
+- `collection-of-beauty-api` ([`workers/api`](workers/api)) answers
+  `/api/newsletter/*` and `/api/download/*`, the only paths that run code.
+- Nothing reads a request on the server: no route handler may be dynamic,
+  no page may read `searchParams` or `cookies()`, every dynamic segment
+  is prebuilt (`dynamicParams = false`). A page that depends on its query
+  reads it in the browser (`useSearchParams` under `<Suspense>`, as
+  `search-param-switch.tsx` does). What used to be a per-request API is
+  a file under `/data/` (`src/app/data/**`, keys in
+  `src/lib/static-data/keys.ts`), and a search runs in the browser over
+  `/data/museum.json`.
+- A push to `main` builds and uploads both Workers' versions; whether it
+  goes live is `COLLECTION_OF_BEAUTY_SITE_ROLLOUT_MODE` (`.github/workflows/deploy.yml`).
+- The Coolify app that served the site until 11 November 2026 stays as
+  the fallback until it is retired; `docker-compose.yml` is kept for it
+  alone. Its newsletter route handlers are in git history, ported to
+  `workers/api/src/newsletter.ts`.
 
 ## Error reporting
 
@@ -121,11 +131,10 @@ time are in git history, ported to `workers/api/src/newsletter.ts`.
     of a 6-cell grid at the work's true aspect and writes an uncompressed
     PNG. Its output is byte-identical in V8 and JavaScriptCore, and the
     SSR/hydration match depends on that: keep `Math.round`, and no canvas.
-  - `/api/artworks` and the listings form of `/api/artworks/scope` strip
-    it (`catalogueListings`, `withoutThumbHash()` in `data.ts`). Their
-    consumers, the 3D gallery and the lightbox's prev/next list, paint no
-    tiles, and over 4,557 rows the hashes are +117 KB gzipped (+33%).
-    `resolveScope` returns a shared cached array, so the strip copies.
+  - `/api/artworks`, the public dataset, strips it (`catalogueListings`,
+    `withoutThumbHash()` in `data.ts`): over 4,557 rows the hashes are
+    +117 KB gzipped (+33%). `/data/museum.json` keeps it, because the
+    browser orders a search over it and paints those tiles.
   - Only the first `EAGER_BLUR_TILES` (24) tiles of a server-rendered
     grid carry the blur in the HTML (~2.5 KB gzipped). The rest add it
     right after hydration (`useHydrated`), so the server render and the
@@ -1829,7 +1838,7 @@ time are in git history, ported to `workers/api/src/newsletter.ts`.
     falls back to the looks of the date. Warmth comes from `colorBuckets`,
     because `dominantColor` calls nearly every painting warm brown. The pick is a weighted draw on a hash of the
     id, so the server, the browser and every visit agree. Everything it
-    reads is in `ArtworkListing`, which `/api/artworks/museum` serves
+    reads is in `ArtworkListing`, which `/data/museum.json` serves
     whole. Strip `colorBuckets`, `dominantColor`, `title` or
     `nationality` from that response and the frames stop matching their
     pictures, with no error.
@@ -2303,8 +2312,9 @@ time are in git history, ported to `workers/api/src/newsletter.ts`.
   The files reach the asset origin only through `pnpm assets:sync`.
   They are served immutable: a re-encode goes to a new version folder
   (`MUSIC_DIR`), never over an old one.
-- Not in `public/audio/`: that folder is copied into every release
-  (`scripts/RETAINED-ASSETS.md`), and 70 MB of music would ride along.
+- Not in `public/audio/`: every file in `public/` is part of each
+  Workers upload (25 MiB a file at most), and 70 MB of music would ride
+  along.
 
 ## Newsletter
 
@@ -2344,10 +2354,17 @@ time are in git history, ported to `workers/api/src/newsletter.ts`.
   app needs (`LISTMONK_TX_TEMPLATE_ID` + `LISTMONK_CAMPAIGN_TEMPLATE_ID`)
   are created idempotently by `pnpm listmonk:bootstrap`; the script
   prints the ids to paste into both env files.
-- **The app sends the opt-in email, not ListMonk.** The subscribe form
+- **The API Worker sends the opt-in email, not ListMonk.** The subscribe
+  form posts to `/api/newsletter/subscribe` in `workers/api`, which
   creates the ListMonk subscriber on *no* list (`ensureSubscriber`) so
-  `/api/tx` can deliver the confirmation email; only the confirm route's
-  POST adds `LISTMONK_LIST_ID`, as `confirmed`. Lists 3 (prod) and 4
+  `/api/tx` can deliver the confirmation email; only the button's POST
+  to `/api/newsletter/confirm` adds `LISTMONK_LIST_ID`, as `confirmed`.
+  The Worker uses the send CLI's own ListMonk and token code
+  (`src/lib/newsletter/listmonk.ts`, `tokens.ts`) under `nodejs_compat`,
+  with the emails rendered at build time
+  (`src/lib/newsletter/worker-emails.ts`). Its secrets are Worker secrets
+  (`workers/api/README.md`); `NEWSLETTER_TOKEN_SECRET` must stay the value
+  links already sent were sealed with. Lists 3 (prod) and 4
   (test) are `optin: double` since 28 September 2026 (Hatchkit had
   created them single), so ListMonk campaigns reach `confirmed` members
   only. That holds only while membership is added as `confirmed`, with
@@ -2462,9 +2479,10 @@ time are in git history, ported to `workers/api/src/newsletter.ts`.
   `/newsletter/<slug>` (per-edition magazine-style page). Both are
   in the sitemap. Drafts never reach the public surface.
 - The email header is the issue's five works framed on a gallery wall,
-  a JPEG rendered on request by `/newsletter/<slug>/wall.jpg` (sharp,
-  sources fetched from the CDN, kept in memory). Nothing is committed,
-  so **sharp is a runtime dependency** — keep it in `dependencies`.
+  a JPEG `/newsletter/<slug>/wall.jpg`, rendered by sharp at build time
+  for every edition under both its slugs (sources fetched from the CDN).
+  Nothing is committed, so **sharp is a build dependency** — keep it in
+  `dependencies`. A changed edition's image is live only after a deploy.
   Only the works are in the picture; the title under it is live HTML on
   the wall's base colour, and the image's bottom rows must stay exactly
   that colour or a seam shows. Drafts render too, for test sends. The
@@ -2582,9 +2600,10 @@ Several sessions run the suite while the machine is at a load average of
   remounting the canvas (see the `canvasKey` state in `index.tsx`).
 - **`unsupported GPOS/GSUB table` warnings** — from Three's font
   pipeline when rendering text labels in some browsers. Harmless.
-- **Sitemap shows "stale" works** — it's `revalidate=86400`, so a new
-  artwork doesn't appear in the sitemap for up to a day after deploy.
-  That's intentional; rerunning the build immediately re-renders it.
+- **A new work, edition or RSS item is not live after a commit** — the
+  site is files built at deploy (sitemap and feeds included), so it
+  appears with the deploy that builds it, and only when
+  `COLLECTION_OF_BEAUTY_SITE_ROLLOUT_MODE` lets that deploy go live.
 
 ## Outstanding tickets (memory)
 

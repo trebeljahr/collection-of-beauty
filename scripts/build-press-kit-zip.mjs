@@ -91,7 +91,7 @@ async function main() {
   console.log(
     meta.published
       ? "same bytes as the published object"
-      : `not published: ${meta.sha256}. CI builds no image until it is; see scripts/RETAINED-ASSETS.md`,
+      : `not published: ${meta.sha256}. CI deploys nothing until it is; see docs/static-site.md, "Press kit"`,
   );
 }
 

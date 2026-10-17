@@ -120,7 +120,7 @@ function MemberCard({ id, objectKey }: { id: string; objectKey: string }) {
 export default async function DedupReviewPage() {
   // Dev-only surface. In production builds NODE_ENV is "production" and
   // this short-circuits to 404 before reading any data — the metadata
-  // file isn't even shipped in the standalone Docker image.
+  // file isn't part of the static export.
   if (process.env.NODE_ENV !== "development") notFound();
 
   const report = await loadReport();

@@ -1,3 +1,7 @@
+# Kept only while the Coolify app is the fallback for the Cloudflare cutover
+# (docs/static-site.md): delete this file together with the Coolify app after
+# the soak. No new image is built; the app keeps the last one.
+#
 # Coolify reads this file (build pack: dockercompose) to deploy
 # collection-of-beauty. The image is built by .github/workflows/deploy.yml and
 # pushed to GHCR; Coolify pulls it and (re)starts the service when

@@ -5,8 +5,8 @@ const ORIGIN = "https://collectionofbeauty.com";
 const ALIASES = ["https://www.collectionofbeauty.com", "https://beauty.trebeljahr.com"];
 const pause = (ms) => new Promise((done) => setTimeout(done, ms));
 
-// This proves which build public HTTP serves. The deployment operator must
-// also inspect Coolify's exact deployment and running container image digest.
+// This proves which build public HTTP serves: /version.json and the homepage
+// name the commit, and the two alias hosts redirect to the apex.
 export async function verifyRelease(
   commit,
   { fetch: request = fetch, sleep = pause, attempts = 90, stableSamples = 16 } = {},

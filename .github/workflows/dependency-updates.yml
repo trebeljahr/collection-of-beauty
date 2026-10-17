@@ -3,7 +3,7 @@ name: dependency-updates
 # Lands Dependabot's grouped minor/patch and security PRs (see
 # .github/dependabot.yml): runs the same checks as the push pipeline on the PR,
 # squash-merges it, and starts deploy.yml's build on main, which releases it
-# like a push when COLLECTION_OF_BEAUTY_ROLLOUT_MODE is automatic. A merge made with
+# like a push when COLLECTION_OF_BEAUTY_SITE_ROLLOUT_MODE is automatic. A merge made with
 # GITHUB_TOKEN does not trigger push workflows, so the deploy is started
 # explicitly. One PR per run; the next run takes the next one after Dependabot
 # rebases it.
