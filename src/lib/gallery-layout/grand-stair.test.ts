@@ -259,6 +259,40 @@ describe.each(DESIGNS)("the %s stair", (design) => {
   });
 });
 
+describe("where the eye rides on a flight", () => {
+  it("climbs the middle flight on its slope, never over a tread or more than a riser under it", () => {
+    const stairs = hall("loggia");
+    const riser = FLOOR_SEPARATION / GRAND_RISERS;
+    const step = 0.02;
+    let feet = 0;
+    let lastWalk = 0;
+    let onFlight = 0;
+    let worstGap = 0;
+    let worstJump = 0;
+    let where = "";
+    for (let z = HALF - 0.5; z > -HALF; z -= step) {
+      const p = at(stairs, 0, z);
+      const surface = grandSurfaceAt(stairs, p.x, p.z, feet);
+      if (!surface) break;
+      if (surface.flight) {
+        onFlight++;
+        const gap = surface.y - surface.walkY;
+        if (gap < -1e-9 || gap > worstGap || Number.isNaN(gap)) {
+          worstGap = gap < -1e-9 ? Number.POSITIVE_INFINITY : gap;
+          where = `gap at z ${z.toFixed(2)}`;
+        }
+      }
+      worstJump = Math.max(worstJump, Math.abs(surface.walkY - lastWalk));
+      lastWalk = surface.walkY;
+      feet = surface.walkY;
+    }
+    expect(onFlight).toBeGreaterThan(100);
+    expect(worstGap, where).toBeLessThanOrEqual(riser + 1e-9);
+    // A riser is 0.16 m; on the slope a 2 cm step rises well under 2 cm.
+    expect(worstJump).toBeLessThan(step);
+  });
+});
+
 describe("which floor a visitor in a hall is on", () => {
   const stairs = hall("loggia");
   it("changes past the half-way point, not on it", () => {

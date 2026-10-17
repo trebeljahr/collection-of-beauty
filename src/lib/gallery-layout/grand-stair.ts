@@ -321,6 +321,17 @@ export function patchHeight(p: StairPatch, x: number, z: number): number | null 
   return stepped(p.y0, p.y1, p.steps, t);
 }
 
+/** Height the camera rides at over a patch: a flight's straight slope
+ *  from its foot to its head, at or up to one riser under the tread.
+ *  The treads still decide where a visitor may step; following them
+ *  with the eye lifted the view a riser at a time. */
+function patchWalkHeight(p: StairPatch, x: number, z: number): number | null {
+  if (p.kind === "flat") return patchHeight(p, x, z);
+  const t = flightProgress(p, x, z);
+  if (t === null) return null;
+  return p.y0 + (p.y1 - p.y0) * t;
+}
+
 /** Height of the patch's underside over a point: the floor it stands on
  *  when solid, else its slab. Null when the patch is not over it. */
 function patchUnderside(p: StairPatch, x: number, z: number, baseY: number): number | null {
@@ -385,6 +396,11 @@ export function grandStairsAt(
 
 export type GrandSurface = {
   y: number;
+  /** Where the eye rides: `y`, save on a flight, where it is the
+   *  flight's slope (`patchWalkHeight`). */
+  walkY: number;
+  /** True on a flight, false on a landing or a floor. */
+  flight: boolean;
   /** The stair, when the surface is one of its flights or landings. */
   stair: GrandStair | null;
   /** The floor, when the surface is a hall floor or the gallery. */
@@ -420,12 +436,14 @@ export function grandSurfacesAt(
     if (open) continue;
     const leaving = hall.find((s) => s.lowerFloor === floorIndex);
     if (leaving && blocksFloor(leaving, x, z)) continue;
-    out.push({ y, stair: null, floorIndex });
+    out.push({ y, walkY: y, flight: false, stair: null, floorIndex });
   }
   for (const s of hall) {
     for (const p of s.patches) {
       const y = patchHeight(p, x, z);
-      if (y !== null) out.push({ y, stair: s, floorIndex: null });
+      if (y === null) continue;
+      const walkY = patchWalkHeight(p, x, z) ?? y;
+      out.push({ y, walkY, flight: p.kind === "flight", stair: s, floorIndex: null });
     }
   }
   return out;

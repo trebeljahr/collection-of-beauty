@@ -77,6 +77,14 @@ export function stairHeightAt(stair: Staircase, cumulativeAngle: number): number
   return stair.lowerY + idx * stepRise;
 }
 
+/** Height the camera rides at on the spiral: the straight helix from
+ *  floor to floor, up to one riser over the tread `stairHeightAt` gives.
+ *  The view climbs at an even rate instead of a riser at a time. */
+export function stairWalkHeightAt(stair: Staircase, cumulativeAngle: number): number {
+  const t = Math.min(1, Math.max(0, cumulativeAngle / (Math.PI * 2)));
+  return stair.lowerY + (stair.upperY - stair.lowerY) * t;
+}
+
 /** Vertical clearance the soffit of the helix has to give before the
  *  ground under it counts as a room you can walk through. The player's
  *  eye sits at 1.75 m and reaches 2.15 m on tiptoe; the treads carry no

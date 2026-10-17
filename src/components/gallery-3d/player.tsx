@@ -34,8 +34,8 @@ import {
   isInsideStair,
   isWalkableUnderStair,
   spiralRawAngle,
-  stairHeightAt,
   stairSurfaceAt,
+  stairWalkHeightAt,
 } from "./spiral-physics";
 
 const EYE_HEIGHT = 1.75;
@@ -44,6 +44,17 @@ const TIPTOE_EYE_HEIGHT = 2.15;
 const WALK_SPEED = 5;
 const RUN_SPEED = 10;
 const JUMP_IMPULSE = 6;
+// Head bob while walking on level ground. One cycle is a left and a
+// right step; the eye dips once a step, on a cosine so it has no
+// corner, and sways a little toward the foot it is on. The stride is
+// read off the ground actually covered, so walking into a wall does
+// not bob. Off on stairs: there the eye rides the flight's slope.
+const BOB_STRIDE_WALK = 2.4;
+const BOB_STRIDE_RUN = 3.4;
+const BOB_DIP = 0.022;
+const BOB_SWAY = 0.007;
+// How much a run deepens the bob over a walk, at most.
+const BOB_MAX_GAIN = 1.4;
 const GRAVITY = 22;
 // Keep the player this far back from a wall face. Cell-size is 2.5 m;
 // 0.3 m leaves headroom for the wall plane + trim geometry.
@@ -291,6 +302,12 @@ export function Player({
   // calc doesn't spam the console at 60 Hz.
   const spiralCalcWarned = useRef(false);
   const physicsRef = useRef<GalleryCollisionController | null>(null);
+  /** Head bob: where in the stride the walk is (cycles), how strong the
+   *  bob is (0 at rest, 1 at a walk), and the offset it put on the
+   *  camera last frame, taken off again before this frame's physics. */
+  const bobPhase = useRef(0);
+  const bobGain = useRef(0);
+  const bobOffset = useRef(new THREE.Vector3());
 
   useEffect(() => {
     enabledRef.current = enabled;
@@ -345,9 +362,11 @@ export function Player({
       didResume.current = true;
       camera.position.fromArray(resumePose.position);
       camera.quaternion.fromArray(resumePose.quaternion);
+      bobOffset.current.set(0, 0, 0);
       return;
     }
     didResume.current = true;
+    bobOffset.current.set(0, 0, 0);
     const eyeY = spawnAt[1] + EYE_HEIGHT;
     camera.position.set(spawnAt[0], eyeY, spawnAt[2]);
     // Face the central spiral so the navigation affordance is the first
@@ -453,6 +472,12 @@ export function Player({
   useFrame((_, delta) => {
     if (!enabled) return;
     const dt = Math.min(delta, 0.1);
+    // Take last frame's head bob off: physics works on where the body is.
+    camera.position.sub(bobOffset.current);
+    const startX = camera.position.x;
+    const startZ = camera.position.z;
+    // Set below when the visitor is on a flight of either kind of stair.
+    let onFlight = false;
     // In a grand stair hall a move also has to end on a surface the
     // visitor can step onto from where their feet are.
     const canAcceptPhysicsMove = (
@@ -915,8 +940,10 @@ export function Player({
           }
         }
 
-        const targetY = stairHeightAt(activeStair, st.cumulativeAngle) + eyeHeight.current;
+        // The eye rides the helix's even slope, not the treads.
+        const targetY = stairWalkHeightAt(activeStair, st.cumulativeAngle) + eyeHeight.current;
         camera.position.y = THREE.MathUtils.damp(camera.position.y, targetY, 20, dt);
+        onFlight = true;
         velocityY.current = 0;
         grounded.current = true;
       } else {
@@ -934,18 +961,19 @@ export function Player({
           camera.position.z,
           clearsBenches(feetY - floor.y) ? PLAYER_RADIUS : PLAYER_RADIUS - FITTING_SLOP,
         );
-        const groundY = grandSurface ? grandSurface.y : floor.y;
+        const groundY = grandSurface ? grandSurface.walkY : floor.y;
         const floorHeight = groundY + (onBench ? BENCH_HEIGHT : 0) + eyeHeight.current;
         const drop = camera.position.y - floorHeight;
         if (grandSurface?.stair && velocityY.current <= 0 && drop < GRAND_TREAD_REACH) {
-          // On a flight the ground changes by a riser at a time. The
-          // camera is eased onto each tread, up and down, so the climb
-          // reads as steps without the jolt of a snap or the float of a
-          // fall from one tread to the next. A jump leaves this branch:
-          // its velocity is upward.
-          camera.position.y = floorHeight + THREE.MathUtils.damp(drop, 0, 18, dt);
+          // On a flight the eye rides the flight's slope from foot to
+          // head (`walkY`), so the climb is even. Eased onto a riser at
+          // a time, it read as choppy. The ease here only takes up a
+          // landing from a jump. A jump leaves this branch: its
+          // velocity is upward.
+          camera.position.y = floorHeight + THREE.MathUtils.damp(drop, 0, 30, dt);
           velocityY.current = 0;
           grounded.current = true;
+          onFlight = grandSurface.flight;
         } else if (camera.position.y <= floorHeight) {
           camera.position.y = floorHeight;
           velocityY.current = 0;
@@ -1071,6 +1099,29 @@ export function Player({
           onRoomChange(owner);
         }
       }
+    }
+
+    // Head bob, put on last so nothing above reads it. Its strength
+    // follows the ground covered this frame against a walk, and eases
+    // to nothing at rest, in the air and on a flight.
+    const moved = Math.hypot(camera.position.x - startX, camera.position.z - startZ);
+    // A teleport is not a step.
+    const pace = dt > 0 && moved < RUN_SPEED * dt * 1.5 ? moved / dt / WALK_SPEED : 0;
+    const bobTarget = grounded.current && !onFlight ? Math.min(pace, BOB_MAX_GAIN) : 0;
+    bobGain.current = THREE.MathUtils.damp(bobGain.current, bobTarget, 6, dt);
+    if (pace > 0) {
+      const runShare = Math.min(1, Math.max(0, pace - 1));
+      const stride = BOB_STRIDE_WALK + (BOB_STRIDE_RUN - BOB_STRIDE_WALK) * runShare;
+      bobPhase.current = (bobPhase.current + moved / stride) % 1;
+    }
+    if (bobGain.current > 1e-4) {
+      const angle = bobPhase.current * Math.PI * 2;
+      const dip = -BOB_DIP * bobGain.current * 0.5 * (1 - Math.cos(2 * angle));
+      const sway = BOB_SWAY * bobGain.current * Math.sin(angle);
+      bobOffset.current.set(right.x * sway, dip, right.z * sway);
+      camera.position.add(bobOffset.current);
+    } else {
+      bobOffset.current.set(0, 0, 0);
     }
   });
 
