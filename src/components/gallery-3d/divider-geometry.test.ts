@@ -55,7 +55,19 @@ describe("buildDividerGeometry", () => {
     expect(b.min.x).toBeCloseTo(7.5 - 0.2 - SKIRTING_CAP_PROUD, 4);
     expect(b.max.x).toBeCloseTo(7.5 + 0.2 + SKIRTING_CAP_PROUD, 4);
     expect(b.min.y).toBeCloseTo(0, 4);
-    expect(b.max.y).toBeCloseTo(SKIRTING_HEIGHT, 4);
+    // The cornice runs round its head, under the ceiling.
+    expect(b.max.y).toBeCloseTo(4.2, 4);
+  });
+
+  it("draws the boards at foot and head and leaves the wall between bare", () => {
+    const g = buildDividerGeometry([WING], ROOM, 0, 4.2);
+    const pos = (g as NonNullable<typeof g>).skirting.getAttribute("position");
+    const between: number[] = [];
+    for (let i = 0; i < pos.count; i++) {
+      const y = pos.getY(i);
+      if (y > SKIRTING_HEIGHT + 1e-6 && y < 4.2 - SKIRTING_HEIGHT - 1e-6) between.push(y);
+    }
+    expect(between).toEqual([]);
   });
 
   it("gives its faces UVs in metres, like the room walls", () => {

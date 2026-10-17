@@ -1,6 +1,11 @@
 import type * as THREE from "three";
 import { describe, expect, it } from "vitest";
-import { buildSkirtingGeometry, SKIRTING_HEIGHT, SKIRTING_SINK } from "./skirting-geometry";
+import {
+  buildCorniceGeometry,
+  buildSkirtingGeometry,
+  SKIRTING_HEIGHT,
+  SKIRTING_SINK,
+} from "./skirting-geometry";
 
 describe("buildSkirtingGeometry", () => {
   it("runs along each clear span, from just under the floor up, on both faces of the wall", () => {
@@ -41,5 +46,21 @@ describe("buildSkirtingGeometry", () => {
   it("returns nothing for a wall with no clear span", () => {
     expect(buildSkirtingGeometry([], 0)).toBeNull();
     expect(buildSkirtingGeometry([{ xMin: 1, xMax: 1.005 }], 0)).toBeNull();
+  });
+});
+
+describe("buildCorniceGeometry", () => {
+  it("hangs from the ceiling on the wall's own face", () => {
+    const g = buildCorniceGeometry([{ xMin: -5, xMax: 5 }], 2.6) as THREE.BufferGeometry;
+    g.computeBoundingBox();
+    const box = g.boundingBox as THREE.Box3;
+    expect(box.min.x).toBeCloseTo(-5, 6);
+    expect(box.max.x).toBeCloseTo(5, 6);
+    expect(box.min.y).toBeCloseTo(2.6 - SKIRTING_HEIGHT, 6);
+    // Runs on into the plenum, so no slit shows under the ceiling.
+    expect(box.max.y).toBeCloseTo(2.6 + SKIRTING_SINK, 6);
+    // One-sided: the room behind may have its ceiling at another height.
+    expect(box.min.z).toBeCloseTo(0, 6);
+    expect(box.max.z).toBeGreaterThan(0.01);
   });
 });

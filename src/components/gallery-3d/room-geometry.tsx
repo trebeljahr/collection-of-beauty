@@ -393,6 +393,7 @@ export function RoomGeometry({
           doors={nDoors}
           skirting={skirting("north")}
           ownFace={ownWalls}
+          cornice={isStandardRoom ? room.ceilingHeight : undefined}
           groupRef={(group) => {
             wallRefs.current.north = group;
           }}
@@ -409,6 +410,7 @@ export function RoomGeometry({
           doors={sDoors}
           skirting={skirting("south")}
           ownFace={ownWalls}
+          cornice={isStandardRoom ? room.ceilingHeight : undefined}
           groupRef={(group) => {
             wallRefs.current.south = group;
           }}
@@ -425,6 +427,7 @@ export function RoomGeometry({
           doors={wDoors}
           skirting={skirting("west")}
           ownFace={ownWalls}
+          cornice={isStandardRoom ? room.ceilingHeight : undefined}
           groupRef={(group) => {
             wallRefs.current.west = group;
           }}
@@ -441,6 +444,7 @@ export function RoomGeometry({
           doors={eDoors}
           skirting={skirting("east")}
           ownFace={ownWalls}
+          cornice={isStandardRoom ? room.ceilingHeight : undefined}
           groupRef={(group) => {
             wallRefs.current.east = group;
           }}

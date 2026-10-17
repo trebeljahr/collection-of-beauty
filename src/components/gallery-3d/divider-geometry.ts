@@ -1,5 +1,5 @@
 // A room's freestanding divider walls as meshes: plaster, the backs of
-// its door screens, and skirting. Every other wall in the building is a
+// its door screens, and skirting and cornice. Every other wall in the building is a
 // zero-thickness plane between two rooms. A divider is seen end-on from
 // inside one room, so it is built at its real thickness: two faces, a
 // finished end wherever it stands free, and a skirting that runs round
@@ -97,10 +97,14 @@ export function buildDividerGeometry(
 
     // The board is one box round the divider's foot: it stands proud
     // of both faces and of a free end, and stops at the room wall
-    // where the divider is built off one.
+    // where the divider is built off one. The same board, turned over,
+    // runs round its head under the ceiling, as on the room's walls
+    // (`buildCorniceGeometry`).
     for (const [boardH, proud, top] of [
       [SKIRTING_HEIGHT, SKIRTING_PROUD, SKIRTING_HEIGHT],
       [SKIRTING_CAP_HEIGHT, SKIRTING_CAP_PROUD, SKIRTING_HEIGHT],
+      [SKIRTING_HEIGHT, SKIRTING_PROUD, height],
+      [SKIRTING_CAP_HEIGHT, SKIRTING_CAP_PROUD, height - SKIRTING_HEIGHT + SKIRTING_CAP_HEIGHT],
     ] as const) {
       const from = lo - (attached.start ? 0 : proud);
       const to = hi + (attached.end ? 0 : proud);
