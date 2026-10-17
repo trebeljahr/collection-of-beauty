@@ -12,6 +12,7 @@ import type { ArtworkListing } from "@/lib/data";
 import { deepZoomTileSource, largestSingleImageWidth } from "@/lib/deep-zoom";
 import { formatCm, trustworthyRealSize } from "@/lib/real-size";
 import { cn, fallbackVariantUrl, variantUrl } from "@/lib/utils";
+import { PaintingInfoPill } from "./painting-info-pill";
 import { peekBestCachedTexture } from "./texture-cache";
 
 // Split out of the gallery chunk: the viewer pulls in OpenSeadragon, which
@@ -330,8 +331,10 @@ export function ZoomModal({
       {/* Bottom bar: artwork metadata. Pointer-events off so pan/zoom
           drags pass through; the close hint mirrors the keyboard
           shortcuts wired up above. The artist link re-enables pointer
-          events on itself so it can be clicked without breaking pan. */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col items-center gap-1 bg-gradient-to-t from-black/80 via-black/50 to-transparent px-6 pt-12 pb-5 text-center text-neutral-200">
+          events on itself so it can be clicked without breaking pan.
+          The side padding keeps the centred text clear of the info pill
+          in the bottom-left corner: icon only under `sm`, labelled above. */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex flex-col items-center gap-1 bg-gradient-to-t from-black/80 via-black/50 to-transparent px-16 pt-12 pb-5 text-center text-neutral-200 sm:px-64">
         <div className="text-xl font-semibold">{displayTitle(artwork)}</div>
         <div className="text-sm text-neutral-400">
           {artwork.artist && artwork.artistSlug ? (
@@ -355,6 +358,8 @@ export function ZoomModal({
           close · Esc · E
         </div>
       </div>
+
+      <PaintingInfoPill key={artwork.id} artworkId={artwork.id} />
     </div>
   );
 }

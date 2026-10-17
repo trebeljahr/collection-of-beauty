@@ -9,6 +9,7 @@ import { ArtworkViewer } from "@/components/artwork-viewer";
 import { LicenseBadge } from "@/components/license-badge";
 import { buttonVariants } from "@/components/ui/button";
 import { chipClasses, touchTextLinkClasses } from "@/components/ui/pill";
+import { generatedByline } from "@/lib/artwork-about";
 import { originalTitleSubtitle } from "@/lib/artwork-format";
 import { encodeScope, resolveScope, type Scope, scopeLabel } from "@/lib/artwork-scope";
 import {
@@ -23,7 +24,7 @@ import { assignEra, type EraId, getEra } from "@/lib/gallery-eras";
 import { suggestFixUrl } from "@/lib/links";
 import type { PlateSetId } from "@/lib/plate-set-definitions";
 import { holdingSentence, plateNumberFor, plateSetForArtwork } from "@/lib/plate-sets";
-import { formatCm, scaleReferenceFor, trustworthyRealSize } from "@/lib/real-size";
+import { scaleReferenceFor, trustworthyRealSize } from "@/lib/real-size";
 import { layoutScene } from "@/lib/real-size-scene";
 import { artworkRedirect } from "@/lib/redirects";
 import { artworkJsonLd, buildOpenGraph, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
@@ -413,29 +414,6 @@ function GitHubIcon() {
       <path d="M12 .5C5.73.5.5 5.73.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56 0-.28-.01-1.02-.02-2-3.2.7-3.87-1.54-3.87-1.54-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.76 1.18 1.76 1.18 1.02 1.76 2.68 1.25 3.34.96.1-.74.4-1.25.73-1.54-2.55-.29-5.24-1.28-5.24-5.69 0-1.26.45-2.28 1.18-3.09-.12-.29-.51-1.46.11-3.04 0 0 .96-.31 3.15 1.18a10.91 10.91 0 0 1 5.74 0c2.19-1.49 3.15-1.18 3.15-1.18.62 1.58.23 2.75.11 3.04.74.81 1.18 1.83 1.18 3.09 0 4.42-2.69 5.4-5.25 5.69.41.36.78 1.06.78 2.14 0 1.55-.01 2.8-.01 3.18 0 .31.21.68.8.56C20.22 21.39 23.5 17.08 23.5 12 23.5 5.73 18.27.5 12 .5z" />
     </svg>
   );
-}
-
-/** Used as a description fallback when the source had no description.
- *  Composes a short factual sentence from the fields we always have so
- *  every detail page has SOME prose under the title. */
-function generatedByline(a: Artwork): string {
-  const parts: string[] = [];
-  if (a.artist && a.year) {
-    parts.push(`Painted by ${a.artist} in ${a.year}.`);
-  } else if (a.artist) {
-    parts.push(`Work by ${a.artist}.`);
-  } else if (a.year) {
-    parts.push(`Created in ${a.year}.`);
-  }
-  if (a.movement) {
-    parts.push(`Part of the ${a.movement} movement.`);
-  }
-  // The audited size only, so the prose matches the scale view below it.
-  const realSize = trustworthyRealSize(a);
-  if (realSize) parts.push(`Original dimensions ${formatCm(realSize)}.`);
-  return parts.length > 0
-    ? parts.join(" ")
-    : "From the Collection of Beauty — a public-domain art gallery.";
 }
 
 /** Name of every scope a link to this work can carry, for the nav bar's
