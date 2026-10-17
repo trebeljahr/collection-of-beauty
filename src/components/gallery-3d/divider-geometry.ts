@@ -42,6 +42,21 @@ function face(w: number, h: number, yaw: number, x: number, y: number, z: number
   return g.rotateY(yaw).translate(x, y, z);
 }
 
+/** Take faces off a box, by their place in BoxGeometry's order (six
+ *  indices each). A board's end at the room wall a divider is built off
+ *  lies in that wall's plane and faces through it, into the room behind,
+ *  which draws its own wall on that line: the cornice's end showed there
+ *  as a stepped sliver at the ceiling height of the room it belongs to,
+ *  fighting the other room's wall (17 October 2026). */
+function dropFaces(box: THREE.BufferGeometry, faces: readonly number[]): void {
+  if (faces.length === 0) return;
+  const index = box.getIndex();
+  if (!index) return;
+  const kept = Array.from(index.array).filter((_, i) => !faces.includes(Math.floor(i / 6)));
+  box.setIndex(kept);
+  box.clearGroups();
+}
+
 /**
  * Plaster and skirting for `dividers`, in world coordinates. `floorY`
  * is the room's floor and `height` its ceiling above it. `screen` is
@@ -111,9 +126,14 @@ export function buildDividerGeometry(
       const size: [number, number, number] =
         d.axis === "x" ? [to - from, boardH, t + 2 * proud] : [t + 2 * proud, boardH, to - from];
       const centre = at((from + to) / 2, line);
-      boards.push(
-        new THREE.BoxGeometry(...size).translate(centre[0], floorY + top - boardH / 2, centre[2]),
-      );
+      const board = new THREE.BoxGeometry(...size);
+      // BoxGeometry writes its faces +x, -x, +y, -y, +z, -z.
+      const [startFace, endFace] = d.axis === "x" ? [1, 0] : [5, 4];
+      dropFaces(board, [
+        ...(attached.start ? [startFace] : []),
+        ...(attached.end ? [endFace] : []),
+      ]);
+      boards.push(board.translate(centre[0], floorY + top - boardH / 2, centre[2]));
     }
   }
 

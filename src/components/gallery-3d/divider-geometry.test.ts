@@ -1,4 +1,4 @@
-import type * as THREE from "three";
+import * as THREE from "three";
 import { describe, expect, it } from "vitest";
 import type { CellRect, Divider } from "@/lib/gallery-layout/types";
 import { attachedEnds, buildDividerGeometry } from "./divider-geometry";
@@ -57,6 +57,24 @@ describe("buildDividerGeometry", () => {
     expect(b.min.y).toBeCloseTo(0, 4);
     // The cornice runs round its head, under the ceiling.
     expect(b.max.y).toBeCloseTo(4.2, 4);
+  });
+
+  it("puts no face of a board in the room wall it is built off", () => {
+    // WING is built off the wall at z = 0 and runs along z. A face there
+    // faces through the wall, into the room behind it.
+    const g = buildDividerGeometry([WING], ROOM, 0, 4.2);
+    const skirting = (g as NonNullable<typeof g>).skirting;
+    const pos = skirting.getAttribute("position");
+    const index = skirting.getIndex() as THREE.BufferAttribute;
+    const [a, b, c] = [new THREE.Vector3(), new THREE.Vector3(), new THREE.Vector3()];
+    const inWall: number[] = [];
+    for (let i = 0; i < index.count; i += 3) {
+      a.fromBufferAttribute(pos, index.getX(i));
+      b.fromBufferAttribute(pos, index.getX(i + 1));
+      c.fromBufferAttribute(pos, index.getX(i + 2));
+      if (Math.max(Math.abs(a.z), Math.abs(b.z), Math.abs(c.z)) < 1e-6) inWall.push(i / 3);
+    }
+    expect(inWall).toEqual([]);
   });
 
   it("draws the boards at foot and head and leaves the wall between bare", () => {
