@@ -85,3 +85,6 @@ venv/
 .envrc.local
 .env.keys
 .vercel/
+
+# Trailer clips, cards and draft cuts (captured headless, cut with ffmpeg)
+trailer-clips/
