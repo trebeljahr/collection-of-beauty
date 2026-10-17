@@ -109,13 +109,19 @@ const STRIP: Rgb = (() => {
   const t = LIGHT_TINT;
   return [t.r / wood.r, t.g / wood.g, t.b / wood.b];
 })();
-const railTopMaterial = new THREE.MeshStandardMaterial({
-  // Aged brass — visibly metallic but not mirror-bright. Lower
-  // metalness + higher roughness than polished brass, so the rail
-  // catches highlights without screaming "shiny" at the player.
-  color: "#a07a40",
-  roughness: 0.55,
-  metalness: 0.5,
+/** The hand rail: polished gold, shared with the rail round the well
+ *  (stairwell-rail.tsx). It was aged brass at half metalness and
+ *  roughness 0.55, and Rico found it dull (17 October 2026): half a
+ *  metal mixes a brown diffuse into the reflection, and at that
+ *  roughness the lamps of the highlight map smear into one tone. Whole
+ *  metal at low roughness mirrors each lamp as a bright line that runs
+ *  along the rail as the visitor climbs. The colour is gold's own
+ *  reflectance, a little deeper than the measured F0 so the shade
+ *  between the lamps stays gold and not pale yellow. */
+export const railTopMaterial = new THREE.MeshStandardMaterial({
+  color: "#f2c260",
+  roughness: 0.2,
+  metalness: 1,
 });
 const balusterMaterial = new THREE.MeshStandardMaterial({
   // Dark wrought iron for the verticals — strong contrast against

@@ -17,17 +17,18 @@ import {
   RAIL_HEIGHT,
 } from "./rail-constants";
 import { floorShafts, type StairShaft } from "./spiral-physics";
-import { BAR_RADIUS, finialGeometry, mergeBars, StairSign, spiralGateHalfArc } from "./staircase";
+import {
+  BAR_RADIUS,
+  finialGeometry,
+  mergeBars,
+  railTopMaterial,
+  StairSign,
+  spiralGateHalfArc,
+} from "./staircase";
 
-// Materials are still local — the cutout-edge rail and the spiral rails
-// share the same colour vocabulary, but allocating duplicate
-// MeshStandardMaterial instances is cheap and keeps each file's
-// material set obvious at a glance.
-const railTopMaterial = new THREE.MeshStandardMaterial({
-  color: "#a07a40",
-  roughness: 0.55,
-  metalness: 0.5,
-});
+// The gold hand rail is the spiral's own material (staircase.tsx), so
+// the rail round the well and the rail on the flight cannot drift
+// apart. The iron is still local.
 const balusterMaterial = new THREE.MeshStandardMaterial({
   color: "#0f0c08",
   roughness: 0.7,
@@ -39,7 +40,7 @@ const gatePostMaterial = new THREE.MeshStandardMaterial({
   metalness: 0.45,
 });
 // Lit by the same lamp map as the stair they fence (see staircase.tsx).
-HIGHLIGHT_ENV_MATERIALS.push(railTopMaterial, balusterMaterial, gatePostMaterial);
+HIGHLIGHT_ENV_MATERIALS.push(balusterMaterial, gatePostMaterial);
 
 // Half-arc of the entry gate is now derived per-stair from the
 // spiral's numSteps (`spiralGateHalfArc(numSteps)`), so the cutout-edge
