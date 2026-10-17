@@ -38,7 +38,7 @@ export const floorMirrorUniforms = {
 
 /** A floor fragment takes the mirror image only within this distance of
  *  the mirrored plane. Floors sit on it, their slab tops 1 mm below;
- *  every other storey is 8.4 m away and keeps the plain environment
+ *  every other storey is several metres away and keeps the plain environment
  *  reflection. */
 const PLANE_TOLERANCE_M = 0.02;
 

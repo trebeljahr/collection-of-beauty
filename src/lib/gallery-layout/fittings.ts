@@ -5,8 +5,8 @@
 // that, every room is the same empty box at a different size. The
 // fittings are what tell a cabinet from a hall:
 //
-//  - Ceiling height follows the room's narrow side: 4.0 m over a 10 m
-//    cabinet, 5.7 m over a hall 17.5 m and wider, 4.8 m between.
+//  - Ceiling height follows the room's narrow side: 4.9 m over a 10 m
+//    cabinet, 6.9 m over a hall 17.5 m and wider, 5.9 m between.
 //  - Freestanding walls: panels, wing walls and door screens, set out
 //    in `divider-plans.ts`.
 //  - Benches: one in each bay between wing walls, a pair facing the

@@ -372,12 +372,12 @@ export function washWallRects(
  *  few decimetres apart. */
 export const WASH_MIN_STRETCH = 1.5;
 /** How far along the wall a can's cone reaches at its widest, at the
- *  wall's foot under a storey's ceiling (5.15 m; 3.5 m under the 5.9 m
+ *  wall's foot under a storey's ceiling (5.35 m; 3.5 m under the 5.9 m
  *  ceiling the stairwell had until 17 October 2026).
  *  `stairwell-light-rig.test.ts` holds the cone to it, and
  *  `wash-cans.test.ts` that a patch this far from a can is named for
  *  it. */
-export const WASH_SIDE_REACH = 5.25;
+export const WASH_SIDE_REACH = 5.5;
 /** The end can of a row stands at least this far inside its stretch. */
 const WASH_END_CLEAR = 0.6;
 

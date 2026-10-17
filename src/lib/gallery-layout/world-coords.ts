@@ -8,22 +8,24 @@
 export const CELL_SIZE = 2.5; // metres per cell on the XZ plane
 // Interior ceiling plane of a room. A room carries its own height
 // (`RoomLayout.ceilingHeight`, set in fittings.ts): cabinets are low,
-// halls are tall, everything else and the stairwell use ROOM_HEIGHT.
-// The tallest still clears the slab above (INTER_FLOOR_HEIGHT, 8.2 m).
+// halls are tall, other galleries use ROOM_HEIGHT. Stair halls follow
+// the structural storey height.
+// The tallest still clears the slab above (INTER_FLOOR_HEIGHT, 8.5 m).
 // Raised by 0.3 to 0.6 m on 12 October 2026: the rooms felt low, and a
 // 3.2 m canvas hung 0.4 m off the floor in its frame reaches 3.94 m,
 // which left no wall for the picture light under 4.2 m. Raised again by
-// 0.6 to 0.9 m on 17 October 2026, with the storey (below).
-export const ROOM_HEIGHT = 5.6;
-export const ROOM_HEIGHT_LOW = 4.6;
-export const ROOM_HEIGHT_TALL = 6.6;
+// 0.6 to 0.9 m on 17 October 2026, with the storey (below). Another
+// 0.3 m gives the tallest court painting breathing room under its cornice.
+export const ROOM_HEIGHT = 5.9;
+export const ROOM_HEIGHT_LOW = 4.9;
+export const ROOM_HEIGHT_TALL = 6.9;
 // Metres between floor surfaces. The spiral staircase climbs a full
-// revolution per storey, so this also sets the rise per tread (0.233 m
+// revolution per storey, so this also sets the rise per tread (0.242 m
 // at 36 steps). It caps every ceiling above. It was 6.12 m until
 // 17 October 2026, when the stair halls lost their sheer walls and every
 // work had to hang on one storey: the tallest, the Triumph of Frederick
 // Henry, is 7.49 m in its frame (`STOREY_FRAME_ROOM` in giants.ts).
-export const FLOOR_SEPARATION = 8.4;
+export const FLOOR_SEPARATION = 8.7;
 export const WALL_THICKNESS = 0.1;
 
 // A narrow door, 1.4 m wide: ≥ 0.55 m of wall on each side of a
@@ -55,7 +57,7 @@ export const DIVIDER_THICKNESS = 0.4;
 // cramped.
 export const SPIRAL_INNER_RADIUS = 2.6; // inner edge of treads
 export const SPIRAL_OUTER_RADIUS = 5.4; // outer edge of treads
-/** Risers in one storey's flight (rise ≈ 0.23 m). The flight has one
+/** Risers in one storey's flight (rise ≈ 0.24 m). The flight has one
  *  tread fewer: its first and last riser step onto a landing. */
 export const SPIRAL_STEPS_PER_FLOOR = 36;
 /** Arc of the landing on every floor, centred on the gate. The flight

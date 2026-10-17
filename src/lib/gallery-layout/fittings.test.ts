@@ -75,11 +75,15 @@ describe("room kinds and ceilings", () => {
     expect(roomKind(rect(6, 6))).toBe("room");
   });
 
-  it("sets the ceiling by the narrow side", () => {
-    expect(ceilingHeightFor(rect(9, 4))).toBe(4.6);
-    expect(ceilingHeightFor(rect(9, 5))).toBe(5.6);
-    expect(ceilingHeightFor(rect(6, 7))).toBe(5.6);
-    expect(ceilingHeightFor(rect(7, 9))).toBe(6.6);
+  it("keeps the same ceiling when the footprint is turned", () => {
+    for (const [x, z] of [
+      [9, 4],
+      [9, 5],
+      [6, 7],
+      [7, 9],
+    ]) {
+      expect(ceilingHeightFor(rect(x, z))).toBe(ceilingHeightFor(rect(z, x)));
+    }
   });
 });
 

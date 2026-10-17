@@ -46,21 +46,22 @@ import { resumeRoomCulling, suspendRoomCulling } from "./room-culling";
 const MIRROR_PX = 512;
 const BLUR_PX = 256;
 /** Share of the environment radiance replaced by the mirror image. The
- *  rest keeps a trace of the even sheen the floor had before. */
-const MIRROR_MIX = 0.9;
+ *  rest keeps the floor's sheen even through changes in viewing angle
+ *  and when the pass fades out on stairs or slower devices. */
+const MIRROR_MIX = 0.5;
 const FADE_S = 0.5;
 /** Eye heights over the floor of the visitor's storey between which the
  *  reflection thins to nothing, on the way up a grand stair's flight.
  *  It is a matter of height and not of time, so it is gone at any pace
  *  before the storey above becomes the visitor's: that happens half a
- *  storey up, with a ducked eye at 4.11 m. A jump off a bench on tiptoe
+ *  storey up, with a ducked eye above 4.1 m. A jump off a bench on tiptoe
  *  reaches 3.42 m and stays under the range. */
 const FLIGHT_FADE_M: readonly [number, number] = [3.6, 4.1];
 /** Blur taps move this far per pass, in uv. Four passes at 0.5, 1.5,
- *  2.5 and 3.5 steps spread a point over about 2 % of the image's width
- *  and 6 % of its height: a satin floor smears a reflection along the
+ *  2.5 and 3.5 steps spread a point over about 4 % of the image's width
+ *  and 11 % of its height: a satin floor smears a reflection along the
  *  line of sight, which on screen is the vertical. */
-const BLUR_STEP = new THREE.Vector2(1 / 420, 1 / 130);
+const BLUR_STEP = new THREE.Vector2(1 / 200, 1 / 70);
 const BLUR_PASSES = 4;
 
 /** What the debug HUD prints about the pass. `cpuMs` is the time spent

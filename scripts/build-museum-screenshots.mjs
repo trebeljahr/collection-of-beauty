@@ -63,7 +63,7 @@ const SCALE = 2;
 const OUTPUT = { width: 2560, height: 1440 };
 const OUTPUT_LARGE = { width: VIEWPORT.width * SCALE, height: VIEWPORT.height * SCALE };
 
-const STOREY = 8.4; // FLOOR_SEPARATION in world-coords.ts
+const STOREY = 8.7; // FLOOR_SEPARATION in world-coords.ts
 const EYE = 1.75; // EYE_HEIGHT in player.tsx
 
 // Each shot: the floor (0-based, the digit key is floor + 1), where the

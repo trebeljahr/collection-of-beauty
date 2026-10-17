@@ -42,10 +42,10 @@ function floorTint(color: string): THREE.Color {
   return new THREE.Color(color).lerp(_white, FLOOR_TINT_LIFT);
 }
 
-// Satin lacquer: enough sheen for the floor to pick up the room, short
-// of the wet look the set's own roughness map (≈ 0.10) gives. What it
-// picks up is the room itself, mirrored: see floor-reflection.tsx.
-const FLOOR_ROUGHNESS = 0.42;
+// Satin lacquer with a broad, subdued sheen. A glossier finish makes
+// reflected walls and ceilings read as separate grey/coloured bands
+// across the parquet as the visitor looks down or crosses a doorway.
+const FLOOR_ROUGHNESS = 0.62;
 
 // Per-mesh world-unit UVs (see room-geometry.tsx + hallway.tsx) make
 // 1 unit of UV = 1 m of world, so the repeat here is tiles per metre.
