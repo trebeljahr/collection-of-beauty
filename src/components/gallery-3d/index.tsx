@@ -1386,6 +1386,9 @@ function BigMapOverlay({
   onClose: () => void;
   isTouch: boolean;
 }) {
+  // The room the pointer (or focus) is on, in the legend or on the map.
+  // Each side lights the other's entry for it.
+  const [hoveredRoomId, setHoveredRoomId] = useState<string | null>(null);
   return (
     // Backdrop stays full-bleed (inset-0) so the dim covers the notch strip
     // too; only the padding grows by the safe-area insets, which keeps the
@@ -1464,13 +1467,18 @@ function BigMapOverlay({
             {floor.rooms.map((room, i) => {
               if (room.isStairwell) return null;
               const r = roomRect(floor, room, size);
+              const isHovered = hoveredRoomId === room.id;
               return (
                 <button
                   key={room.id}
                   type="button"
                   onClick={() => onRoomJump(i)}
+                  onMouseEnter={() => setHoveredRoomId(room.id)}
+                  onMouseLeave={() => setHoveredRoomId(null)}
                   title={`Teleport to ${room.title}`}
-                  className="absolute rounded-[2px] border border-transparent transition hover:border-amber-200/80 hover:bg-amber-200/25 focus-visible:border-amber-200 focus-visible:bg-amber-200/25 focus:outline-none"
+                  className={`absolute rounded-[2px] border transition hover:border-amber-200/80 hover:bg-amber-200/25 focus-visible:border-amber-200 focus-visible:bg-amber-200/25 focus:outline-none ${
+                    isHovered ? "border-amber-200/80 bg-amber-200/25" : "border-transparent"
+                  }`}
                   style={{ left: r.left, top: r.top, width: r.width, height: r.height }}
                 >
                   <span className="sr-only">
@@ -1507,25 +1515,39 @@ function BigMapOverlay({
               .sort((a, b) => (a.roomNumber ?? 0) - (b.roomNumber ?? 0))
               .map((room) => {
                 const isActive = floor.rooms[activeRoomIdx]?.id === room.id;
+                const isHovered = hoveredRoomId === room.id;
+                const roomIdx = floor.rooms.indexOf(room);
                 return (
-                  <li
-                    key={room.id}
-                    className={`flex items-center gap-2 rounded px-1.5 py-0.5 text-sm ${
-                      isActive ? "bg-white/15 text-white" : "text-white/70"
-                    }`}
-                  >
-                    <span
-                      aria-hidden
-                      className="inline-block h-2.5 w-2.5 shrink-0 rounded-[2px] ring-1 ring-white/30"
-                      style={{ background: mapFillOf(room) }}
-                    />
-                    <span className="min-w-[1.25rem] text-right font-mono text-xs text-white/55">
-                      {room.roomNumber}
-                    </span>
-                    <span className="max-w-[15rem] truncate">{room.title}</span>
-                    <span className="ml-auto pl-2 text-xs text-white/40">
-                      {room.placements.length}
-                    </span>
+                  <li key={room.id}>
+                    <button
+                      type="button"
+                      onClick={() => onRoomJump(roomIdx)}
+                      onMouseEnter={() => setHoveredRoomId(room.id)}
+                      onMouseLeave={() => setHoveredRoomId(null)}
+                      onFocus={() => setHoveredRoomId(room.id)}
+                      onBlur={() => setHoveredRoomId(null)}
+                      title={`Teleport to ${room.title}`}
+                      className={`flex w-full items-center gap-2 rounded px-1.5 py-0.5 text-left text-sm transition focus:outline-none ${
+                        isHovered
+                          ? "bg-amber-200/20 text-white"
+                          : isActive
+                            ? "bg-white/15 text-white"
+                            : "text-white/70"
+                      }`}
+                    >
+                      <span
+                        aria-hidden
+                        className="inline-block h-2.5 w-2.5 shrink-0 rounded-[2px] ring-1 ring-white/30"
+                        style={{ background: mapFillOf(room) }}
+                      />
+                      <span className="min-w-[1.25rem] text-right font-mono text-xs text-white/55">
+                        {room.roomNumber}
+                      </span>
+                      <span className="max-w-[15rem] truncate">{room.title}</span>
+                      <span className="ml-auto pl-2 text-xs text-white/40">
+                        {room.placements.length}
+                      </span>
+                    </button>
                   </li>
                 );
               })}
