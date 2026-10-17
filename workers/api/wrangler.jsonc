@@ -1,0 +1,42 @@
+// collection-of-beauty-api: newsletter signup, confirm and unsubscribe, and
+// artwork downloads
+// for collectionofbeauty.com (see README.md beside this file).
+//
+// Routes are made once through the Cloudflare API, not here, so a deploy
+// never touches them and the CI token needs no route permission:
+//   collectionofbeauty.com/api/newsletter/*  → this Worker
+//   collectionofbeauty.com/api/download/*    → this Worker
+//
+// Secrets, set with `wrangler secret put <NAME>` from .env.production,
+// never in this file: LISTMONK_URL, LISTMONK_API_USER, LISTMONK_API_TOKEN,
+// LISTMONK_LIST_ID, LISTMONK_TX_TEMPLATE_ID, LISTMONK_FROM,
+// LISTMONK_REPLY_TO, SES_FROM_EMAIL, NEWSLETTER_TOKEN_SECRET, SENTRY_DSN. The token
+// secret must stay the one the site used, or links already sent stop
+// working.
+{
+  "$schema": "../../node_modules/wrangler/config-schema.json",
+  "name": "collection-of-beauty-api",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-09-20",
+  // process.env (filled from vars and secrets), node:crypto and Buffer for
+  // the shared ListMonk client and token code in src/lib/newsletter.
+  "compatibility_flags": ["nodejs_compat"],
+  "workers_dev": false,
+  "preview_urls": false,
+  "vars": {
+    "SITE_URL": "https://collectionofbeauty.com",
+    "ASSETS_BASE_URL": "https://assets.collectionofbeauty.com"
+  },
+  // Five subscribe posts per minute per client IP.
+  "ratelimits": [
+    {
+      "name": "SUBSCRIBE_LIMITER",
+      "namespace_id": "47982311",
+      "simple": { "limit": 5, "period": 60 }
+    }
+  ],
+  // Keep our own JSON log lines (no address, no IP) but not Cloudflare's
+  // per-request invocation logs, which would store client IPs and the
+  // confirm links.
+  "observability": { "enabled": true, "logs": { "invocation_logs": false } }
+}

@@ -2,6 +2,7 @@
 
 import { useEffect, useSyncExternalStore } from "react";
 import { type Scope, scopeSearch } from "@/lib/scope-href";
+import { fetchScopeIds } from "@/lib/static-data/client";
 
 export type ScopeOrder =
   | { status: "loading" }
@@ -33,16 +34,12 @@ function settle(key: string, order: ScopeOrder): void {
   for (const listener of listeners) listener();
 }
 
-function load(key: string): void {
+function load(key: string, scope: Scope): void {
   const current = orders.get(key);
   // A failed order is retried by the next page that asks for it.
   if (current && current.status !== "failed") return;
   settle(key, LOADING);
-  fetch(`/api/artworks/scope?${key}&fields=id`)
-    .then((res) => {
-      if (!res.ok) throw new Error(`scope order ${key}: ${res.status}`);
-      return res.json() as Promise<string[]>;
-    })
+  fetchScopeIds(scope)
     .then((ids) => {
       settle(key, { status: "ready", ids, positions: new Map(ids.map((id, i) => [id, i])) });
     })
@@ -62,7 +59,9 @@ export function useScopeOrder(scope: Scope | null): ScopeOrder | null {
     () => null,
   );
   useEffect(() => {
-    if (key) load(key);
-  }, [key]);
+    // `load` is a no-op once the key is loading or loaded, so a fresh
+    // `scope` object on every render costs nothing.
+    if (key && scope) load(key, scope);
+  }, [key, scope]);
   return order;
 }

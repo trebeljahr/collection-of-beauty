@@ -13,7 +13,7 @@ type Status =
   | { kind: "success" }
   | { kind: "error"; message: string };
 
-// Same regex as the server (src/lib/newsletter/subscribe.ts) so client and
+// Same regex as the server (src/lib/newsletter/tokens.ts) so client and
 // server agree on what "looks like an email". The server is still
 // authoritative — this is purely a UX layer that avoids a slow round-trip
 // for obviously-malformed input.

@@ -4,6 +4,6 @@
     "types": ["node"],
     "tsBuildInfoFile": "./node_modules/.cache/tsconfig.scripts.tsbuildinfo"
   },
-  "include": ["scripts/**/*.ts"],
+  "include": ["scripts/**/*.ts", "scripts/**/*.mts"],
   "exclude": ["node_modules", "assets"]
 }

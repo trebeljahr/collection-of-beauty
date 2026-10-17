@@ -1,15 +1,13 @@
 import type { Metadata, Viewport } from "next";
 import { SurpriseView } from "@/components/surprise-view";
 import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
-import { SURPRISE_DECK_SIZE, sampleDistinct } from "@/lib/surprise";
+import { MAX_SURPRISE_DECK_SIZE, sampleDistinct } from "@/lib/surprise";
 import { SURPRISE_POOL } from "@/lib/surprise-pool";
 
-// The whole point of the route is a different work on every hit, so it
-// must never be prerendered — a static /surprise would serve whatever
-// was picked at build time to every visitor forever. force-dynamic also
-// makes Next send no-store, which keeps any proxy in front of the
-// Coolify container from pinning one work either.
-export const dynamic = "force-dynamic";
+// A static file like every page of the export. The point of the route is
+// a different work on every visit, so the page ships a deck drawn at
+// build time and SurpriseView shuffles it in the browser before anything
+// shows, then refills from /data/surprise-pool.json.
 
 const DESCRIPTION =
   `One work from the collection, picked at random and shown as large as your screen allows. ` +
@@ -53,7 +51,7 @@ const SAFE_AREA_GUTTER = {
 } as const;
 
 export default function SurprisePage() {
-  const deck = sampleDistinct(SURPRISE_POOL, SURPRISE_DECK_SIZE);
+  const deck = sampleDistinct(SURPRISE_POOL, MAX_SURPRISE_DECK_SIZE);
 
   return (
     <div style={SAFE_AREA_GUTTER}>

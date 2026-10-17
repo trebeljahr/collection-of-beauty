@@ -4,10 +4,6 @@ import { ResponsiveImage } from "@/components/responsive-image";
 import { getPlateSets, holdingSentence } from "@/lib/plate-sets";
 import { buildOpenGraph, collectionsIndexJsonLd, jsonLdScriptProps } from "@/lib/seo";
 
-// Rendered entirely from the bundled artwork JSON — nothing here reads a
-// request, so match the sitemap's daily window instead of re-rendering.
-export const revalidate = 86400;
-
 const sets = getPlateSets();
 const totalPlates = sets.reduce((n, set) => n + set.presentCount, 0);
 

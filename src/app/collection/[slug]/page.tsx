@@ -4,9 +4,11 @@ import { notFound } from "next/navigation";
 import { PlayLink } from "@/components/play-link";
 import { ScopedGallery } from "@/components/scoped-gallery";
 import { chipClasses, touchTextLinkClasses } from "@/components/ui/pill";
+import zipsJson from "@/data/collection-zips.json";
 import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { artworkHref, type Scope } from "@/lib/artwork-scope";
+import { publishedCollectionZips, validateCollectionZips } from "@/lib/collection-zips.mjs";
 import {
   collectionZipEntries,
   getCollection,
@@ -27,10 +29,6 @@ import {
 import { buildOpenGraph, jsonLdScriptProps, ogImagesForArtwork, plateSetJsonLd } from "@/lib/seo";
 
 type Params = { slug: string };
-
-// Rendered entirely from the bundled artwork JSON — nothing here reads a
-// request, so match the sitemap's daily window instead of re-rendering.
-export const revalidate = 86400;
 
 // Four static sets — prebuild all of them. Each is one plate-order pass
 // over its folder at build time, and these are the canonical landing for
@@ -103,12 +101,15 @@ export default async function CollectionPage({ params }: { params: Promise<Param
 
   // This is the only page about the set, so it carries the archive too.
   // `getCollection` keys off the same id space as `getPlateSet`.
+  // The archive is a file on the asset bucket (src/lib/collection-zip.ts);
+  // until it is published the page offers no button.
   const collection = getCollection(set.id);
-  const zipEntryCount = collection ? collectionZipEntries(collection).length : 0;
+  const zip = publishedCollectionZips(validateCollectionZips(zipsJson))[set.id];
+  const zipEntryCount = zip && collection ? collectionZipEntries(collection).length : 0;
   const zipCapped = collection ? isCollectionCapped(collection) : false;
 
   // Server-render only the first page into the visual grid; the client
-  // paginates the rest via /api/artworks/page. sort=plate + the same
+  // paginates the rest from the prebuilt pages under /data/pages/. sort=plate + the same
   // collection id reproduces this exact ordering, so the initial render
   // and every later batch stitch into one continuous plate sequence.
   const initialPage = getArtworkListingPage({
@@ -199,13 +200,12 @@ export default async function CollectionPage({ params }: { params: Promise<Param
                 href={`/api/collections/${set.id}`}
                 className="inline-flex min-h-11 items-center gap-2 rounded-md bg-[var(--primary)] px-4 py-2 text-sm font-medium text-[var(--primary-foreground)] hover:opacity-90 focus:outline-none focus-visible:ring-2 focus-visible:ring-[var(--ring)] sm:min-h-0"
               >
-                Download all {zipEntryCount} plates (.zip)
+                Download all {zipEntryCount} plates (.zip, {Math.round(zip.bytes / 1e6)} MB)
               </a>
             </p>
             <p className="mt-2 text-sm text-[var(--muted-foreground)]">
               {zipEntryCount} AVIF files at {ZIP_VARIANT_WIDTH.toLocaleString("en-US")} px wide,
-              plus a <code>README.txt</code> with a credit line and link per plate. Streamed as it
-              is built, so there is no progress bar.
+              plus a <code>README.txt</code> with a credit line and link per plate.
               {zipCapped
                 ? ` The archive is capped at ${ZIP_MAX_ENTRIES} plates; the rest download individually from their own pages.`
                 : ""}{" "}

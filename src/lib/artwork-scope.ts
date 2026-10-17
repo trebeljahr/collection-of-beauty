@@ -1,9 +1,10 @@
-import { type ArtworkOrderInput, orderedArtworkListings } from "@/lib/artwork-pagination";
+import { orderedArtworkListings } from "@/lib/artwork-pagination";
 import { getColorBucket } from "@/lib/color-buckets.mjs";
 import { type ArtworkListing, getArtist } from "@/lib/data";
 import { getEra } from "@/lib/gallery-eras";
 import { getPlateSet } from "@/lib/plate-sets";
 import type { Scope } from "@/lib/scope-href";
+import { scopeOrderFields } from "@/lib/scope-order";
 import { timelineListings } from "@/lib/timeline";
 
 // The pure `?from=` helpers live in scope-href.ts so client components can
@@ -31,32 +32,10 @@ export function resolveScope(scope: Scope): ArtworkListing[] {
     // by scopeHref/scopeLabel, not a filter.
     return timelineListings({ query: scope.filter?.q, era: scope.filter?.era });
   }
-  return orderedArtworkListings(scopeOrderInput(scope));
+  return orderedArtworkListings(scopeOrderFields(scope));
 }
 
-/** The /api/artworks/page input each scope's landing page renders with:
- *    gallery    → the home grid's search, era and sort; unfiltered, the
- *                 default shuffle with its pinned head
- *    artist     → year ascending, undated last, title as tiebreaker
- *    era        → seeded artist-spread shuffle. Year order clumped
- *                 single-artist cohorts (435 Audubon plates before any
- *                 Haeckel on natural-history).
- *    collection → plate order, the order the book prints them in
- *    color      → strongest-first by how much of the family a work
- *                 carries */
-export function scopeOrderInput(scope: Exclude<Scope, { kind: "decade" }>): ArtworkOrderInput {
-  if (scope.kind === "gallery") {
-    return {
-      query: scope.filter?.q,
-      era: scope.filter?.era,
-      sort: scope.filter?.sort ?? "shuffle",
-    };
-  }
-  if (scope.kind === "artist") return { artistSlug: scope.slug, sort: "year" };
-  if (scope.kind === "collection") return { collection: scope.id, sort: "plate" };
-  if (scope.kind === "color") return { color: scope.id, sort: "color" };
-  return { era: scope.id, sort: "shuffle" };
-}
+export { scopeOrderFields as scopeOrderInput } from "@/lib/scope-order";
 
 /** Human label for the scope, suitable for breadcrumbs / "Back to X"
  *  affordances. Artist name is looked up lazily so a malformed slug

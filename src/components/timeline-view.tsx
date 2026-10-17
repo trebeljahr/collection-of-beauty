@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Select } from "@/components/ui/select";
 import { type EraId, eraForMovement, isEraId } from "@/lib/gallery-eras";
 import { cleanFilter, filterSearch, type Scope, type ScopeFilter } from "@/lib/scope-href";
+import { fetchTimelineDecade, fetchTimelineSummary } from "@/lib/static-data/client";
 import type { TimelineDecade, TimelineListing, TimelineSummary } from "@/lib/timeline";
 import { useArtworkBackFlip } from "@/lib/use-artwork-back-flip";
 
@@ -473,31 +474,11 @@ function DecadePlaceholder({ aspects }: { aspects: number[] }) {
   );
 }
 
-function withFilter(url: URL, filter: FilterState): URL {
-  if (filter.query) url.searchParams.set("q", filter.query);
-  if (filter.era) url.searchParams.set("era", filter.era);
-  return url;
-}
-
 async function fetchDecades(filter: FilterState, signal: AbortSignal): Promise<TimelineSummary> {
-  const url = withFilter(new URL("/api/timeline/decades", window.location.origin), filter);
-  const res = await fetch(url, { signal });
-  if (!res.ok) throw new Error(`fetch ${url.pathname}: ${res.status}`);
-  const body = (await res.json()) as TimelineSummary;
-  // A response cached before `aspects` existed (the route allows a day of
-  // stale-while-revalidate) would otherwise crash the placeholders. Square
-  // stand-ins only cost a resize when the works land.
-  return {
-    ...body,
-    decades: body.decades.map((d) => ({ ...d, aspects: d.aspects ?? Array(d.count).fill(1) })),
-  };
+  return fetchTimelineSummary({ query: filter.query, era: filter.era }, signal);
 }
 
 async function fetchDecadeWorks(decade: number, filter: FilterState): Promise<TimelineListing[]> {
-  const url = withFilter(new URL("/api/timeline/works", window.location.origin), filter);
-  url.searchParams.set("decade", String(decade));
-  const res = await fetch(url);
-  if (!res.ok) throw new Error(`fetch ${url.pathname}: ${res.status}`);
-  const body = (await res.json()) as { items: TimelineListing[] };
+  const body = await fetchTimelineDecade(decade, { query: filter.query, era: filter.era });
   return body.items;
 }

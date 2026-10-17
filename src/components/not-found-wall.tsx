@@ -18,6 +18,11 @@ import { ShuffleIcon } from "@/components/ui/shuffle-icon";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
 import type { NotFoundResponse } from "@/lib/not-found-match";
+import { answerNotFound, loadNotFoundIndex } from "@/lib/static-data/not-found";
+
+/** Longer than any real path on the site. Caps the matcher's work on
+ *  junk URLs from scanners. */
+const MAX_PATH_LENGTH = 300;
 
 /**
  * The 404 page as a museum wall: an empty frame where the requested page
@@ -28,8 +33,11 @@ import type { NotFoundResponse } from "@/lib/not-found-match";
  *
  * The path is read after mount, not during render: a not-found page for
  * an unmatched route is prerendered once, so the server can't know it.
- * When `/api/not-found` finds a page the path misspells, the frame names
- * it in place of the typo notice.
+ * The path is looked up in /data/not-found.json. A respelt /artwork or
+ * /artist URL (case, accents, a missing folder prefix) moves on to the
+ * page it meant, as the server's 307 did before the site was static;
+ * otherwise, when the index finds a page the path misspells, the frame
+ * names it in place of the typo notice.
  */
 
 /** The same "Show me another" / "About this work" pills as /surprise. */
@@ -73,19 +81,27 @@ export function NotFoundWall({ deck }: { deck: ArtworkListing[] }) {
     const current = window.location.pathname;
     setPath(current);
     setSuggestion(null);
-    const controller = new AbortController();
-    fetch(`/api/not-found?path=${encodeURIComponent(current)}`, {
-      signal: controller.signal,
-      cache: "no-store",
-    })
-      .then((res) => (res.ok ? (res.json() as Promise<NotFoundResponse>) : null))
-      .then((body) => {
-        if (body?.suggestion && body.suggestion.href !== current) setSuggestion(body.suggestion);
+    let live = true;
+    loadNotFoundIndex()
+      .then((index) => {
+        if (!live) return;
+        const answer = answerNotFound(index, current.slice(0, MAX_PATH_LENGTH));
+        if (answer.redirect) {
+          window.location.replace(
+            `${answer.redirect.href}${window.location.search}${window.location.hash}`,
+          );
+          return;
+        }
+        if (answer.suggestion && answer.suggestion.href !== current) {
+          setSuggestion(answer.suggestion);
+        }
       })
       .catch(() => {
-        // Offline or aborted: the frame keeps its typo notice.
+        // Offline: the frame keeps its typo notice.
       });
-    return () => controller.abort();
+    return () => {
+      live = false;
+    };
   }, [pathname]);
 
   const work = deck[deckIndex];

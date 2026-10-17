@@ -2,10 +2,11 @@
  * "Did you mean …?" for the 404 page: a URL one or two typos away from a
  * page that exists gets a link to that page. Nothing else is guessed. A
  * renamed id or a respelt /artwork or /artist URL never gets here, since
- * those pages redirect first (src/lib/redirects.ts).
+ * those go to the page they meant first (src/lib/redirect-match.ts).
  *
  * Pure and data-free so the tests can hand in a few literal targets: the
- * API route builds the real list from the catalogue once per process.
+ * export writes the real list to /data/not-found.json and the 404 page
+ * matches in the browser.
  */
 
 /** A page a mistyped URL might have meant. */
@@ -17,7 +18,7 @@ export type TypoTarget = {
   keys: string[];
 };
 
-/** What /api/not-found sends the 404 page. */
+/** The 404 page's "Did you mean …?". */
 export type NotFoundResponse = {
   suggestion: { href: string; label: string } | null;
 };

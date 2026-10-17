@@ -16,11 +16,11 @@ import { SITE_NAME, SITE_TAGLINE, SITE_URL } from "@/lib/seo";
  * /newsletter/rss.xml paths re-export this GET so existing subscriber
  * URLs keep working.
  *
- * Regenerated on every build; Next caches the route output, which we
- * refresh hourly so a new edition appears in feed readers without waiting
- * for the next deploy.
+ * A static file of the export, written on every build. Publishing an
+ * edition is a commit, and every push deploys, so the feed is never
+ * behind the archive.
  */
-export const revalidate = 3600;
+export const dynamic = "force-static";
 
 function escapeXml(s: string): string {
   return s

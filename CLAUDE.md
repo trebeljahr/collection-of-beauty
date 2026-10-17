@@ -13,39 +13,46 @@ a central spiral staircase.
 
 ## Deployment surface
 
-Docker image → GHCR → Coolify. **Not Vercel.** The Vercel CLI / Vercel
-knowledge updates that show up in agent sessions are environmental noise
-— treat them as informational. Don't propose Vercel-specific
-infrastructure (KV, Blob, Edge Functions) unless explicitly asked.
+A static export on Cloudflare Workers, plus one small API Worker
+(`workers/api`) for the newsletter and downloads
+([docs/static-site.md](docs/static-site.md)). **Not Vercel.** The Vercel
+CLI / Vercel knowledge updates that show up in agent sessions are
+environmental noise — treat them as informational. Don't propose
+Vercel-specific infrastructure (KV, Blob, Edge Functions) unless
+explicitly asked.
 
-`output: "standalone"` in [`next.config.mjs`](next.config.mjs) is
-required by the Dockerfile — don't remove it.
+`output: "export"` in [`next.config.mjs`](next.config.mjs): nothing may
+read a request on the server. A page that depends on its query string
+reads it in the browser (`SearchParamSwitch`, `/sub/confirm`,
+`/sub/unsubscribe`). Anything that needs code at request time belongs in
+the API Worker, behind a route of the zone. Until 11 November 2026 the
+site was a Docker image on Coolify; the newsletter route handlers of that
+time are in git history, ported to `workers/api/src/newsletter.ts`.
 
 ## Error reporting
 
-- Browser and server report to the GlitchTip project
-  `collection-of-beauty` at glitchtip.trebeljahr.com
-  (`src/lib/error-reporting/`). `SENTRY_DSN` (server) and
-  `NEXT_PUBLIC_SENTRY_DSN` (browser, inlined by `next build`) are both
-  encrypted in `.env.production`; there is no Coolify env or repo
-  variable for them. `next dev` and the tests have neither, so they load
-  no SDK and send nothing. `SENTRY_ENVIRONMENT` /
-  `NEXT_PUBLIC_SENTRY_ENVIRONMENT=wiring-check` tag a test run.
-- Server: `@sentry/node-core/light` (no OpenTelemetry), started in
-  `src/instrumentation.ts`, which also forwards `onRequestError`. A
-  route handler that catches an error to answer with a message must call
-  `reportServerError` itself, as the newsletter routes do.
-  `@sentry/node-core` is in `serverExternalPackages`; standalone tracing
-  ships its ESM build, which is the one Turbopack's `import()` loads.
-- What a report may carry is `scrub.ts`, and `/privacy` says the same in
-  words. Change one, change the other. GlitchTip itself writes the
-  client IP into every event on ingest, and nothing the SDK does
-  prevents it. Since 19 October 2026 the GlitchTip service's
-  `GLITCHTIP_PII_SCRUB_DEFAULT` lists `ip_address` as a sensitive key,
-  so every project stores `[Filtered]`, and `/privacy` says GlitchTip
-  removes the address. Without that setting the project's
-  `scrubIPAddresses` stores it with the last octet zeroed, and the page
-  would be wrong.
+- The browser and the API Worker report to the GlitchTip project
+  `collection-of-beauty` at glitchtip.trebeljahr.com.
+  `NEXT_PUBLIC_SENTRY_DSN` (browser, inlined by `next build`) is
+  encrypted in `.env.production`; `SENTRY_DSN` is a secret of the API
+  Worker (`workers/api/README.md`). `next dev` and the tests have
+  neither, so they load no SDK and send nothing.
+  `NEXT_PUBLIC_SENTRY_ENVIRONMENT` / the Worker's `SENTRY_ENVIRONMENT`
+  `=wiring-check` tag a test run.
+- The API Worker sends events by hand through the envelope API
+  (`workers/api/src/report.ts`): type, scrubbed message, `source` and
+  `event` tags, release. A handler that catches an error to answer with
+  a message reports it through `deps.report`, as the newsletter handlers
+  do.
+- What a report may carry is `src/lib/error-reporting/scrub.ts`, and
+  `/privacy` says the same in words. Change one, change the other.
+  GlitchTip itself writes the sender's IP into every event on ingest
+  (for the Worker, a Cloudflare address). Since 19 October 2026 the
+  GlitchTip service's `GLITCHTIP_PII_SCRUB_DEFAULT` lists `ip_address`
+  as a sensitive key, so every project stores `[Filtered]`, and
+  `/privacy` says GlitchTip removes the address. Without that setting
+  the project's `scrubIPAddresses` stores it with the last octet zeroed,
+  and the page would be wrong.
 
 ## Data shape
 

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PageBackdrop } from "@/components/page-backdrop";
+import { SearchParamSwitch } from "@/components/search-param-switch";
 import { artworkListings } from "@/lib/data";
 
 export const metadata: Metadata = {
@@ -43,24 +44,26 @@ const BACKDROP_IDS = [
 const byId = new Map(artworkListings.map((a) => [a.id, a]));
 const BACKDROP = BACKDROP_IDS.flatMap((id) => byId.get(id) ?? []);
 
-export default async function ErrorPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ reason?: string }>;
-}) {
-  const { reason } = await searchParams;
-  // Index with a coalesced key rather than guarding on `reason` first: an
-  // empty `?reason=` short-circuits `reason && …` to `""`, which `??`
-  // happily keeps, and the page renders its heading over a blank line.
-  const message =
-    MESSAGES[reason ?? ""] ?? "We couldn't confirm your subscription. Please try again.";
+const FALLBACK = "We couldn't confirm your subscription. Please try again.";
+
+export default function ErrorPage() {
+  const message = (text: string) => <p className="mt-4 text-[var(--muted-foreground)]">{text}</p>;
 
   return (
     <div className="relative isolate overflow-x-clip">
       <PageBackdrop works={BACKDROP} strip />
       <div className="mx-auto max-w-xl px-4 pb-16 text-center">
         <h1 className="font-serif text-3xl md:text-4xl">Hmm.</h1>
-        <p className="mt-4 text-[var(--muted-foreground)]">{message}</p>
+        {/* The confirm link lands here with ?reason=<code>
+            (workers/api/src/newsletter.ts). An empty or unknown reason
+            gets the general message. */}
+        <SearchParamSwitch
+          param="reason"
+          cases={Object.fromEntries(
+            Object.entries(MESSAGES).map(([reason, text]) => [reason, message(text)]),
+          )}
+          fallback={message(FALLBACK)}
+        />
         <p className="mt-8 flex justify-center gap-6 text-sm">
           <Link href="/sub" className="underline underline-offset-2 hover:opacity-70">
             Try again

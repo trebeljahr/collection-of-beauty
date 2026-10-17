@@ -7,12 +7,6 @@ import { loadPublishedEditions } from "@/lib/newsletter/editions";
 import { getPlateSets } from "@/lib/plate-sets";
 import { absoluteUrl } from "@/lib/seo";
 
-// Cache the rendered sitemap for a day. Iterating ~4,900 entries on
-// every crawler hit is wasteful — the underlying data only changes
-// when `pnpm assets:build-data` runs and the site redeploys, so the
-// next build invalidates this naturally.
-export const revalidate = 86400;
-
 /**
  * Served at /sitemap.xml. Emits every indexable URL:
  *   - Static pages (home, timeline, artists index, eras index,
@@ -39,6 +33,9 @@ export const revalidate = 86400;
  * per-sitemap caps, so we can ship one file. If the collection ever
  * grows past that, split via a sitemap index.
  */
+// A file of the static export.
+export const dynamic = "force-static";
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 

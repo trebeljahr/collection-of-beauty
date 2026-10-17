@@ -1,78 +1,31 @@
-import { listingMatchesQuery } from "@/lib/artwork-pagination";
 import { type ArtworkListing, artworkListings } from "@/lib/data";
-import { assignEra, type EraId, isEraId } from "@/lib/gallery-eras";
+import { type EraId, isEraId } from "@/lib/gallery-eras";
+import {
+  datedOf,
+  decadeOf,
+  decadeWorksOf,
+  filterDated as filterDatedOf,
+  summaryOf,
+  TIMELINE_DECADE_SPAN,
+  type TimelineFilter,
+  type TimelineListing,
+  type TimelineSummary,
+} from "@/lib/timeline-core";
 
-export const TIMELINE_DECADE_SPAN = 10;
+export {
+  decadeOf,
+  TIMELINE_DECADE_SPAN,
+  type TimelineDecade,
+  type TimelineFilter,
+  type TimelineListing,
+  type TimelineSummary,
+} from "@/lib/timeline-core";
 
-/** One histogram column: the decade's start year, how many dated works
- *  fall in it under the active filters, and those works' aspect ratios
- *  (width / height, in render order, 3 decimals). This — not the works
- *  themselves — is all the /timeline page needs to render the density
- *  chart, the per-decade section headers, and a placeholder exactly as
- *  tall as the justified rows the works will fill (~20 KB for the whole
- *  corpus, against the ~4,300 records it stands in for). */
-export type TimelineDecade = { decade: number; count: number; aspects: number[] };
-
-/** Everything a timeline tile actually reads off an artwork: the
- *  thumbnail and its pixel size (the justified row solver in
- *  <ArtworkRows> needs the aspect ratio), its placeholder
- *  (`dominantColor`, and the `thumbHash` blur over it), the hover tooltip
- *  (title / artist / year), and the href. Deliberately narrower than
- *  `ArtworkListing` — movement, nationality and realDimensions are
- *  filter inputs the timeline resolves on the server, so shipping them
- *  per row would be dead weight on the wire. */
-export type TimelineListing = Pick<
-  ArtworkListing,
-  | "id"
-  | "title"
-  | "englishTitle"
-  | "artist"
-  | "year"
-  | "objectKey"
-  | "variantWidths"
-  | "width"
-  | "height"
-  | "dominantColor"
-  | "thumbHash"
->;
-
-export type TimelineFilter = {
-  query?: string | null;
-  /** Era id. Anything that isn't one of the 11 ids filters nothing out
-   *  of the corpus and matches nothing, same as an unknown movement used to. */
-  era?: string | null;
-};
-
-export type TimelineSummary = {
-  decades: TimelineDecade[];
-  /** Dated works matching the filters — the "N dated works across M
-   *  decades" line, and the denominator the copy in page.tsx quotes. */
-  total: number;
-};
-
-export function decadeOf(year: number): number {
-  return Math.floor(year / TIMELINE_DECADE_SPAN) * TIMELINE_DECADE_SPAN;
-}
-
-/** Every dated work, deduped by id, in the order the timeline renders
- *  them (year ascending, title as tiebreaker). The dedupe is defensive:
- *  a slug collision in build-data.mjs used to be able to crash React
- *  with duplicate keys, and doing it once here beats doing it in the
- *  client on every render. */
+/** Every dated work in render order, computed once. */
 let cachedDated: ArtworkListing[] | null = null;
 function datedListings(): ArtworkListing[] {
-  if (cachedDated) return cachedDated;
-  const seen = new Set<string>();
-  const dated: ArtworkListing[] = [];
-  for (const artwork of artworkListings) {
-    if (artwork.year == null) continue;
-    if (seen.has(artwork.id)) continue;
-    seen.add(artwork.id);
-    dated.push(artwork);
-  }
-  dated.sort((a, b) => (a.year ?? 0) - (b.year ?? 0) || a.title.localeCompare(b.title));
-  cachedDated = dated;
-  return dated;
+  cachedDated ??= datedOf(artworkListings);
+  return cachedDated;
 }
 
 /** Every dated work matching the filter, in the order the timeline
@@ -85,32 +38,7 @@ export function timelineListings(filter: TimelineFilter = {}): ArtworkListing[] 
 }
 
 function filterDated(filter: TimelineFilter): ArtworkListing[] {
-  const query = filter.query?.trim() ?? "";
-  const era = filter.era ?? "";
-  let list = datedListings();
-  if (era) list = list.filter((artwork) => assignEra(artwork) === era);
-  if (query) list = list.filter((artwork) => listingMatchesQuery(artwork, query));
-  return list;
-}
-
-/** Same fallback as toGalleryPhoto's 800 x 1000 for a work without
- *  pixel dimensions, so the placeholder solves what the tiles will. */
-function aspectOf(artwork: ArtworkListing): number {
-  return Math.round(((artwork.width ?? 800) / (artwork.height ?? 1000)) * 1000) / 1000;
-}
-
-function histogram(list: readonly ArtworkListing[]): TimelineDecade[] {
-  const byDecade = new Map<number, number[]>();
-  for (const artwork of list) {
-    if (artwork.year == null) continue;
-    const decade = decadeOf(artwork.year);
-    const aspects = byDecade.get(decade);
-    if (aspects) aspects.push(aspectOf(artwork));
-    else byDecade.set(decade, [aspectOf(artwork)]);
-  }
-  return Array.from(byDecade.entries())
-    .sort((a, b) => a[0] - b[0])
-    .map(([decade, aspects]) => ({ decade, count: aspects.length, aspects }));
+  return filterDatedOf(datedListings(), filter);
 }
 
 // Memoise the two filter shapes with a bounded key space: no filter at
@@ -139,7 +67,7 @@ export function getTimelineSummary(filter: TimelineFilter = {}): TimelineSummary
   if (!query && !era) {
     if (!cachedUnfiltered) {
       const list = datedListings();
-      cachedUnfiltered = { decades: histogram(list), total: list.length };
+      cachedUnfiltered = summaryOf(list);
     }
     return cachedUnfiltered;
   }
@@ -151,31 +79,14 @@ export function getTimelineSummary(filter: TimelineFilter = {}): TimelineSummary
       if (hit) return hit;
     }
     const list = filterDated({ era });
-    const summary = { decades: histogram(list), total: list.length };
+    const summary = summaryOf(list);
     if (cacheable && cachedByEra.size < MAX_CACHED_ERAS) {
       cachedByEra.set(era, summary);
     }
     return summary;
   }
 
-  const list = filterDated(filter);
-  return { decades: histogram(list), total: list.length };
-}
-
-function toTimelineListing(artwork: ArtworkListing): TimelineListing {
-  return {
-    id: artwork.id,
-    title: artwork.title,
-    englishTitle: artwork.englishTitle,
-    artist: artwork.artist,
-    year: artwork.year,
-    objectKey: artwork.objectKey,
-    variantWidths: artwork.variantWidths,
-    width: artwork.width,
-    height: artwork.height,
-    dominantColor: artwork.dominantColor,
-    thumbHash: artwork.thumbHash,
-  };
+  return summaryOf(filterDated(filter));
 }
 
 // Unfiltered decades are the common case (a visitor scrolling the
@@ -219,16 +130,12 @@ export function getTimelineDecadeWorks(
       const hit = cachedDecadeWorks.get(decade);
       if (hit) return hit;
     }
-    const works = datedListings()
-      .filter((artwork) => artwork.year != null && decadeOf(artwork.year) === decade)
-      .map(toTimelineListing);
+    const works = decadeWorksOf(datedListings(), decade);
     if (cacheable && cachedDecadeWorks.size < MAX_CACHED_DECADES) {
       cachedDecadeWorks.set(decade, works);
     }
     return works;
   }
 
-  return filterDated(filter)
-    .filter((artwork) => artwork.year != null && decadeOf(artwork.year) === decade)
-    .map(toTimelineListing);
+  return decadeWorksOf(filterDated(filter), decade);
 }

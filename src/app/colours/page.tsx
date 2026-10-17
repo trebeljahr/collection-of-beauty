@@ -8,10 +8,6 @@ import { type ArtworkListing, summary } from "@/lib/data";
 import { buildOpenGraph } from "@/lib/seo";
 import { cn } from "@/lib/utils";
 
-// Rendered entirely from the bundled artwork JSON — nothing here reads a
-// request, so match the sitemap's daily window instead of re-rendering.
-export const revalidate = 86400;
-
 const DESCRIPTION =
   `Browse ${summary.totalArtworks.toLocaleString()} public-domain works by colour, ` +
   `sorted into twelve families read from the pixels of each work.`;

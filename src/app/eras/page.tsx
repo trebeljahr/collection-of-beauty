@@ -8,10 +8,6 @@ import { ERAS, type EraId, eraYearLabel, movementCounts } from "@/lib/gallery-er
 import { buildOpenGraph } from "@/lib/seo";
 import { coverSizes } from "@/lib/utils";
 
-// Rendered entirely from the bundled artwork JSON — nothing here reads a
-// request, so match the sitemap's daily window instead of re-rendering.
-export const revalidate = 86400;
-
 export const metadata: Metadata = {
   title: "Eras",
   description:

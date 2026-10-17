@@ -19,6 +19,7 @@
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import type { ArtworkListing } from "@/lib/data";
+import { STATIC_DATA } from "@/lib/static-data/keys";
 import { GalleryCurtain } from "./gallery-curtain";
 
 const Gallery3D = dynamic(() => import("@/components/gallery-3d").then((m) => m.Gallery3D), {
@@ -46,9 +47,9 @@ export function Gallery3DClient() {
     void import("@/components/gallery-3d");
 
     const controller = new AbortController();
-    fetch("/api/artworks/museum", { signal: controller.signal })
+    fetch(STATIC_DATA.museum, { signal: controller.signal })
       .then((res) => {
-        if (!res.ok) throw new Error(`fetch /api/artworks/museum: ${res.status}`);
+        if (!res.ok) throw new Error(`fetch ${STATIC_DATA.museum}: ${res.status}`);
         return res.json() as Promise<ArtworkListing[]>;
       })
       .then(setArtworks)

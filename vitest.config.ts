@@ -14,8 +14,8 @@ export default defineConfig({
   test: {
     environment: "node",
     globals: false,
-    include: ["src/**/*.test.{ts,tsx}", "tests/**/*.test.{ts,tsx}"],
-    exclude: [".next/**", "node_modules/**", ".claude/worktrees/**"],
+    include: ["src/**/*.test.{ts,tsx}", "tests/**/*.test.{ts,tsx}", "workers/**/*.test.ts"],
+    exclude: [".next/**", "node_modules/**", ".claude/worktrees/**", "**/node_modules/**"],
     // Vitest's default is 5 s. Several agent sessions run this suite while
     // the machine is at a load average of 50 to 150, and a starved run
     // takes 90 to 140 s where a quiet one takes 10 to 30. Tests then run

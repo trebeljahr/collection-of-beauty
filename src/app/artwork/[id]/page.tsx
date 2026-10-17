@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, permanentRedirect, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { ArtworkCard } from "@/components/artwork-card";
 import { ArtworkDownloads } from "@/components/artwork-downloads";
 import { ArtworkScaleToggle, ScaleViewProvider } from "@/components/artwork-scale";
@@ -26,34 +26,21 @@ import type { PlateSetId } from "@/lib/plate-set-definitions";
 import { holdingSentence, plateNumberFor, plateSetForArtwork } from "@/lib/plate-sets";
 import { scaleReferenceFor, trustworthyRealSize } from "@/lib/real-size";
 import { layoutScene } from "@/lib/real-size-scene";
-import { artworkRedirect } from "@/lib/redirects";
 import { artworkJsonLd, buildOpenGraph, jsonLdScriptProps, ogImagesForArtwork } from "@/lib/seo";
 import { sourceLabel } from "@/lib/source-label";
 
 type Params = { id: string };
 
-// Matches every sibling detail route (/artist, /era, /collection,
-// /colours). The page must stay statically renderable for this to mean
-// anything: reading `searchParams` here would opt the whole route into
-// dynamic rendering, which is what silently threw away the prerendered
-// set below — the route table printed `ƒ /artwork/[id]` and the
-// prerender manifest held zero /artwork entries.
-export const revalidate = 86400;
+// Every work is a static file of the export. An id that is not one
+// never reaches this page: renamed ids are `_redirects` lines (308,
+// scripts/write-static-routing.mts) and the 404 page moves a respelt one on
+// in the browser (src/lib/static-data/not-found.ts). The page must not
+// read `searchParams`, which a static file cannot vary on: `?from=` is
+// read on the client (ArtworkScopeNav, the lightbox).
+export const dynamicParams = false;
 
-// Prebuild the most-likely-to-be-hit artwork pages so first paint on
-// shared/featured works is instant; the rest render on demand and get
-// cached at the edge from then on. Picking "has a known artist with
-// ≥5 works AND has a year AND has variant widths" as a cheap proxy
-// for "page worth prerendering" — it correlates with works that
-// actually show on the home grid, get linked from artist pages, or
-// land in OG previews. Caps the prebuilt set so the build doesn't
-// fan out to all 4,571 pages.
-const STATIC_PARAMS_CAP = 250;
 export function generateStaticParams(): Params[] {
-  return artworks
-    .filter((a) => a.year != null && a.artist != null && a.variantWidths != null)
-    .slice(0, STATIC_PARAMS_CAP)
-    .map((a) => ({ id: a.id }));
+  return artworks.map((a) => ({ id: a.id }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
@@ -109,13 +96,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 export default async function ArtworkPage({ params }: { params: Promise<Params> }) {
   const { id } = await params;
   const art = getArtwork(id);
-  if (!art) {
-    // Renamed ids and near-miss spellings resolve before the 404 does.
-    const target = artworkRedirect(id);
-    if (target?.permanent) permanentRedirect(target.href);
-    if (target) redirect(target.href);
-    notFound();
-  }
+  if (!art) notFound();
 
   const artist = art.artistSlug ? getArtist(art.artistSlug) : null;
   const moreByArtist = art.artistSlug
@@ -128,7 +109,7 @@ export default async function ArtworkPage({ params }: { params: Promise<Params> 
   // happen through `searchParams`, and one await of that turns the route
   // fully dynamic — so the scoped walk is a client concern: ArtworkScopeNav
   // and the lightbox read `?from=` via `useSearchParams`, fetch the scope's
-  // order from /api/artworks/scope, and step through that instead. These
+  // order from /data/scopes/, and step through that instead. These
   // two are the fallback for a work opened without a scope.
   const idx = artworks.findIndex((a) => a.id === art.id);
   const prevId = idx > 0 ? artworks[idx - 1].id : null;

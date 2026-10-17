@@ -1,6 +1,7 @@
 "use client";
 
 import { startTransition, useCallback, useEffect, useRef, useState } from "react";
+import type { ArtworkOrderFields } from "@/lib/artwork-order";
 import {
   type ArtworkPage,
   type ArtworkSort,
@@ -8,12 +9,12 @@ import {
 } from "@/lib/artwork-page-schema";
 import type { ColorBucketId } from "@/lib/color-buckets.mjs";
 import type { ArtworkListing } from "@/lib/data";
+import { fetchOrderPage } from "@/lib/static-data/client";
 
 export type ArtworkPageInfo = Pick<ArtworkPage, "total" | "nextOffset" | "hasMore">;
 
-/** Query shape forwarded to /api/artworks/page. The fields map 1:1 with
- *  the route's parsed params; any field left undefined / empty is
- *  omitted from the URL so the server defaults stand. */
+/** What a gallery surface pages through. Empty fields take the
+ *  ordering's defaults (artwork-order.ts). */
 export type ArtworkPageQuery = {
   q?: string;
   era?: string;
@@ -28,42 +29,28 @@ export type ArtworkPageQuery = {
 
 export type FetchArtworkPageFn = (offset: number, signal: AbortSignal) => Promise<ArtworkPage>;
 
-const PAGE_ENDPOINT = "/api/artworks/page";
-
-/** Build the /api/artworks/page URL for a given query + offset. Public
- *  so callers that don't use the hook (server-side prefetch, tests)
- *  can build the same URL. */
-export function buildArtworkPageUrl(
-  query: ArtworkPageQuery,
-  offset: number,
-  limit: number = DEFAULT_ARTWORK_PAGE_SIZE,
-  origin?: string,
-): URL {
-  const base = origin ?? (typeof window !== "undefined" ? window.location.origin : "");
-  const url = new URL(PAGE_ENDPOINT, base);
-  url.searchParams.set("offset", String(offset));
-  url.searchParams.set("limit", String(limit));
-  if (query.sort) url.searchParams.set("sort", query.sort);
-  if (query.seed) url.searchParams.set("seed", query.seed);
-  appendIfTruthy(url, "q", query.q);
-  appendIfTruthy(url, "era", query.era);
-  appendIfTruthy(url, "artistSlug", query.artistSlug);
-  appendIfTruthy(url, "collection", query.collection);
-  appendIfTruthy(url, "color", query.color);
-  return url;
-}
-
-/** Convenience wrapper around buildArtworkPageUrl + fetch. */
+/** One window of the ordering `query` names: a prebuilt page of the
+ *  static export, or for a search the browser's own answer
+ *  (src/lib/static-data/client.ts). */
 export async function fetchArtworkPage(
   query: ArtworkPageQuery,
   offset: number,
   limit: number = DEFAULT_ARTWORK_PAGE_SIZE,
   signal?: AbortSignal,
 ): Promise<ArtworkPage> {
-  const url = buildArtworkPageUrl(query, offset, limit);
-  const res = await fetch(url, { signal });
-  if (!res.ok) throw new Error(`fetch ${url.pathname}: ${res.status}`);
-  return res.json() as Promise<ArtworkPage>;
+  return fetchOrderPage(pageQueryFields(query), offset, limit, signal);
+}
+
+export function pageQueryFields(query: ArtworkPageQuery): ArtworkOrderFields {
+  return {
+    query: query.q,
+    era: (query.era || "") as ArtworkOrderFields["era"],
+    artistSlug: query.artistSlug,
+    collection: query.collection,
+    color: query.color,
+    sort: query.sort,
+    seed: query.seed,
+  };
 }
 
 type UseArtworkPaginationOpts = {
@@ -198,10 +185,4 @@ export function useArtworkPagination({
   );
 
   return { loadedArtworks, pageInfo, loadMoreArtworks, replacePage, generation };
-}
-
-function appendIfTruthy(url: URL, key: string, value: string | undefined): void {
-  if (value === undefined || value === null) return;
-  if (value.length === 0) return;
-  url.searchParams.set(key, value);
 }

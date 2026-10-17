@@ -19,6 +19,7 @@ import {
   rememberReleaseState,
 } from "@/lib/release-session";
 import { artworkHref, parseScopeParams, type Scope, scopeSearch } from "@/lib/scope-href";
+import { fetchScopeListings } from "@/lib/static-data/client";
 import { Lightbox } from "./lightbox";
 
 type LightboxArtwork = {
@@ -164,13 +165,9 @@ function LightboxProviderInner({
     const existing = promisesByScopeRef.current.get(scopeKey);
     if (existing) return existing;
 
-    const url = scope ? `/api/artworks/scope?${scopeParam}` : "/api/artworks";
-    const p = fetch(url)
-      .then((res) => {
-        if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
-        return res.json() as Promise<LightboxArtwork[]>;
-      })
-      .then((data) => {
+    const p = fetchScopeListings(scope)
+      .then((listings) => {
+        const data: LightboxArtwork[] = listings;
         artworksByScopeRef.current.set(scopeKey, data);
         // Only swap the active list if we're still on the same scope by
         // the time the fetch resolves (user may have navigated away).
@@ -191,7 +188,7 @@ function LightboxProviderInner({
       });
     promisesByScopeRef.current.set(scopeKey, p);
     return p;
-  }, [artworks, scopeParam, scope, scopeKey]);
+  }, [artworks, scope, scopeKey]);
 
   // When the scope changes (chevron click, deep link, manual URL edit) the
   // active list must swap to match. If we've already fetched this scope

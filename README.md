@@ -56,11 +56,10 @@ asset pipeline (no Next image optimizer in the hot path).
 - **Tailwind 4** + a small shadcn/ui-style `components/ui/` set
 - **Biome** for format + lint, **vitest** for unit tests
 - Pre-resized AVIF/WebP variants served from **Cloudflare R2** via `rclone`
-- Deployed as a **standalone** Next build, packaged into a Docker image
-  ([`Dockerfile`](Dockerfile)), pushed to GHCR by
-  [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) and pulled by
-  **Coolify** as a Docker Image application. [`docker-compose.yml`](docker-compose.yml)
-  remains a local/reference configuration.
+- Deployed as a **static export** (`output: "export"`) on a Cloudflare Worker
+  with static assets and no code; the newsletter and downloads run in a
+  small API Worker ([`workers/api`](workers/api)). See
+  [`docs/static-site.md`](docs/static-site.md).
 
 ### Asset pipeline
 
@@ -103,9 +102,10 @@ new variants.
 | --- | --- |
 | `pnpm dev` | Next dev server (Turbopack) + local asset server on :9837 fronting `assets-web/`. |
 | `pnpm dev:r2` | Same dev server, but with `NEXT_PUBLIC_ASSETS_BASE_URL` set so `<picture>` URLs point at the production R2 bucket. Useful for spotting catalogue ↔ bucket drift before the pre-push check does. Skips the local :9837 server. |
-| `pnpm build` | Production build (`output: "standalone"`). |
+| `pnpm build` | Static export into `out/`, then `_redirects` and `_headers` (`scripts/write-static-routing.mts`). |
 | `pnpm build:analyze` | Build with `@next/bundle-analyzer` enabled. HTML reports in `.next/analyze/`. |
-| `pnpm start` | Run a built site locally. |
+| `pnpm preview` | Serve `out/` the way the Worker does (`wrangler dev`, port 49731 or `$PORT`). |
+| `pnpm dev:api` | The API Worker under `wrangler dev` on :8790; `pnpm dev` proxies `/api/newsletter` and `/api/download` to it. |
 | `pnpm typecheck` | `next typegen`, then `tsc --noEmit` over `src/` + `tests/`, then again over `scripts/` via `tsconfig.scripts.json`. |
 | `pnpm test` | Run the vitest suite (pure logic). |
 | `pnpm test:watch` | Vitest in watch mode. |
@@ -173,11 +173,14 @@ up the templates: [`docs/newsletter-delivery.md`](docs/newsletter-delivery.md).
 ### Deployment
 
 On push to `main`, CI runs typecheck, unit tests and release contract tests,
-then publishes `ghcr.io/trebeljahr/collection-of-beauty:<full-commit-sha>`.
-Deployment to Coolify is off until the repository variable
-`COLLECTION_OF_BEAUTY_ROLLOUT_MODE` is set. The release controller, the
-operator checks and the rollback steps are in
-[`docs/deployment.md`](docs/deployment.md).
+exports the site, carries the last two releases' chunks into it, and uploads
+a version of both Workers tagged with the commit: the site (static files, no
+code) and the API Worker in [`workers/api`](workers/api) (newsletter signup,
+confirm and unsubscribe, filenamed downloads). Nothing deploys until the
+repository variable `COLLECTION_OF_BEAUTY_SITE_ROLLOUT_MODE` is set;
+`automatic` then activates both and checks the public site, `manual` waits
+for a dispatch of operation `deploy`. Routes, rollback and limits:
+[`docs/static-site.md`](docs/static-site.md).
 
 ### Marketing images
 

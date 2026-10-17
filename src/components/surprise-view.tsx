@@ -14,13 +14,30 @@ import { ResponsiveImage } from "@/components/responsive-image";
 import { ShuffleIcon } from "@/components/ui/shuffle-icon";
 import { artworkAlt, displayTitle } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
-import { SURPRISE_DECK_SIZE } from "@/lib/surprise";
+import { STATIC_DATA } from "@/lib/static-data/keys";
+import { SURPRISE_DECK_SIZE, sampleDistinct } from "@/lib/surprise";
 
 type Props = {
-  /** Server-picked works, first one shown immediately. Slim listings
-   *  only — the full Artwork never crosses into a client component. */
+  /** Works drawn at build time. The page is static, so every visitor
+   *  gets this same set: the browser shuffles it before anything shows.
+   *  Slim listings only — the full Artwork never crosses into a client
+   *  component. */
   deck: ArtworkListing[];
 };
+
+let pool: Promise<ArtworkListing[]> | null = null;
+
+/** The pool /surprise draws from, loaded once when the first deck runs low. */
+function loadPool(): Promise<ArtworkListing[]> {
+  pool ??= fetch(STATIC_DATA.surprisePool).then((res) => {
+    if (!res.ok) throw new Error(`${STATIC_DATA.surprisePool}: ${res.status}`);
+    return res.json() as Promise<ArtworkListing[]>;
+  });
+  pool.catch(() => {
+    pool = null;
+  });
+  return pool;
+}
 
 /** Refill when the local deck gets this short, so the fetch overlaps
  *  with the taps that are still served locally. */
@@ -62,16 +79,23 @@ const FRAME_MAX_HEIGHT_VH = "max(100vh - 18.5rem, min(20rem, 80vh))";
  * `/surprise` — one random work, image dominant, chrome down to a
  * Previous / Next row, a caption and two actions.
  *
- * The server hands over a whole deck rather than a single work, so
+ * The page hands over a whole deck rather than a single work, so
  * "Show me another" is a state swap (instant, no navigation) and the
  * next work's image is already warming in a hidden `<picture>` while
- * the current one is on screen. When the deck runs low we top it up
- * from `/api/surprise` in the background; if that ever fails, the
- * button is a real `<a href="/surprise">` and falls back to a plain
- * navigation — which is also what a visitor without JS gets.
+ * the current one is on screen. The page is a static file, so the deck
+ * is shuffled here and nothing shows until it is: otherwise every
+ * visitor would see the same first work. When the deck runs low we top
+ * it up from the static pool; if that ever fails, the button is a real
+ * `<a href="/surprise">` and falls back to a plain navigation — which is
+ * also what a visitor without JS gets.
  */
 export function SurpriseView({ deck }: Props) {
   const [queue, setQueue] = useState<ArtworkListing[]>(deck);
+  const [dealt, setDealt] = useState(false);
+  useEffect(() => {
+    setQueue(sampleDistinct(deck, deck.length));
+    setDealt(true);
+  }, [deck]);
   const [index, setIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
   // Guards against a second refill firing while the first is in flight.
@@ -84,11 +108,8 @@ export function SurpriseView({ deck }: Props) {
     if (refillingRef.current) return;
     refillingRef.current = true;
     try {
-      const res = await fetch(`/api/surprise?count=${SURPRISE_DECK_SIZE}`, { cache: "no-store" });
-      if (!res.ok) return;
-      const data: unknown = await res.json();
-      const more = (data as { artworks?: ArtworkListing[] })?.artworks;
-      if (!Array.isArray(more) || more.length === 0) return;
+      const more = sampleDistinct(await loadPool(), SURPRISE_DECK_SIZE);
+      if (more.length === 0) return;
       // Append rather than splice out what's been seen: a slice would
       // need the index at resolve time, not the one captured when the
       // fetch started, and the seen entries are ~200 bytes of slim
@@ -103,8 +124,8 @@ export function SurpriseView({ deck }: Props) {
   }, []);
 
   useEffect(() => {
-    if (queue.length - index <= REFILL_AT) void refill();
-  }, [queue.length, index, refill]);
+    if (dealt && queue.length - index <= REFILL_AT) void refill();
+  }, [dealt, queue.length, index, refill]);
 
   const again = useCallback(() => {
     // No card in hand — let the caller fall through to a real
@@ -164,7 +185,9 @@ export function SurpriseView({ deck }: Props) {
   };
 
   return (
-    <div className="mx-auto flex w-full max-w-[110rem] flex-col items-center gap-6 px-3 pt-3 pb-6 md:px-6 md:pt-4 md:pb-8">
+    <div
+      className={`mx-auto flex w-full max-w-[110rem] flex-col items-center gap-6 px-3 pt-3 pb-6 md:px-6 md:pt-4 md:pb-8 ${dealt ? "" : "invisible"}`}
+    >
       {/* Rendered disabled on the first work rather than omitted, so
           "Next" doesn't shift sideways after the first tap. */}
       <nav

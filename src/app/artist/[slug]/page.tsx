@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { notFound, permanentRedirect, redirect } from "next/navigation";
+import { notFound } from "next/navigation";
 import { PlayLink } from "@/components/play-link";
 import { ResponsiveImage } from "@/components/responsive-image";
 import { ScopedGallery } from "@/components/scoped-gallery";
@@ -16,27 +16,18 @@ import {
   getConnectionsFor,
 } from "@/lib/data";
 import { assignEra, type EraId, getEra } from "@/lib/gallery-eras";
-import { artistRedirect } from "@/lib/redirects";
 import { artistJsonLd, buildOpenGraph, jsonLdScriptProps, ogImagesForArtist } from "@/lib/seo";
 import { sourceLabel } from "@/lib/source-label";
 import { cn } from "@/lib/utils";
 
 type Params = { slug: string };
 
-// Artist pages are pure functions of the generated data — no request-time
-// input beyond the slug — so the rendered HTML can be cached for a day
-// (matching the sitemap's revalidate) instead of being rebuilt per request.
-// Matters most for the ~200 slugs below the generateStaticParams cutoff,
-// which were rendering on demand at 1–2 s TTFB.
-export const revalidate = 86400;
+// Every artist is a static file of the export; a renamed or respelt slug
+// is handled the way /artwork/[id] handles an id.
+export const dynamicParams = false;
 
-// Prebuild artist pages that have at least a small body of work — the
-// artists most likely to be linked from the home grid, OG previews, or
-// search results. Single-work / unknown-attribution slugs render on
-// demand instead, since their volume is high (~hundreds) and per-page
-// traffic is low.
 export function generateStaticParams(): Params[] {
-  return artists.filter((a) => a.count >= 3).map((a) => ({ slug: a.slug }));
+  return artists.map((a) => ({ slug: a.slug }));
 }
 
 const DESCRIPTION_SUFFIX = "Browse their works in the Collection of Beauty.";
@@ -169,13 +160,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 export default async function ArtistPage({ params }: { params: Promise<Params> }) {
   const { slug } = await params;
   const artist = getArtist(slug);
-  if (!artist) {
-    // Renamed ids and near-miss spellings resolve before the 404 does.
-    const target = artistRedirect(slug);
-    if (target?.permanent) permanentRedirect(target.href);
-    if (target) redirect(target.href);
-    notFound();
-  }
+  if (!artist) notFound();
 
   // Full works array stays server-side for the era-line derivation
   // below — only its length + per-work movement/year is needed there.

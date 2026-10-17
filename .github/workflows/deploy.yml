@@ -1,6 +1,21 @@
-# Build candidates independently; release only after explicit activation.
-# COLLECTION_OF_BEAUTY_ROLLOUT_MODE: unset/off, manual, or automatic.
-name: Build & Release
+# The site on Cloudflare (docs/static-site.md). deploy.yml still builds the
+# Coolify server, which keeps the newsletter routes.
+#
+# A build exports the site, carries the hashed chunks of the releases still
+# live, and UPLOADS a version of each Worker: `collection-of-beauty` (the
+# static files, no code) and `collection-of-beauty-api` (filenamed
+# downloads). An upload is never live: activation is the deploy job, so no
+# visitor gets a page whose chunks are still uploading (measured on the
+# canary: seconds of 404s otherwise).
+#
+# COLLECTION_OF_BEAUTY_SITE_ROLLOUT_MODE: unset, manual, or automatic.
+#   unset      a push runs nothing here (before the Workers and their
+#              secrets exist).
+#   automatic  a green push to main uploads, activates and verifies.
+#   manual     a push only uploads; dispatch `deploy` with the commit to go live.
+# Dispatching `deploy` with an earlier commit is the rollback, while that
+# commit's versions are among each Worker's last 100.
+name: Site on Cloudflare
 
 on:
   push:
@@ -8,20 +23,12 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: Build, deploy a reviewed image, roll back to a retained image, or verify a release
+        description: Build, deploy an uploaded release, or verify the live one
         type: choice
-        options: [build, deploy, rollback, verify]
+        options: [build, deploy, verify]
         default: build
       target_sha:
-        description: Full commit SHA (required for deploy, rollback or verify)
-        type: string
-        required: false
-      image_digest:
-        description: Exact sha256 image digest from the build artifact (deploy or rollback)
-        type: string
-        required: false
-      expected_current_digest:
-        description: Reviewed current latest digest (deploy or rollback)
+        description: Full commit SHA (required for deploy or verify)
         type: string
         required: false
 
@@ -29,156 +36,140 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-${{ github.ref }}
+  group: deploy-site-${{ github.ref }}
   cancel-in-progress: false
 
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
+  SITE: https://collectionofbeauty.com
 
 jobs:
-  # Typecheck + unit tests gate image publication. Several suites exist purely as
-  # tripwires over the *generated* catalogue (see tests/artist-names-corpus.test.ts)
-  # and used to run only when a human remembered — .husky/pre-commit is
-  # lint-staged only, and .husky/pre-push runs the R2 verify alone, and only
-  # when src/data/artworks.json changed. The whole suite is a few seconds;
-  # cheap insurance against shipping a catalogue regression.
+  # Several suites exist purely as tripwires over the *generated* catalogue
+  # (see tests/artist-names-corpus.test.ts), so the whole suite gates every
+  # upload.
   test:
-    if: github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' && inputs.operation != 'verify' && inputs.operation != 'deploy' && inputs.operation != 'rollback'
+    if: >-
+      github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' &&
+      vars.COLLECTION_OF_BEAUTY_SITE_ROLLOUT_MODE != '' &&
+      inputs.operation != 'verify' && inputs.operation != 'deploy'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
-
       - uses: actions/setup-node@v6
         with:
           node-version: "24"
-
-      # Same pnpm provisioning as the Dockerfile's build stage: corepack
-      # honours the `packageManager` field, so CI and the image agree on
-      # the version without pinning it in a second place.
+      # corepack honours the `packageManager` field, so CI and local agree
+      # on the pnpm version without pinning it in a second place.
       - name: Enable pnpm
         run: corepack enable
-
       - name: Install dependencies
         env:
           HUSKY: "0"
         run: pnpm install --frozen-lockfile
-
       - name: Typecheck
         run: pnpm typecheck
-
+      - name: Typecheck the API Worker
+        run: pnpm api:typecheck
       - name: Test
         run: pnpm test
-
-      - name: Release and drain contract tests
+      - name: Release contract tests
         run: pnpm test:release
 
-  # Asset/R2 drift verification used to gate the deploy here, but a full
-  # HEAD sweep of every variant (now ~39k keys) tripped Cloudflare's rate
-  # limits and false-failed on network errors (`fetch failed`), blocking
-  # deploys even though the assets were present. It now runs locally via
-  # the .husky/pre-push hook — a single bulk rclone LIST, in-memory
-  # membership check, no rate-limit exposure — and only when
-  # src/data/artworks.json changes. Drift is caught before the push ever
-  # reaches CI. See scripts/verify-r2.mjs and .husky/pre-push.
   build:
-    if: github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' && inputs.operation != 'verify' && inputs.operation != 'deploy' && inputs.operation != 'rollback'
+    if: >-
+      github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' &&
+      vars.COLLECTION_OF_BEAUTY_SITE_ROLLOUT_MODE != '' &&
+      inputs.operation != 'verify' && inputs.operation != 'deploy'
     needs: test
-    outputs:
-      digest: ${{ steps.image.outputs.digest }}
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
+    timeout-minutes: 45
+    outputs:
+      site_version: ${{ steps.upload.outputs.site_version }}
+      api_version: ${{ steps.upload.outputs.api_version }}
     steps:
       - uses: actions/checkout@v5
-
-      - uses: docker/setup-buildx-action@v3
-
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - uses: actions/setup-node@v6
         with:
-          node-version: '24'
-      - name: Verify the press kit object before publishing an image
+          node-version: "24"
+      - name: Enable pnpm
+        run: corepack enable
+      - name: Install dependencies
+        env:
+          HUSKY: "0"
+        run: pnpm install --frozen-lockfile
+      - name: Verify the press kit object before publishing a release
         run: node scripts/press-kit-download.mjs --ci
-      - name: Verify the serving parent and reject an existing SHA tag
-        id: parent
+      - name: Write the release identity
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: node scripts/prepare-asset-build.mjs
-
-      - id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository }}
-          flavor: latest=false
-          tags: |
-            type=raw,value=${{ github.sha }}
-
-      - id: image
-        uses: docker/build-push-action@v6
-        with:
-          context: .
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          platforms: linux/amd64
-          # Next's skew protection id, see the Dockerfile.
-          build-args: |
-            DEPLOYMENT_ID=${{ github.sha }}
-            PREVIOUS_IMAGE=${{ steps.parent.outputs.previous_image }}
-            PREVIOUS_SHA=${{ steps.parent.outputs.previous_sha }}
-            PREVIOUS_DIGEST=${{ steps.parent.outputs.previous_digest }}
-          # BuildKit secret for decrypting .env.production at build
-          # time. Mounted as tmpfs inside the Dockerfile's RUN step,
-          # never written to a layer or `docker history`. The Dockerfile
-          # exposes it as the DOTENV_PRIVATE_KEY_PRODUCTION env var for
-          # `dotenvx run -- pnpm build`, which decrypts in memory and
-          # bakes NEXT_PUBLIC_* / VITE_* values into the bundle.
-          secrets: |
-            dotenvx_private_key=${{ secrets.DOTENV_PRIVATE_KEY_PRODUCTION }}
-
-      - name: Record immutable release identity
+          NEXT_DEPLOYMENT_ID: ${{ github.sha }}
+        run: node scripts/write-version.mjs
+      # dotenvx decrypts .env.production in memory for the build, so the
+      # NEXT_PUBLIC_* values it holds are inlined into the bundle. The key
+      # never reaches a file.
+      - name: Export the site
         env:
-          IMAGE: ghcr.io/${{ github.repository }}
-          IMAGE_DIGEST: ${{ steps.image.outputs.digest }}
+          DOTENV_PRIVATE_KEY_PRODUCTION: ${{ secrets.DOTENV_PRIVATE_KEY_PRODUCTION }}
+          NEXT_PUBLIC_BUILD_COMMIT: ${{ github.sha }}
+          NEXT_TELEMETRY_DISABLED: "1"
+        run: pnpm build
+      # A Worker version serves only its own files. The live site's
+      # /release-assets.json names the hashed files of the releases it
+      # holds; the two newest are downloaded into this upload so their open
+      # tabs keep loading chunks. Older tabs reload (releases.json).
+      - name: Carry the live releases' chunks
+        run: node scripts/carry-static.mjs --site "$SITE" --out out --release "$GITHUB_SHA" --keep 2 --max-files 100000
+      - name: Write the release list open tabs read
+        env:
+          NEXT_PUBLIC_BUILD_COMMIT: ${{ github.sha }}
+        run: node scripts/write-releases-json.mjs out
+      - name: Compile the API Worker's data
+        run: pnpm api:data
+      - name: Upload both versions without activating them
+        id: upload
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
-          node --input-type=module <<'NODE'
-          import { writeFileSync } from 'node:fs';
-          const { GITHUB_SHA: commit, IMAGE: image, IMAGE_DIGEST: digest } = process.env;
-          if (!/^[a-f0-9]{40}$/.test(commit) || !/^sha256:[a-f0-9]{64}$/.test(digest)) {
-            throw new Error('Build did not provide a full commit and image digest.');
+          upload() {
+            local config="$1" output="$RUNNER_TEMP/wrangler-$2.ndjson"
+            shift 2
+            WRANGLER_OUTPUT_FILE_PATH="$output" pnpm exec wrangler versions upload \
+              -c "$config" --tag "$GITHUB_SHA" --message "build ${GITHUB_SHA::12} run ${GITHUB_RUN_ID}" "$@" >&2
+            node -e '
+              const lines = require("fs").readFileSync(process.argv[1], "utf8").trim().split("\n");
+              const upload = lines.map((line) => JSON.parse(line)).find((e) => e.type === "version-upload");
+              if (!/^[0-9a-f-]{36}$/.test(upload?.version_id ?? "")) throw new Error("wrangler reported no version id");
+              console.log(upload.version_id);
+            ' "$output"
           }
-          writeFileSync('release.json', JSON.stringify({ commit, image, digest, reference: `${image}@${digest}` }, null, 2) + '\n');
-          NODE
-
+          # The commit names the release the Worker's error reports carry.
+          api_version=$(upload workers/api/wrangler.jsonc api --var "BUILD_COMMIT:$GITHUB_SHA")
+          site_version=$(upload wrangler.jsonc site)
+          echo "api_version=$api_version" >> "$GITHUB_OUTPUT"
+          echo "site_version=$site_version" >> "$GITHUB_OUTPUT"
+          echo "Uploaded site $site_version and API $api_version for $GITHUB_SHA; not live until the deploy job."
+      - name: Record the release identity
+        env:
+          SITE_VERSION: ${{ steps.upload.outputs.site_version }}
+          API_VERSION: ${{ steps.upload.outputs.api_version }}
+        run: |
+          printf '{"commit":"%s","site_version":"%s","api_version":"%s"}\n' "$GITHUB_SHA" "$SITE_VERSION" "$API_VERSION" > release.json
       - uses: actions/upload-artifact@v4
         with:
           name: release-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
-          path: |
-            release.json
-            build-inputs.json
+          path: release.json
           if-no-files-found: error
 
-  # This only observes public HTTP responses. It never queues a deployment,
-  # changes a registry tag, or treats a webhook commit as proof of image identity.
+  # Observes public HTTP responses only.
   verify:
     if: github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && inputs.operation == 'verify'
     runs-on: ubuntu-latest
     timeout-minutes: 10
-    permissions:
-      contents: read
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v6
         with:
-          node-version: '24'
+          node-version: "24"
       - name: Verify the serving commit
         env:
           EXPECTED_SHA: ${{ inputs.target_sha }}
@@ -186,40 +177,35 @@ jobs:
 
   deploy:
     needs: build
-    # dependency-updates.yml dispatches `build` after merging a Dependabot PR
-    # (a merge made with GITHUB_TOKEN triggers no push); it releases like one.
     if: >-
       always() && !cancelled() &&
       github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' &&
-      ((
-        (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.operation == 'build')) &&
-        vars.COLLECTION_OF_BEAUTY_ROLLOUT_MODE == 'automatic' && needs.build.result == 'success') ||
-       (github.event_name == 'workflow_dispatch' && (inputs.operation == 'deploy' || inputs.operation == 'rollback')))
+      ((github.event_name == 'push' && vars.COLLECTION_OF_BEAUTY_SITE_ROLLOUT_MODE == 'automatic' && needs.build.result == 'success') ||
+       (github.event_name == 'workflow_dispatch' && inputs.operation == 'deploy'))
     runs-on: ubuntu-latest
-    timeout-minutes: 30
-    permissions:
-      contents: read
-      packages: write
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v6
         with:
-          node-version: '24'
-      - name: Promote, queue this app, and verify the release
+          node-version: "24"
+      - name: Enable pnpm
+        run: corepack enable
+      - name: Install wrangler
         env:
-          ROLLOUT_MODE: ${{ vars.COLLECTION_OF_BEAUTY_ROLLOUT_MODE }}
-          OPERATION: ${{ github.event_name == 'workflow_dispatch' && inputs.operation != 'build' && inputs.operation || 'deploy' }}
-          RELEASE_OPERATION: ${{ inputs.operation }}
-          TARGET_SHA: ${{ (github.event_name == 'push' || inputs.operation == 'build') && github.sha || inputs.target_sha }}
-          TARGET_DIGEST: ${{ (github.event_name == 'push' || inputs.operation == 'build') && needs.build.outputs.digest || inputs.image_digest }}
-          EXPECTED_CURRENT_DIGEST: ${{ inputs.expected_current_digest }}
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          COOLIFY_BASE_URL: ${{ secrets.COOLIFY_BASE_URL }}
-          COOLIFY_RESOURCE_UUID: ${{ secrets.COOLIFY_RESOURCE_UUID }}
-          COOLIFY_DEPLOY_SECRET: ${{ secrets.COOLIFY_DEPLOY_SECRET }}
-          COOLIFY_DEPLOY_REPOSITORY: ${{ secrets.COOLIFY_DEPLOY_REPOSITORY }}
-          COOLIFY_DEPLOY_BRANCH: ${{ secrets.COOLIFY_DEPLOY_BRANCH }}
-        run: node scripts/rolling-release.mjs
+          HUSKY: "0"
+        run: pnpm install --frozen-lockfile
+      # Activates the API Worker, then the site; then /version.json and the
+      # homepage must name the commit. On a failed check both Workers go
+      # back to what was live and the job still fails.
+      - name: Activate and verify the release
+        env:
+          TARGET_SHA: ${{ github.event_name == 'push' && github.sha || inputs.target_sha }}
+          SITE_VERSION: ${{ github.event_name == 'push' && needs.build.outputs.site_version || '' }}
+          API_VERSION: ${{ github.event_name == 'push' && needs.build.outputs.api_version || '' }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: node scripts/worker-release.mjs deploy "$TARGET_SHA" $SITE_VERSION $API_VERSION
       - uses: actions/upload-artifact@v4
         if: always()
         with:

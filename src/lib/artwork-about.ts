@@ -9,7 +9,7 @@ import { sourceLabel } from "@/lib/source-label";
 /**
  * What the /artwork/[id] page's aside says about a work, as plain data,
  * for the 3D museum's "More about this painting" pill. Served one work at
- * a time by /api/artwork-about/[id] and fetched only when a visitor opens
+ * a time as /data/about/<id>.json and fetched only when a visitor opens
  * the pill, so none of it rides in the museum's listings payload:
  * descriptions alone are most of the full catalogue's ~6 MB.
  *

@@ -1,73 +1,47 @@
-import path from "node:path";
-import { fileURLToPath } from "node:url";
 import { withLocalDev } from "@hatchkit/dev-plugin-next";
 import bundleAnalyzer from "@next/bundle-analyzer";
 import { pressKitRedirects } from "./scripts/press-kit-download.mjs";
-
-const __dirname = path.dirname(fileURLToPath(import.meta.url));
+import { FIXED_REDIRECTS, SECURITY_HEADERS, toNextRedirects } from "./scripts/static-routing.mjs";
 
 // Bundle analyzer — only active when ANALYZE=true. Emits HTML reports
 // in .next/analyze/ for client + server. Useful for tracking the
 // gallery-3d route's Three/R3F chunk size and catching regressions.
 const withBundleAnalyzer = bundleAnalyzer({ enabled: process.env.ANALYZE === "true" });
 
-// Standard browser-hardening headers. Applied to every route. Kept
-// conservative on CSP — adding a strict policy here would break the
-// inline JSON-LD <script> tags in seo.ts plus any next/script flags,
-// so we leave CSP to Coolify/Traefik (configurable per environment)
-// for now and ship the cheap wins.
-const SECURITY_HEADERS = [
-  // Block the browser's content-type sniff, so a misserved JSON file
-  // can't be reinterpreted as JS or HTML.
-  { key: "X-Content-Type-Options", value: "nosniff" },
-  // Don't leak the full URL (incl. query string) to cross-origin
-  // navigations. Same-origin requests still get the full referrer,
-  // so internal analytics keep working.
-  { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
-  // Block iframing entirely. The gallery isn't designed to live
-  // inside someone else's frame and the lightbox/zoom modal don't
-  // play well with frame-ancestor sandboxing anyway.
-  { key: "X-Frame-Options", value: "DENY" },
-  // Disable powerful features the site doesn't use, so a future
-  // third-party script can't suddenly start asking for the
-  // microphone / camera / geolocation.
-  {
-    key: "Permissions-Policy",
-    value: "camera=(), microphone=(), geolocation=(), interest-cohort=()",
-  },
-];
+const isDev = process.env.NODE_ENV === "development";
 
-// Same-origin rewrite target for the rclone asset server. Used in dev by
-// /gallery-3d to pull textures into <canvas> without tripping over CORS
-// (rclone doesn't emit Access-Control-Allow-Origin). Points at the same
-// URL the browser would use directly — we just re-expose it under a
-// same-origin path so WebGL textures aren't tainted.
+// `next dev` only. The local asset server (rclone, `pnpm assets:serve`)
+// sends no CORS headers, so the 3D gallery reads textures through this
+// same-origin path; the CDN answers collectionofbeauty.com with
+// Access-Control-Allow-Origin, so the export loads from it directly.
 function assetsRewriteTarget() {
   const explicit = process.env.NEXT_PUBLIC_ASSETS_BASE_URL;
   if (explicit) return explicit.replace(/\/$/, "");
-  if (process.env.NODE_ENV === "production") {
-    throw new Error("NEXT_PUBLIC_ASSETS_BASE_URL must be set in production.");
-  }
   return "http://localhost:9837";
 }
 
-const ASSETS_REWRITE_TARGET = assetsRewriteTarget();
-
-const CANONICAL_ORIGIN = "https://collectionofbeauty.com";
-const LEGACY_HOSTS = ["beauty.trebeljahr.com", "www.collectionofbeauty.com"];
+// `next dev` only: the API Worker (workers/api) under `wrangler dev`.
+const API_DEV_URL = (process.env.COB_API_DEV_URL ?? "http://localhost:8790").replace(/\/$/, "");
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: "standalone",
-  outputFileTracingRoot: __dirname,
-  // Error reporting (src/lib/error-reporting). "" when unset, so the browser
-  // reporter's condition on it is a literal and a build without a DSN
-  // drops the SDK chunk instead of shipping it unused.
+  // A static export, served by an assets-only Cloudflare Worker. What
+  // still needs code (newsletter, downloads) is the API Worker in
+  // workers/api. See docs/static-site.md.
+  output: "export",
+  // No optimizer behind a static file host. Every gallery image is a
+  // pre-built AVIF/WebP variant in a plain <picture>; only /press uses
+  // next/image, for its own /marketing files.
+  images: { unoptimized: true },
+  // `page.dev.tsx` is a page under `next dev` only: the review tools
+  // (/dedup-review, /replace-low-res) read files on this machine and have
+  // no place in the export.
+  pageExtensions: isDev ? ["dev.tsx", "tsx", "ts", "jsx", "js"] : ["tsx", "ts", "jsx", "js"],
+  // Browser error reporting (src/lib/error-reporting). "" when unset, so the
+  // reporter's condition on it is a literal and a build without a DSN drops
+  // the SDK chunk instead of shipping it unused.
   env: { NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN ?? "" },
-  // The server SDK is loaded by a plain require at runtime, not bundled:
-  // standalone tracing copies it into the image like sharp.
-  serverExternalPackages: ["@sentry/node-core"],
-  ...(process.env.NODE_ENV === "development"
+  ...(isDev
     ? {
         allowedDevOrigins: [
           "192.168.1.119",
@@ -76,147 +50,24 @@ const nextConfig = {
           "*.local.ricoslabs.com",
           "collection-of-beauty.local.ricoslabs.com",
         ],
+        async rewrites() {
+          return [
+            { source: "/assets-raw/:path*", destination: `${assetsRewriteTarget()}/:path*` },
+            {
+              source: "/api/newsletter/:path*",
+              destination: `${API_DEV_URL}/api/newsletter/:path*`,
+            },
+            { source: "/api/download/:path*", destination: `${API_DEV_URL}/api/download/:path*` },
+          ];
+        },
+        async redirects() {
+          return [...pressKitRedirects(), ...toNextRedirects(FIXED_REDIRECTS)];
+        },
+        async headers() {
+          return [{ source: "/:path*", headers: SECURITY_HEADERS }];
+        },
       }
     : {}),
-  // No `images` config: we serve pre-built AVIF/WebP variants directly
-  // via <picture>/<source> from rclone. Next's image optimizer isn't in
-  // the hot path, so remotePatterns / formats / sizes are all moot.
-  async rewrites() {
-    return [
-      {
-        source: "/assets-raw/:path*",
-        destination: `${ASSETS_REWRITE_TARGET}/:path*`,
-      },
-    ];
-  },
-  // The old German /impressum route was renamed to /imprint when the
-  // page was translated. Permanent redirect so any external links or
-  // search-engine entries still resolve.
-  async redirects() {
-    return [
-      // Published press kit: hand the long transfer to immutable storage.
-      ...pressKitRedirects(),
-      // The site moved from beauty.trebeljahr.com to collectionofbeauty.com.
-      // Traefik routes the old host and www to this container (see
-      // docker-compose.yml), so every indexed or shared URL lands on the
-      // same path at the apex. Query strings carry over.
-      ...LEGACY_HOSTS.map((host) => ({
-        source: "/:path*",
-        has: [{ type: "host", value: host }],
-        destination: `${CANONICAL_ORIGIN}/:path*`,
-        permanent: true,
-      })),
-      // The old press image, linked from earlier copies of the press kit.
-      {
-        source: "/marketing/hero.:ext(png|jpg)",
-        destination: "/marketing/collection-of-beauty-16x9.jpg",
-        permanent: true,
-      },
-      // Museum screenshots of the tower plan, replaced on 17 October 2026
-      // by views of the block plan. Temporary, since the shots are retaken
-      // whenever the museum changes.
-      ...[
-        ["stairwell", "spiral"],
-        ["east-asian", "hokusai"],
-        ["impressionism", "water-garden"],
-      ].flatMap(([from, to]) =>
-        ["", "-large"].map((size) => ({
-          source: `/marketing/collection-of-beauty-museum-${from}${size}.jpg`,
-          destination: `/marketing/collection-of-beauty-museum-${to}${size}.jpg`,
-          permanent: false,
-        })),
-      ),
-      {
-        source: "/drop",
-        destination: "/drops",
-        permanent: true,
-      },
-      {
-        source: "/drop/:path*",
-        destination: "/drops/:path*",
-        permanent: true,
-      },
-      {
-        source: "/drops-of-beauty",
-        destination: "/drops",
-        permanent: true,
-      },
-      {
-        source: "/drops-of-beauty/:path*",
-        destination: "/drops/:path*",
-        permanent: true,
-      },
-      {
-        source: "/drop-of-beauty",
-        destination: "/drops",
-        permanent: true,
-      },
-      {
-        source: "/drop-of-beauty/:path*",
-        destination: "/drops/:path*",
-        permanent: true,
-      },
-      {
-        source: "/a-drop-of-beauty",
-        destination: "/drops",
-        permanent: true,
-      },
-      {
-        source: "/a-drop-of-beauty/:path*",
-        destination: "/drops/:path*",
-        permanent: true,
-      },
-      {
-        source: "/impressum",
-        destination: "/imprint",
-        permanent: true,
-      },
-      {
-        // /downloads was removed — the per-set page carries the ZIP and
-        // every work carries its own download panel. Both routes were
-        // indexed, so keep them resolving.
-        source: "/downloads",
-        destination: "/collections",
-        permanent: true,
-      },
-      {
-        source: "/downloads/:slug",
-        destination: "/collection/:slug",
-        permanent: true,
-      },
-      // Plural and US spellings of the section names. Temporary rather
-      // than permanent: any of these could become a real route one day,
-      // and a cached 308 would shadow it. The 404 page's matcher catches
-      // the misspellings these don't.
-      { source: "/artworks/:id", destination: "/artwork/:id", permanent: false },
-      { source: "/artists/:slug", destination: "/artist/:slug", permanent: false },
-      { source: "/eras/:id", destination: "/era/:id", permanent: false },
-      { source: "/collections/:slug", destination: "/collection/:slug", permanent: false },
-      { source: "/:section(colors|color|colour)", destination: "/colours", permanent: false },
-      {
-        source: "/:section(colors|color|colour)/:family",
-        destination: "/colours/:family",
-        permanent: false,
-      },
-      {
-        // The botanical era floor was merged back into natural-history
-        // (one era, one floor with the dense print-room hang). Keep any
-        // old /era/botanical links resolving.
-        source: "/era/botanical",
-        destination: "/era/natural-history",
-        permanent: true,
-      },
-    ];
-  },
-  async headers() {
-    return [
-      { source: "/:path*", headers: SECURITY_HEADERS },
-      {
-        source: "/version.json",
-        headers: [{ key: "Cache-Control", value: "no-store, max-age=0" }],
-      },
-    ];
-  },
 };
 
 const __hatchkitLocalDevConfig = withBundleAnalyzer(nextConfig);

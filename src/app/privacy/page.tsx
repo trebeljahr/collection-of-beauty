@@ -78,19 +78,15 @@ export default function PrivacyPage() {
           <div>
             <h2 className="font-serif text-xl md:text-2xl">Hosting</h2>
             <p className="mt-2 text-[var(--muted-foreground)]">
-              The site runs in a Docker container on a server located in the European Union (Hetzner
-              Online GmbH, Gunzenhausen / Falkenstein, Germany). The reverse proxy and the container
-              runtime write technical access logs (IP address, request timestamp, requested URL,
-              HTTP status, referrer, user agent) that are kept only for as long as is necessary to
-              operate and secure the service, and are then overwritten by log rotation. The logs are
-              not used for analytics or any other purpose. Legal basis: Art. 6(1)(f) GDPR —
-              legitimate interest in operating a secure service.
-            </p>
-            <p className="mt-2 text-[var(--muted-foreground)]">
-              Before a request reaches that server, it passes through the network of Cloudflare,
-              Inc. (101 Townsend St, San Francisco, CA 94107, USA). Cloudflare receives the IP
-              address, user agent and referrer of each request to deliver the site and protect it
-              against abuse. The same legal basis applies.
+              The site is served by Cloudflare, Inc. (101 Townsend St, San Francisco, CA 94107, USA)
+              from its network of data centers. The pages, images and data files are static files.
+              The newsletter sign-up, its confirmation and unsubscribe, and the file downloads are
+              answered by a small program on that network (a Cloudflare Worker). Cloudflare receives
+              the IP address, user agent and referrer of each request to deliver the site and
+              protect it against abuse. The program writes its own log lines about the newsletter
+              and downloads; they contain no IP address and no email address, and Cloudflare keeps
+              them for at most seven days. Legal basis: Art. 6(1)(f) GDPR — legitimate interest in
+              operating a secure service.
             </p>
           </div>
 
@@ -159,8 +155,8 @@ export default function PrivacyPage() {
           <div>
             <h2 className="font-serif text-xl md:text-2xl">Error reports — GlitchTip</h2>
             <p className="mt-2 text-[var(--muted-foreground)]">
-              When a page or the server hits an error that the code did not expect, the site sends a
-              report to a self-hosted instance of{" "}
+              When a page or the newsletter service hits an error that the code did not expect, the
+              site sends a report to a self-hosted instance of{" "}
               <a
                 href="https://glitchtip.com/"
                 rel="noreferrer"
@@ -186,7 +182,7 @@ export default function PrivacyPage() {
               </li>
               <li>
                 the deployed version of the site, and whether the error happened in the browser or
-                on the server.
+                in the newsletter service.
               </li>
             </ul>
             <p className="mt-2 text-[var(--muted-foreground)]">
@@ -201,8 +197,10 @@ export default function PrivacyPage() {
               A report from your browser passes through Cloudflare's network on its way, like a
               request to this site (see Hosting). Like any request, a report reaches the server
               together with your IP address. GlitchTip removes the address from the report before it
-              stores it. GlitchTip deletes each report 90 days after it arrives. Legal basis: Art.
-              6(1)(f) GDPR — legitimate interest in finding and fixing errors in the service.
+              stores it. A report from the newsletter service is sent from Cloudflare's network, not
+              from your device, and carries no address of yours. GlitchTip deletes each report 90
+              days after it arrives. Legal basis: Art. 6(1)(f) GDPR — legitimate interest in finding
+              and fixing errors in the service.
             </p>
           </div>
 
@@ -231,9 +229,10 @@ export default function PrivacyPage() {
               address marked as a confirmed list member. If the address is already a confirmed list
               member, it receives a short email saying so in place of the confirmation email, and
               the subscription does not change. The subscription timestamp is logged by ListMonk;
-              the originating IP address is held only by the rate limiter for the configured window
-              (currently 60 seconds) and then discarded. You may withdraw consent at any time, with
-              effect for the future, by using the unsubscribe link in every issue or by emailing{" "}
+              the originating IP address is used only as the key of a rate limiter in Cloudflare's
+              network, which counts sign-ups per address over a window of 60 seconds. You may
+              withdraw consent at any time, with effect for the future, by using the unsubscribe
+              link in every issue or by emailing{" "}
               <a
                 href={`mailto:${IMPRINT_EMAIL}`}
                 className="underline hover:text-[var(--foreground)]"

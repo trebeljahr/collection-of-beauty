@@ -90,3 +90,7 @@ venv/
 
 # Trailer clips, cards and draft cuts (captured headless, cut with ffmpeg)
 trailer-clips/
+.collection-zips/
+workers/api/generated/
+.dev.vars
+.wrangler/

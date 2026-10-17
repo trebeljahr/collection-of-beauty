@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useId, useState } from "react";
 import type { ArtworkAbout } from "@/lib/artwork-about";
+import { STATIC_DATA } from "@/lib/static-data/keys";
 import { cn } from "@/lib/utils";
 
 // One fetch per work for the whole visit: reopening a painting, or the
@@ -12,7 +13,7 @@ const aboutCache = new Map<string, Promise<ArtworkAbout>>();
 function fetchAbout(id: string): Promise<ArtworkAbout> {
   let pending = aboutCache.get(id);
   if (!pending) {
-    pending = fetch(`/api/artwork-about/${encodeURIComponent(id)}`).then((res) => {
+    pending = fetch(STATIC_DATA.about(encodeURIComponent(id))).then((res) => {
       if (!res.ok) throw new Error(`about ${id}: ${res.status}`);
       return res.json() as Promise<ArtworkAbout>;
     });
@@ -33,7 +34,7 @@ type State =
  * corner that opens upward into what the /artwork/[id] page says about
  * the work. Nothing is fetched until the visitor reaches for it (hover,
  * focus or click), and then only this one work's text, a few hundred
- * bytes, from /api/artwork-about. The museum's listings carry none of it.
+ * bytes, from /data/about/<id>.json. The museum's listings carry none of it.
  *
  * The host keys it by artwork id, so a new work starts closed.
  */

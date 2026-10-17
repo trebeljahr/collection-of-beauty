@@ -1,7 +1,7 @@
 import { isDeepStrictEqual } from "node:util";
 import { describe, expect, it } from "vitest";
 import { GET as getCatalogue } from "@/app/api/artworks/route";
-import { GET as getScope } from "@/app/api/artworks/scope/route";
+import { GET as getScopeIds } from "@/app/data/scopes/[file]/route";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { resolveScope } from "@/lib/artwork-scope";
 import { artworkListings, catalogueListings, withoutThumbHash } from "@/lib/data";
@@ -38,22 +38,14 @@ describe("thumbHash gating", () => {
     expect(rows.some(hasThumbHashKey)).toBe(false);
   });
 
-  it("serves /api/artworks/scope listings without thumbHash, and leaves the cached order intact", async () => {
-    const res = getScope(new Request("http://localhost/api/artworks/scope?from=gallery"));
-    const rows = (await res.json()) as object[];
-    expect(rows.length).toBeGreaterThan(0);
-    expect(rows.some(hasThumbHashKey)).toBe(false);
-    // resolveScope hands out the shared order-cache array; the strip must
-    // have copied it rather than deleting keys in place.
-    const cached = resolveScope({ kind: "gallery" });
-    expect(cached).toHaveLength(rows.length);
-    expect(cached.every(hasThumbHashKey)).toBe(true);
-  });
-
-  it("still answers fields=id with the bare ids", async () => {
-    const res = getScope(new Request("http://localhost/api/artworks/scope?from=gallery&fields=id"));
+  it("serves a scope's ids in its order, and leaves the cached order intact", async () => {
+    const res = await getScopeIds(new Request("http://localhost/data/scopes/shuffle.json"), {
+      params: Promise.resolve({ file: "shuffle.json" }),
+    });
     const ids = (await res.json()) as string[];
-    expect(ids).toEqual(resolveScope({ kind: "gallery" }).map((a) => a.id));
+    const cached = resolveScope({ kind: "gallery" });
+    expect(ids).toEqual(cached.map((a) => a.id));
+    expect(cached.every(hasThumbHashKey)).toBe(true);
   });
 
   it("memoises the stripped copy per source array without touching the source", () => {

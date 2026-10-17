@@ -15,8 +15,6 @@ import { buildOpenGraph, ogImagesForArtwork } from "@/lib/seo";
 
 type Params = { family: string };
 
-export const revalidate = 86400;
-
 // All twelve families are static — prebuild every one, same reasoning as
 // the era pages: each is one filter pass over the baked listings, and
 // they're the canonical landing for any "from=color:<id>" lightbox

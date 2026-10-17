@@ -1,6 +1,9 @@
 import type { MetadataRoute } from "next";
 import { SITE_URL } from "@/lib/seo";
 
+// A file of the static export.
+export const dynamic = "force-static";
+
 /**
  * Served at /robots.txt. Opens the whole site to crawlers except the
  * newsletter API (no value to index, and we don't want crawlers poking

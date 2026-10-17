@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ConfettiBurst } from "@/components/confetti-burst";
 import { EditionFan } from "@/components/edition-fan";
+import { SearchParamSwitch } from "@/components/search-param-switch";
 import { artworkListings } from "@/lib/data";
 import { loadUiVisibleEditions } from "@/lib/newsletter/editions";
 
@@ -20,13 +21,7 @@ function latestEditionFan() {
   return works.length > 0 ? { edition, works } : null;
 }
 
-export default async function ConfirmedPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ welcome?: string }>;
-}) {
-  const { welcome } = await searchParams;
-  const welcomeSent = welcome === "1";
+export default function ConfirmedPage() {
   const fan = latestEditionFan();
 
   return (
@@ -36,12 +31,19 @@ export default async function ConfirmedPage({
       <p className="mt-3 text-[var(--muted-foreground)]">
         Subscribed to <em>Drops of Beauty</em>.
       </p>
-      {welcomeSent && (
-        <p className="mt-4 text-[var(--muted-foreground)]">
-          We&apos;ve just sent the most recent issue to your inbox so you can see what an edition
-          actually looks like.
-        </p>
-      )}
+      {/* The confirm link lands here with ?welcome=1 once the welcome
+          issue went out (workers/api/src/newsletter.ts). */}
+      <SearchParamSwitch
+        param="welcome"
+        cases={{
+          "1": (
+            <p className="mt-4 text-[var(--muted-foreground)]">
+              We&apos;ve just sent the most recent issue to your inbox so you can see what an
+              edition actually looks like.
+            </p>
+          ),
+        }}
+      />
       <p className="mt-8 flex justify-center gap-6 text-sm">
         <Link href="/drops" className="underline underline-offset-2 hover:opacity-70">
           Browse the archive →
