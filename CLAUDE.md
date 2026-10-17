@@ -568,7 +568,12 @@ required by the Dockerfile — don't remove it.
     (`hangFeatures`, `WallRun.feature`). A room of small sheets has no
     work that holds 4.4 m alone and hangs the screen like any wall. The
     plan names each screen by its room and the room its door leads to
-    (`BLOCK_PLAN[].screens`). Before adding one:
+    (`BLOCK_PLAN[].screens`). A third entry names the work it hangs,
+    however small (`RoomLayout.screenWorks`); the hang moves that work
+    into the screen's room from its era's others. The Mona Lisa hangs
+    so on the first floor's north-west screen: Rico, 17 October 2026,
+    asked for "its own little spot" with a bench in front. Before adding
+    one:
     - never in front of a portal, never on both sides of one door, and
       only where 12.5 m of room lie behind the door;
     - a door stands in the middle of a cell, so a 5 m screen ends on
