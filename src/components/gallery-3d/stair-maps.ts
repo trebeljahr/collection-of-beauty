@@ -197,68 +197,131 @@ export function buildPileMaps(): { color: Pixels; normal: Pixels } {
   };
 }
 
+/** Bilinear sample of a `S` × `S` field that wraps at both edges. */
+function sampleWrap(f: Float32Array, S: number, x: number, y: number): number {
+  const fx = x - Math.floor(x);
+  const fy = y - Math.floor(y);
+  const x0 = ((Math.floor(x) % S) + S) % S;
+  const y0 = ((Math.floor(y) % S) + S) % S;
+  const x1 = (x0 + 1) % S;
+  const y1 = (y0 + 1) % S;
+  const a = f[y0 * S + x0] + (f[y0 * S + x1] - f[y0 * S + x0]) * fx;
+  const b = f[y1 * S + x0] + (f[y1 * S + x1] - f[y1 * S + x0]) * fx;
+  return a + (b - a) * fy;
+}
+
 /**
- * A dark marble with white flecks, for the handrails and the newels'
- * caps: a near-black ground clouded with grey, scattered white grains a
- * few millimetres across, and now and then a thin white vein. `color`
- * is a multiplier on a white material; `rough` is G, honed.
+ * A black marble with white veins, for the handrails and the newels'
+ * caps, after a Nero Marquina: a charcoal ground clouded deeper and
+ * lighter, a web of fine white veins with a grey haze either side, and
+ * white shards broken off along them. `color` is a multiplier on a
+ * white material; `rough` is G, honed.
+ *
+ * Rico, 17 October 2026: the first version, round white grains strewn
+ * evenly over a near-black ground, read as "voids in space". In the
+ * stone the white is calcite that filled cracks, so it runs in lines
+ * and lies where the lines are; a grain alone is rare. The veins are
+ * the contour where a warped noise crosses its middle, which draws
+ * closed, branching lines as cracks do.
  */
 export function buildDarkMarbleMaps(): { color: Pixels; rough: Pixels; normal: Pixels } {
   const S = 512;
-  const clouds = tileFbm(S, S, 4, 4, 5, 101);
-  const warp = tileFbm(S, S, 3, 3, 4, 102);
+  const clouds = tileFbm(S, S, 3, 3, 5, 101);
+  const warpX = tileFbm(S, S, 3, 3, 4, 102);
+  const warpY = tileFbm(S, S, 3, 3, 4, 106);
+  const veinField = tileFbm(S, S, 3, 3, 5, 107);
+  const fineField = tileFbm(S, S, 6, 6, 4, 108);
+  const gate = tileFbm(S, S, 4, 4, 3, 109);
   const fine = tileNoise(S, S, 128, 128, 105);
-  // White grains, scattered: round, 0.8 to 2.4 texels across, drawn
-  // wrapping at the tile's edges. A threshold on value noise made them
-  // square.
-  const flecks = new Float32Array(S * S);
+  // How far a vein's warp moves it, texels.
+  const WARP = 40;
+  // Ridge of each family: 1 on the vein, falling away either side.
+  //  - `main`: long veins running across the slab, a warped wave that
+  //    has whole periods across the tile, so it tiles;
+  //  - `web`: the finer cracks between them, where a warped noise
+  //    crosses its middle, which draws branching lines.
+  const main = new Float32Array(S * S);
+  const web = new Float32Array(S * S);
+  for (let y = 0; y < S; y++) {
+    const v = y / S;
+    for (let x = 0; x < S; x++) {
+      const u = x / S;
+      const i = y * S + x;
+      const a = Math.sin(TAU * (u + 2 * v) + 5 * warpX[i] + 1.5 * fineField[i]);
+      const b = Math.sin(TAU * (3 * u - v) + 4 * warpY[i] + 2 * veinField[i]);
+      main[i] = Math.max(1 - Math.abs(a), 0.85 * (1 - Math.abs(b)));
+      const wx = x + WARP * (warpX[i] - 0.5);
+      const wy = y + WARP * (warpY[i] - 0.5);
+      web[i] = 1 - Math.abs(2 * sampleWrap(veinField, S, wx * 2, wy * 2) - 1);
+    }
+  }
+  // Shards of calcite broken along the veins: small, irregular, most
+  // of them near a vein and few out in the ground.
+  const shards = new Float32Array(S * S);
   let seed = 103;
   const rand = () => {
     seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0;
     return seed / 4294967296;
   };
-  for (let n = 0; n < 2600; n++) {
+  for (let n = 0; n < 9000; n++) {
     const cx = rand() * S;
     const cy = rand() * S;
-    const r = 0.8 + 1.6 * rand() ** 2;
-    const bright = 0.45 + 0.55 * rand();
-    const reach = Math.ceil(r + 1);
+    const k0 = (Math.floor(cy) % S) * S + (Math.floor(cx) % S);
+    const near = Math.max(smoothC(0.9, 0.99, main[k0]), 0.6 * smoothC(0.95, 0.99, web[k0]));
+    if (rand() > 0.005 + 0.5 * near * sat((gate[k0] - 0.3) * 3)) continue;
+    // An elongated, angular grain: half an ellipse and half a box,
+    // turned at random, its edge pushed in and out by the fine noise.
+    const r = 0.5 + 1.4 * rand() ** 2;
+    const stretch = 1 + 1.6 * rand();
+    const ang = rand() * Math.PI;
+    const ca = Math.cos(ang);
+    const sa = Math.sin(ang);
+    const bright = 0.15 + 0.3 * rand() + 0.3 * near * rand();
+    const reach = Math.ceil(r * stretch + 1.5);
     for (let dy = -reach; dy <= reach; dy++) {
       for (let dx = -reach; dx <= reach; dx++) {
         const px = Math.floor(cx) + dx;
         const py = Math.floor(cy) + dy;
-        const d = Math.hypot(px + 0.5 - cx, py + 0.5 - cy);
-        const t = bright * sat(r + 0.5 - d);
-        if (t <= 0) continue;
         const k = ((py + S) % S) * S + ((px + S) % S);
-        flecks[k] = Math.max(flecks[k], t);
+        const ox = px + 0.5 - cx;
+        const oy = py + 0.5 - cy;
+        const a = (ox * ca + oy * sa) / stretch;
+        const b = -ox * sa + oy * ca;
+        const d =
+          (0.5 * Math.hypot(a, b) + 0.55 * Math.max(Math.abs(a), Math.abs(b))) *
+          (0.75 + 0.5 * fine[k]);
+        const t = bright * sat(r + 0.5 - d);
+        if (t > shards[k]) shards[k] = t;
       }
     }
   }
   const color = new Uint8Array(S * S * 4);
   const rough = new Uint8Array(S * S * 4);
   const height = new Float32Array(S * S);
-  for (let y = 0; y < S; y++) {
-    const v = y / S;
-    for (let x = 0; x < S; x++) {
-      const u = x / S;
-      const i = y * S + x;
-      // A thin white vein, one family, fading in and out.
-      const a = Math.sin(TAU * (2 * u + v) + 5 * warp[i]);
-      const vein = (1 - Math.abs(a)) ** 50 * sat((clouds[i] - 0.5) * 4);
-      const ground = 0.022 + 0.03 * clouds[i] ** 2 + 0.006 * fine[i];
-      const white = sat(flecks[i] + 0.7 * vein);
-      // Cool charcoal ground, the flecks a warm white.
-      const c = [ground * 0.96, ground, ground * 1.06];
-      const w = [0.8, 0.78, 0.74];
-      for (let k = 0; k < 3; k++) color[i * 4 + k] = toByte(c[k] * (1 - white) + w[k] * white);
-      color[i * 4 + 3] = 255;
-      rough[i * 4] = 0;
-      rough[i * 4 + 1] = toByte(0.5 + 0.12 * white + 0.06 * (clouds[i] - 0.5));
-      rough[i * 4 + 2] = 0;
-      rough[i * 4 + 3] = 255;
-      height[i] = 0.2 * fine[i] - 0.3 * vein;
-    }
+  for (let i = 0; i < S * S; i++) {
+    // The long veins, fading in and out along their length.
+    const strength = 0.2 + 0.8 * sat((gate[i] - 0.35) * 3);
+    // Wider where the vein is strong.
+    const line = smoothC(0.985 - 0.012 * strength, 0.998, main[i]) * strength;
+    // A grey haze either side of a vein, which gives the stone depth.
+    const haze = main[i] ** 14 * strength;
+    // The finer cracks, broken up, brightest near a long vein.
+    const hair = smoothC(0.985, 0.997, web[i]) * sat((gate[i] - 0.45) * 3) * (0.35 + 0.65 * haze);
+    const white = sat(line * 0.85 + hair * 0.5 + shards[i]);
+    // Charcoal ground, never flat: deep and lighter clouds, a faint
+    // crystalline grain.
+    const ground = 0.028 + 0.05 * clouds[i] ** 1.6 + 0.05 * haze + 0.008 * fine[i];
+    // Cool charcoal ground, the calcite a slightly warm white.
+    const c = [ground * 0.96, ground, ground * 1.05];
+    const w = [0.78, 0.76, 0.72];
+    for (let k = 0; k < 3; k++) color[i * 4 + k] = toByte(c[k] * (1 - white) + w[k] * white);
+    color[i * 4 + 3] = 255;
+    rough[i * 4] = 0;
+    rough[i * 4 + 1] = toByte(0.5 + 0.1 * white + 0.06 * (clouds[i] - 0.5));
+    rough[i * 4 + 2] = 0;
+    rough[i * 4 + 3] = 255;
+    // Calcite is softer and wears a hair lower than the ground.
+    height[i] = 0.2 * fine[i] - 0.25 * line - 0.15 * hair;
   }
   // A texel is about 1.6 mm.
   const normal = heightToNormal(height, S, S, 0.3, 0.3, true, 0.4);

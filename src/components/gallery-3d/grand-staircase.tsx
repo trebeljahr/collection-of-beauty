@@ -49,8 +49,8 @@ const stoneMaterial = new THREE.MeshStandardMaterial({
   vertexColors: true,
 });
 stoneMaterial.userData.envScale = 0.5;
-// The handrails and the caps of the newels: a dark marble with white
-// flecks, which he asked for the same day. Against the pale balusters
+// The handrails and the caps of the newels: a black marble veined
+// white, which he asked for the same day. Against the pale balusters
 // it draws the line of each rail.
 const darkStoneMaterial = new THREE.MeshStandardMaterial({
   color: "#ffffff",

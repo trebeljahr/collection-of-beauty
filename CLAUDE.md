@@ -1889,7 +1889,7 @@ required by the Dockerfile — don't remove it.
     the Canvas remounts for a lost context. A render target here would
     need the per-renderer cache `room-env-map.tsx` uses.
 - **Stair surfaces** (`stair-maps.ts`), built the same way: a pale
-  veined marble (2.4 m tile), a dark marble with white flecks (0.8 m),
+  veined marble (2.4 m tile), a black marble veined white (0.8 m),
   ashlar in 0.6 m courses (2.4 × 1.2 m), lime plaster (1.6 m), a plain
   pile (0.2 m) and a patterned runner field (0.32 m, sRGB), about
   10 MiB with mips, built once. Rico, 17 October 2026: in flat colour
@@ -1904,7 +1904,12 @@ required by the Dockerfile — don't remove it.
     each block moved and turned a quarter in the map (`blockOffset`),
     so the tile's veins never line up block to block; `block()` keeps
     a tread and its nosing one slab. Handrail caps and newel caps are
-    the dark marble. Upright faces of masonry built up from the floor
+    the dark marble: black, veined white, after a Nero Marquina. Its
+    first map strewed round white grains evenly over a near-black
+    ground, and Rico found they read like "voids in space" (17 October
+    2026). The white is now in veins, a grey haze either side and
+    shards along them, over a clouded charcoal; a grain out in the
+    ground is rare. Upright faces of masonry built up from the floor
     are ashlar (`withSides`). Every face that looks down goes to the
     plaster (`Solid.under`): the soffits of flights and landings,
     beams, stringers. A nosing's underside and a fascia stay stone
