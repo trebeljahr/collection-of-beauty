@@ -12,7 +12,10 @@ release's `_next/static` files plus its release-sensitive public media. The base
 already-open tabs that predate the recovery guard. Every immutable filename
 collision must contain identical bytes; the baseline inventory is SHA-256 pinned.
 The merge of all snapshots into one immutable namespace is checked at build
-time but not written into the image. Only public browser files and a commit
+time but not written into the image. Next's build-id folder is left out of a
+snapshot: with a deploymentId every build names it `build-TfctsWXpff2fKS`, and
+its `_ssgManifest.js` changes when an SSG route is added (the build of
+2026-10-17 failed on it). App Router pages never request those manifests. Only public browser files and a commit
 marker enter these bundles. Dynamic RSC,
 HTML, application data, and runtime credentials do not enter the store.
 

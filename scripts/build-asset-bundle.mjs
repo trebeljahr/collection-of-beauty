@@ -1,4 +1,4 @@
-import { access, cp, mkdir } from "node:fs/promises";
+import { access, cp, mkdir, readFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { snapshotReleasePublic } from "./release-public.mjs";
@@ -16,7 +16,17 @@ export async function buildAssetBundle({
 }) {
   const current = resolve(work, "asset-current");
   await mkdir(resolve(current, "_next"), { recursive: true });
-  await cp(resolve(app, ".next/static"), resolve(current, "_next/static"), { recursive: true });
+  // With a deploymentId Next names every build's manifest folder the same
+  // (`build-TfctsWXpff2fKS`), and its _ssgManifest.js changes when a route
+  // does, which collides in the immutable namespace. App Router pages never
+  // request those pages-router manifests, so they stay out of the bundle.
+  const buildId = (await readFile(resolve(app, ".next/BUILD_ID"), "utf8")).trim();
+  if (!/^[a-zA-Z0-9_-]+$/.test(buildId)) throw new Error("Invalid Next build id.");
+  const manifests = resolve(app, ".next/static", buildId);
+  await cp(resolve(app, ".next/static"), resolve(current, "_next/static"), {
+    recursive: true,
+    filter: (source) => resolve(source) !== manifests,
+  });
   await cp(resolve(app, "public/version.json"), resolve(current, "version.json"));
   await snapshotReleasePublic(resolve(app, "public"), resolve(current, "_next/static"), sha);
   let previous = resolve(previousApp, "release-assets");
