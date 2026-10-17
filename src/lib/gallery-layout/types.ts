@@ -168,6 +168,9 @@ export type RoomLayout = {
   ceilingHeight: number;
   /** Freestanding walls, in grid lines. Empty for most rooms. */
   dividers: Divider[];
+  /** Works the plan hangs alone on a door screen of the room, whatever
+   *  their size: the screen by its index in `dividers`. */
+  screenWorks?: Array<{ divider: number; artworkId: string }>;
   benches: Bench[];
   placements: Placement[];
   artworks: ArtworkListing[];

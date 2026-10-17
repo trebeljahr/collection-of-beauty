@@ -200,4 +200,29 @@ describe("the block plan and the catalogue", () => {
       far.filter((p) => Math.abs(Math.cos(p.rotation[1])) > 0.5).map((p) => p.artwork.id),
     ).toEqual(["collection-of-beauty-last-judgement-by-michelangelo"]);
   });
+
+  it("hangs every work the plan names for a door screen alone on it, a bench in front", () => {
+    // Rico, 17 October 2026: the Mona Lisa "should have its own little
+    // spot", on a screen with a bench in front of it.
+    const named = BLOCK_PLAN.flatMap((plan, floor) =>
+      plan.screens.flatMap(([cell, , id]) => (id ? [{ room: `f${floor}-${cell}`, id }] : [])),
+    );
+    expect(named.length).toBeGreaterThan(0);
+    for (const { room: roomId, id } of named) {
+      const room = layout.allRooms.find((r) => r.id === roomId)!;
+      const p = room.placements.find((q) => q.artwork.id === id);
+      expect(p, `${id} hangs in ${roomId}`).toBeDefined();
+      const screen = room.dividers[p!.divider ?? -1];
+      expect(screen?.bare, `${id} is on a door screen`).toBeDefined();
+      const others = room.placements.filter((q) => q !== p && q.divider === p!.divider);
+      expect(others.map((q) => q.artwork.id)).toEqual([]);
+      const [x, , z] = p!.position;
+      const facing = room.benches.filter((b) =>
+        screen.axis === "x"
+          ? b.along === "x" && Math.abs(b.x - x) < 0.01 && Math.abs(b.z - z) < 5
+          : b.along === "z" && Math.abs(b.z - z) < 0.01 && Math.abs(b.x - x) < 5,
+      );
+      expect(facing, `a bench in front of ${id}`).toHaveLength(1);
+    }
+  });
 });

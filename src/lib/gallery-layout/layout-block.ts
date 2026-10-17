@@ -172,6 +172,7 @@ import { texturePxPerMetre } from "./sharpness";
 import type {
   Bench,
   CellRect,
+  Divider,
   Door,
   FloorLayout,
   MuseumLayout,
@@ -372,6 +373,8 @@ const MONETS_WATER_GARDEN: OwnRoom = {
   since: 1897,
   name: "Monet's Water Garden",
 };
+const MONA_LISA = "collection-of-beauty-mona-lisa-by-leonardo-da-vinci-from-c2rmf-retouched";
+
 type FloorPlan = {
   title: string;
   /** One sentence for the entry card, under the title. Era blurbs
@@ -392,8 +395,12 @@ type FloorPlan = {
    *  the same way. */
   styles: Readonly<Record<RoomKey, DividerStyle>>;
   /** Door screens: in the first room, in front of its door to the
-   *  second. Never both sides of one door, and never a portal. */
-  screens: ReadonlyArray<readonly [RoomKey, RoomKey]>;
+   *  second. Never both sides of one door, and never a portal. A third
+   *  entry names the work the screen hangs alone, in place of the
+   *  largest of the room's works (`hangFeatures`). It has to be of the
+   *  era the room hangs; the hang moves it there from the era's other
+   *  rooms. */
+  screens: ReadonlyArray<readonly [RoomKey, RoomKey, string?]>;
 };
 /** The names the halls and stairs go by on the plan and the map: the
  *  same on every floor, so a visitor can say where they are. */
@@ -422,7 +429,10 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     },
     screens: [
       ["ne", ARTIST_ROOM],
-      ["nw", "cw"],
+      // Rico, 17 October 2026: the Mona Lisa "should have its own little
+      // spot", on a screen with a bench in front of it. Dealt with the
+      // rest it hung among eight works on a wall of the room before.
+      ["nw", "cw", MONA_LISA],
       ["ce", "se"],
     ],
     // Round the court from the west gallery of the spine, so the blue
@@ -935,6 +945,13 @@ function buildFloor(
       style: plan.styles[key],
       screens,
     });
+    room.screenWorks = plan.screens.flatMap(([cell, toward, artworkId]) => {
+      if (cell !== key || !artworkId) return [];
+      const id = byKey.get(toward)?.id;
+      const door = room.doors.find((d) => d.connectsTo.roomId === id);
+      const divider = door ? room.dividers.findIndex((d) => d.bare && standsBefore(d, door)) : -1;
+      return divider < 0 ? [] : [{ divider, artworkId }];
+    });
     // Benches keep further from a screen than `planBenches` does: a
     // bay bench a metre from a screen's picture is in the way of it.
     room.benches = planBenches(room.cellBounds, room.doors, room.dividers).filter((b) =>
@@ -1068,6 +1085,20 @@ function buildFloor(
   return { floor, hang };
 }
 
+/** True when a door screen stands in front of `door`: parallel to its
+ *  wall, across its middle, within a few cells of it. */
+function standsBefore(screen: Divider, door: Door): boolean {
+  const alongX = door.side === "north" || door.side === "south";
+  if (screen.axis !== (alongX ? "x" : "z")) return false;
+  const along = alongX ? door.worldX : door.worldZ;
+  const across = alongX ? door.worldZ : door.worldX;
+  return (
+    along > screen.start * CELL_SIZE &&
+    along < screen.end * CELL_SIZE &&
+    Math.abs(screen.line * CELL_SIZE - across) < 3 * CELL_SIZE
+  );
+}
+
 /** Hang one era in its rooms. Works with the sharpest scans come first:
  *  an artist's share of the wall goes to their best-scanned works. */
 function hangZone(
@@ -1106,11 +1137,14 @@ function hangZone(
     count = Math.min(candidates.length, Math.ceil(count * 1.1) + 1);
     chosen = sample(count);
   }
+  // A work the plan gives a door screen hangs whatever the sample, in
+  // the room of its screen.
+  const pinned = new Map(
+    zoneRooms.flatMap((room) => (room.screenWorks ?? []).map((s) => [s.artworkId, room] as const)),
+  );
+  const first = (a: ArtworkListing) => must.has(a.id) || pinned.has(a.id);
   // Then trim to the wall it has to fit, the works that must hang first.
-  chosen = [
-    ...candidates.filter((a) => must.has(a.id)),
-    ...shuffleByIdHash(chosen).filter((a) => !must.has(a.id)),
-  ];
+  chosen = [...candidates.filter(first), ...shuffleByIdHash(chosen).filter((a) => !first(a))];
   let used = 0;
   chosen = chosen.filter((a) => {
     const need = wallFootprint(a, REAL_SIZE);
@@ -1126,6 +1160,18 @@ function hangZone(
   zoneRooms.forEach((room, i) => {
     room.artworks = fills[i].artworks;
   });
+  for (const [id, home] of pinned) {
+    const from = zoneRooms.find((room) => room.artworks.some((a) => a.id === id));
+    if (!from) {
+      if (process.env.NODE_ENV !== "production") {
+        console.warn(`[gallery-layout] ${era.title}: ${id} is not a work this era hangs`);
+      }
+      continue;
+    }
+    if (from === home) continue;
+    home.artworks = [...home.artworks, ...from.artworks.filter((a) => a.id === id)];
+    from.artworks = from.artworks.filter((a) => a.id !== id);
+  }
 
   // Spill stays inside the era: the placer sees only its rooms.
   const stats = distributePaintings(

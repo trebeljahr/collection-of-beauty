@@ -573,23 +573,33 @@ const FEATURE_MIN_SHARE = 0.3;
 /**
  * Hang each door screen of a room with one picture: the largest of the
  * room's works that fits its face with its canvas on the middle of the
- * screen and its plaque beside it. Centred with its plaque, the canvas
- * would hang 18 cm off the middle of a wall that is seen head-on. The
- * face then takes nothing more.
+ * screen and its plaque beside it, or the work the plan names for the
+ * screen (`RoomLayout.screenWorks`), however small. Centred with its
+ * plaque, the canvas would hang 18 cm off the middle of a wall that is
+ * seen head-on. The face then takes nothing more.
  */
 function hangFeatures(container: Container) {
+  const { room } = container;
   for (let i = container.runs.length - 1; i >= 0; i--) {
     const run = container.runs[i];
     if (!run.feature) continue;
     const length = runLength(run);
-    let best: SizedWork | null = null;
-    for (const artwork of container.room.artworks) {
-      if (container.fixedIds.has(artwork.id)) continue;
-      const work = sizeWork(artwork, container);
-      if (centredFootprint(work) > length || !holds(container, run, work)) continue;
-      if (!best || work.wM * work.hM > best.wM * best.hM) best = work;
+    const fits = (work: SizedWork) =>
+      centredFootprint(work) <= length && holds(container, run, work);
+    const named = room.screenWorks?.find((s) => s.divider === run.divider)?.artworkId;
+    const artwork = named ? room.artworks.find((a) => a.id === named) : undefined;
+    const pinned = artwork && !container.fixedIds.has(artwork.id) && sizeWork(artwork, container);
+    let best: SizedWork | null = pinned && fits(pinned) ? pinned : null;
+    if (!best) {
+      for (const artwork of room.artworks) {
+        if (container.fixedIds.has(artwork.id)) continue;
+        const work = sizeWork(artwork, container);
+        if (!fits(work)) continue;
+        if (!best || work.wM * work.hM > best.wM * best.hM) best = work;
+      }
+      if (best && footprintOf(best) < length * FEATURE_MIN_SHARE) best = null;
     }
-    if (!best || footprintOf(best) < length * FEATURE_MIN_SHARE) continue;
+    if (!best) continue;
     container.fixed.push({ run, work: best, u: (run.uMin + run.uMax) / 2 });
     container.fixedMetres += footprintOf(best);
     container.fixedIds.add(best.artwork.id);
