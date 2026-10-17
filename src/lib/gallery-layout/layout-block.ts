@@ -239,6 +239,14 @@ export const BLOCK_ROOMS: ReadonlyArray<{ key: RoomKey; rect: CellRect }> = [
   { key: "sw", rect: span(0, 18, ROW_S) },
   { key: "se", rect: span(28, 46, ROW_S) },
 ];
+/** The order the map numbers the galleries, the same on every floor: a
+ *  walk round the block from the south-west, up the west end, along the
+ *  north range, back through the spine by the court, and out to the
+ *  south-east. Rico, 17 October 2026: the numbers followed the eras,
+ *  so room 1 stood in the north-east and room 2 in the spine, and the
+ *  map read as scattered digits. The eras still hang in their own
+ *  order (`FloorPlan.zones`); only the numbers go round. */
+export const ROOM_NUMBER_ORDER: readonly RoomKey[] = ["sw", "nw", "ne", "ce", "cw", "se"];
 /** The two spiral stairs, north and south of the court, through every
  *  floor. `door` is the wall the court is behind: a spiral's first step
  *  faces it. */
@@ -367,7 +375,7 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
   {
     title: "Old Masters",
     blurb:
-      "European painting up to about 1700, with Botticelli and Dürer in the first room and Poussin in the last.",
+      "European painting up to about 1700, with Botticelli and Dürer in room 3 and Poussin in room 6.",
     styles: {
       ne: "long-rows",
       cw: "bays",
@@ -967,12 +975,11 @@ function buildFloor(
       );
     }
 
-    let roomNumber = 0;
     for (const key of route) {
       const room = byKey.get(key)!;
       const era = eraOfKey.get(key) ?? floorEra;
       room.artworks = room.placements.map((p) => p.artwork);
-      room.roomNumber = ++roomNumber;
+      room.roomNumber = ROOM_NUMBER_ORDER.indexOf(key) + 1;
       room.movement = dominantMovement(room.artworks, era) ?? era.title;
       room.title = roomTitle(room.artworks, era);
       room.description = roomDescription(room.artworks, room.title);

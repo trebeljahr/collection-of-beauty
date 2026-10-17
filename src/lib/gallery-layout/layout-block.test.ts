@@ -30,6 +30,7 @@ import {
   HALL_SIDE_DOOR,
   hallFront,
   layoutBlock,
+  ROOM_NUMBER_ORDER,
 } from "./layout-block";
 import {
   centredFootprint,
@@ -965,11 +966,13 @@ describe("the block plan", () => {
           zone.era,
         ).toEqual([]);
       }
-      // Rooms are numbered along the walk.
+      // Rooms are numbered round the block, the same on every floor.
       const all = zones.flatMap((z) => z.rooms);
       expect(new Set(all).size).toBe(all.length);
       expect(all).toHaveLength(floor.rooms.filter((r) => !r.isStairwell).length);
-      expect(all.map((r) => r.roomNumber)).toEqual(all.map((_, i) => i + 1));
+      const byNumber = [...all].sort((a, b) => (a.roomNumber ?? 0) - (b.roomNumber ?? 0));
+      expect(byNumber.map((r) => r.roomNumber)).toEqual(all.map((_, i) => i + 1));
+      expect(byNumber.map((r) => r.id.split("-").pop())).toEqual([...ROOM_NUMBER_ORDER]);
       for (const room of floor.rooms.filter((r) => r.isStairwell)) {
         expect(room.roomNumber, room.id).toBeNull();
       }
