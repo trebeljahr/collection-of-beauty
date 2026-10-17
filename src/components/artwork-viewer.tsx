@@ -47,9 +47,10 @@ export function ArtworkViewer({ art, scale = null }: Props) {
   // Force scroll to top on prev/next navigation. Next.js App Router's
   // default scroll handling for same-layout, same-segment transitions
   // leaves the viewport anchored near the previous artwork's h1, which
-  // hides the top nav row ("Back to gallery", Previous, Next).
+  // hides the top nav row ("Back to gallery", Previous, Next). "instant":
+  // the default follows the smooth scroll-behavior <html> has for anchors.
   useEffect(() => {
-    window.scrollTo(0, 0);
+    window.scrollTo({ top: 0, behavior: "instant" });
   }, [art.id]);
 
   const alt = artworkAlt(art);

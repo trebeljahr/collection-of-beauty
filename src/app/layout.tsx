@@ -125,7 +125,11 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    // data-scroll-behavior: globals.css makes <html> scroll smoothly for
+    // hash anchors. Next 16 sets scroll-behavior to auto for the scroll to
+    // the top on a route change only when this attribute is present;
+    // without it a new page animated up from the last page's scroll offset.
+    <html lang="en" data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         <meta name="build-commit" content={process.env.NEXT_PUBLIC_BUILD_COMMIT ?? "development"} />
         <link rel="icon" href="/favicon.ico" sizes="any" />

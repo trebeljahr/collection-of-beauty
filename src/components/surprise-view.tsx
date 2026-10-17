@@ -111,7 +111,7 @@ export function SurpriseView({ deck }: Props) {
     // navigation rather than showing the same work again.
     if (!upcoming) return false;
     setIndex((i) => i + 1);
-    window.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0, behavior: "instant" });
     return true;
   }, [upcoming]);
 
@@ -121,7 +121,7 @@ export function SurpriseView({ deck }: Props) {
   const back = useCallback(() => {
     if (index === 0) return false;
     setIndex((i) => Math.max(i - 1, 0));
-    window.scrollTo({ top: 0 });
+    window.scrollTo({ top: 0, behavior: "instant" });
     return true;
   }, [index]);
 
