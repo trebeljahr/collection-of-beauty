@@ -178,26 +178,50 @@ export function DebugProbe() {
   // room's claim on the base texture pool and whether it was granted
   // (reveal-budget.ts), and the works in full whose base is not in it.
   const camera = useThree((s) => s.camera);
+  const scene = useThree((s) => s.scene);
   useEffect(() => {
+    if (!DEBUG_AVAILABLE) return;
     const w = window as {
       __galleryCamera?: THREE.Camera;
       __galleryFloorReflection?: typeof forceFloorReflection;
       __galleryRoomCulling?: typeof forceRoomCulling;
       __galleryReveals?: () => unknown;
+      __galleryBenchmark?: {
+        renderer: THREE.WebGLRenderer;
+        scene: THREE.Scene;
+        snapshot: () => unknown;
+      };
     };
     w.__galleryReveals = () => ({ rooms: roomRevealClaims(), notInPool: basesNotInPool() });
     w.__galleryCamera = camera;
     w.__galleryFloorReflection = forceFloorReflection;
     w.__galleryRoomCulling = forceRoomCulling;
+    // Read-only access for scripts/benchmark-museum.mjs. Timing wrappers
+    // are installed by that script only during a measured sample. Nothing
+    // is collected during an ordinary visit, even with the debug HUD on.
+    w.__galleryBenchmark = {
+      renderer: gl,
+      scene,
+      snapshot: () => ({
+        stats: { ...stats, camera: [...stats.camera], aimed: stats.aimed && { ...stats.aimed } },
+        reflection: { ...floorReflectionDebug },
+        culling: { ...roomCullingDebug },
+        textures: { ..._textureCacheDebug, has: undefined },
+        registeredPaintings: _paintingRegistryDebug.size,
+        missingBases: basesNotInPool(),
+        reveal: { ...roomRevealDebug },
+      }),
+    };
     return () => {
       delete w.__galleryCamera;
       delete w.__galleryFloorReflection;
       delete w.__galleryRoomCulling;
       delete w.__galleryReveals;
+      delete w.__galleryBenchmark;
       forceFloorReflection(null);
       forceRoomCulling(null);
     };
-  }, [camera]);
+  }, [camera, gl, scene]);
 
   useFrame((state) => {
     const now = performance.now();
