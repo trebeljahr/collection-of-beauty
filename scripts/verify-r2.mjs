@@ -49,7 +49,7 @@
  *   2  bad invocation / fatal error
  */
 
-import { spawnSync } from "node:child_process";
+import { spawn, spawnSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -174,7 +174,11 @@ async function runConcurrent(items, fn, concurrency, onProgress) {
   return results;
 }
 
-function listR2Bulk() {
+// Streams rclone's listing so a bucket walk of several minutes shows
+// how far it has got. The bucket's total is unknown until the walk ends
+// (tiles and strays outnumber the catalogue), so progress is counted
+// against the keys the catalogue expects: "found 12,001 / 42,380".
+function listR2Bulk(expected) {
   const required = ["R2_ENDPOINT", "R2_ACCESS_KEY_ID", "R2_SECRET_ACCESS_KEY", "R2_ASSETS_BUCKET"];
   for (const v of required) {
     if (!process.env[v]) {
@@ -197,17 +201,13 @@ function listR2Bulk() {
   };
   const has = (bin) => spawnSync(bin, ["--version"], { stdio: "ignore" }).status === 0;
 
-  let res;
+  let child;
   if (has("rclone")) {
     console.error("[verify-r2] listing R2 bucket via native rclone…");
-    res = spawnSync("rclone", lsfArgs, {
-      encoding: "utf8",
-      maxBuffer: 512 * 1024 * 1024,
-      env: rcloneEnv,
-    });
+    child = spawn("rclone", lsfArgs, { env: rcloneEnv });
   } else if (has("docker")) {
     console.error("[verify-r2] listing R2 bucket via rclone container…");
-    res = spawnSync(
+    child = spawn(
       "docker",
       [
         "run",
@@ -223,7 +223,7 @@ function listR2Bulk() {
         "rclone/rclone:latest",
         ...lsfArgs,
       ],
-      { encoding: "utf8", maxBuffer: 512 * 1024 * 1024, env: rcloneEnv },
+      { env: rcloneEnv },
     );
   } else {
     console.error(
@@ -231,14 +231,66 @@ function listR2Bulk() {
     );
     process.exit(2);
   }
-  if (res.status !== 0) {
-    console.error("verify-r2: rclone lsf failed:");
-    console.error(res.stderr);
-    process.exit(2);
-  }
-  const set = new Set(res.stdout.split("\n").filter(Boolean));
-  console.error(`[verify-r2] R2 contains ${set.size} keys`);
-  return set;
+
+  const set = new Set();
+  let found = 0;
+  let partial = "";
+  let stderr = "";
+  const started = Date.now();
+  // On a terminal the line is rewritten in place; in a log (CI, piped
+  // hook output) a line every 10 s keeps it readable.
+  const tty = process.stderr.isTTY;
+  const fmt = (n) => n.toLocaleString("en-US");
+  const report = (final = false) => {
+    const secs = Math.round((Date.now() - started) / 1000);
+    const pct = expected.size ? Math.floor((found / expected.size) * 100) : 100;
+    const line =
+      `[verify-r2] ${fmt(set.size)} keys listed · ` +
+      `${fmt(found)}/${fmt(expected.size)} expected found (${pct}%) · ${secs}s`;
+    if (tty) process.stderr.write(`\r\x1b[K${line}${final ? "\n" : ""}`);
+    else console.error(line);
+  };
+  const timer = setInterval(report, tty ? 250 : 10_000);
+
+  child.stdout.setEncoding("utf8");
+  child.stdout.on("data", (chunk) => {
+    const lines = (partial + chunk).split("\n");
+    partial = lines.pop();
+    for (const key of lines) {
+      if (!key || set.has(key)) continue;
+      set.add(key);
+      if (expected.has(key)) found++;
+    }
+  });
+  child.stderr.setEncoding("utf8");
+  child.stderr.on("data", (chunk) => {
+    stderr += chunk;
+  });
+
+  return new Promise((resolve) => {
+    let finished = false;
+    const finish = (status, error) => {
+      // A spawn failure fires both "error" and "close".
+      if (finished) return;
+      finished = true;
+      clearInterval(timer);
+      if (partial) {
+        set.add(partial);
+        if (expected.has(partial)) found++;
+      }
+      if (status !== 0) {
+        if (tty) process.stderr.write("\n");
+        console.error("verify-r2: rclone lsf failed:");
+        console.error(error ?? stderr);
+        process.exit(2);
+      }
+      report(true);
+      console.error(`[verify-r2] R2 contains ${set.size} keys`);
+      resolve(set);
+    };
+    child.on("error", (err) => finish(1, err.message));
+    child.on("close", (code) => finish(code ?? 1));
+  });
 }
 
 async function main() {
@@ -284,7 +336,7 @@ async function main() {
   const missing = [];
   const unreachable = [];
   if (args.bulk) {
-    const present = listR2Bulk();
+    const present = await listR2Bulk(new Set(allKeys));
     for (const k of allKeys) if (!present.has(k)) missing.push({ key: k, status: "absent" });
   } else {
     const results = await runConcurrent(
