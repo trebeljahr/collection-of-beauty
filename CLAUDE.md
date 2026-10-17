@@ -946,6 +946,15 @@ required by the Dockerfile — don't remove it.
       other bench within 6.5 m of it is left out (`SCREEN_BENCH_ROOM`);
       at 4 m the two read as a waiting room. All 12 screens of the plan
       have their bench.
+    - **A bench that looks at a room wall stands 3.75 m from it**
+      (`benchesToTheirWalls`, `BENCH_WALL_VIEW`), moved square toward
+      the wall after every other rule has placed it. Rico, 17 October
+      2026, of the Garden of Earthly Delights seen from a bay bench
+      6.65 m off and Rubens's Pythagoras from a bench in its row of
+      panels 5 m off: the benches "should move further in, towards the
+      painting". A bench facing a panel or a screen
+      first, and the two of an island, stay. It keeps 4 m of floor to
+      every other wall of its room.
     - The hang gives each door screen its one picture first
       (`hangFeatures`). Then it finds what each bench looks at: the
       nearest wall or panel face square in front of it and behind it,

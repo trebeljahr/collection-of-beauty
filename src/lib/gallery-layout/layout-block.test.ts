@@ -3,12 +3,20 @@ import type { ArtworkListing } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
 import { arrangementOf } from "./divider-plans";
 import {
+  BENCH_WALL_VIEW,
   benchClearOfDividers,
   centredIsland,
   SCREEN_BENCH_ROOM,
   screenBenches,
 } from "./feature-benches";
-import { arrivalPoint, benchRect, clearOfFittings, longAxis, type Rect } from "./fittings";
+import {
+  arrivalPoint,
+  BENCH_DEPTH,
+  benchRect,
+  clearOfFittings,
+  longAxis,
+  type Rect,
+} from "./fittings";
 import { frameReach, pickFrameDesign } from "./frame-design";
 import {
   grandStairsAt,
@@ -501,12 +509,18 @@ describe("the block plan", () => {
           facing.some((f) => f.x === bench.x && f.z === bench.z && f.along === bench.along);
         room.benches.forEach((bench, i) => {
           const r = rects[i];
-          // 4 m or more of floor to every wall: a bench in the 5 m
+          // 4 m or more of floor to every wall but the one it looks at,
+          // which it stands `BENCH_WALL_VIEW` from: a bench in the 5 m
           // aisle between a panel and a wall could not have it.
-          expect(
-            Math.min(r.xMin - x0, x1 - r.xMax, r.zMin - z0, z1 - r.zMax),
-            room.id,
-          ).toBeGreaterThanOrEqual(4);
+          const [toLow, toHigh, toEnds] =
+            bench.along === "x"
+              ? [r.zMin - z0, z1 - r.zMax, Math.min(r.xMin - x0, x1 - r.xMax)]
+              : [r.xMin - x0, x1 - r.xMax, Math.min(r.zMin - z0, z1 - r.zMax)];
+          expect(toEnds, room.id).toBeGreaterThanOrEqual(4);
+          expect(Math.min(toLow, toHigh), room.id).toBeGreaterThanOrEqual(
+            BENCH_WALL_VIEW - BENCH_DEPTH / 2 - 1e-9,
+          );
+          expect(Math.max(toLow, toHigh), room.id).toBeGreaterThanOrEqual(4);
           // And 2.2 m to every freestanding wall, a door screen included.
           expect(benchClearOfDividers(bench, room, 2.2), room.id).toBe(true);
           if (facesScreen(bench)) {
@@ -541,14 +555,17 @@ describe("the block plan", () => {
             expect(bench.along, room.id).toBe(set.axis);
           } else if ((set.kind === "rows" || set.kind === "pinwheel") && !onCentre) {
             // In a room with panels a bench runs the way a panel does,
-            // and stands in line with a row of them or in the middle of
-            // a wide aisle.
+            // and stands in line with a row of them, in the middle of a
+            // wide aisle, or stepped up from either to the wall it looks
+            // at (`benchesToTheirWalls`).
             const parallel = panels.filter((p) => p.axis === bench.along);
             expect(parallel.length, room.id).toBeGreaterThan(0);
             const across = bench.along === "x" ? bench.z : bench.x;
             const inRow = parallel.some((p) => Math.abs(p.at - across) < 1e-6);
             const nearest = Math.min(...parallel.map((p) => Math.abs(p.at - across)));
-            expect(inRow || nearest >= 4.5, room.id).toBe(true);
+            const [lo, hi] = bench.along === "x" ? [z0, z1] : [x0, x1];
+            const atWall = Math.min(across - lo, hi - across) === BENCH_WALL_VIEW;
+            expect(inRow || nearest >= 4.5 || atWall, room.id).toBe(true);
           }
           rects.slice(i + 1).forEach((q) => {
             expect(r.xMin < q.xMax && q.xMin < r.xMax && r.zMin < q.zMax && q.zMin < r.zMax).toBe(

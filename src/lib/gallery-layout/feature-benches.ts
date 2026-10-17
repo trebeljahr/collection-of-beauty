@@ -351,6 +351,102 @@ export function screenBenches(room: Pick<RoomLayout, "doors" | "dividers">): Ben
   return out;
 }
 
+/** From a room wall to the middle of the bench that looks at it, metres:
+ *  3.45 m of floor between them. The panel and screen benches stand 3.5
+ *  to 4.5 m off what they face. */
+export const BENCH_WALL_VIEW = 3.75;
+/** Steps a bench takes back from `BENCH_WALL_VIEW` when that place is
+ *  taken. */
+const WALL_VIEW_STEP = 0.25;
+/** Floor kept between two benches of a room that are not an island. */
+const BENCH_APART = 1.5;
+
+/**
+ * The room's benches, each that looks at a wall of the room moved
+ * square toward it, to `BENCH_WALL_VIEW` from it. Rico, 17 October
+ * 2026, of the benches in the bays of the Netherlandish gallery (6.65 m
+ * from the Garden of Earthly Delights) and in the aisle of the Baroque
+ * one (5 m from Rubens's Pythagoras): they "should move further in,
+ * towards the painting". A bay bench stood beside the walking line and
+ * an aisle bench in the aisle's middle, both lines of the room, and
+ * from either the work on the wall read as across the room.
+ *
+ * A bench that faces a panel or a door screen first, and the two
+ * benches of an island, stay. A bench moves only to a place 2.2 m
+ * from every divider, 1.5 m from every other bench, and in no door's
+ * walking line it was not in already; else it stops further back, or
+ * stays. It moves before the hang, so the work still hangs on its
+ * middle.
+ */
+export function benchesToTheirWalls(
+  room: Pick<RoomLayout, "benches" | "doors" | "dividers" | "cellBounds">,
+): Bench[] {
+  const runs = computeRoomRuns(room as RoomLayout);
+  const doorLines = (bench: Bench) => {
+    const r = benchRect(bench);
+    return room.doors.flatMap((door, i) => {
+      const half = door.width / 2 + DOOR_LINE_MARGIN;
+      const ns = door.side === "north" || door.side === "south";
+      const pos = ns ? door.worldX : door.worldZ;
+      const [from, to] = ns ? [r.xMin, r.xMax] : [r.zMin, r.zMax];
+      return from < pos + half && to > pos - half ? [i] : [];
+    });
+  };
+  const gap = (p: Bench, q: Bench) => {
+    const a = benchRect(p);
+    const b = benchRect(q);
+    const dx = Math.max(0, a.xMin - b.xMax, b.xMin - a.xMax);
+    const dz = Math.max(0, a.zMin - b.zMax, b.zMin - a.zMax);
+    return Math.hypot(dx, dz);
+  };
+
+  const out = [...room.benches];
+  out.forEach((bench, i) => {
+    // The two benches of an island sit back to back.
+    if (out.some((other, j) => j !== i && Math.hypot(other.x - bench.x, other.z - bench.z) < 1)) {
+      return;
+    }
+    const ways: Array<[number, number]> =
+      bench.along === "x"
+        ? [
+            [0, -1],
+            [0, 1],
+          ]
+        : [
+            [-1, 0],
+            [1, 0],
+          ];
+    let best: { dx: number; dz: number; dist: number; wall: boolean } | null = null;
+    for (const [dx, dz] of ways) {
+      for (const run of runs) {
+        if (run.normalX !== -dx || run.normalZ !== -dz) continue;
+        const dist = dx !== 0 ? (run.surface - bench.x) * dx : (run.surface - bench.z) * dz;
+        if (dist < 0.5) continue;
+        const u = run.sign * (run.axis === "x" ? bench.x : bench.z);
+        if (u < run.uMin || u > run.uMax) continue;
+        if (!best || dist < best.dist) best = { dx, dz, dist, wall: run.divider === undefined };
+      }
+    }
+    const faced = best as { dx: number; dz: number; dist: number; wall: boolean } | null;
+    if (!faced?.wall || faced.dist <= BENCH_WALL_VIEW + 1e-6) return;
+    const lines = new Set(doorLines(bench));
+    for (let view = BENCH_WALL_VIEW; view < faced.dist - 1e-6; view += WALL_VIEW_STEP) {
+      const shift = faced.dist - view;
+      const moved: Bench = {
+        ...bench,
+        x: bench.x + faced.dx * shift,
+        z: bench.z + faced.dz * shift,
+      };
+      if (!benchClearOf(moved, room.dividers, DIVIDER_CLEARANCE)) continue;
+      if (doorLines(moved).some((line) => !lines.has(line))) continue;
+      if (out.some((other, j) => j !== i && gap(moved, other) < BENCH_APART)) continue;
+      out[i] = moved;
+      return;
+    }
+  });
+  return out;
+}
+
 /** True when a bench stands clear of every divider of its room by at
  *  least `clearance`. For tests. */
 export function benchClearOfDividers(

@@ -112,6 +112,7 @@ import { computeBlockedEdges } from "./blocked-edges";
 import { curatedQueue, roomDescription, roomTitle } from "./curation";
 import type { DividerStyle } from "./divider-plans";
 import {
+  benchesToTheirWalls,
   centredIsland,
   courtIslands,
   planPanelBenches,
@@ -1003,6 +1004,8 @@ function buildFloor(
       const island = clear(wallIsland(room.cellBounds, room.doors));
       room.benches = island?.every(hasFloor) ? island : [];
     }
+    // Then each bench that looks at a wall of the room steps up to it.
+    room.benches = benchesToTheirWalls(room);
   }
 
   // The court's floor is seated in front of its north and south walls,
