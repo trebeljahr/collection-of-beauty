@@ -701,6 +701,7 @@ export function Gallery3D({ artworks }: Props) {
             <FloorScene
               key={idx}
               floor={layout.floors[idx]}
+              floors={layout.floors}
               allStaircases={layout.allStaircases}
               showOnly={mode === "full" ? undefined : mode}
               // The visitor's floor, and the one a spiral is taking
@@ -1108,6 +1109,7 @@ export function Gallery3D({ artworks }: Props) {
 
 function FloorScene({
   floor,
+  floors,
   allStaircases,
   showOnly,
   worksInFull,
@@ -1115,6 +1117,9 @@ function FloorScene({
   onEntryPaintingSettled,
 }: {
   floor: FloorLayout;
+  /** Every floor of the museum: a stair room's washers take in the
+   *  cans of the other storeys of its shaft (`StairwellLight`). */
+  floors: readonly FloorLayout[];
   /** Every staircase in the building. Threaded into StaircaseRenderer
    *  so it can suppress inner-rail finials at intermediate floor
    *  boundaries (only the absolute top/bottom of the helix should
@@ -1210,9 +1215,9 @@ function FloorScene({
         {/* The stairwell's ceiling, glazing and wall washers, under the
             same rule: a neighbouring floor seen through the well is lit
             like the one the player stands on. */}
-        {showOnly !== "stairs" && <StairwellLight floor={floor} />}
+        {showOnly !== "stairs" && <StairwellLight floor={floor} floors={floors} />}
       </group>
-      {showOnly !== "stairs" && <StairwellSpill floor={floor} />}
+      {showOnly !== "stairs" && <StairwellSpill floor={floor} floors={floors} />}
     </group>
   );
 }

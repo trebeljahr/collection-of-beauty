@@ -236,13 +236,13 @@ describe("washWallRects", () => {
   const row = fitWashRow(WALL, CEILING);
 
   it("covers a blank wall from corner to corner", () => {
-    expect(washWallRects(row, WALL, [])).toEqual([
+    expect(washWallRects(WALL, [], 0, row.wallTop)).toEqual([
       { xMin: -WALL / 2, xMax: WALL / 2, yMin: 0, yMax: row.wallTop },
     ]);
   });
 
   it("cuts a doorway out and keeps the lintel over it", () => {
-    const rects = washWallRects(row, WALL, [{ center: 0, width: 1.4, height: 2.4 }]);
+    const rects = washWallRects(WALL, [{ center: 0, width: 1.4, height: 2.4 }], 0, row.wallTop);
     expect(rects).toEqual([
       { xMin: -WALL / 2, xMax: -0.7, yMin: 0, yMax: row.wallTop },
       { xMin: 0.7, xMax: WALL / 2, yMin: 0, yMax: row.wallTop },
@@ -256,7 +256,7 @@ describe("washWallRects", () => {
   });
 
   it("drops the lintel of a door taller than the pools", () => {
-    const rects = washWallRects(row, WALL, [{ center: 3, width: 1.4, height: 5.5 }]);
+    const rects = washWallRects(WALL, [{ center: 3, width: 1.4, height: 5.5 }], 0, row.wallTop);
     expect(rects).toHaveLength(2);
   });
 });
@@ -316,9 +316,6 @@ describe("washStretches", () => {
     const xs = washLampXs(left.row).map((x) => x + left.center);
     expect(Math.min(...xs)).toBeGreaterThan(-13.75 + 0.5);
     expect(Math.max(...xs)).toBeLessThan(-1.75 - 0.5);
-    // The stretch's rectangle is the wall, wherever the row stands.
-    expect(left.rects[0].xMin + left.center).toBeCloseTo(-13.75, 6);
-    expect(left.rects[0].xMax + left.center).toBeCloseTo(-1.75, 6);
   });
 
   it("keeps to the stretch's middle for a work too far off it, or for two", () => {
@@ -330,33 +327,10 @@ describe("washStretches", () => {
     expect(washStretches(16.05, [], CEILING, [0.5])[0].center).toBe(0);
   });
 
-  it("lights the half of the lintel next to each stretch, and nothing in the doorway", () => {
-    const [left, right] = washStretches(COURT, [portal], CEILING);
-    expect(left.rects).toHaveLength(2);
-    const lintel = left.rects[1];
-    expect(lintel.xMin + left.center).toBeCloseTo(-1.75, 6);
-    expect(lintel.xMax + left.center).toBeCloseTo(0, 6);
-    expect(lintel.yMin).toBe(3);
-    expect(right.rects[1].xMin + right.center).toBeCloseTo(0, 6);
-    expect(right.rects[1].xMax + right.center).toBeCloseTo(1.75, 6);
-    // The floor in front runs to the middle of the doorway, where the
-    // other stretch takes over.
-    expect(left.floor[1] + left.center).toBeCloseTo(0, 6);
-    expect(right.floor[0] + right.center).toBeCloseTo(0, 6);
-    for (const s of [left, right]) {
-      for (const r of s.rects) {
-        const inDoor = r.xMin + s.center < 1.75 - 1e-6 && r.xMax + s.center > -1.75 + 1e-6;
-        if (inDoor) expect(r.yMin).toBeGreaterThanOrEqual(3);
-      }
-    }
-  });
-
   it("lights a wall with no door as one stretch from corner to corner", () => {
     const [only, ...rest] = washStretches(16.05, [], CEILING);
     expect(rest).toHaveLength(0);
     expect(only.center).toBe(0);
-    expect(only.rects).toEqual([{ xMin: -8.025, xMax: 8.025, yMin: 0, yMax: only.row.wallTop }]);
-    expect(only.floor).toEqual([-8.025, 8.025]);
   });
 
   it("holds a can's cone inside the reach the stretches count on", () => {

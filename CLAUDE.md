@@ -1366,9 +1366,35 @@ required by the Dockerfile — don't remove it.
       cans, the middle one over its giant.
     - A giant has no light of its own. Do not light a work by a glow
       that follows its frame: he read it as a back light.
-    - A stretch lights the half of each door's lintel next to it. The
-      shader adds a fragment's own can and one each side, so a stretch
-      under 5 m lights itself only.
+    - **The light is one field over the room, not a pool to a row**
+      (`wash-cans.ts`, 17 October 2026). Until then each pool quad was
+      lit by its own row and cut where the row changed: at a corner,
+      where the landing's stretch of the end wall ends, between two
+      stretches of one wall. Each side of a cut summed a different
+      row, so the light stepped on the line, and every fix moved one
+      line (the clamp to a row's end can, the corner gap, the sheer
+      wall's own row). Rico: "this same lighting issue keeps popping
+      up". Now a room's cans are one list in the material's uniforms
+      (`MAX_CANS` 64, three vec4 each), with the cans of the other
+      storeys of its shaft moved into its frame, since a hall's wall
+      is one plane through four storeys. Every lit surface (a wall's
+      clear spans and lintels to the ceiling, the floor less the void,
+      the band on a landing) is cut into patches of 2.5 m that each
+      name the cans whose cone reaches them (`assignCans`,
+      `CANS_PER_PATCH` 8), and a fragment sums those. A can near a
+      corner lights both walls of it; a door's lintel and the floor in
+      front of it take the cans of both stretches beside it; the wall
+      over a landing takes the row under the next landing and the
+      storey's cans beside it alike. A can lights nothing under its own
+      floor, since the slab is in the way, unless the surface stands
+      in a void (`WashCan.floorY`, `LitQuad.inVoid`): the end wall
+      over the landings, the salon's far wall. `washStretches` now only
+      places the cans. The floor is one tiling a room, where two walls'
+      bands overlapped in each corner and the floor there was
+      multiplied twice. `wash-cans.test.ts` checks that two patches
+      meeting on a line sum the same light there. A seam that still
+      shows is a surface no patch covers, or a can named for one side
+      only: read `assignCans`, not the shader.
     - The tower's stairwell hangs nothing and keeps one row to a wall,
       and so does a spiral room with no work. One that hangs a work is
       washed a row to each stretch, like a hall.
@@ -1650,14 +1676,11 @@ required by the Dockerfile — don't remove it.
     round the well on the floors below did not fit and was taken out;
   - wall washers along each wall, an even count, the end cans
     `WASH_CORNER_GAP` from the corners: six on a 22.5 m wall, four on a
-    17.5 m one. Their pools are one mesh for the
-    room. A fragment adds the can nearest it, clamped to the row's ends,
-    and two cans each side, so a cone may not reach two gaps and a half
-    along the wall (`stairwell-light-rig.test.ts` pins it). Under the
-    8.4 m storey a cone reaches 5.15 m at the wall's foot. Until
-    17 October 2026 a fragment took one can each side and the nearest
-    can was not clamped: a gap past a row's end it counted none, and a
-    stair hall's pool stopped in a vertical line;
+    17.5 m one. Their pools are one mesh for the room, each patch of
+    wall or floor summing the cans that reach it ("The light is one
+    field over the room", above). Under the 8.4 m storey a cone
+    reaches 5.15 m at the wall's foot (`WASH_SIDE_REACH`;
+    `stairwell-light-rig.test.ts` pins it);
   - the stair's materials reflect the frames' lamp map, so a tread's top
     takes about twice the light of the flight's underside;
   - a step light under every nosing, baked into the treads' vertex

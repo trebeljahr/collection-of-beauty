@@ -13,10 +13,11 @@
 //    On the top floor, where no flight passes through the ceiling, the
 //    ring closes into a full oculus.
 //
-// Pure maths, like painting-light-rig.ts. Wall rectangles are in a
-// wall's own frame: x along the wall from its middle, y up from the
-// floor, z out of the wall into the room. stairwell-light.tsx turns the
-// result into one mesh for the whole room.
+// Pure maths, like painting-light-rig.ts. Everything is in a wall's own
+// frame: x along the wall from its middle, y up from the floor, z out of
+// the wall into the room. This module says where the cans hang;
+// wash-cans.ts sums their light over every surface, and
+// stairwell-light.tsx turns the result into one mesh for the room.
 
 import { INTER_FLOOR_HEIGHT } from "@/lib/gallery-layout/world-coords";
 import { clearSpans, LIGHT_CEILING_DROP, LIGHT_PENUMBRA, type Rect2 } from "./painting-light-rig";
@@ -31,7 +32,9 @@ export const WASH_TARGET_SPACING = 3.75;
  *  it and the other's 2.5 m, and the near can's pool was cut down the
  *  corner line beside a dim wall. Rico: it "looks broken". At this
  *  distance the upper half of a pool ends short of the corner, and what
- *  reaches it is the same on both walls. */
+ *  reaches it is the same on both walls. The light goes round the
+ *  corner now (wash-cans.ts), so the gap only keeps the two walls'
+ *  scallops alike. */
 export const WASH_CORNER_GAP = 2.25;
 /** Fixture distance from the wall, metres. */
 export const WASH_THROW = 1.9;
@@ -81,7 +84,11 @@ export const STOREY_BEAM: WashBeam = {
  * wall's foot, 18 m away, reaches 8.3 m along it: within the two cans
  * each side the shader adds (9.2 m at the far wall's spacing).
  */
-export const LONG_THROW_BEAM: WashBeam = { outerDeg: 28, aimY: 12, graze: true };
+export const LONG_THROW_BEAM: WashBeam = {
+  outerDeg: 28,
+  aimY: 12,
+  graze: true,
+};
 
 /** Panes round the dome, and the depth of one row of them on its
  *  curve. */
@@ -331,10 +338,16 @@ export function washLampXs(row: WashRow): number[] {
 
 export type WashDoor = { center: number; width: number; height: number };
 
-/** The lit part of a wall: every clear stretch up to the pools' top,
- *  and the lintel over each door. A doorway itself is left out, or the
- *  pool would brighten the room seen through it. */
-export function washWallRects(row: WashRow, wallLength: number, doors: WashDoor[]): Rect2[] {
+/** The lit part of a wall between `yMin` and `yMax`: every clear
+ *  stretch between its doors, and the lintel over each door. A doorway
+ *  itself is left out, or the pool would brighten the room seen through
+ *  it. */
+export function washWallRects(
+  wallLength: number,
+  doors: WashDoor[],
+  yMin: number,
+  yMax: number,
+): Rect2[] {
   const half = wallLength / 2;
   const openings = doors.map((d): [number, number] => [
     Math.max(-half, d.center - d.width / 2),
@@ -343,13 +356,13 @@ export function washWallRects(row: WashRow, wallLength: number, doors: WashDoor[
   const rects: Rect2[] = clearSpans([-half, half], openings).map(([xMin, xMax]) => ({
     xMin,
     xMax,
-    yMin: 0,
-    yMax: row.wallTop,
+    yMin,
+    yMax,
   }));
   doors.forEach((d, i) => {
     const [xMin, xMax] = openings[i];
-    if (d.height < row.wallTop && xMax - xMin > 0.01) {
-      rects.push({ xMin, xMax, yMin: d.height, yMax: row.wallTop });
+    if (d.height < yMax && d.height > yMin && xMax - xMin > 0.01) {
+      rects.push({ xMin, xMax, yMin: d.height, yMax });
     }
   });
   return rects;
@@ -361,19 +374,18 @@ export const WASH_MIN_STRETCH = 1.5;
 /** How far along the wall a can's cone reaches at its widest, at the
  *  wall's foot under a storey's ceiling (5.15 m; 3.5 m under the 5.9 m
  *  ceiling the stairwell had until 17 October 2026).
- *  `stairwell-light-rig.test.ts` holds the cone to it. */
+ *  `stairwell-light-rig.test.ts` holds the cone to it, and
+ *  `wash-cans.test.ts` that a patch this far from a can is named for
+ *  it. */
 export const WASH_SIDE_REACH = 5.25;
 /** The end can of a row stands at least this far inside its stretch. */
 const WASH_END_CLEAR = 0.6;
 
 /** A stretch of a hall's wall and the row that lights it. `center` is
- *  where the row's middle stands along the wall. The rectangles and the
- *  floor's two ends are measured from there, as the cans are. */
+ *  where the row's middle stands along the wall. */
 export type WashStretch = {
   center: number;
   row: WashRow;
-  rects: Rect2[];
-  floor: [number, number];
 };
 
 /**
@@ -388,10 +400,9 @@ export type WashStretch = {
  * stretch's middle, and about the one work the stretch holds where that
  * is a little off it (`works`, along the wall).
  *
- * A stretch also lights the half of each door's lintel next to it, and
- * the floor in front of that half. In a stretch too short for that (the
- * shader would leave out a can that reaches there) it lights itself
- * only.
+ * This places the cans only. What they light is every surface their
+ * cones reach (`wash-cans.ts`): the lintel over a door and the floor in
+ * front of it take the cans of both stretches beside it.
  */
 export function washStretches(
   wallLength: number,
@@ -423,9 +434,6 @@ export function washStretches(
             beam,
           )
         : fitWashRow(b - a, ceilingY, beam);
-    // A fragment adds its own can and two each side. Past the row's end
-    // the nearest can it leaves out is two gaps and a half away.
-    const wideRow = (r: WashRow) => 2.5 * r.spacing >= WASH_SIDE_REACH;
     let center = mid;
     let row = rowAbout(mid);
     // About the one work the stretch holds, where that takes as many cans
@@ -435,7 +443,7 @@ export function washStretches(
     // (a stair hall's end wall beside the landing, whose stretch ends at
     // the corner and at the landing).
     const held = works.filter((x) => x > a && x < b);
-    if (held.length === 1 && (corners.length < 2 || row.count === 1) && wideRow(row)) {
+    if (held.length === 1 && (corners.length < 2 || row.count === 1)) {
       const shifted = rowAbout(held[0]);
       const halfSpan = ((shifted.count - 1) * shifted.spacing) / 2;
       if (
@@ -447,40 +455,7 @@ export function washStretches(
         row = shifted;
       }
     }
-    const wide = wideRow(row);
-    const rects: Rect2[] = [{ xMin: a - center, xMax: b - center, yMin: 0, yMax: row.wallTop }];
-    let lo = a;
-    let hi = b;
-    if (wide) {
-      doors.forEach((d, i) => {
-        const [o0, o1] = openings[i];
-        const m = (o0 + o1) / 2;
-        const lintel = d.height < row.wallTop;
-        if (Math.abs(o1 - a) < 1e-6) {
-          lo = m;
-          if (lintel) {
-            rects.push({
-              xMin: m - center,
-              xMax: a - center,
-              yMin: d.height,
-              yMax: row.wallTop,
-            });
-          }
-        }
-        if (Math.abs(o0 - b) < 1e-6) {
-          hi = m;
-          if (lintel) {
-            rects.push({
-              xMin: b - center,
-              xMax: m - center,
-              yMin: d.height,
-              yMax: row.wallTop,
-            });
-          }
-        }
-      });
-    }
-    out.push({ center, row, rects, floor: [lo - center, hi - center] });
+    out.push({ center, row });
   }
   return out;
 }
@@ -508,11 +483,10 @@ export const WASH_SPILL_M = 2;
  *  straight on: that floor is in the jamb's shadow. */
 export const WASH_SPILL_JAMB = 2;
 
-/** The floor past a door that a row's band spills onto, in the row's
- *  frame: x along the wall, z out of the wall (so negative here), and
- *  the door's two ends along the wall that the spill is measured from.
- *  `floor` is the row's band (`WashStretch.floor`); `doors` are along
- *  the wall from the row's middle. */
+/** The floor past a door that the wall's band spills onto, in the
+ *  wall's frame: x along the wall, z out of the wall (so negative here),
+ *  and the door's two ends along the wall that the spill is measured
+ *  from. `floor` is the band's extent along the wall. */
 export type WashSpill = {
   xMin: number;
   xMax: number;
