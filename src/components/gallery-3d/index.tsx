@@ -34,6 +34,7 @@ import { GrandStaircase } from "./grand-staircase";
 import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
 import { Minimap, mapFillOf, type PlayerSample, roomRect } from "./minimap";
+import { MusicPlayer } from "./music-player";
 import { Player, type PlayerHandle } from "./player";
 import { quietLock, requestPointerLockQuietly } from "./pointer-lock";
 import { RoomCulling, registerShaftFittings } from "./room-culling";
@@ -239,10 +240,15 @@ export function Gallery3D({ artworks }: Props) {
   // (use-gallery-music.ts), gated on the Enter click because browsers
   // block autoplay. The settings modal writes the same
   // localStorage-backed preferences.
-  const [audio] = useAudioSettings();
+  const [audio, updateAudio] = useAudioSettings();
+  const setMusicPlaying = useCallback(
+    (enabled: boolean) => updateAudio({ enabled }),
+    [updateAudio],
+  );
   const music = useGalleryMusic({
     playing: hasStarted && audio.enabled,
     volume: audio.musicVolume,
+    onPlayingChange: setMusicPlaying,
   });
 
   const currentFloor = layout.floors[currentFloorIdx];
@@ -850,13 +856,13 @@ export function Gallery3D({ artworks }: Props) {
           they rotate. */}
       {needsRotate && <LandscapePrompt />}
       {debug && (
-        // Top-left is free on desktop; on touch the minimap sits there,
-        // so drop below it.
+        // Top-left under the music player on desktop; on touch the
+        // minimap sits there, so drop below it.
         <DebugOverlay
           className={
             isTouch
               ? "top-[calc(14rem_+_env(safe-area-inset-top,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
-              : "top-[calc(1rem_+_env(safe-area-inset-top,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
+              : "top-[calc(5.25rem_+_env(safe-area-inset-top,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
           }
         />
       )}
@@ -1017,6 +1023,22 @@ export function Gallery3D({ artworks }: Props) {
             music={music}
           />
         </div>
+      )}
+      {/* Music player. Top-left on desktop. On touch the minimap holds
+          that corner and the move stick the space under it, so the
+          player sits under the settings cog, above the jump button, and
+          narrow enough to clear the floor banner at the top centre. */}
+      {hasStarted && !zoomed && !mapOpen && !settingsOpen && (
+        <MusicPlayer
+          music={music}
+          playing={audio.enabled}
+          onPlayingChange={setMusicPlaying}
+          className={
+            isTouch
+              ? "w-56 top-[calc(3.75rem_+_env(safe-area-inset-top,0px))] right-[calc(1rem_+_env(safe-area-inset-right,0px))]"
+              : "w-80 top-[calc(1rem_+_env(safe-area-inset-top,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
+          }
+        />
       )}
       {/* Minimap. Bottom-right on desktop; top-left on mobile so the
           look joystick (bottom-right) and audio controls (top-right)

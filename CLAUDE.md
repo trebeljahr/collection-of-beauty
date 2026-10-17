@@ -2198,6 +2198,13 @@ required by the Dockerfile — don't remove it.
   last one ended on (`src/lib/shuffle-bag.ts`). The rest of the round is
   in localStorage (`cob-music-bag`). Nothing downloads before the Enter
   click. It replaced the Pixabay ambient loop on 17 October 2026.
+- A small player at the top left (`music-player.tsx`; on touch under
+  the settings cog, since the minimap holds that corner) shows the piece
+  and has back, pause and next. Pause is the Sound switch
+  (`AudioSettings.enabled`), so it is remembered like a mute. Back
+  starts the piece again after 3 s, else returns to the piece before;
+  Next after Back replays what was heard before it draws from the bag.
+  Media keys and the lock screen drive the same four actions.
 - The pieces are from Rico's Spotify playlist "Beautiful Stillness",
   where the composer died before 1956. The Spotify recordings are in
   copyright, so each is another recording: one its performer released
