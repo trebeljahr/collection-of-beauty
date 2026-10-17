@@ -167,25 +167,6 @@ HIGHLIGHT_ENV_MATERIALS.push(
   bracketMaterial,
 );
 
-type BoxPart = {
-  size: [number, number, number];
-  position: [number, number, number];
-  rotationY: number;
-};
-
-/** Many boxes as one geometry. A flight has some 75 balusters and
- *  brackets; as a mesh each they were most of the stairwell's draw
- *  calls. */
-export function mergeBoxes(parts: readonly BoxPart[]): THREE.BufferGeometry | null {
-  if (parts.length === 0) return null;
-  const boxes = parts.map((p) =>
-    new THREE.BoxGeometry(...p.size).rotateY(p.rotationY).translate(...p.position),
-  );
-  const merged = mergeGeometries(boxes, false);
-  for (const b of boxes) b.dispose();
-  return merged;
-}
-
 /** A baluster's iron bar: its radius, and the collar at its foot and the
  *  one under the rail, [radius, height]. Square 7 cm posts read as
  *  timber painted black; a real stair has a turned or forged bar. */
@@ -979,68 +960,74 @@ function buildTopLandingGeometry(staircase: Staircase): THREE.BufferGeometry {
 
 /** A bracket's square section, metres. */
 const BRACKET_SIZE = 0.12;
+/** One bracket to this many treads. Rico, 17 October 2026: with one
+ *  under every tread, 36 a turn, the arms read as a second flight of
+ *  black steps in the well. */
+const BRACKET_EVERY_STEPS = 4;
+/** Which tread of each group carries one. Counted from the flight's
+ *  foot, so a turn's last bracket and the next turn's first keep the
+ *  same pitch. */
+const BRACKET_STEP_OFFSET = 2;
+/** How far a bracket runs on under the tread past its inner edge, so it
+ *  reads as carrying the tread and not as butting into its edge. */
+const BRACKET_UNDER_TREAD = 0.45;
+/** How far a bracket's top stands up into the wood. */
+const BRACKET_EMBED = 0.02;
+/** A bracket on the lowest flight whose underside would come nearer the
+ *  floor than this is left out: it would lie on the parquet. */
+const BRACKET_FLOOR_CLEAR = 0.5;
 
-/** Build a set of horizontal arms — one per step — anchoring the
- *  inner edge of each tread to the central stone column. Each arm
- *  overlaps a few centimetres into the column on its inner end and a
- *  few centimetres into the tread on its outer end, so there's no
- *  visible gap at either join. Centred under each tread (not at the
- *  step boundary) so they read as supports for the wedge directly
- *  above them. */
-function buildStepBrackets(staircase: Staircase): Array<{
-  position: [number, number, number];
-  rotationY: number;
-  length: number;
-  height: number;
-  width: number;
-}> {
+/** The column's iron arms, one to every `BRACKET_EVERY_STEPS` treads, as
+ *  one geometry. Each runs from inside the column out under its tread,
+ *  along the radial line through the tread's middle. The soffit is a
+ *  helicoid: along that line it is level, across it it slopes with the
+ *  climb, steepest at the inner edge. Until 17 October 2026 the arm was
+ *  level both ways and stopped 4 cm inside the edge, so one side of its
+ *  top stood 3 cm clear of the wood at the edge, and the lowest arm's
+ *  top lay in the floor's plane and flickered with it. Now the arm is
+ *  tilted to the soffit's slope at the inner edge, its top 2 cm up in
+ *  the wood; further out the soffit slopes less and the arm only sits
+ *  deeper in it. */
+function buildStepBrackets(
+  staircase: Staircase,
+  hasFlightBelow: boolean,
+): THREE.BufferGeometry | null {
   const { numSteps, direction, lowerY, upperY, innerRadius, entryAngle } = staircase;
   const stepAngle = ((Math.PI * 2) / numSteps) * direction;
   const stepRise = (upperY - lowerY) / numSteps;
-  // Bracket spans from a few cm INSIDE the column (so it merges
-  // visually with the cylinder's surface) out to a few cm INTO the
-  // tread (so it tucks under the wedge with no air gap).
   const innerR = SPIRAL_COLUMN_RADIUS - 0.05;
-  const outerR = innerRadius + 0.04;
+  const outerR = innerRadius + BRACKET_UNDER_TREAD;
   const length = outerR - innerR;
   const midR = (innerR + outerR) / 2;
-  // A forged arm, 12 cm square. Until 17 October 2026 each bracket
-  // filled most of a rise and was 40 cm wide; under the treads' one
-  // sloped soffit they read as a second flight of steps in the well.
-  const height = BRACKET_SIZE;
-  const width = BRACKET_SIZE;
-  const out: Array<{
-    position: [number, number, number];
-    rotationY: number;
-    length: number;
-    height: number;
-    width: number;
-  }> = [];
-  for (let i = 0; i < numSteps; i++) {
-    // Centred under the tread's middle angle (not its start), so
-    // the bracket sits visually under the wedge it supports.
-    const a = entryAngle + (i + 0.5) * stepAngle;
+  // The soffit's rise per metre round the arc at the tread's inner edge,
+  // toward increasing angle.
+  const slope = (direction * stepRise) / (Math.abs(stepAngle) * innerRadius);
+  // After rotateY(-a) the box's +z points toward increasing angle; a
+  // turn of -atan(slope) about its length lifts its top on that side.
+  const tilt = -Math.atan(slope);
+  const boxes: THREE.BufferGeometry[] = [];
+  for (let i = BRACKET_STEP_OFFSET; i < numSteps; i += BRACKET_EVERY_STEPS) {
     // Under a tread's middle its soffit is one rise below its top
-    // (`SOFFIT_WAIST_RISES`); the bracket's top touches it there, so
-    // its centreline is half a bracket-height below.
-    const treadBottomY = lowerY + i * stepRise - stepRise;
-    const yCentre = treadBottomY - height / 2;
+    // (`SOFFIT_WAIST_RISES`).
+    const soffitY = lowerY + i * stepRise - stepRise;
+    const yCentre = soffitY + BRACKET_EMBED - BRACKET_SIZE / 2;
+    const lowest = yCentre - BRACKET_SIZE / 2 - (BRACKET_SIZE / 2) * Math.abs(slope);
+    if (!hasFlightBelow && lowest < lowerY + BRACKET_FLOOR_CLEAR) continue;
+    const a = entryAngle + (i + 0.5) * stepAngle;
     // rotationY = -a, NOT +a: three.js's Y-rotation maps local +X
-    // to (cos θ, 0, -sin θ), but we need it to land on the radial
-    // outward direction at angle a, which is (cos a, 0, sin a).
-    // That requires θ = -a. Using +a here pointed every bracket at
-    // the mirror angle across the X-axis, so they fanned in random
-    // directions instead of lying along the radial line under each
-    // tread.
-    out.push({
-      position: [midR * Math.cos(a), yCentre, midR * Math.sin(a)],
-      rotationY: -a,
-      length,
-      height,
-      width,
-    });
+    // to (cos θ, 0, -sin θ), but the radial outward direction at
+    // angle a is (cos a, 0, sin a).
+    boxes.push(
+      new THREE.BoxGeometry(length, BRACKET_SIZE, BRACKET_SIZE)
+        .rotateX(tilt)
+        .rotateY(-a)
+        .translate(midR * Math.cos(a), yCentre, midR * Math.sin(a)),
+    );
   }
-  return out;
+  if (boxes.length === 0) return null;
+  const merged = mergeGeometries(boxes, false);
+  for (const b of boxes) b.dispose();
+  return merged;
 }
 
 /**
@@ -1058,8 +1045,8 @@ function buildStepBrackets(staircase: Staircase): Array<{
  * A central stone column runs through the open well from this
  * revolution's lower floor to its upper floor; the column segments
  * stack continuously across stories, giving the entire helix a
- * shared masonry spine. Per-step iron brackets reach from the
- * column out to the inner edge of each tread, so the steps read as
+ * shared masonry spine. Iron brackets, one to every few treads,
+ * reach from the column out under the treads, so the steps read as
  * cantilevered off the column rather than floating in space.
  */
 export function StaircaseRenderer({
@@ -1095,21 +1082,9 @@ export function StaircaseRenderer({
       ),
     [innerRail, outerRail],
   );
-  // Per-step radial beams tying each tread back to the column. Box's
-  // local axes after Y-rotation:
-  //   X = radial (length, spanning column → tread),
-  //   Y = vertical (height, fills most of the step rise),
-  //   Z = tangential (width, ≈ half the step's inner arc).
   const bracketGeom = useMemo(
-    () =>
-      mergeBoxes(
-        buildStepBrackets(staircase).map((b) => ({
-          size: [b.length, b.height, b.width],
-          position: b.position,
-          rotationY: b.rotationY,
-        })),
-      ),
-    [staircase],
+    () => buildStepBrackets(staircase, hasFlightBelow),
+    [staircase, hasFlightBelow],
   );
   // Top landing — only the helix's topmost flight gets one: the patch
   // past the gate as far as the handrail that closes the well.

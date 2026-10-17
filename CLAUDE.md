@@ -1913,8 +1913,14 @@ required by the Dockerfile — don't remove it.
   - **Spirals.** Oiled walnut treads on the frames' walnut map, grain
     along the tread, a board per step; the undersides form one
     helicoid half a rise under each tread's back edge
-    (`SOFFIT_WAIST_RISES`), and the iron brackets are 12 cm arms. Round
-    bars with collars on the spiral and the cutout rail (`mergeBars`).
+    (`SOFFIT_WAIST_RISES`). The iron brackets are 12 cm arms under
+    every fourth tread's middle (`BRACKET_EVERY_STEPS`), none within
+    0.5 m of the ground floor, running 0.45 m on under the tread and
+    tilted to the soffit's slope at its inner edge, 2 cm up in the
+    wood. Rico, 17 October 2026: one under every tread read as a second
+    flight of black bars, a level arm left a 3 cm slit under the wood
+    on one side, and the lowest lay in the floor's plane. Round bars
+    with collars on the spiral and the cutout rail (`mergeBars`).
     The column is the pale marble in grey, uvs in metres from the
     ground. It is an open tube, so the top revolution closes it with a
     disc: open, from the top floor the tube's inside showed, its near
