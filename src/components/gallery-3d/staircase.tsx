@@ -54,11 +54,13 @@ const treadMaterial = new THREE.MeshStandardMaterial({
   map: frameMaps.walnutColor,
   normalMap: frameMaps.walnutNormal,
   normalScale: new THREE.Vector2(0.5, 0.5),
-  roughness: 0.55,
+  // Oiled, not lacquered: Rico found the stairs too shiny.
+  roughness: 0.68,
   metalness: 0,
   // The step lights are baked into the treads' vertex colours.
   vertexColors: true,
 });
+treadMaterial.userData.envScale = 0.6;
 /** The walnut's mean colour: what the step lights are reckoned against. */
 const TREAD_WOOD = new THREE.Color("#3a2a1f");
 /** How far the soffit stays under a tread's top at its back edge: half a
@@ -140,8 +142,9 @@ const columnMaterial = new THREE.MeshStandardMaterial({
   roughnessMap: stairMaps.marbleRough,
   normalMap: stairMaps.marbleNormal,
   normalScale: new THREE.Vector2(0.3, 0.3),
-  metalness: 0.02,
+  metalness: 0,
 });
+columnMaterial.userData.envScale = 0.5;
 const bracketMaterial = new THREE.MeshStandardMaterial({
   // Same wrought-iron family as the balusters — the radial
   // brackets read as forged hardware tying each tread to the

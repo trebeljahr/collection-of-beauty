@@ -1865,38 +1865,60 @@ required by the Dockerfile — don't remove it.
   - They are DataTextures on purpose. three uploads them again after
     the Canvas remounts for a lost context. A render target here would
     need the per-renderer cache `room-env-map.tsx` uses.
-- **Stair surfaces** (`stair-maps.ts`), built the same way: veined
-  marble (colour, roughness, normal; 1.6 m tile), ashlar in 0.6 m
-  courses (2.4 × 1.2 m) and the pile of a runner (0.2 m), about 6 MiB
-  with mips, ~55 ms to build once. Rico, 17 October 2026: in flat
-  colour both stairs read as "toy". What changed with the maps:
-  - **Grand stairs.** Treads, landings, balustrades are marble, each
-    block cut from another place in the map (`Solid` with `vary`;
-    `block()` keeps a tread and its nosing one slab). Upright faces of
-    masonry built up from the floor (solid landings, solid flights'
-    sides, skirts under a balustrade) are ashlar, routed by
-    `withSides`. A flight that spans free has one sloped soffit, on
-    the line the physics keeps clear (`STAIR_SLAB` under the nosings):
-    a flat-bottomed block per tread drew a staircase upside down under
-    every flight. Each tread has a nosing 3.5 cm out. The runner's
-    colours are vertex tints (binding, gold band, crimson field,
-    `CARPET_BANDS`); it falls from the nosing to the tread below and a
-    brass rod lies in each angle. Balusters are turned: a square block
-    at foot and head, 8 smooth facets between, 136 triangles each
-    where the square ones were 48. Every hall draws all four storeys'
-    balustrades, so a stair hall went from about 70,000 to 165,000
-    triangles in view, 590,000 looking down the whole hall from a
-    landing (229,000 before); measured +1 ms a frame there on an M5.
-  - **Spirals.** Walnut treads on the frames' walnut map, grain along
-    the tread, a different board per step; the blocks' undersides form
-    one helicoid half a rise under each tread's back edge
-    (`SOFFIT_WAIST_RISES`), and the iron brackets are 12 cm arms that
-    meet it under each tread's middle. Balusters on the spiral and the
-    cutout rail are round bars with collars (`mergeBars`). The column
-    is grey marble with uvs in metres from the ground, so storeys join.
-    It is an open tube, so the top revolution closes it with a disc:
-    open, from the top floor the tube's inside showed, its near half
-    culled, as a curled sheet of marble (Rico, 17 October 2026).
+- **Stair surfaces** (`stair-maps.ts`), built the same way: a pale
+  veined marble (2.4 m tile), a dark marble with white flecks (0.8 m),
+  ashlar in 0.6 m courses (2.4 × 1.2 m), lime plaster (1.6 m), a plain
+  pile (0.2 m) and a patterned runner field (0.32 m, sRGB), about
+  10 MiB with mips, built once. Rico, 17 October 2026: in flat colour
+  both stairs read as "toy"; after the first pass he found them too
+  shiny, the carpet still flat, the rails crossing and the soffits the
+  wrong material. Where it stands:
+  - **Nothing is polished.** Marble roughness 0.55 to 0.7, and the
+    stone, carpet and spiral materials take half the lamp map's
+    reflection (`userData.envScale`). Polished, the turned balusters
+    mirrored the lamps in vertical stripes.
+  - **Grand stairs.** Treads, landings, balustrades are pale marble,
+    each block moved and turned a quarter in the map (`blockOffset`),
+    so the tile's veins never line up block to block; `block()` keeps
+    a tread and its nosing one slab. Handrail caps and newel caps are
+    the dark marble. Upright faces of masonry built up from the floor
+    are ashlar (`withSides`). Every face that looks down goes to the
+    plaster (`Solid.under`): the soffits of flights and landings,
+    beams, stringers. A nosing's underside and a fascia stay stone
+    (`keepUnder`). A free flight has one sloped soffit on the line the
+    physics keeps clear (`STAIR_SLAB` under the nosings).
+  - **Where a flight runs under a gallery.** A side flight's outer
+    balustrade stands on the same line as the gallery's balustrade
+    above it, and ran up through it. `railCeilings` finds a level rail
+    on the same line and higher, and the flight's balustrade stops
+    where its cap meets that floor's fascia; a solid parapet carries on
+    from there to the top. Rendering only: the rails in `GrandStair`
+    and their colliders are unchanged. Each level rail at a floor's
+    height has a stone fascia over the slab's edge (`FASCIA_DEPTH`).
+  - **The floors' slabs round an opening** (`StairwellFloor` in
+    `room-geometry.tsx`) are drawn in the plaster (`soffitMaterial`),
+    edge and underside. In the floor's material they were parquet seen
+    from below, a band of wood under every gallery balustrade.
+  - **The runner.** Its field is its own mesh on the patterned map,
+    with uvs laid up the flight (tread, riser, tread: `Solid.uvAt`);
+    its binding and gold band are vertex tints on the plain pile. It
+    turns over each nosing on a 2.5 cm roll (`CARPET_ROLL`) and falls
+    to the tread below, where a brass rod lies in the angle.
+  - **Balusters** are turned: a square block at foot and head, whose
+    underside and top follow a sloped plinth and cap, and 8 smooth
+    facets between, 136 triangles where the square ones were 48. A
+    stair hall went from about 70,000 to 165,000 triangles in view,
+    520,000 to 590,000 looking down the hall from a landing (229,000
+    before); about +1 ms a frame there on an M5.
+  - **Spirals.** Oiled walnut treads on the frames' walnut map, grain
+    along the tread, a board per step; the undersides form one
+    helicoid half a rise under each tread's back edge
+    (`SOFFIT_WAIST_RISES`), and the iron brackets are 12 cm arms. Round
+    bars with collars on the spiral and the cutout rail (`mergeBars`).
+    The column is the pale marble in grey, uvs in metres from the
+    ground. It is an open tube, so the top revolution closes it with a
+    disc: open, from the top floor the tube's inside showed, its near
+    half culled, as a curled sheet of marble (Rico, 17 October 2026).
   - The room walls are untouched: "Walls are one flat colour", below.
 - Frame materials (`frame-materials.ts`): nine, one per *surface*
   (leaf, leaf on oak, dark wood, pale wood, lacquer, paint, mat board,

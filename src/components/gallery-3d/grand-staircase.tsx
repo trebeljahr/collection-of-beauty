@@ -10,6 +10,7 @@ import {
   type StairPatch,
   type StairRail,
 } from "@/lib/gallery-layout/grand-stair";
+import { FLOOR_SEPARATION, FLOOR_THICKNESS } from "@/lib/gallery-layout/world-coords";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { buildGlowGeometry, makeGlobeGlowMaterial, makeGlobeMaterial } from "./glow";
 import { fixtureMaterial, HIGHLIGHT_ENV_MATERIALS } from "./palette-materials";
@@ -31,8 +32,9 @@ import { getStairMaps } from "./stair-maps";
 const stairMaps = getStairMaps();
 // Rico, 17 October 2026: in flat colour the stair still read as a toy.
 // The stone is a veined white marble (stair-maps.ts), each block cut
-// from another part of the slab (`Solid.vary`), polished where it is
-// walked and duller in its veins.
+// from another part of the slab (`Solid.vary`). It is honed, not
+// polished: polished, every baluster mirrored the lamps in stripes, and
+// he did not like the shine. It takes half the lamp map's reflection.
 const stoneMaterial = new THREE.MeshStandardMaterial({
   // Pale limestone: the stair is the lightest thing in its hall, as in
   // the halls it is modelled on.
@@ -42,33 +44,78 @@ const stoneMaterial = new THREE.MeshStandardMaterial({
   roughnessMap: stairMaps.marbleRough,
   normalMap: stairMaps.marbleNormal,
   normalScale: new THREE.Vector2(0.35, 0.35),
-  metalness: 0.02,
+  metalness: 0,
   // Faces are shaded by which way they look (`FACE_SHADE`).
   vertexColors: true,
 });
+stoneMaterial.userData.envScale = 0.5;
+// The handrails and the caps of the newels: a dark marble with white
+// flecks, which he asked for the same day. Against the pale balusters
+// it draws the line of each rail.
+const darkStoneMaterial = new THREE.MeshStandardMaterial({
+  color: "#ffffff",
+  map: stairMaps.darkMarbleColor,
+  roughness: 1,
+  roughnessMap: stairMaps.darkMarbleRough,
+  normalMap: stairMaps.darkMarbleNormal,
+  normalScale: new THREE.Vector2(0.3, 0.3),
+  metalness: 0,
+  vertexColors: true,
+});
+darkStoneMaterial.userData.envScale = 0.5;
 // What reaches the floor: the side walls of a solid landing and the
 // masonry under a balustrade. Dressed stone in courses, the same pale
 // stone as the stair, so the joints carry it and not a change of tone.
 const masonryMaterial = new THREE.MeshStandardMaterial({
   color: "#d6cdbb",
   map: stairMaps.ashlarColor,
-  roughness: 0.8,
+  roughness: 0.85,
   normalMap: stairMaps.ashlarNormal,
   normalScale: new THREE.Vector2(0.6, 0.6),
   metalness: 0,
   vertexColors: true,
 });
-// The runner's colours are in its vertices (`CARPET_BANDS`): crimson,
-// a gold band and a dark binding at each edge. The map is the pile.
-const carpetMaterial = new THREE.MeshStandardMaterial({
+masonryMaterial.userData.envScale = 0.5;
+/**
+ * Lime plaster under every flight and landing, and the body of each
+ * floor round a stair's opening (`StairwellFloor`). In marble the
+ * soffits showed the tile's veins across metres of ceiling; in parquet
+ * the floors' edges and undersides were wood seen from below. It takes
+ * the scene's light, as the hall's floors and ceilings do, and no
+ * vertex colours, so the floors' slabs can share it.
+ */
+export const soffitMaterial = new THREE.MeshStandardMaterial({
+  color: "#d8d1c4",
+  map: stairMaps.plasterColor,
+  roughness: 0.95,
+  normalMap: stairMaps.plasterNormal,
+  normalScale: new THREE.Vector2(0.5, 0.5),
+  metalness: 0,
+});
+// The runner. Its field is a patterned wool (`buildCarpetMap`) read
+// with uvs that run up the flight, tread and riser after one another,
+// as a runner is laid; its edge, a dark binding and a gold band in
+// vertex colours (`CARPET_BANDS`) over the plain pile.
+const carpetFieldMaterial = new THREE.MeshStandardMaterial({
   color: "#ffffff",
-  map: stairMaps.pileColor,
-  normalMap: stairMaps.pileNormal,
-  normalScale: new THREE.Vector2(0.8, 0.8),
-  roughness: 0.97,
+  map: stairMaps.carpetColor,
+  normalMap: stairMaps.carpetNormal,
+  normalScale: new THREE.Vector2(1.3, 1.3),
+  roughness: 1,
   metalness: 0,
   vertexColors: true,
 });
+carpetFieldMaterial.userData.envScale = 0.4;
+const carpetEdgeMaterial = new THREE.MeshStandardMaterial({
+  color: "#ffffff",
+  map: stairMaps.pileColor,
+  normalMap: stairMaps.pileNormal,
+  normalScale: new THREE.Vector2(1.3, 1.3),
+  roughness: 1,
+  metalness: 0,
+  vertexColors: true,
+});
+carpetEdgeMaterial.userData.envScale = 0.4;
 // The runner's rods: polished brass, so each step edge carries a line
 // of light. In the lamps' dark bronze they read as black rules.
 const rodMaterial = new THREE.MeshStandardMaterial({
@@ -121,7 +168,14 @@ const LAMP_GLOW = 0.75;
 const globeGlowMaterial = makeGlobeGlowMaterial("#ffe6c4", LAMP_GLOBE_R / LAMP_GLOW_R);
 // Lit from above by the lamp map the frames reflect, as the spiral is:
 // treads take about twice the light of risers and soffits.
-HIGHLIGHT_ENV_MATERIALS.push(stoneMaterial, masonryMaterial, carpetMaterial, rodMaterial);
+HIGHLIGHT_ENV_MATERIALS.push(
+  stoneMaterial,
+  darkStoneMaterial,
+  masonryMaterial,
+  carpetFieldMaterial,
+  carpetEdgeMaterial,
+  rodMaterial,
+);
 
 // Balustrade, metres.
 const PLINTH_HEIGHT = 0.12;
@@ -157,6 +211,9 @@ const BALUSTER_SIDES = 8;
  *  the share of its light it keeps at its foot and at its head. */
 const BALUSTER_FOOT_SHADE = 0.8;
 const BALUSTER_HEAD_SHADE = 0.66;
+/** The stone fascia over the edge of a floor round the opening: the
+ *  floor's slab and 2 cm more. */
+const FASCIA_DEPTH = FLOOR_THICKNESS + 0.02;
 const NEWEL_SIZE = 0.36;
 const NEWEL_RISE = 0.14;
 const SKIRT_WIDTH = 0.3;
@@ -169,6 +226,8 @@ const BEAM_WIDTH = 0.36;
 const BEAM_DEPTH = 0.75;
 /** How far the carpet stands off the stone. */
 const CARPET_LIFT = 0.012;
+/** How far the runner's roll over a nosing cuts off the corner. */
+const CARPET_ROLL = 0.025;
 /** A tread's nosing: how far it stands out over the riser below and how
  *  thick it is. The face under it looks down and takes the downward
  *  share of the light, a dark line under every step edge. Without it a
@@ -181,7 +240,6 @@ const CARPET_BANDS: ReadonlyArray<{ width: number; colour: string }> = [
   { width: 0.03, colour: "#3d0c12" },
   { width: 0.045, colour: "#b38a43" },
 ];
-const CARPET_FIELD = "#7c1622";
 /** A brass rod across the foot of every riser, holding the runner into
  *  the angle of the step: its half thickness, and how far it runs past
  *  the runner's edge to its eye. */
@@ -202,13 +260,22 @@ function linear(hex: string): Rgb {
   return [c.r, c.g, c.b];
 }
 
-/** Where in the marble a block is cut from: a uv offset, metres, the
- *  same on every run. */
-function blockOffset(n: number): [number, number] {
+/** Where in the marble a block is cut from: a uv offset, metres, and
+ *  a quarter turn of the slab (0 to 3), the same on every run. Turned
+ *  as well as moved, a block does not show the tile's veins in the
+ *  order the next block shows them. */
+type Cut = readonly [number, number, number];
+function blockOffset(n: number): Cut {
   const a = Math.sin(n * 12.9898) * 43758.5453;
   const b = Math.sin(n * 78.233) * 12543.1234;
-  return [(a - Math.floor(a)) * 9.6, (b - Math.floor(b)) * 9.6];
+  const c = Math.sin(n * 39.425) * 24634.6345;
+  return [
+    (a - Math.floor(a)) * 9.6,
+    (b - Math.floor(b)) * 9.6,
+    Math.floor((c - Math.floor(c)) * 4),
+  ];
 }
+const UNCUT: Cut = [0, 0, 0];
 
 /** Collects flat-shaded boxes into one geometry. With a `reach`, no box
  *  goes further than that from the hall's centre in x or z, nor further
@@ -227,10 +294,14 @@ class Solid {
   private readonly back: number;
   private readonly vary: boolean;
   private pieces = 0;
-  private held: [number, number] | null = null;
+  private held: Cut | null = null;
   private sides: { to: Solid; only: "all" | "x" } | null = null;
+  /** Where faces that look down go: the plaster of the soffits. */
+  under: Solid | null = null;
   /** The linear colour of what is added next. */
   tint: Rgb = [1, 1, 1];
+  /** A uv for a vertex, in place of the projection, while set. */
+  uvAt: ((p: P3, n: P3) => [number, number]) | null = null;
 
   constructor(reach = Number.POSITIVE_INFINITY, back = reach, vary = false) {
     this.reach = reach;
@@ -255,21 +326,26 @@ class Solid {
     this.sides = outer;
   }
 
-  private nextOffset(): [number, number] {
-    return this.vary ? blockOffset(++this.pieces) : [0, 0];
+  /** Keeps what `draw` adds that looks down here, not on `under`: the
+   *  underside of a nosing or a fascia is stone, not plaster. */
+  keepUnder(draw: () => void) {
+    const outer = this.under;
+    this.under = null;
+    draw();
+    this.under = outer;
   }
 
-  private push(
-    p: P3,
-    n: P3,
-    shade: number,
-    offset: readonly [number, number],
-    uv?: [number, number],
-  ) {
+  private nextOffset(): Cut {
+    return this.vary ? blockOffset(++this.pieces) : UNCUT;
+  }
+
+  private push(p: P3, n: P3, shade: number, offset: Cut, uv?: [number, number]) {
     let u: number;
     let v: number;
     if (uv) {
       [u, v] = uv;
+    } else if (this.uvAt) {
+      [u, v] = this.uvAt(p, n);
     } else {
       const ax = Math.abs(n[0]);
       const ay = Math.abs(n[1]);
@@ -281,7 +357,9 @@ class Solid {
     this.position.push(p[0], p[1], p[2]);
     this.normal.push(n[0], n[1], n[2]);
     this.color.push(shade * this.tint[0], shade * this.tint[1], shade * this.tint[2]);
-    this.uv.push(u + offset[0], v + offset[1]);
+    const turned: [number, number] =
+      offset[2] === 1 ? [v, -u] : offset[2] === 2 ? [-u, -v] : offset[2] === 3 ? [-v, u] : [u, v];
+    this.uv.push(turned[0] + offset[0], turned[1] + offset[1]);
   }
 
   /** A box of eight corners: the four of its underside in order round
@@ -331,8 +409,9 @@ class Solid {
         this.sides &&
         Math.abs(unit[1]) < 0.75 &&
         (this.sides.only === "all" || Math.abs(unit[0]) > 0.75);
-      const to = routed && this.sides ? this.sides.to : this;
-      const at = to === this ? offset : ([0, 0] as const);
+      const to =
+        routed && this.sides ? this.sides.to : unit[1] < -0.75 && this.under ? this.under : this;
+      const at = to === this ? offset : UNCUT;
       const corners: Array<[P3, number]> = [
         [a, ia],
         [b, ib],
@@ -454,19 +533,21 @@ const cross = (a: P3, b: P3): P3 => [
 const dot = (a: P3, b: P3) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
 const lengthOf = (a: P3) => Math.hypot(a[0], a[1], a[2]);
 
-const FIELD = linear(CARPET_FIELD);
 const BANDS = CARPET_BANDS.map((b) => ({ width: b.width, colour: linear(b.colour) }));
 
+/** A runner's two meshes: its patterned field and its edge bands. */
+type Carpet = { field: Solid; edge: Solid };
+
 /** The runner across a half width `half` about `cx`, from the left edge
- *  to the right: [from, to, colour]. */
-function runnerStripes(cx: number, half: number): Array<[number, number, Rgb]> {
-  const out: Array<[number, number, Rgb]> = [];
+ *  to the right: [from, to, the band's colour, or null for the field]. */
+function runnerStripes(cx: number, half: number): Array<[number, number, Rgb | null]> {
+  const out: Array<[number, number, Rgb | null]> = [];
   let edge = 0;
   for (const band of BANDS) {
     out.push([cx - half + edge, cx - half + edge + band.width, band.colour]);
     edge += band.width;
   }
-  out.push([cx - half + edge, cx + half - edge, FIELD]);
+  out.push([cx - half + edge, cx + half - edge, null]);
   for (const band of [...BANDS].reverse()) {
     edge -= band.width;
     out.push([cx + half - edge - band.width, cx + half - edge, band.colour]);
@@ -475,22 +556,27 @@ function runnerStripes(cx: number, half: number): Array<[number, number, Rgb]> {
 }
 
 /** A rug on a landing: the runner's bands as frames round its field. */
-function addRug(carpet: Solid, xMin: number, xMax: number, zMin: number, zMax: number, y: number) {
+function addRug(carpet: Carpet, xMin: number, xMax: number, zMin: number, zMax: number, y: number) {
   const top = y + CARPET_LIFT;
+  const { edge, field } = carpet;
   let inset = 0;
   for (const band of BANDS) {
-    carpet.tint = band.colour;
+    edge.tint = band.colour;
     const [x0, x1, z0, z1] = [xMin + inset, xMax - inset, zMin + inset, zMax - inset];
     const w = band.width;
-    carpet.box(x0, x1, y, top, z0, z0 + w);
-    carpet.box(x0, x1, y, top, z1 - w, z1);
-    carpet.box(x0, x0 + w, y, top, z0 + w, z1 - w);
-    carpet.box(x1 - w, x1, y, top, z0 + w, z1 - w);
+    edge.box(x0, x1, y, top, z0, z0 + w);
+    edge.box(x0, x1, y, top, z1 - w, z1);
+    edge.box(x0, x0 + w, y, top, z0 + w, z1 - w);
+    edge.box(x1 - w, x1, y, top, z0 + w, z1 - w);
     inset += w;
   }
-  carpet.tint = FIELD;
-  carpet.box(xMin + inset, xMax - inset, y, top, zMin + inset, zMax - inset);
-  carpet.tint = [1, 1, 1];
+  edge.tint = [1, 1, 1];
+  // The field's pattern centred on the rug.
+  const cx = (xMin + xMax) / 2;
+  const cz = (zMin + zMax) / 2;
+  field.uvAt = (q) => [q[0] - cx, q[2] - cz];
+  field.box(xMin + inset, xMax - inset, y, top, zMin + inset, zMax - inset);
+  field.uvAt = null;
 }
 
 /** Treads and landings of one patch, the carpet on them, and the rods
@@ -499,7 +585,7 @@ function addRug(carpet: Solid, xMin: number, xMax: number, zMin: number, zMax: n
 function addPatch(
   stone: Solid,
   masonry: Solid,
-  carpet: Solid,
+  carpet: Carpet,
   rods: Solid,
   p: StairPatch,
   baseY: number,
@@ -517,9 +603,11 @@ function addPatch(
   }
 
   const rise = (p.y1 - p.y0) / p.steps;
+  const run = Math.abs(p.z1 - p.z0) / p.steps;
   const runner = 0.55 * Math.min(p.hw0, p.hw1);
   const toward = Math.sign(p.z1 - p.z0);
   const stripes = runnerStripes(p.cx, runner);
+  const { edge, field } = carpet;
   const treads = () => {
     for (let i = 0; i < p.steps; i++) {
       const t0 = i / p.steps;
@@ -548,22 +636,49 @@ function addPatch(
           [p.cx + hb, top, zb],
           [p.cx - hb, top, zb],
         ]);
-        stone.box(
-          p.cx - ha,
-          p.cx + ha,
-          top - NOSING_THICK,
-          top,
-          Math.min(nose, za),
-          Math.max(nose, za),
+        stone.keepUnder(() =>
+          stone.box(
+            p.cx - ha,
+            p.cx + ha,
+            top - NOSING_THICK,
+            top,
+            Math.min(nose, za),
+            Math.max(nose, za),
+          ),
         );
       });
       // The runner covers the tread and falls from the nosing to the
       // tread below, the way a runner laid over a nosing does.
       const front = nose - toward * CARPET_LIFT;
+      // The field's uv runs up the flight as the runner is laid: across
+      // it u, and v the length of runner from the flight's foot, tread
+      // and riser after one another, so the pattern turns over the
+      // nosing and does not restart on every riser.
+      const laid = i * (run + rise);
+      field.uvAt = (q, n) =>
+        Math.abs(n[1]) > 0.5
+          ? [q[0] - p.cx, laid + rise + (q[2] - za) * toward]
+          : [q[0] - p.cx, laid + (q[1] - below)];
+      // Over the nosing the runner turns on a 45° roll, not a box's
+      // corner: a hard arris was what made it read as painted board.
+      const lid = top + CARPET_LIFT;
+      const roll = front + toward * CARPET_ROLL;
       for (const [x0, x1, colour] of stripes) {
-        carpet.tint = colour;
-        carpet.box(x0, x1, below, top + CARPET_LIFT, Math.min(front, zb), Math.max(front, zb));
+        const to = colour ? edge : field;
+        if (colour) edge.tint = colour;
+        to.hexa([
+          [x0, below, front],
+          [x1, below, front],
+          [x1, below, roll],
+          [x0, below, roll],
+          [x0, lid - CARPET_ROLL, front],
+          [x1, lid - CARPET_ROLL, front],
+          [x1, lid, roll],
+          [x0, lid, roll],
+        ]);
+        to.box(x0, x1, below, lid, Math.min(roll, zb), Math.max(roll, zb));
       }
+      field.uvAt = null;
       // The rod lies in the angle at the riser's foot, on the tread below.
       const rz = front - toward * ROD_HALF;
       const ry = below + CARPET_LIFT + ROD_HALF;
@@ -576,14 +691,17 @@ function addPatch(
         rz + ROD_HALF,
       );
     }
-    carpet.tint = [1, 1, 1];
+    edge.tint = [1, 1, 1];
   };
   if (p.solid) stone.withSides(masonry, "x", treads);
   else treads();
 }
 
 /** One baluster, its foot at (x, y, z), its blocks turned to the rail's
- *  direction (ux, uz). */
+ *  direction (ux, uz). On a sloped rail (`slope`, rise per metre along
+ *  it) the foot block's underside follows the plinth and the head
+ *  block's top follows the cap: level, the downhill corner of each
+ *  stood clear of the stone by 4 cm and the uphill one was sunk in it. */
 function addBaluster(
   solid: Solid,
   x: number,
@@ -592,16 +710,19 @@ function addBaluster(
   height: number,
   ux: number,
   uz: number,
+  slope: number,
 ) {
-  const ring = (at: number, half: number): P3[] => {
+  const ring = (at: number, half: number, follow = false): P3[] => {
     const ax = ux * half;
     const az = uz * half;
     const yy = y + at * height;
+    // The corners lie half a block back and forward along the rail.
+    const dy = follow ? slope * half : 0;
     return [
-      [x - ax + az, yy, z - az - ax],
-      [x + ax + az, yy, z + az - ax],
-      [x + ax - az, yy, z + az + ax],
-      [x - ax - az, yy, z - az + ax],
+      [x - ax + az, yy - dy, z - az - ax],
+      [x + ax + az, yy + dy, z + az - ax],
+      [x + ax - az, yy + dy, z + az + ax],
+      [x - ax - az, yy - dy, z - az + ax],
     ];
   };
   // Dark at the foot, darkest under the cap, full in between.
@@ -617,7 +738,7 @@ function addBaluster(
   const hi = shadow(1);
   solid.block(() => {
     solid.hexa(
-      [...ring(0, foot.half), ...ring(foot.top, foot.half)],
+      [...ring(0, foot.half, true), ...ring(foot.top, foot.half)],
       [lo, lo, lo, lo, lt, lt, lt, lt],
     );
     solid.lathe(
@@ -629,14 +750,26 @@ function addBaluster(
       (h) => shadow(h / height),
     );
     solid.hexa(
-      [...ring(head.foot, head.half), ...ring(1, head.half)],
+      [...ring(head.foot, head.half), ...ring(1, head.half, true)],
       [hf, hf, hf, hf, hi, hi, hi, hi],
     );
   });
 }
 
-/** One balustrade: plinth, balusters, cap, and what it stands on. */
-function addRail(stone: Solid, masonry: Solid, balusters: Solid, r: StairRail) {
+/** The part of a rail between two places along it, 0 at its start. */
+function railPart(r: StairRail, t0: number, t1: number): StairRail {
+  const at = (t: number) => ({
+    x: r.x0 + (r.x1 - r.x0) * t,
+    z: r.z0 + (r.z1 - r.z0) * t,
+    y: r.y0 + (r.y1 - r.y0) * t,
+  });
+  const a = at(t0);
+  const b = at(t1);
+  return { ...r, x0: a.x, z0: a.z, y0: a.y, x1: b.x, z1: b.z, y1: b.y };
+}
+
+/** The balustrade itself: plinth, balusters and the dark cap. */
+function addBalustrade(stone: Solid, dark: Solid, balusters: Solid, r: StairRail) {
   const len = Math.hypot(r.x1 - r.x0, r.z1 - r.z0);
   if (len < 1e-6) return;
   const h = GRAND_RAIL_HEIGHT;
@@ -651,7 +784,7 @@ function addRail(stone: Solid, masonry: Solid, balusters: Solid, r: StairRail) {
     r.y0 + PLINTH_HEIGHT,
     r.y1 + PLINTH_HEIGHT,
   );
-  stone.wall(
+  dark.wall(
     r.x0,
     r.z0,
     r.x1,
@@ -666,6 +799,7 @@ function addRail(stone: Solid, masonry: Solid, balusters: Solid, r: StairRail) {
   // Square to the rail, so on a curved rail each turns with it.
   const ux = (r.x1 - r.x0) / len;
   const uz = (r.z1 - r.z0) / len;
+  const slope = (r.y1 - r.y0) / len;
   for (let i = 0; i < count; i++) {
     const t = (i + 0.5) / count;
     addBaluster(
@@ -676,9 +810,53 @@ function addRail(stone: Solid, masonry: Solid, balusters: Solid, r: StairRail) {
       h - PLINTH_HEIGHT - CAP_HEIGHT,
       ux,
       uz,
+      slope,
     );
   }
+}
+
+/** One balustrade, and what it stands on. `ceiling` is how high it may
+ *  reach: a flight that climbs under the edge of a gallery stops its
+ *  balustrade where the cap meets the gallery's fascia, and a solid
+ *  parapet runs on from there between the flight and the fascia. Until
+ *  17 October 2026 the side flights' outer balustrades ran on up
+ *  through the galleries' balustrades, which stand on the same line. */
+function addRail(
+  stone: Solid,
+  masonry: Solid,
+  dark: Solid,
+  balusters: Solid,
+  r: StairRail,
+  ceiling = Number.POSITIVE_INFINITY,
+) {
+  const h = GRAND_RAIL_HEIGHT;
   const sloped = Math.abs(r.y1 - r.y0) > 1e-6;
+  // Where along the rail its cap reaches the ceiling: the balustrade
+  // on the side of it that stays under, a parapet on the other.
+  const tc = sloped ? Math.min(1, Math.max(0, (ceiling - h - r.y0) / (r.y1 - r.y0))) : 1;
+  const rising = r.y1 > r.y0;
+  const [free, under] = !sloped
+    ? [
+        [0, 1],
+        [1, 1],
+      ]
+    : rising
+      ? [
+          [0, tc],
+          [tc, 1],
+        ]
+      : [
+          [tc, 1],
+          [0, tc],
+        ];
+  if (free[1] - free[0] > 1e-6)
+    addBalustrade(stone, dark, balusters, railPart(r, free[0], free[1]));
+  if (under[1] - under[0] > 1e-6) {
+    const u = railPart(r, under[0], under[1]);
+    stone.wall(u.x0, u.z0, u.x1, u.z1, PLINTH_WIDTH, u.y0, u.y1, ceiling, ceiling);
+  }
+  const atFloor =
+    !sloped && Math.abs(r.y0 / FLOOR_SEPARATION - Math.round(r.y0 / FLOOR_SEPARATION)) < 1e-4;
   if (r.beam) {
     stone.wall(
       r.x0,
@@ -711,12 +889,51 @@ function addRail(stone: Solid, masonry: Solid, balusters: Solid, r: StairRail) {
       r.y0 + 0.02,
       r.y1 + 0.02,
     );
+  } else if (atFloor) {
+    // The edge of a floor round the opening: a stone fascia over the
+    // slab's edge, under the balustrade.
+    stone.keepUnder(() =>
+      stone.wall(
+        r.x0,
+        r.z0,
+        r.x1,
+        r.z1,
+        PLINTH_WIDTH,
+        r.y0 - FASCIA_DEPTH,
+        r.y1 - FASCIA_DEPTH,
+        r.y0 - 0.003,
+        r.y1 - 0.003,
+      ),
+    );
   }
+}
+
+/** How high each sloped rail may reach: under a level rail on the same
+ *  line in plan and higher up, the fascia of that floor's edge. */
+function railCeilings(rails: readonly StairRail[]): number[] {
+  return rails.map((r) => {
+    if (Math.abs(r.y1 - r.y0) < 1e-6) return Number.POSITIVE_INFINITY;
+    let ceiling = Number.POSITIVE_INFINITY;
+    for (const l of rails) {
+      if (Math.abs(l.y1 - l.y0) > 1e-6 || l.y0 < Math.max(r.y0, r.y1) - 1e-3) continue;
+      const len = Math.hypot(l.x1 - l.x0, l.z1 - l.z0);
+      if (len < 1e-6) continue;
+      const dx = (l.x1 - l.x0) / len;
+      const dz = (l.z1 - l.z0) / len;
+      const off = (x: number, z: number) => Math.abs((x - l.x0) * dz - (z - l.z0) * dx);
+      if (off(r.x0, r.z0) > 0.02 || off(r.x1, r.z1) > 0.02) continue;
+      const s0 = (r.x0 - l.x0) * dx + (r.z0 - l.z0) * dz;
+      const s1 = (r.x1 - l.x0) * dx + (r.z1 - l.z0) * dz;
+      if (Math.max(Math.min(s0, s1), 0) >= Math.min(Math.max(s0, s1), len)) continue;
+      ceiling = Math.min(ceiling, l.y0 - FASCIA_DEPTH);
+    }
+    return ceiling;
+  });
 }
 
 /** A post where a balustrade ends or turns a corner. A curved rail is a
  *  chain of short straight ones and gets none along its length. */
-function addNewels(stone: Solid, rails: readonly StairRail[]) {
+function addNewels(stone: Solid, dark: Solid, rails: readonly StairRail[]) {
   type End = { x: number; z: number; y: number; dirs: Array<[number, number]>; skirtTo?: number };
   const ends = new Map<string, End>();
   const note = (x: number, z: number, y: number, dx: number, dz: number, skirtTo?: number) => {
@@ -743,7 +960,7 @@ function addNewels(stone: Solid, rails: readonly StairRail[]) {
     if (straight) continue;
     const top = end.y + GRAND_RAIL_HEIGHT + NEWEL_RISE;
     stone.box(end.x - half, end.x + half, end.skirtTo ?? end.y, top, end.z - half, end.z + half);
-    stone.box(
+    dark.box(
       end.x - half - 0.04,
       end.x + half + 0.04,
       top,
@@ -758,14 +975,20 @@ export function buildStair(stair: GrandStair) {
   const reach = stair.half - WALL_CLEAR;
   const back = stair.back - WALL_CLEAR;
   const stone = new Solid(reach, back, true);
+  const soffit = new Solid(reach, back);
+  stone.under = soffit;
   const masonry = new Solid(reach, back);
+  const dark = new Solid(reach, back, true);
   const balusters = new Solid(reach, back, true);
-  const carpet = new Solid(reach, back);
+  const carpet: Carpet = { field: new Solid(reach, back), edge: new Solid(reach, back) };
   const rods = new Solid(reach, back);
   const stems = new Solid(reach, back);
   for (const p of stair.patches) addPatch(stone, masonry, carpet, rods, p, stair.lowerY);
-  for (const r of stair.rails) addRail(stone, masonry, balusters, r);
-  addNewels(stone, stair.rails);
+  const ceilings = railCeilings(stair.rails);
+  stair.rails.forEach((r, i) => {
+    addRail(stone, masonry, dark, balusters, r, ceilings[i]);
+  });
+  addNewels(stone, dark, stair.rails);
   for (const c of stair.columns) {
     const h = c.size / 2;
     stone.box(c.x - h, c.x + h, c.y0, c.y1, c.z - h, c.z + h);
@@ -805,9 +1028,12 @@ export function buildStair(stair: GrandStair) {
   );
   return {
     stone: stone.build(),
+    soffit: soffit.build(),
     masonry: masonry.build(),
+    dark: dark.build(),
     balusters: balusters.build(),
-    carpet: carpet.build(),
+    carpetField: carpet.field.build(),
+    carpetEdge: carpet.edge.build(),
     rods: rods.build(),
     stems: stems.build(),
     globe,
@@ -820,9 +1046,12 @@ export function GrandStaircase({ stair }: { stair: GrandStair }) {
   useEffect(
     () => () => {
       built.stone?.dispose();
+      built.soffit?.dispose();
       built.masonry?.dispose();
+      built.dark?.dispose();
       built.balusters?.dispose();
-      built.carpet?.dispose();
+      built.carpetField?.dispose();
+      built.carpetEdge?.dispose();
       built.rods?.dispose();
       built.stems?.dispose();
       built.globe?.dispose();
@@ -836,11 +1065,14 @@ export function GrandStaircase({ stair }: { stair: GrandStair }) {
       rotation={[0, (-stair.turns * Math.PI) / 2, 0]}
     >
       {built.stone && <mesh geometry={built.stone} material={stoneMaterial} />}
+      {built.soffit && <mesh geometry={built.soffit} material={soffitMaterial} />}
       {built.masonry && <mesh geometry={built.masonry} material={masonryMaterial} />}
+      {built.dark && <mesh geometry={built.dark} material={darkStoneMaterial} />}
       {built.balusters && (
         <mesh geometry={built.balusters} material={stoneMaterial} layers={UNREFLECTED_LAYER} />
       )}
-      {built.carpet && <mesh geometry={built.carpet} material={carpetMaterial} />}
+      {built.carpetField && <mesh geometry={built.carpetField} material={carpetFieldMaterial} />}
+      {built.carpetEdge && <mesh geometry={built.carpetEdge} material={carpetEdgeMaterial} />}
       {built.rods && (
         <mesh geometry={built.rods} material={rodMaterial} layers={UNREFLECTED_LAYER} />
       )}

@@ -29,6 +29,7 @@ import {
 import { RoomBenches } from "./bench";
 import { RoomDividers } from "./divider";
 import { registerMirrorRoom } from "./floor-mirror";
+import { soffitMaterial } from "./grand-staircase";
 import { ceilingAround, Laylight } from "./laylight";
 import { laylightPanels } from "./laylight-layout";
 import { Painting } from "./painting";
@@ -956,9 +957,11 @@ function StairwellFloor({
       </mesh>
       {/* Slab body — extruded floor underneath the walking surface,
           with the cutout punched through. Visible from below (open
-          well) and provides the cylindrical inner wall of the hole. */}
+          well) and provides the cylindrical inner wall of the hole.
+          Plaster, as the stairs' soffits are: in the floor's parquet
+          its edge and underside were wood seen from below. */}
       <mesh geometry={slabGeom} position={[cxWorld, floorY - 0.001, czWorld]}>
-        <primitive object={floorMat} attach="material" />
+        <primitive object={soffitMaterial} attach="material" />
       </mesh>
     </>
   );
