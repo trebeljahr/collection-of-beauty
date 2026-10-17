@@ -8,8 +8,11 @@ import type { ArtworkListing } from "@/lib/data";
 import {
   BENCH_HEIGHT,
   benchUnder,
+  benchWithin,
   clearOfFittings,
   clearsBenches,
+  type Seat,
+  seatOn,
 } from "@/lib/gallery-layout/fittings";
 import {
   type GrandStair,
@@ -42,6 +45,13 @@ import {
 const EYE_HEIGHT = 1.75;
 const DUCK_EYE_HEIGHT = 1.05;
 const TIPTOE_EYE_HEIGHT = 2.15;
+// Eye over the floor on a bench: the 0.45 m seat and a seated trunk.
+const SEATED_EYE_HEIGHT = 1.25;
+// Sitting down or getting up, seconds.
+const SIT_DURATION = 0.6;
+// The view a visitor sits down to: a little up, toward a work's middle
+// 1.65 m up on a wall about 3.75 m off (`BENCH_WALL_VIEW`).
+const SEATED_PITCH = 0.08;
 const WALK_SPEED = 5;
 const RUN_SPEED = 10;
 const JUMP_IMPULSE = 6;
@@ -138,8 +148,31 @@ const PITCH_LIMIT = Math.PI / 2 - 0.05;
  *  devices have no Space key, so their jump is a HUD button. */
 export type PlayerHandle = {
   /** The Space key's jump. Returns false when it did nothing: the
-   *  player is disabled or already in the air. */
+   *  player is disabled or already in the air. On a bench it gets the
+   *  visitor up. */
   jump: () => boolean;
+  /** The X key: sit on the bench within reach, or get up from it.
+   *  Returns false when there is no bench to sit on. */
+  toggleSeat: () => boolean;
+};
+
+/** Whether the visitor can sit: a bench within reach, or seated. */
+export type SeatState = "none" | "near" | "seated";
+
+/** Sitting down, seated, or getting up. Position and view are eased
+ *  from where they were to where they go over SIT_DURATION. */
+type SeatMotion = {
+  phase: "down" | "seated" | "up";
+  seat: Seat;
+  t: number;
+  fromX: number;
+  fromY: number;
+  fromZ: number;
+  fromYaw: number;
+  fromPitch: number;
+  toX: number;
+  toY: number;
+  toZ: number;
 };
 
 /**
@@ -163,6 +196,7 @@ export function Player({
   onAimChange,
   onActiveStairChange,
   onNearbyStairChange,
+  onSeatChange,
   joystickMoveGetter,
   joystickLookGetter,
 }: {
@@ -223,6 +257,10 @@ export function Player({
    *  the staircase id (or null when leaving every proximity zone);
    *  same-id frames are silent. */
   onNearbyStairChange?: (stairId: string | null) => void;
+  /** Edge-fired when a bench comes within reach or goes out of it, and
+   *  when the visitor sits down or gets up. Drives the HUD's prompt and
+   *  the touch Sit button. */
+  onSeatChange?: (state: SeatState) => void;
   /** Polled each frame for left-stick movement. We read raw x/y
    *  (integer pixels in ±JOYSTICK_MAX_RANGE) — leveledX/Y is too coarse
    *  (only 21 discrete steps) and reads as stair-stepping motion.
@@ -309,20 +347,104 @@ export function Player({
   const bobPhase = useRef(0);
   const bobGain = useRef(0);
   const bobOffset = useRef(new THREE.Vector3());
+  /** Set while the visitor sits on a bench, and while they sit down or
+   *  get up. Movement and gravity wait for it to clear. */
+  const seatMotion = useRef<SeatMotion | null>(null);
+  /** The bench within reach as of the last frame, when standing. */
+  const benchInReach = useRef<ReturnType<typeof benchWithin>>(null);
+  const lastSeatState = useRef<SeatState>("none");
 
   useEffect(() => {
     enabledRef.current = enabled;
   }, [enabled]);
 
+  const latestFloorRef = useRef(floor);
+  latestFloorRef.current = floor;
+
+  const standUp = useCallback(() => {
+    const m = seatMotion.current;
+    if (!m || m.phase === "up") return;
+    const f = latestFloorRef.current;
+    // In front of the seat, or back where they sat down from when the
+    // floor in front is not free: a wall, a divider, another bench.
+    const clear =
+      isWalkable(f, m.seat.standX, m.seat.standZ) &&
+      fitsDoorwayApertures(f, m.seat.standX, m.seat.standZ, PLAYER_RADIUS) &&
+      clearOfFittings(f, m.seat.standX, m.seat.standZ, PLAYER_RADIUS);
+    _lookEuler.setFromQuaternion(camera.quaternion, "YXZ");
+    seatMotion.current = {
+      ...m,
+      phase: "up",
+      t: 0,
+      fromX: camera.position.x,
+      fromY: camera.position.y,
+      fromZ: camera.position.z,
+      fromYaw: _lookEuler.y,
+      fromPitch: _lookEuler.x,
+      toX: clear ? m.seat.standX : m.fromX,
+      toY: f.y + EYE_HEIGHT,
+      toZ: clear ? m.seat.standZ : m.fromZ,
+    };
+  }, [camera]);
+
+  const sitDown = useCallback(() => {
+    const bench = benchInReach.current;
+    if (!bench || seatMotion.current) return false;
+    const f = latestFloorRef.current;
+    camera.getWorldDirection(_forwardScratch);
+    const seat = seatOn(
+      bench,
+      camera.position.x,
+      camera.position.z,
+      _forwardScratch.x,
+      _forwardScratch.z,
+      PLAYER_RADIUS,
+    );
+    _lookEuler.setFromQuaternion(camera.quaternion, "YXZ");
+    seatMotion.current = {
+      phase: "down",
+      seat,
+      t: 0,
+      fromX: camera.position.x,
+      fromY: camera.position.y,
+      fromZ: camera.position.z,
+      fromYaw: _lookEuler.y,
+      fromPitch: _lookEuler.x,
+      toX: seat.x,
+      toY: f.y + SEATED_EYE_HEIGHT,
+      toZ: seat.z,
+    };
+    zoomFov.current = false;
+    latchedEyeHeight.current = null;
+    keys.current.KeyC = false;
+    keys.current.KeyR = false;
+    return true;
+  }, [camera]);
+
+  const toggleSeat = useCallback(() => {
+    if (!enabledRef.current) return false;
+    if (seatMotion.current) {
+      standUp();
+      return true;
+    }
+    return sitDown();
+  }, [sitDown, standUp]);
+
   // The one jump. Space and the touch HUD's button both land here, so
-  // neither can jump while disabled or in mid-air.
+  // neither can jump while disabled or in mid-air. From a bench a jump
+  // gets the visitor up instead.
   const jump = useCallback(() => {
-    if (!enabledRef.current || !grounded.current) return false;
+    if (!enabledRef.current) return false;
+    if (seatMotion.current) {
+      standUp();
+      return true;
+    }
+    if (!grounded.current) return false;
     velocityY.current = JUMP_IMPULSE;
     grounded.current = false;
     return true;
-  }, []);
-  useImperativeHandle(ref, () => ({ jump }), [jump]);
+  }, [standUp]);
+  useImperativeHandle(ref, () => ({ jump, toggleSeat }), [jump, toggleSeat]);
 
   useEffect(() => {
     let cancelled = false;
@@ -348,17 +470,18 @@ export function Player({
     };
   }, [floor]);
 
-  // Latest `floor` mirrored into a ref so the spawn effect below can
-  // pick the floor's central spiral as a lookAt target without taking
-  // `floor` as an effect dep — that would re-fire the spawn teleport on
-  // every stair-driven floor swap.
-  const latestFloorRef = useRef(floor);
-  latestFloorRef.current = floor;
+  // `latestFloorRef` (above) lets the spawn effect below pick the
+  // floor's central spiral as a lookAt target without taking `floor` as
+  // an effect dep — that would re-fire the spawn teleport on every
+  // stair-driven floor swap.
   const grandStairsRef = useRef(grandStairs);
   grandStairsRef.current = grandStairs;
 
   const didResume = useRef(false);
   useEffect(() => {
+    // A teleport gets the visitor off a bench.
+    seatMotion.current = null;
+    eyeHeight.current = EYE_HEIGHT;
     if (!didResume.current && resumePose) {
       didResume.current = true;
       camera.position.fromArray(resumePose.position);
@@ -417,6 +540,7 @@ export function Player({
       if (!enabledRef.current) return;
       if (e.code === "Space" && jump()) e.preventDefault();
       if (e.code === "KeyE") tryZoom();
+      if (e.code === "KeyX" && !e.repeat) toggleSeat();
       if (e.code === "KeyF") {
         if (!e.repeat) zoomFov.current = !zoomFov.current;
         e.preventDefault();
@@ -468,7 +592,41 @@ export function Player({
       document.removeEventListener("pointerlockchange", clearKeys);
       canvas.removeEventListener("pointerdown", pointer);
     };
-  }, [camera, gl, onZoomRequest, jump]);
+  }, [camera, gl, onZoomRequest, jump, toggleSeat]);
+
+  /** One frame of sitting down or getting up: position and view eased
+   *  from where they were. Seated, nothing moves but the view. */
+  const stepSeat = (m: SeatMotion, dt: number) => {
+    if (m.phase === "seated") return;
+    m.t = Math.min(1, m.t + dt / SIT_DURATION);
+    const s = m.t * m.t * (3 - 2 * m.t);
+    camera.position.set(
+      m.fromX + (m.toX - m.fromX) * s,
+      m.fromY + (m.toY - m.fromY) * s,
+      m.fromZ + (m.toZ - m.fromZ) * s,
+    );
+    if (m.phase === "down") {
+      // Turn to the side of the bench they face, the short way round.
+      let turn = Math.atan2(-m.seat.faceX, -m.seat.faceZ) - m.fromYaw;
+      turn = Math.atan2(Math.sin(turn), Math.cos(turn));
+      _lookEuler.set(
+        m.fromPitch + (SEATED_PITCH - m.fromPitch) * s,
+        m.fromYaw + turn * s,
+        0,
+        "YXZ",
+      );
+      camera.quaternion.setFromEuler(_lookEuler);
+    }
+    if (m.t < 1) return;
+    if (m.phase === "down") {
+      m.phase = "seated";
+      return;
+    }
+    seatMotion.current = null;
+    eyeHeight.current = EYE_HEIGHT;
+    velocityY.current = 0;
+    grounded.current = true;
+  };
 
   useFrame((_, delta) => {
     if (!enabled) return;
@@ -603,7 +761,13 @@ export function Player({
       }
     }
 
-    if (move.lengthSq() > 0) {
+    // On a bench, a step gets the visitor up. While they sit down or get
+    // up, the ease below moves them, not the keys.
+    if (move.lengthSq() > 0 && seatMotion.current && seatMotion.current.phase !== "up") {
+      standUp();
+    }
+
+    if (move.lengthSq() > 0 && !seatMotion.current) {
       // Walking cancels FOV zoom. The zoomed FOV is meant for standing
       // and reading a painting from across the room — once the player
       // starts moving, the narrow field is more disorienting than
@@ -784,225 +948,252 @@ export function Player({
     // (continuous across flight boundaries so the player walks one
     // long spiral from floor 0 to the top without per-storey jumps).
     // Off the spiral, normal gravity + floor-plane clamp.
-    try {
-      let activeStair = findStairAt(floor, camera.position.x, camera.position.z);
-      // Fresh activation is height-based. The stair state only starts
-      // when the flight's walking surface at this angle is actually at
-      // the player's feet — the same rule `canAcceptPhysicsMove` used
-      // to let them into the footprint in the first place, so a player
-      // standing in the annulus is always riding a flight. Asking
-      // `stairSurfaceAt` rather than re-testing `findStairAt`'s pick
-      // also gets the descending flight right when the player walks in
-      // through the down-side half of the gate mouth: there the tread
-      // underfoot belongs to the flight coming from below, not to the
-      // ascending one that shares the annulus.
-      if (
-        activeStair &&
-        (!spiralState.current || spiralState.current.staircaseId !== activeStair.id)
-      ) {
-        activeStair = stairSurfaceAt(
-          floor,
-          allStaircases,
-          camera.position.x,
-          camera.position.z,
-          feetY,
-        );
-      }
-      // Prefer the stair the player is already tracked on, even when
-      // both stairsIn and stairsOut overlap the same annulus on this
-      // floor — the existing state's stair is the one we want.
-      if (spiralState.current) {
-        const tracked = allStaircases.find((s) => s.id === spiralState.current!.staircaseId);
-        if (tracked && isInsideStair(tracked, camera.position.x, camera.position.z)) {
-          activeStair = tracked;
+    if (seatMotion.current) {
+      stepSeat(seatMotion.current, dt);
+    } else {
+      try {
+        let activeStair = findStairAt(floor, camera.position.x, camera.position.z);
+        // Fresh activation is height-based. The stair state only starts
+        // when the flight's walking surface at this angle is actually at
+        // the player's feet — the same rule `canAcceptPhysicsMove` used
+        // to let them into the footprint in the first place, so a player
+        // standing in the annulus is always riding a flight. Asking
+        // `stairSurfaceAt` rather than re-testing `findStairAt`'s pick
+        // also gets the descending flight right when the player walks in
+        // through the down-side half of the gate mouth: there the tread
+        // underfoot belongs to the flight coming from below, not to the
+        // ascending one that shares the annulus.
+        if (
+          activeStair &&
+          (!spiralState.current || spiralState.current.staircaseId !== activeStair.id)
+        ) {
+          activeStair = stairSurfaceAt(
+            floor,
+            allStaircases,
+            camera.position.x,
+            camera.position.z,
+            feetY,
+          );
         }
-      }
-
-      // A grand stair hall: what is under the visitor, and which of the
-      // hall's stairs the host should treat them as being on. That is
-      // the whole hall, not only its flights: the floor above shows
-      // through the opening from anywhere in it, and so do its rooms
-      // through its doors, so both storeys are wanted in full.
-      const hall =
-        !activeStair && grandStairs.length > 0
-          ? grandStairsAt(grandStairs, camera.position.x, camera.position.z, feetY)
-          : NO_GRAND_STAIRS;
-      const grandSurface =
-        hall.length > 0 ? grandSurfaceAt(hall, camera.position.x, camera.position.z, feetY) : null;
-      const hallStair =
-        grandSurface?.stair ??
-        hall.find((s) => s.upperFloor === floor.index) ??
-        hall.find((s) => s.lowerFloor === floor.index) ??
-        // A balcony floor of a hall open above its stair.
-        hall[0] ??
-        null;
-
-      // Notify host on edge-changes only — same-stair frames are silent
-      // so onActiveStairChange isn't a per-frame storm. Edge-fires when
-      // entering a stair, leaving one, or stepping from one stair onto
-      // another (stair-to-stair transition during continuous descent).
-      const newStairId = activeStair?.id ?? hallStair?.id ?? null;
-      if (newStairId !== lastStairId.current) {
-        lastStairId.current = newStairId;
-        onActiveStairChange?.(newStairId);
-      }
-
-      if (activeStair) {
-        const raw = spiralRawAngle(activeStair, camera.position.x, camera.position.z);
-        let st = spiralState.current;
-        if (!st || st.staircaseId !== activeStair.id) {
-          // Stepping onto the spiral fresh, somewhere on the landing. On
-          // the stair's lowerFloor the cumulative angle is the raw one;
-          // on its upperFloor it is a revolution on. A raw angle past
-          // the gate on the far side belongs to the flight next door,
-          // and the roll-over below hands the player to it. Until 17
-          // October 2026 a fresh ride started at exactly 0 or 2π, which
-          // was off by as much as the player stood from the gate.
-          const past = raw < Math.PI ? raw : raw - Math.PI * 2;
-          const initial = floor.index === activeStair.upperFloor ? Math.PI * 2 + past : past;
-          st = { staircaseId: activeStair.id, cumulativeAngle: initial, lastRaw: raw };
-          spiralState.current = st;
-        } else {
-          let d = raw - st.lastRaw;
-          if (d > Math.PI) d -= Math.PI * 2;
-          if (d < -Math.PI) d += Math.PI * 2;
-          st.cumulativeAngle += d;
-          st.lastRaw = raw;
+        // Prefer the stair the player is already tracked on, even when
+        // both stairsIn and stairsOut overlap the same annulus on this
+        // floor — the existing state's stair is the one we want.
+        if (spiralState.current) {
+          const tracked = allStaircases.find((s) => s.id === spiralState.current!.staircaseId);
+          if (tracked && isInsideStair(tracked, camera.position.x, camera.position.z)) {
+            activeStair = tracked;
+          }
         }
 
-        // Stair-to-stair transitions. Walking past the top of this
-        // revolution rolls cumulative back to 0 on the next stair up
-        // and fires onFloorChange(upperFloor); walking past the bottom
-        // rolls it forward to 2π on the stair below and fires
-        // onFloorChange(lowerFloor). When there's no next/prev stair
-        // (top of building or ground floor) we clamp AND emit a
-        // matching floor change so the player's `floor` prop is always
-        // the one whose Y matches their feet by the time they exit.
-        while (st.cumulativeAngle >= Math.PI * 2) {
-          const next = findStairAbove(activeStair, allStaircases);
-          if (!next) {
-            st.cumulativeAngle = Math.PI * 2;
-            if (onFloorChange && floor.index !== activeStair.upperFloor) {
+        // A grand stair hall: what is under the visitor, and which of the
+        // hall's stairs the host should treat them as being on. That is
+        // the whole hall, not only its flights: the floor above shows
+        // through the opening from anywhere in it, and so do its rooms
+        // through its doors, so both storeys are wanted in full.
+        const hall =
+          !activeStair && grandStairs.length > 0
+            ? grandStairsAt(grandStairs, camera.position.x, camera.position.z, feetY)
+            : NO_GRAND_STAIRS;
+        const grandSurface =
+          hall.length > 0
+            ? grandSurfaceAt(hall, camera.position.x, camera.position.z, feetY)
+            : null;
+        const hallStair =
+          grandSurface?.stair ??
+          hall.find((s) => s.upperFloor === floor.index) ??
+          hall.find((s) => s.lowerFloor === floor.index) ??
+          // A balcony floor of a hall open above its stair.
+          hall[0] ??
+          null;
+
+        // Notify host on edge-changes only — same-stair frames are silent
+        // so onActiveStairChange isn't a per-frame storm. Edge-fires when
+        // entering a stair, leaving one, or stepping from one stair onto
+        // another (stair-to-stair transition during continuous descent).
+        const newStairId = activeStair?.id ?? hallStair?.id ?? null;
+        if (newStairId !== lastStairId.current) {
+          lastStairId.current = newStairId;
+          onActiveStairChange?.(newStairId);
+        }
+
+        if (activeStair) {
+          const raw = spiralRawAngle(activeStair, camera.position.x, camera.position.z);
+          let st = spiralState.current;
+          if (!st || st.staircaseId !== activeStair.id) {
+            // Stepping onto the spiral fresh, somewhere on the landing. On
+            // the stair's lowerFloor the cumulative angle is the raw one;
+            // on its upperFloor it is a revolution on. A raw angle past
+            // the gate on the far side belongs to the flight next door,
+            // and the roll-over below hands the player to it. Until 17
+            // October 2026 a fresh ride started at exactly 0 or 2π, which
+            // was off by as much as the player stood from the gate.
+            const past = raw < Math.PI ? raw : raw - Math.PI * 2;
+            const initial = floor.index === activeStair.upperFloor ? Math.PI * 2 + past : past;
+            st = { staircaseId: activeStair.id, cumulativeAngle: initial, lastRaw: raw };
+            spiralState.current = st;
+          } else {
+            let d = raw - st.lastRaw;
+            if (d > Math.PI) d -= Math.PI * 2;
+            if (d < -Math.PI) d += Math.PI * 2;
+            st.cumulativeAngle += d;
+            st.lastRaw = raw;
+          }
+
+          // Stair-to-stair transitions. Walking past the top of this
+          // revolution rolls cumulative back to 0 on the next stair up
+          // and fires onFloorChange(upperFloor); walking past the bottom
+          // rolls it forward to 2π on the stair below and fires
+          // onFloorChange(lowerFloor). When there's no next/prev stair
+          // (top of building or ground floor) we clamp AND emit a
+          // matching floor change so the player's `floor` prop is always
+          // the one whose Y matches their feet by the time they exit.
+          while (st.cumulativeAngle >= Math.PI * 2) {
+            const next = findStairAbove(activeStair, allStaircases);
+            if (!next) {
+              st.cumulativeAngle = Math.PI * 2;
+              if (onFloorChange && floor.index !== activeStair.upperFloor) {
+                onFloorChange(activeStair.upperFloor);
+              }
+              break;
+            }
+            st.staircaseId = next.id;
+            st.cumulativeAngle -= Math.PI * 2;
+            activeStair = next;
+            if (onFloorChange && floor.index !== next.lowerFloor) {
+              onFloorChange(next.lowerFloor);
+            }
+          }
+          while (st.cumulativeAngle <= 0) {
+            if (st.cumulativeAngle === 0) {
+              if (onFloorChange && floor.index !== activeStair.lowerFloor) {
+                onFloorChange(activeStair.lowerFloor);
+              }
+              break;
+            }
+            const prev = findStairBelow(activeStair, allStaircases);
+            if (!prev) {
+              st.cumulativeAngle = 0;
+              if (onFloorChange && floor.index !== activeStair.lowerFloor) {
+                onFloorChange(activeStair.lowerFloor);
+              }
+              break;
+            }
+            st.staircaseId = prev.id;
+            st.cumulativeAngle += Math.PI * 2;
+            activeStair = prev;
+            if (onFloorChange && floor.index !== prev.upperFloor) {
+              onFloorChange(prev.upperFloor);
+            }
+          }
+
+          // Promote floor.index as soon as the player enters a landing arc
+          // — the same arc canStepTo permits exit in. Without this, an
+          // exit at the upper landing (cumulative ≈ 2π−ε) would still be
+          // checked against the LOWER floor's grid; the player would step
+          // onto a "walkable" stairwell cell at the lower floor while
+          // their visual Y is already through the cutout, then gravity
+          // would yank them down through the upper floor's annular ring.
+          // handleStairFloorChange short-circuits same-floor calls so
+          // firing this every frame in the arc is cheap.
+          // The descent branch uses STAIR_DESCEND_EARLY_ENTRY (⅔·2π) so
+          // the destination floor activates a third of the way down,
+          // making arrival feel like entering a live room. Ascent keeps
+          // the tight landing tolerance — there's no equivalent ask for
+          // it, and "wake the upstairs early" interacts oddly with the
+          // canStepTo gate that the comment above is about.
+          if (onFloorChange) {
+            if (
+              st.cumulativeAngle >= Math.PI * 2 - STAIR_LANDING_TOL &&
+              floor.index !== activeStair.upperFloor
+            ) {
               onFloorChange(activeStair.upperFloor);
-            }
-            break;
-          }
-          st.staircaseId = next.id;
-          st.cumulativeAngle -= Math.PI * 2;
-          activeStair = next;
-          if (onFloorChange && floor.index !== next.lowerFloor) {
-            onFloorChange(next.lowerFloor);
-          }
-        }
-        while (st.cumulativeAngle <= 0) {
-          if (st.cumulativeAngle === 0) {
-            if (onFloorChange && floor.index !== activeStair.lowerFloor) {
+            } else if (
+              st.cumulativeAngle <= STAIR_DESCEND_EARLY_ENTRY &&
+              floor.index !== activeStair.lowerFloor
+            ) {
               onFloorChange(activeStair.lowerFloor);
             }
-            break;
           }
-          const prev = findStairBelow(activeStair, allStaircases);
-          if (!prev) {
-            st.cumulativeAngle = 0;
-            if (onFloorChange && floor.index !== activeStair.lowerFloor) {
-              onFloorChange(activeStair.lowerFloor);
-            }
-            break;
-          }
-          st.staircaseId = prev.id;
-          st.cumulativeAngle += Math.PI * 2;
-          activeStair = prev;
-          if (onFloorChange && floor.index !== prev.upperFloor) {
-            onFloorChange(prev.upperFloor);
-          }
-        }
 
-        // Promote floor.index as soon as the player enters a landing arc
-        // — the same arc canStepTo permits exit in. Without this, an
-        // exit at the upper landing (cumulative ≈ 2π−ε) would still be
-        // checked against the LOWER floor's grid; the player would step
-        // onto a "walkable" stairwell cell at the lower floor while
-        // their visual Y is already through the cutout, then gravity
-        // would yank them down through the upper floor's annular ring.
-        // handleStairFloorChange short-circuits same-floor calls so
-        // firing this every frame in the arc is cheap.
-        // The descent branch uses STAIR_DESCEND_EARLY_ENTRY (⅔·2π) so
-        // the destination floor activates a third of the way down,
-        // making arrival feel like entering a live room. Ascent keeps
-        // the tight landing tolerance — there's no equivalent ask for
-        // it, and "wake the upstairs early" interacts oddly with the
-        // canStepTo gate that the comment above is about.
-        if (onFloorChange) {
-          if (
-            st.cumulativeAngle >= Math.PI * 2 - STAIR_LANDING_TOL &&
-            floor.index !== activeStair.upperFloor
-          ) {
-            onFloorChange(activeStair.upperFloor);
-          } else if (
-            st.cumulativeAngle <= STAIR_DESCEND_EARLY_ENTRY &&
-            floor.index !== activeStair.lowerFloor
-          ) {
-            onFloorChange(activeStair.lowerFloor);
-          }
-        }
-
-        // The eye rides the helix's even slope, not the treads.
-        const targetY = stairWalkHeightAt(activeStair, st.cumulativeAngle) + eyeHeight.current;
-        camera.position.y = THREE.MathUtils.damp(camera.position.y, targetY, 20, dt);
-        onFlight = true;
-        velocityY.current = 0;
-        grounded.current = true;
-      } else {
-        spiralState.current = null;
-        velocityY.current -= GRAVITY * dt;
-        camera.position.y += velocityY.current * dt;
-        // A bench is ground for a body that came down on it: one that
-        // overlaps it and started the frame with its feet at the seat
-        // or higher. Lower than that a bench is solid from the side, so
-        // nothing is over one, save a pose restored from a crouch on
-        // it. That body is inside the bench and is put back on top.
-        const onBench = benchUnder(
-          floor,
-          camera.position.x,
-          camera.position.z,
-          clearsBenches(feetY - floor.y) ? PLAYER_RADIUS : PLAYER_RADIUS - FITTING_SLOP,
-        );
-        const groundY = grandSurface ? grandSurface.walkY : floor.y;
-        const floorHeight = groundY + (onBench ? BENCH_HEIGHT : 0) + eyeHeight.current;
-        const drop = camera.position.y - floorHeight;
-        if (grandSurface?.stair && velocityY.current <= 0 && drop < GRAND_TREAD_REACH) {
-          // On a flight the eye rides the flight's slope from foot to
-          // head (`walkY`), so the climb is even. Eased onto a riser at
-          // a time, it read as choppy. The ease here only takes up a
-          // landing from a jump. A jump leaves this branch: its
-          // velocity is upward.
-          camera.position.y = floorHeight + THREE.MathUtils.damp(drop, 0, 30, dt);
-          velocityY.current = 0;
-          grounded.current = true;
-          onFlight = grandSurface.flight;
-        } else if (camera.position.y <= floorHeight) {
-          camera.position.y = floorHeight;
+          // The eye rides the helix's even slope, not the treads.
+          const targetY = stairWalkHeightAt(activeStair, st.cumulativeAngle) + eyeHeight.current;
+          camera.position.y = THREE.MathUtils.damp(camera.position.y, targetY, 20, dt);
+          onFlight = true;
           velocityY.current = 0;
           grounded.current = true;
         } else {
-          grounded.current = false;
+          spiralState.current = null;
+          velocityY.current -= GRAVITY * dt;
+          camera.position.y += velocityY.current * dt;
+          // A bench is ground for a body that came down on it: one that
+          // overlaps it and started the frame with its feet at the seat
+          // or higher. Lower than that a bench is solid from the side, so
+          // nothing is over one, save a pose restored from a crouch on
+          // it. That body is inside the bench and is put back on top.
+          const onBench = benchUnder(
+            floor,
+            camera.position.x,
+            camera.position.z,
+            clearsBenches(feetY - floor.y) ? PLAYER_RADIUS : PLAYER_RADIUS - FITTING_SLOP,
+          );
+          const groundY = grandSurface ? grandSurface.walkY : floor.y;
+          const floorHeight = groundY + (onBench ? BENCH_HEIGHT : 0) + eyeHeight.current;
+          const drop = camera.position.y - floorHeight;
+          if (grandSurface?.stair && velocityY.current <= 0 && drop < GRAND_TREAD_REACH) {
+            // On a flight the eye rides the flight's slope from foot to
+            // head (`walkY`), so the climb is even. Eased onto a riser at
+            // a time, it read as choppy. The ease here only takes up a
+            // landing from a jump. A jump leaves this branch: its
+            // velocity is upward.
+            camera.position.y = floorHeight + THREE.MathUtils.damp(drop, 0, 30, dt);
+            velocityY.current = 0;
+            grounded.current = true;
+            onFlight = grandSurface.flight;
+          } else if (camera.position.y <= floorHeight) {
+            camera.position.y = floorHeight;
+            velocityY.current = 0;
+            grounded.current = true;
+          } else {
+            grounded.current = false;
+          }
+          // The floor the visitor is on follows their height in the hall.
+          if (grandSurface && onFloorChange && grounded.current) {
+            const target = grandFloorFor(hall, grandSurface.y, floor.index);
+            if (target !== floor.index) onFloorChange(target);
+          }
         }
-        // The floor the visitor is on follows their height in the hall.
-        if (grandSurface && onFloorChange && grounded.current) {
-          const target = grandFloorFor(hall, grandSurface.y, floor.index);
-          if (target !== floor.index) onFloorChange(target);
+      } catch (err) {
+        // Malformed staircase/floor layout shouldn't kill the render
+        // loop — log once per session, reset spiral state so the next
+        // frame retries from scratch, and let the rest of useFrame
+        // (aim, room change, position sample) keep running.
+        if (!spiralCalcWarned.current) {
+          spiralCalcWarned.current = true;
+          console.warn("[player] spiral calc failed", err);
         }
+        spiralState.current = null;
       }
-    } catch (err) {
-      // Malformed staircase/floor layout shouldn't kill the render
-      // loop — log once per session, reset spiral state so the next
-      // frame retries from scratch, and let the rest of useFrame
-      // (aim, room change, position sample) keep running.
-      if (!spiralCalcWarned.current) {
-        spiralCalcWarned.current = true;
-        console.warn("[player] spiral calc failed", err);
-      }
-      spiralState.current = null;
+    }
+
+    // A bench within reach, for the Sit prompt: only to a visitor on
+    // the floor or on a bench, not on a stair or in the air.
+    const standFeet = camera.position.y - eyeHeight.current - floor.y;
+    benchInReach.current =
+      !seatMotion.current &&
+      grounded.current &&
+      !onFlight &&
+      !spiralState.current &&
+      Math.abs(standFeet) < BENCH_HEIGHT + 0.15
+        ? benchWithin(floor, camera.position.x, camera.position.z)
+        : null;
+    const seatState: SeatState = seatMotion.current
+      ? "seated"
+      : benchInReach.current
+        ? "near"
+        : "none";
+    if (seatState !== lastSeatState.current) {
+      lastSeatState.current = seatState;
+      onSeatChange?.(seatState);
     }
 
     // Staircase-proximity edge detector. Walks current-floor stairs
@@ -1113,7 +1304,8 @@ export function Player({
     const moved = Math.hypot(camera.position.x - startX, camera.position.z - startZ);
     // A teleport is not a step.
     const pace = dt > 0 && moved < RUN_SPEED * dt * 1.5 ? moved / dt / WALK_SPEED : 0;
-    const bobTarget = grounded.current && !onFlight ? Math.min(pace, BOB_MAX_GAIN) : 0;
+    const bobTarget =
+      grounded.current && !onFlight && !seatMotion.current ? Math.min(pace, BOB_MAX_GAIN) : 0;
     bobGain.current = THREE.MathUtils.damp(bobGain.current, bobTarget, 6, dt);
     if (pace > 0) {
       const runShare = Math.min(1, Math.max(0, pace - 1));

@@ -35,7 +35,7 @@ import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
 import { Minimap, mapFillOf, type PlayerSample, roomRect } from "./minimap";
 import { MusicPlayer } from "./music-player";
-import { Player, type PlayerHandle } from "./player";
+import { Player, type PlayerHandle, type SeatState } from "./player";
 import { quietLock, requestPointerLockQuietly } from "./pointer-lock";
 import { RoomCulling, registerShaftFittings } from "./room-culling";
 import { RoomEnvironment } from "./room-env-map";
@@ -55,6 +55,9 @@ const LOOK_STICK_AT = { x: "88%", y: "18%" };
 // Clear space in px between the look stick's knob at full throw and the
 // jump button above it.
 const JUMP_BUTTON_GAP = 16;
+// The Sit button stands to the left of Jump, this far centre to centre:
+// above the move stick it lay over the minimap on a landscape phone.
+const SIT_BUTTON_OFFSET = 80;
 
 type Props = { artworks: ArtworkListing[] };
 
@@ -88,6 +91,8 @@ export function Gallery3D({ artworks }: Props) {
   const [activeRoomIdx, setActiveRoomIdx] = useState<number>(-1);
   const [zoomed, setZoomed] = useState<ArtworkListing | null>(null);
   const [aiming, setAiming] = useState<ArtworkListing | null>(null);
+  // A bench within reach, or the visitor seated on one: the Sit prompt.
+  const [seat, setSeat] = useState<SeatState>("none");
   // ID of the spiral the player is currently riding (or null if they're
   // not on a stair). Used to upgrade the *connected* adjacent floor
   // from stairwell-only to full geometry while the player is on the
@@ -764,6 +769,7 @@ export function Gallery3D({ artworks }: Props) {
           }}
           onZoomRequest={setZoomed}
           onAimChange={setAiming}
+          onSeatChange={setSeat}
           onActiveStairChange={setActiveStairId}
           onNearbyStairChange={setNearbyStairId}
           joystickMoveGetter={isTouch ? moveJoystick.getData : undefined}
@@ -934,6 +940,11 @@ export function Gallery3D({ artworks }: Props) {
               </>
             )}
           </div>
+        ) : seat !== "none" && !isTouch ? (
+          <div className="absolute bottom-[calc(1.5rem_+_env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 flex items-center gap-2 rounded-full border border-white/25 bg-black/70 px-4 py-1.5 text-sm text-white shadow-lg pointer-events-none backdrop-blur-sm">
+            Press <kbd className="rounded border border-white/40 px-1.5 font-mono text-xs">X</kbd>
+            {seat === "seated" ? " or walk to stand up" : " to sit on the bench"}
+          </div>
         ) : (
           <div className="absolute bottom-[calc(1rem_+_env(safe-area-inset-bottom,0px))] left-1/2 -translate-x-1/2 bg-black/55 text-neutral-200 px-3 py-1 rounded text-xs pointer-events-none backdrop-blur-sm">
             {isTouch ? (
@@ -945,6 +956,7 @@ export function Gallery3D({ artworks }: Props) {
                 <kbd className="rounded border border-white/30 px-1 font-mono">C</kbd> duck ·{" "}
                 <kbd className="rounded border border-white/30 px-1 font-mono">R</kbd> tiptoe ·{" "}
                 <kbd className="rounded border border-white/30 px-1 font-mono">E</kbd> inspect ·{" "}
+                <kbd className="rounded border border-white/30 px-1 font-mono">X</kbd> sit ·{" "}
                 <kbd className="rounded border border-white/30 px-1 font-mono">Space</kbd> jump
               </>
             )}
@@ -975,6 +987,29 @@ export function Gallery3D({ artworks }: Props) {
           }}
         >
           Jump
+        </button>
+      )}
+      {/* Sit, for touch, while a bench is within reach. It stands beside
+          Jump, under the right thumb. Seated, it gets the visitor up; so
+          do Jump and the move stick. */}
+      {joysticksActive && seat !== "none" && (
+        <button
+          type="button"
+          onPointerDown={(e) => {
+            e.preventDefault();
+            playerHandle.current?.toggleSeat();
+          }}
+          onContextMenu={(e) => e.preventDefault()}
+          className="fixed z-40 flex size-16 -translate-x-1/2 touch-none select-none items-center justify-center rounded-full border-2 border-[rgba(255,245,220,0.7)] bg-black/50 text-xs font-semibold uppercase tracking-wider text-[rgb(250,240,220)] active:bg-black/75"
+          style={{
+            left: `calc(${LOOK_STICK_AT.x} - ${SIT_BUTTON_OFFSET}px)`,
+            bottom: `calc(${LOOK_STICK_AT.y} + ${JOYSTICK_REACH + JUMP_BUTTON_GAP}px)`,
+            animation: "joystick-fade-in 260ms ease-out",
+            WebkitTouchCallout: "none",
+            WebkitTapHighlightColor: "transparent",
+          }}
+        >
+          {seat === "seated" ? "Stand" : "Sit"}
         </button>
       )}
       {/* Crosshair — small dot in the centre of the screen so the

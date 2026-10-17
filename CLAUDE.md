@@ -650,6 +650,16 @@ required by the Dockerfile — don't remove it.
   in `use-joystick.ts`). A touch control is a sibling of the canvas: a tap
   on it must not reach the canvas's `pointerdown`, which opens the work
   under the crosshair.
+- **A visitor can sit on a bench** (Rico, 17 October 2026). Within
+  1.2 m of a bench's edge (`BENCH_SIT_REACH`, `benchWithin` in
+  `fittings.ts`), X or the touch Sit button (`toggleSeat` on
+  `PlayerHandle`, to the left of Jump) eases the eye to 1.25 m over the
+  floor on the seat, across from where they stood, and turns them to
+  the side of the bench they look toward (`seatOn`): the benches have
+  no back. Seated, only the view moves. X, Jump or any step gets them
+  up, onto the floor in front of the seat, or back where they sat down
+  from when that floor is not free (the far bench of an island). Movement
+  and gravity wait while `seatMotion` is set; a teleport clears it.
 - **The museum is the block plan** (`/gallery-3d`,
   `src/lib/gallery-layout/layout-block.ts`) since 17 October 2026. The
   tower before it (a storey per era round one spiral stairwell, a

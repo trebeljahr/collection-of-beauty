@@ -4,9 +4,11 @@ import {
   arrivalPoint,
   BENCH_DEPTH,
   BENCH_HEIGHT,
+  BENCH_LENGTH,
   benchClearOf,
   benchRect,
   benchUnder,
+  benchWithin,
   ceilingHeightFor,
   clearOfFittings,
   clearsBenches,
@@ -16,6 +18,7 @@ import {
   planDividers,
   type Rect,
   roomKind,
+  seatOn,
   writeDividerEdges,
 } from "./fittings";
 import type { Bench, CellRect, Divider } from "./types";
@@ -521,6 +524,48 @@ describe("clearOfFittings", () => {
     expect(clearOfFittings(floor, 10, 10, RADIUS, true)).toBe(true);
     expect(clearOfFittings(floor, 11.29, 10, RADIUS, true)).toBe(true);
     expect(clearOfFittings(floor, 5 + 0.2 + 0.29, 2, RADIUS, true)).toBe(false);
+  });
+});
+
+describe("sitting on a bench", () => {
+  const bench: Bench = { x: 10, z: 10, along: "x" };
+  const turned: Bench = { x: 20, z: 10, along: "z" };
+  const floor = { rooms: [{ cellBounds: rect(12, 8), dividers: [], benches: [bench, turned] }] };
+  const RADIUS = 0.3;
+
+  it("finds the bench within reach of its edge, and the nearer of two", () => {
+    expect(benchWithin(floor, 10, 10 - BENCH_DEPTH / 2 - 1.1)).toBe(bench);
+    expect(benchWithin(floor, 10, 10 - BENCH_DEPTH / 2 - 1.3)).toBeNull();
+    expect(benchWithin(floor, 19, 10)).toBe(turned);
+    expect(benchWithin(floor, 15, 10)).toBeNull();
+  });
+
+  it("faces the side the visitor looks toward", () => {
+    // Standing south of the bench, looking north over it.
+    const s = seatOn(bench, 10.3, 11, 0, -1, RADIUS);
+    expect([s.x, s.z, s.faceX, s.faceZ]).toEqual([10.3, 10, 0, -1]);
+    expect(s.standZ).toBeCloseTo(10 - BENCH_DEPTH / 2 - RADIUS - 0.15);
+    // Looking back the way they came.
+    expect(seatOn(bench, 10.3, 11, 0, 1, RADIUS).faceZ).toBe(1);
+    const t = seatOn(turned, 21, 10.2, 1, 0.2, RADIUS);
+    expect([t.x, t.z, t.faceX, t.faceZ]).toEqual([20, 10.2, 1, 0]);
+  });
+
+  it("keeps a seat off the bench's ends", () => {
+    const s = seatOn(bench, 14, 11, 0, -1, RADIUS);
+    expect(s.x).toBeCloseTo(10 + BENCH_LENGTH / 2 - 0.4);
+  });
+
+  it("stands the visitor up clear of the bench", () => {
+    for (const [x, z, lx, lz] of [
+      [10, 11, 0, -1],
+      [10, 9, 0, -1],
+      [12, 10, 1, 0],
+      [8, 10, 0.001, 0.0001],
+    ]) {
+      const s = seatOn(bench, x, z, lx, lz, RADIUS);
+      expect(clearOfFittings(floor, s.standX, s.standZ, RADIUS), `${x}, ${z}`).toBe(true);
+    }
   });
 });
 

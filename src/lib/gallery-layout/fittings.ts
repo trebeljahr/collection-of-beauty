@@ -419,6 +419,84 @@ export function benchUnder(floor: FittedFloor, x: number, z: number, radius: num
   return false;
 }
 
+// ── Sitting down ──────────────────────────────────────────────────────
+
+/** How far from a bench's edge a visitor may stand and still sit on it. */
+export const BENCH_SIT_REACH = 1.2;
+/** Seat taken no nearer a bench's end than this: room for a body. */
+const SEAT_END_MARGIN = 0.4;
+/** Floor between the seat's front edge and a visitor who stands up. */
+const STAND_UP_GAP = 0.15;
+
+function distanceToRect(x: number, z: number, r: Rect): number {
+  const dx = x - Math.min(Math.max(x, r.xMin), r.xMax);
+  const dz = z - Math.min(Math.max(z, r.zMin), r.zMax);
+  return Math.hypot(dx, dz);
+}
+
+/** The bench nearest (x, z) whose edge is within `reach`, or null. */
+export function benchWithin(
+  floor: FittedFloor,
+  x: number,
+  z: number,
+  reach = BENCH_SIT_REACH,
+): Bench | null {
+  let best: Bench | null = null;
+  let bestDist = reach;
+  for (const room of floor.rooms) {
+    if (room.benches.length === 0 || !nearRoom(room, x, z, reach)) continue;
+    for (const b of room.benches) {
+      const d = distanceToRect(x, z, benchRect(b));
+      if (d <= bestDist) {
+        bestDist = d;
+        best = b;
+      }
+    }
+  }
+  return best;
+}
+
+/** Where a visitor sits on a bench, which way they face, and where they
+ *  stand when they get up. */
+export type Seat = {
+  x: number;
+  z: number;
+  /** Unit vector, level: the side of the bench the visitor faces. */
+  faceX: number;
+  faceZ: number;
+  /** In front of the seat, clear of the bench by a body's radius. */
+  standX: number;
+  standZ: number;
+};
+
+/**
+ * The seat a visitor at (x, z), looking along (lookX, lookZ), takes on
+ * a bench. The benches have no back, so the visitor faces the side of
+ * the bench they already look toward and turns as little as they can.
+ * They sit across from where they stand along the bench, on the middle
+ * of its depth, and no nearer an end than a body needs.
+ */
+export function seatOn(
+  bench: Bench,
+  x: number,
+  z: number,
+  lookX: number,
+  lookZ: number,
+  bodyRadius: number,
+): Seat {
+  const half = BENCH_LENGTH / 2 - SEAT_END_MARGIN;
+  const out = BENCH_DEPTH / 2 + bodyRadius + STAND_UP_GAP;
+  if (bench.along === "x") {
+    const sx = bench.x + Math.min(Math.max(x - bench.x, -half), half);
+    // Looking along the bench: face away from the side they stand on.
+    const sign = Math.abs(lookZ) > 1e-3 ? Math.sign(lookZ) : z <= bench.z ? 1 : -1;
+    return { x: sx, z: bench.z, faceX: 0, faceZ: sign, standX: sx, standZ: bench.z + sign * out };
+  }
+  const sz = bench.z + Math.min(Math.max(z - bench.z, -half), half);
+  const sign = Math.abs(lookX) > 1e-3 ? Math.sign(lookX) : x <= bench.x ? 1 : -1;
+  return { x: bench.x, z: sz, faceX: sign, faceZ: 0, standX: bench.x + sign * out, standZ: sz };
+}
+
 /** Room a visitor needs round the point they are put down on. */
 const ARRIVAL_CLEARANCE = 0.8;
 const ARRIVAL_STEP = 0.25;
