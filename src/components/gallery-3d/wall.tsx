@@ -7,6 +7,7 @@ import { DOOR_TRIM, PORTAL_TRIM } from "@/lib/gallery-layout/world-coords";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { darkWoodTrimMaterial } from "./palette-materials";
 import { buildCorniceGeometry, buildSkirtingGeometry } from "./skirting-geometry";
+import { buildDoorTrimGeometry, buildWallFaceGeometry, wallStrips } from "./wall-geometry";
 
 type Vec3 = [number, number, number];
 
@@ -167,8 +168,8 @@ type DoorOpening = {
 
 /**
  * Wall with N door openings cut out. Partitions the wall plane into
- * solid strips + lintels around the door centres. The same shared
- * material is used for every strip to avoid per-mesh material churn.
+ * solid strips + lintels around the door centres, submitted together
+ * as one mesh with the wall's shared material.
  */
 export function WallWithDoors({
   position,
@@ -208,6 +209,21 @@ export function WallWithDoors({
    *  cut where its stair's opening touches the wall. */
   corniceClip?: SkirtingClip;
 }) {
+  const openingsKey = doors
+    .map((door) => `${door.centerLocalX}:${door.width}:${door.height}:${door.portal ? 1 : 0}`)
+    .join(",");
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `openingsKey` contains every door primitive; room reveal renders recreate the doors array.
+  const sorted = useMemo(
+    () => [...doors].sort((a, b) => a.centerLocalX - b.centerLocalX),
+    [openingsKey],
+  );
+  const strips = useMemo(() => wallStrips(width, sorted), [width, sorted]);
+  const face = useMemo(
+    () => (sorted.length ? buildWallFaceGeometry(width, height, sorted) : null),
+    [width, height, sorted],
+  );
+  useEffect(() => () => face?.dispose(), [face]);
+
   if (doors.length === 0) {
     return (
       <SolidWall
@@ -226,53 +242,11 @@ export function WallWithDoors({
     );
   }
 
-  const sorted = [...doors].sort((a, b) => a.centerLocalX - b.centerLocalX);
-  const halfW = width / 2;
   const halfH = height / 2;
-
-  type Strip = { xMin: number; xMax: number };
-  const strips: Strip[] = [];
-  let prevEnd = -halfW;
-  for (const d of sorted) {
-    const doorLeft = d.centerLocalX - d.width / 2;
-    const doorRight = d.centerLocalX + d.width / 2;
-    if (doorLeft > prevEnd) strips.push({ xMin: prevEnd, xMax: doorLeft });
-    prevEnd = Math.max(prevEnd, doorRight);
-  }
-  if (prevEnd < halfW) strips.push({ xMin: prevEnd, xMax: halfW });
 
   return (
     <group ref={groupRef} position={position} rotation={rotation}>
-      {strips.map((s) => {
-        const w = s.xMax - s.xMin;
-        if (w <= 0.001) return null;
-        const cx = (s.xMin + s.xMax) / 2;
-        return (
-          <mesh key={`strip-${s.xMin}-${s.xMax}`} position={[cx, 0, 0]}>
-            <MetrePlane width={w} height={height} u0={s.xMin + halfW} v0={0} />
-            <primitive object={material} attach="material" />
-          </mesh>
-        );
-      })}
-      {sorted.map((d) => {
-        const lintelH = height - d.height;
-        if (lintelH <= 0.001) return null;
-        const cy = d.height + lintelH / 2 - halfH;
-        return (
-          <mesh
-            key={`lintel-${d.centerLocalX}-${d.width}-${d.height}`}
-            position={[d.centerLocalX, cy, 0]}
-          >
-            <MetrePlane
-              width={d.width}
-              height={lintelH}
-              u0={d.centerLocalX - d.width / 2 + halfW}
-              v0={d.height}
-            />
-            <primitive object={material} attach="material" />
-          </mesh>
-        );
-      })}
+      {face && <mesh geometry={face} material={material} />}
       <Skirting
         spans={clipSpans(strips, skirting)}
         floorY={-halfH}
@@ -324,24 +298,18 @@ function DoorTrim({
 }) {
   const trim = portal ? PORTAL_TRIM : DOOR_TRIM;
   const depth = portal ? PORTAL_TRIM_DEPTH : 0.08;
+  const geometry = useMemo(
+    () => buildDoorTrimGeometry(width, height, trim, depth),
+    [width, height, trim, depth],
+  );
+  useEffect(() => () => geometry.dispose(), [geometry]);
   // A door's trim is too slight to show in the floor. A portal's casing
   // is not: it stays in the floor's reflection.
   const layer = portal ? 0 : UNREFLECTED_LAYER;
   const floorY = -wallHeight / 2;
   return (
     <group position={[centerLocalX, floorY, 0]}>
-      <mesh position={[-width / 2 - trim / 2, height / 2, 0]} layers={layer}>
-        <boxGeometry args={[trim, height, depth]} />
-        <primitive object={darkWoodTrimMaterial} attach="material" />
-      </mesh>
-      <mesh position={[width / 2 + trim / 2, height / 2, 0]} layers={layer}>
-        <boxGeometry args={[trim, height, depth]} />
-        <primitive object={darkWoodTrimMaterial} attach="material" />
-      </mesh>
-      <mesh position={[0, height + trim / 2, 0]} layers={layer}>
-        <boxGeometry args={[width + trim * 2, trim, depth]} />
-        <primitive object={darkWoodTrimMaterial} attach="material" />
-      </mesh>
+      <mesh geometry={geometry} material={darkWoodTrimMaterial} layers={layer} />
     </group>
   );
 }
