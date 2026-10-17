@@ -230,8 +230,7 @@ async function attemptFlip(pass: ActivePass, reveal: () => void): Promise<void> 
     const canExpand = options.canExpand?.() ?? false;
     if (!canExpand || !options.expand) break;
     await options.expand();
-    // Wait beyond the gallery's internal 100ms loadMore debounce so a
-    // subsequent expand() call isn't rejected by its loadingRef guard.
+    // Let the appended tiles commit before looking for the target.
     await new Promise((r) => setTimeout(r, 150));
     await rafTwice();
     tile = document.querySelector<HTMLImageElement>(selector);

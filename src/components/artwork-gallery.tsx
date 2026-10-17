@@ -105,19 +105,39 @@ type Props = {
 // smaller chunks = more stair-steps. 10 matches ricos.site and reads
 // fine in practice.
 //
-// CHUNK_SIZE also gates how many photos are appended per IntersectionObserver
-// trigger. That keeps the math behind the sentinel push predictable:
-// 10 photos at our 220-260 px target row heights and 2-5 columns work
-// out to ~600-1300 px of added height, which is comfortably larger than
-// the 300 px prefetch rootMargin — every load pushes the sentinel out
-// of intersection, so the observer reliably re-fires on the next scroll.
+// CHUNK_SIZE also gates how many photos are appended per local load.
+//
+// The next load starts while the sentinel is still PREFETCH_MARGIN_PX
+// below the viewport's bottom edge. A server page is 80 works and a
+// round trip, so the band has to be long enough to scroll through while
+// the fetch runs: at 300 px a visitor reached the end of the grid before
+// the page arrived. Measured headless with 800 ms added to each page
+// fetch, scrolling a steady 2,000 px/s down the home grid: the old band
+// left the grid pinned at its end for 5.2 s of 25, 2,400 px for 34 ms,
+// 4,000 px never. One 80-work page is about 4,300 px of rows on a
+// 1,440 px desktop and 11,000 px on a phone, so the band holds about
+// one page ahead, two on a wide screen.
 const CHUNK_SIZE = 10;
-const PREFETCH_ROOT_MARGIN = "300px";
+const PREFETCH_MARGIN_PX = 4000;
+const PREFETCH_ROOT_MARGIN = `0px 0px ${PREFETCH_MARGIN_PX}px 0px`;
+// A failed fetch is retried while the sentinel is still in the band,
+// after a delay that doubles from the first up to the last.
+const RETRY_FIRST_MS = 1000;
+const RETRY_MAX_MS = 16000;
 
 function chunk<T>(arr: T[], size: number): T[][] {
   const out: T[][] = [];
   for (let i = 0; i < arr.length; i += size) out.push(arr.slice(i, i + size));
   return out;
+}
+
+/** True while the sentinel is rendered and its top lies within
+ *  PREFETCH_MARGIN_PX of the viewport's bottom edge. A sentinel under a
+ *  `display: none` ancestor has no client rects and is never in the band,
+ *  or a hidden grid would page through the whole catalogue. */
+function sentinelInBand(node: HTMLElement | null): boolean {
+  if (!node || node.getClientRects().length === 0) return false;
+  return node.getBoundingClientRect().top < window.innerHeight + PREFETCH_MARGIN_PX;
 }
 
 export function ArtworkGallery({
@@ -169,46 +189,75 @@ export function ArtworkGallery({
   const hasMoreRef = useRef(hasMore);
   hasMoreRef.current = hasMore;
 
+  // What `displayed` holds once the last setDisplayed has committed.
+  // loadMore reads and writes it, so two calls before a re-render append
+  // two different chunks. Reading the length inside a setDisplayed
+  // updater does not work: React runs updaters when it renders, so the
+  // flag the updater set was still false when loadMore tested it, and a
+  // local chunk was skipped for a server fetch.
+  const displayedRef = useRef(displayed);
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
   const loadingRef = useRef(false);
+  const retryDelayRef = useRef(RETRY_FIRST_MS);
+  const retryTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const append = useCallback((more: GalleryPhoto[]) => {
+    const next = [...displayedRef.current, ...more];
+    displayedRef.current = next;
+    setDisplayed(next);
+  }, []);
+
   const loadMore = useCallback(async () => {
     if (loadingRef.current) return;
     loadingRef.current = true;
     try {
-      // Local pagination first. setDisplayed's updater form lets us read
-      // the freshest length without putting `displayed.length` in the
-      // useCallback deps — keeping loadMore's identity stable across
-      // chunked loads is what makes the IO effect attach the observer
-      // exactly once (not re-attach on every batch).
-      let appendedLocal = false;
-      setDisplayed((prev) => {
-        const next = photos.slice(prev.length, prev.length + CHUNK_SIZE);
-        if (next.length === 0) return prev;
-        appendedLocal = true;
-        return [...prev, ...next];
-      });
-      if (appendedLocal) return;
+      // Local pagination first.
+      const local = photos.slice(
+        displayedRef.current.length,
+        displayedRef.current.length + CHUNK_SIZE,
+      );
+      if (local.length > 0) {
+        append(local);
+        return;
+      }
 
       // Local exhausted — fall through to the server.
       if (!hasMoreArtworks || !loadMoreArtworks) return;
       const result = await loadMoreArtworks();
       // null = coalesced, aborted, or the fetch threw. Nothing was
       // learned about the end of the list, so leave the sentinel mounted
-      // and let the next intersection retry.
-      if (!result) return;
+      // and look again after a while.
+      if (!result) {
+        const delay = retryDelayRef.current;
+        retryDelayRef.current = Math.min(delay * 2, RETRY_MAX_MS);
+        if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+        retryTimerRef.current = setTimeout(() => {
+          retryTimerRef.current = null;
+          if (sentinelInBand(sentinelRef.current)) void loadMoreRef.current();
+        }, delay);
+        return;
+      }
+      retryDelayRef.current = RETRY_FIRST_MS;
       // Only the server's own answer retires the sentinel. An empty
       // `added` on its own just means the page was all duplicates.
       if (!result.hasMore) setServerExhausted(true);
-      if (result.added.length === 0) return;
-      setDisplayed((prev) => [...prev, ...result.added.map((a) => toGalleryPhoto(a, activeScope))]);
+      if (result.added.length === 0) {
+        // Nothing appended, so the effect that measures after an append
+        // does not run. Measure here, once the cursor has committed.
+        if (result.hasMore) {
+          requestAnimationFrame(() => {
+            if (hasMoreRef.current && sentinelInBand(sentinelRef.current)) {
+              void loadMoreRef.current();
+            }
+          });
+        }
+        return;
+      }
+      append(result.added.map((a) => toGalleryPhoto(a, activeScope)));
     } finally {
-      // Short debounce so a rapid burst of IO callbacks (the sentinel
-      // briefly oscillating across the rootMargin boundary) coalesces to
-      // a single load. Matches ricos.site's InfiniteScrollGallery.
-      setTimeout(() => {
-        loadingRef.current = false;
-      }, 100);
+      loadingRef.current = false;
     }
-  }, [photos, hasMoreArtworks, loadMoreArtworks, activeScope]);
+  }, [photos, hasMoreArtworks, loadMoreArtworks, activeScope, append]);
 
   const loadMoreRef = useRef(loadMore);
   loadMoreRef.current = loadMore;
@@ -217,28 +266,44 @@ export function ArtworkGallery({
     canExpand: () => hasMoreRef.current,
   });
 
-  // Sentinel mounted iff there's more to load. Attaches the IO once;
-  // detaches when hasMore flips to false (end of gallery). This is the
-  // ricos.site pattern verbatim — relies on each chunk-append pushing
-  // the sentinel out of the rootMargin window so the observer's
-  // isIntersecting transitions correctly on the next scroll-in.
-  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(
+    () => () => {
+      if (retryTimerRef.current) clearTimeout(retryTimerRef.current);
+    },
+    [],
+  );
+
+  // The observer only reports the sentinel crossing into or out of the
+  // band. A load that leaves it inside the band (a short page, a page of
+  // duplicates, a call that arrived while another was in flight) gets no
+  // second callback, and the grid stopped until the visitor scrolled to
+  // its very end and back. So after every append, measure: still in the
+  // band, load again.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: re-run on every append
+  useEffect(() => {
+    if (!hasMore || loadingRef.current) return;
+    if (sentinelInBand(sentinelRef.current)) void loadMoreRef.current();
+  }, [displayed.length, hasMore]);
+
+  // Sentinel mounted iff there's more to load. Attaches the observer
+  // once per mount of the sentinel; reads loadMore through its ref so a
+  // new page (which changes `photos` and so loadMore) does not re-attach.
   useEffect(() => {
     const node = sentinelRef.current;
-    if (!node) return;
+    if (!node || !hasMore) return;
     if (typeof IntersectionObserver === "undefined") {
-      loadMore();
+      void loadMoreRef.current();
       return;
     }
     const observer = new IntersectionObserver(
       (entries) => {
-        if (entries[0]?.isIntersecting && hasMore) loadMore();
+        if (entries[0]?.isIntersecting) void loadMoreRef.current();
       },
       { rootMargin: PREFETCH_ROOT_MARGIN },
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, [hasMore, loadMore]);
+  }, [hasMore]);
 
   if (artworks.length === 0) {
     return <div className="py-16 text-center text-[var(--muted-foreground)]">No works.</div>;
