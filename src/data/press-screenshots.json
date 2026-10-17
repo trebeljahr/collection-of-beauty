@@ -1,86 +1,150 @@
 {
-  "capturedAt": "2026-09",
-  "source": "https://collectionofbeauty.com",
+  "capturedAt": "2026-10",
+  "source": "https://collectionofbeauty.com/gallery-3d",
   "screenshots": [
     {
-      "slug": "stairwell",
-      "label": "Spiral staircase",
-      "floor": "Gothic & Early Renaissance",
-      "href": "/marketing/collection-of-beauty-museum-stairwell.jpg",
+      "slug": "court",
+      "label": "Central court",
+      "floor": "Old Masters",
+      "href": "/marketing/collection-of-beauty-museum-court.jpg",
       "width": 2560,
       "height": 1440,
-      "bytes": 273113,
+      "bytes": 686437,
       "large": {
-        "href": "/marketing/collection-of-beauty-museum-stairwell-large.jpg",
+        "href": "/marketing/collection-of-beauty-museum-court-large.jpg",
         "width": 5120,
         "height": 2880,
-        "bytes": 1134944
+        "bytes": 2071629
       },
-      "alt": "Collection of Beauty 3D museum, Gothic & Early Renaissance floor: the spiral staircase that joins the floors, seen from the ground floor."
+      "alt": "Collection of Beauty 3D museum, Old Masters floor: the central court, open through all four floors, with the largest paintings of the floor hung at their real size."
+    },
+    {
+      "slug": "stair-hall",
+      "label": "Grand staircase",
+      "floor": "Old Masters",
+      "href": "/marketing/collection-of-beauty-museum-stair-hall.jpg",
+      "width": 2560,
+      "height": 1440,
+      "bytes": 504982,
+      "large": {
+        "href": "/marketing/collection-of-beauty-museum-stair-hall-large.jpg",
+        "width": 5120,
+        "height": 2880,
+        "bytes": 1437096
+      },
+      "alt": "Collection of Beauty 3D museum, Old Masters floor: the grand staircase of the west stair hall, with Veronese's Feast in the House of Levi on the wall over its landing."
+    },
+    {
+      "slug": "salon",
+      "label": "Grand salon",
+      "floor": "Old Masters",
+      "href": "/marketing/collection-of-beauty-museum-salon.jpg",
+      "width": 2560,
+      "height": 1440,
+      "bytes": 623492,
+      "large": {
+        "href": "/marketing/collection-of-beauty-museum-salon-large.jpg",
+        "width": 5120,
+        "height": 2880,
+        "bytes": 1905589
+      },
+      "alt": "Collection of Beauty 3D museum, Old Masters floor: the Grand Salon, two storeys high, with Michelangelo's Last Judgment at its real size on the far wall."
+    },
+    {
+      "slug": "mona-lisa",
+      "label": "Italian Renaissance gallery",
+      "floor": "Old Masters",
+      "href": "/marketing/collection-of-beauty-museum-mona-lisa.jpg",
+      "width": 2560,
+      "height": 1440,
+      "bytes": 322798,
+      "large": {
+        "href": "/marketing/collection-of-beauty-museum-mona-lisa-large.jpg",
+        "width": 5120,
+        "height": 2880,
+        "bytes": 1040513
+      },
+      "alt": "Collection of Beauty 3D museum, Old Masters floor: the Mona Lisa hung alone on a free-standing wall, with a bench in front of it."
     },
     {
       "slug": "baroque",
-      "label": "Baroque floor",
-      "floor": "Baroque & the Dutch Golden Age",
+      "label": "Baroque gallery",
+      "floor": "Old Masters",
       "href": "/marketing/collection-of-beauty-museum-baroque.jpg",
       "width": 2560,
       "height": 1440,
-      "bytes": 262372,
+      "bytes": 332399,
       "large": {
         "href": "/marketing/collection-of-beauty-museum-baroque-large.jpg",
         "width": 5120,
         "height": 2880,
-        "bytes": 974111
+        "bytes": 1063092
       },
-      "alt": "Collection of Beauty 3D museum, Baroque & the Dutch Golden Age floor: Baroque paintings hung at their real size along a gallery wall, each with a label."
+      "alt": "Collection of Beauty 3D museum, Old Masters floor: a Baroque gallery, with a bench in front of Velázquez's Las Meninas at its real size."
+    },
+    {
+      "slug": "spiral",
+      "label": "Spiral staircase",
+      "floor": "Old Masters",
+      "href": "/marketing/collection-of-beauty-museum-spiral.jpg",
+      "width": 2560,
+      "height": 1440,
+      "bytes": 401955,
+      "large": {
+        "href": "/marketing/collection-of-beauty-museum-spiral-large.jpg",
+        "width": 5120,
+        "height": 2880,
+        "bytes": 1230241
+      },
+      "alt": "Collection of Beauty 3D museum, Old Masters floor: the spiral staircase that runs through all four floors, seen from the first floor."
+    },
+    {
+      "slug": "water-garden",
+      "label": "Monet's water garden",
+      "floor": "Impressionism and After",
+      "href": "/marketing/collection-of-beauty-museum-water-garden.jpg",
+      "width": 2560,
+      "height": 1440,
+      "bytes": 427494,
+      "large": {
+        "href": "/marketing/collection-of-beauty-museum-water-garden-large.jpg",
+        "width": 5120,
+        "height": 2880,
+        "bytes": 1389594
+      },
+      "alt": "Collection of Beauty 3D museum, Impressionism and After floor: Monet's Water Lilies panels, among them the 17 m Two Willows, in a room of their own."
+    },
+    {
+      "slug": "hokusai",
+      "label": "Hokusai room",
+      "floor": "Natural History and East Asian Art",
+      "href": "/marketing/collection-of-beauty-museum-hokusai.jpg",
+      "width": 2560,
+      "height": 1440,
+      "bytes": 338424,
+      "large": {
+        "href": "/marketing/collection-of-beauty-museum-hokusai-large.jpg",
+        "width": 5120,
+        "height": 2880,
+        "bytes": 1078950
+      },
+      "alt": "Collection of Beauty 3D museum, Natural History and East Asian Art floor: the Hokusai room, with his views of Mount Fuji on free-standing panels."
     },
     {
       "slug": "natural-history",
-      "label": "Natural history floor",
-      "floor": "Natural History & Botanical Illustration",
+      "label": "Audubon room",
+      "floor": "Natural History and East Asian Art",
       "href": "/marketing/collection-of-beauty-museum-natural-history.jpg",
       "width": 2560,
       "height": 1440,
-      "bytes": 126038,
+      "bytes": 365744,
       "large": {
         "href": "/marketing/collection-of-beauty-museum-natural-history-large.jpg",
         "width": 5120,
         "height": 2880,
-        "bytes": 452437
+        "bytes": 1175400
       },
-      "alt": "Collection of Beauty 3D museum, Natural History & Botanical Illustration floor: Audubon's bird plates in pale mounts along a gallery wall."
-    },
-    {
-      "slug": "east-asian",
-      "label": "East Asian painting floor",
-      "floor": "East Asian Painting",
-      "href": "/marketing/collection-of-beauty-museum-east-asian.jpg",
-      "width": 2560,
-      "height": 1440,
-      "bytes": 264309,
-      "large": {
-        "href": "/marketing/collection-of-beauty-museum-east-asian-large.jpg",
-        "width": 5120,
-        "height": 2880,
-        "bytes": 850960
-      },
-      "alt": "Collection of Beauty 3D museum, East Asian Painting floor: a painted screen and a hanging scroll on the walls of the floor's Grand Hall."
-    },
-    {
-      "slug": "impressionism",
-      "label": "Impressionism floor",
-      "floor": "Impressionism",
-      "href": "/marketing/collection-of-beauty-museum-impressionism.jpg",
-      "width": 2560,
-      "height": 1440,
-      "bytes": 210770,
-      "large": {
-        "href": "/marketing/collection-of-beauty-museum-impressionism-large.jpg",
-        "width": 5120,
-        "height": 2880,
-        "bytes": 706506
-      },
-      "alt": "Collection of Beauty 3D museum, Impressionism floor: Impressionist landscapes and portraits along a gallery wall."
+      "alt": "Collection of Beauty 3D museum, Natural History and East Asian Art floor: Audubon's bird plates from The Birds of America in pale mounts."
     }
   ]
 }

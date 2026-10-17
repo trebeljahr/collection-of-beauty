@@ -88,7 +88,7 @@ export default function AboutPage() {
               <Link href="/gallery-3d" className={INLINE_LINK}>
                 3D museum
               </Link>{" "}
-              with one floor for each era.
+              of four floors.
             </p>
             <p>
               Open archives such as the Public Domain Image Archive are close to endless and full of

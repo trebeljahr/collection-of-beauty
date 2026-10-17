@@ -83,7 +83,7 @@ bytes only under a new filename.
 
 ## Press kit
 
-`/press-kit.zip` is 25.6 MB and can outlive the 20-second drain. When
+`/press-kit.zip` is about 35 MB and can outlive the 20-second drain. When
 `scripts/press-kit-download.json` says `"published": true`, `next.config.mjs`
 answers `/press-kit.zip` with a 307 to the content-addressed object
 `/downloads/v1/<sha256>/collection-of-beauty-press-kit.zip` on the independent

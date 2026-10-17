@@ -22,7 +22,7 @@ const __dirname = path.dirname(__filename);
 const ROOT = path.dirname(__dirname);
 
 const SOURCE_PRESS_KIT =
-  "/Users/rico/projects/ricos.site/src/content/Notes/texts/misc/claude-chat-gpt-generated/projects/collection-of-beauty/collection-of-beauty-press-kit.md";
+  "/Users/rico/projects/ai-work-notes/projects/collection-of-beauty/collection-of-beauty-press-kit.md";
 const MARKETING_DIR = path.join(ROOT, "public", "marketing");
 const OUT_ZIP = path.join(ROOT, "public", "press-kit.zip");
 const MAX_ZIP_BYTES = 200 * 1024 * 1024;

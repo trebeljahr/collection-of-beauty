@@ -105,6 +105,20 @@ const nextConfig = {
         destination: "/marketing/collection-of-beauty-16x9.jpg",
         permanent: true,
       },
+      // Museum screenshots of the tower plan, replaced on 17 October 2026
+      // by views of the block plan. Temporary, since the shots are retaken
+      // whenever the museum changes.
+      ...[
+        ["stairwell", "spiral"],
+        ["east-asian", "hokusai"],
+        ["impressionism", "water-garden"],
+      ].flatMap(([from, to]) =>
+        ["", "-large"].map((size) => ({
+          source: `/marketing/collection-of-beauty-museum-${from}${size}.jpg`,
+          destination: `/marketing/collection-of-beauty-museum-${to}${size}.jpg`,
+          permanent: false,
+        })),
+      ),
       {
         source: "/drop",
         destination: "/drops",

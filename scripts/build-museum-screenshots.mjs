@@ -1,34 +1,36 @@
 #!/usr/bin/env node
 
-// Take the press screenshots of the 3D museum by walking a headless Chrome
-// through the live site, the way a visitor would: click Enter, teleport
-// with the floor keys, walk with WASD, turn with the mouse, zoom with F.
+// Take the press screenshots of the 3D museum in a headless Chrome: click
+// Enter, jump to a floor with its digit key, put the camera on a fixed
+// pose, wait for the textures, take the shot.
 //
-// Headless Chrome refuses the Pointer Lock API, and the museum only turns
-// the camera while the canvas holds the lock. The init script below stands
-// in for the API, so the page's own PointerLockControls read the synthetic
-// mouse moves. Nothing in the app changes for the capture.
+// The poses are world coordinates on the block plan (layout-block.ts), so
+// a shot frames the same works on every run. They are set through
+// `window.__galleryCamera`, which the museum exposes only with `?debug` on
+// a development build (debug-overlay.tsx). So the script runs against a
+// dev server, not production. A change to the plan or the hang can move a
+// work off its pose: look at the output after every run, and read new
+// coordinates from `museumLayout` (src/lib/gallery-layout/precomputed.ts)
+// with a tsx script.
 //
-// The SHOTS below were tuned on the tower plan, which the block plan
-// replaced on 17 October 2026: its floor keys, walks and the "Grand
-// Hall" no longer exist. Retune them against the block plan before the
-// next run.
-//
-// Shots are scripted as key presses and mouse deltas, not camera
-// coordinates, so a change to the floor plan can move them. Walking is
-// timed, so the framing also shifts a little between runs. Look at the
-// output after every run and adjust SHOTS if a painting is cut.
+// Headless Chrome refuses the Pointer Lock API, and the museum only takes
+// Enter once the canvas holds the lock. The init script below stands in
+// for the API. Nothing in the app changes for the capture.
 //
 // Outputs:
 //   public/marketing/collection-of-beauty-museum-*.jpg (+ *-large.jpg)
 //   src/data/press-screenshots.json   manifest read by /press
 //
-// Run (needs Google Chrome installed; a GPU makes it much faster):
-//   pnpm marketing:screenshots                       # against production
-//   pnpm marketing:screenshots --base http://localhost:3547
+// Run (a GPU makes it much faster; uses Playwright's cached headless
+// shell when there is one, else Google Chrome):
+//   pnpm marketing:screenshots                          # main's dev server on :3547
+//   pnpm marketing:screenshots --base http://localhost:4000
+//   pnpm marketing:screenshots --only salon,court       # retake a few
 // then `pnpm marketing:press-kit-zip`.
 
-import { mkdir, readdir, rm, stat, writeFile } from "node:fs/promises";
+import { existsSync } from "node:fs";
+import { readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
+import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { chromium } from "playwright-core";
@@ -39,8 +41,12 @@ const OUT_DIR = path.join(ROOT, "public", "marketing");
 const OUT_MANIFEST = path.join(ROOT, "src", "data", "press-screenshots.json");
 const FILE_PREFIX = "collection-of-beauty-museum-";
 
-const baseArg = process.argv.indexOf("--base");
-const BASE_URL = baseArg > 0 ? process.argv[baseArg + 1] : "https://collectionofbeauty.com";
+function arg(name) {
+  const i = process.argv.indexOf(name);
+  return i > 0 ? process.argv[i + 1] : undefined;
+}
+const BASE_URL = arg("--base") ?? "http://localhost:3547";
+const ONLY = arg("--only")?.split(",");
 
 // Rendered at 2x, the most the museum's canvas allows (dpr={[1, 2]} in
 // gallery-3d/index.tsx), so one frame yields a native 5120x2880 large file
@@ -52,54 +58,110 @@ const SCALE = 2;
 const OUTPUT = { width: 2560, height: 1440 };
 const OUTPUT_LARGE = { width: VIEWPORT.width * SCALE, height: VIEWPORT.height * SCALE };
 
-// three-stdlib's PointerLockControls turns 0.002 rad per pixel of movementX.
-const PX_PER_DEGREE = Math.PI / 180 / 0.002;
-const deg = (d) => Math.round(d * PX_PER_DEGREE);
+const STOREY = 8.4; // FLOOR_SEPARATION in world-coords.ts
+const EYE = 1.75; // EYE_HEIGHT in player.tsx
 
-// Each shot: teleport to a floor, turn away from the stairwell door the
-// spawn faces, walk in, then turn along the wall. Distances are in
-// milliseconds of held key at 5 m/s, tuned per floor by looking at the
-// output — the floors differ in depth, and the Grand Hall (the room every
-// floor teleport lands in) hangs a few large works rather than a long run
-// of small ones, so its floors want a shorter walk and no zoom.
-const SHOTS = [
+// Each shot: the floor (0-based, the digit key is floor + 1), where the
+// eye stands ([x, z], at eye height over that floor) and the point it
+// looks at ([x, y over that floor, z]). Coordinates are the block plan's,
+// read from museumLayout on 17 October 2026.
+const ALL_SHOTS = [
   {
-    // First, before any teleport: the entry point is the ground-floor
-    // stairwell, facing the spiral.
-    slug: "stairwell",
-    label: "Spiral staircase",
-    subject: "the spiral staircase that joins the floors, seen from the ground floor",
-    steps: [{ hold: "KeyW", ms: 1800 }, { pitch: 8 }],
+    // Where a visit starts: the court's first floor, looking north past
+    // two of its bench islands to the Jordaens and the School of Athens,
+    // with the galleries of the three floors above.
+    slug: "court",
+    label: "Central court",
+    subject:
+      "the central court, open through all four floors, with the largest paintings of the floor hung at their real size",
+    floor: 0,
+    eye: [58.75, 43.2],
+    look: [58.75, 6.2, 17.6],
   },
   {
+    // The imperial stair of the west stair hall, from its lobby, with
+    // Veronese's Feast in the House of Levi (13 m) on the end wall over
+    // the half landing.
+    slug: "stair-hall",
+    label: "Grand staircase",
+    subject:
+      "the grand staircase of the west stair hall, with Veronese's Feast in the House of Levi on the wall over its landing",
+    floor: 0,
+    eye: [26.6, 31.25],
+    look: [7.5, 6.4, 31.25],
+  },
+  {
+    // The salon beyond the south front: the Last Judgment on its far wall
+    // under the glazed dome, two storeys and a bit high.
+    slug: "salon",
+    label: "Grand salon",
+    subject:
+      "the Grand Salon, two storeys high, with Michelangelo's Last Judgment at its real size on the far wall",
+    floor: 0,
+    eye: [58.75, 64.2],
+    look: [58.75, 7.6, 99.9],
+  },
+  {
+    // The Mona Lisa alone on a door screen, with its bench in front.
+    slug: "mona-lisa",
+    label: "Italian Renaissance gallery",
+    subject: "the Mona Lisa hung alone on a free-standing wall, with a bench in front of it",
+    floor: 0,
+    eye: [32.9, 8.6],
+    look: [36.25, 1.5, 14.8],
+  },
+  {
+    // A gallery of the Dutch Golden Age and Spain: Las Meninas on the long
+    // south wall, between two rows of free-standing panels, with the bench
+    // that faces it.
     slug: "baroque",
-    label: "Baroque floor",
-    subject: "Baroque paintings hung at their real size along a gallery wall, each with a label",
-    floorKey: 3,
-    steps: [{ turn: 180 }, { hold: "KeyW", ms: 2500 }, { turn: 20 }, { zoom: true }],
+    label: "Baroque gallery",
+    subject: "a Baroque gallery, with a bench in front of Velázquez's Las Meninas at its real size",
+    floor: 0,
+    eye: [81.25, 51.5],
+    look: [81.25, 2.2, 62.4],
   },
   {
+    // The spiral stair that runs through all four floors, from the far
+    // corner of its room by the salon's door.
+    slug: "spiral",
+    label: "Spiral staircase",
+    subject: "the spiral staircase that runs through all four floors, seen from the first floor",
+    floor: 0,
+    eye: [48.6, 61.6],
+    look: [58.75, 3.8, 53.75],
+  },
+  {
+    // Monet's water garden: the Two Willows, 17 m long, across the north
+    // wall of the artist's room of the third floor.
+    slug: "water-garden",
+    label: "Monet's water garden",
+    subject: "Monet's Water Lilies panels, among them the 17 m Two Willows, in a room of their own",
+    floor: 2,
+    eye: [58.75, 15.6],
+    look: [58.75, 2.6, 0.1],
+  },
+  {
+    // Hokusai's room on the top floor, from its west door down the aisle
+    // between two rows of panels, Red Fuji on the nearest.
+    slug: "hokusai",
+    label: "Hokusai room",
+    subject: "the Hokusai room, with his views of Mount Fuji on free-standing panels",
+    floor: 3,
+    eye: [48.6, 8.75],
+    look: [64.0, 1.7, 10.8],
+  },
+  {
+    // Audubon's room of the natural history wing, from its south side.
     slug: "natural-history",
-    label: "Natural history floor",
-    subject: "Audubon's bird plates in pale mounts along a gallery wall",
-    floorKey: 6,
-    steps: [{ turn: 180 }, { hold: "KeyW", ms: 1200 }, { turn: -15 }],
-  },
-  {
-    slug: "east-asian",
-    label: "East Asian painting floor",
-    subject: "a painted screen and a hanging scroll on the walls of the floor's Grand Hall",
-    floorKey: 8,
-    steps: [{ turn: 180 }, { hold: "KeyW", ms: 1200 }],
-  },
-  {
-    slug: "impressionism",
-    label: "Impressionism floor",
-    subject: "Impressionist landscapes and portraits along a gallery wall",
-    floorKey: 9,
-    steps: [{ turn: 180 }, { hold: "KeyW", ms: 3500 }, { turn: 12 }, { zoom: true }],
+    label: "Audubon room",
+    subject: "Audubon's bird plates from The Birds of America in pale mounts",
+    floor: 3,
+    eye: [36.25, 43.6],
+    look: [36.25, 1.8, 20.0],
   },
 ];
+const SHOTS = ALL_SHOTS.filter((shot) => !ONLY || ONLY.includes(shot.slug));
 
 // Stand-in for the Pointer Lock API (see the header). Fullscreen is stubbed
 // for the same reason: the Enter click asks for it and headless says no.
@@ -133,7 +195,7 @@ function trackImages(page) {
   page.on("request", bump(1));
   page.on("requestfinished", bump(-1));
   page.on("requestfailed", bump(-1));
-  return async function settled({ quietMs = 2500, minMs = 3000, maxMs = 20000 } = {}) {
+  return async function settled({ quietMs = 3000, minMs = 4000, maxMs = 60000 } = {}) {
     const start = Date.now();
     await page.waitForTimeout(minMs);
     while (Date.now() - start < maxMs) {
@@ -144,125 +206,111 @@ function trackImages(page) {
   };
 }
 
+/** Playwright's cached headless shell renders WebGL on the GPU through
+ *  ANGLE Metal on a Mac. Fall back to an installed Google Chrome. */
+async function launch() {
+  const cache = path.join(os.homedir(), "Library", "Caches", "ms-playwright");
+  const shells = existsSync(cache)
+    ? (await readdir(cache)).filter((d) => d.startsWith("chromium_headless_shell-")).sort()
+    : [];
+  const shell = shells.at(-1);
+  const executablePath = shell
+    ? path.join(cache, shell, "chrome-headless-shell-mac-arm64", "chrome-headless-shell")
+    : undefined;
+  const args = ["--enable-gpu", "--ignore-gpu-blocklist", "--use-angle=metal"];
+  if (executablePath && existsSync(executablePath)) {
+    return chromium.launch({ executablePath, headless: true, args });
+  }
+  return chromium.launch({ channel: "chrome", headless: true, args });
+}
+
 async function main() {
-  const browser = await chromium.launch({
-    channel: "chrome",
-    headless: true,
-    args: ["--enable-gpu", "--ignore-gpu-blocklist"],
-  });
+  const browser = await launch();
   const page = await browser.newPage({ viewport: VIEWPORT, deviceScaleFactor: SCALE });
   // Keep the capture out of the site's analytics.
   await page.route(/plausible/, (route) => route.abort());
   await page.addInitScript(fakePointerLock);
   const settled = trackImages(page);
 
-  console.log(`opening ${BASE_URL}/gallery-3d`);
-  await page.goto(`${BASE_URL}/gallery-3d`, { waitUntil: "domcontentloaded" });
+  console.log(`opening ${BASE_URL}/gallery-3d?debug`);
+  await page.goto(`${BASE_URL}/gallery-3d?debug`, { waitUntil: "domcontentloaded" });
   const enter = page.getByRole("button", { name: /^Enter/ });
-  await enter.waitFor({ timeout: 180_000 });
+  await enter.waitFor({ timeout: 600_000 });
   await page.waitForFunction(
     () =>
       [...document.querySelectorAll("button")].some(
         (b) => /^Enter/.test(b.textContent.trim()) && !b.disabled,
       ),
     null,
-    { timeout: 180_000 },
+    { timeout: 600_000, polling: 1000 },
   );
   await enter.click();
+  await page.waitForFunction(() => Boolean(window.__galleryCamera), null, { timeout: 60_000 });
+  // The floor reflection gives itself up for the visit when frames run
+  // slow, and a busy machine trips that in the first seconds. Pin it on
+  // before it can.
+  await page.evaluate(() => window.__galleryFloorReflection?.(true));
   await page.waitForTimeout(1500);
 
   // Everything layered over the canvas is HUD: minimap, key hints, room
-  // card, settings button.
+  // card, music player, debug overlay. `nextjs-portal` is the dev
+  // server's own badge in the corner.
   await page.addStyleTag({
-    content: ".gallery-canvas-host ~ * { visibility: hidden !important; }",
+    content:
+      ".gallery-canvas-host ~ * { visibility: hidden !important; } nextjs-portal { display: none !important; }",
   });
-  // The look controls mount only after Enter, and remount on some state
-  // changes, so they can miss the lock event. Asking again re-sends it.
-  const relock = async () => {
-    await page.evaluate(() =>
-      document.querySelector(".gallery-canvas-host canvas")?.requestPointerLock(),
-    );
-    await page.waitForTimeout(300);
-  };
-  const turn = (dx, dy) =>
-    page.evaluate(
-      ([x, y]) =>
-        document.dispatchEvent(new MouseEvent("mousemove", { movementX: x, movementY: y })),
-      [dx, dy],
-    );
   const floorTitle = () =>
     page.evaluate(() => {
       for (const el of document.querySelectorAll("div, p, span")) {
-        const m = el.childElementCount === 0 && el.textContent.match(/^Floor \d+ · (.+)$/);
+        // "Floor 1 · Old Masters · Baroque & …": the floor, then the era
+        // of the room the visitor is in.
+        const m = el.childElementCount === 0 && el.textContent.match(/^Floor \d+ · ([^·]+)/);
         if (m) return m[1].trim();
       }
       return null;
     });
-
-  await mkdir(OUT_DIR, { recursive: true });
-  for (const name of await readdir(OUT_DIR)) {
-    if (name.startsWith(FILE_PREFIX)) await rm(path.join(OUT_DIR, name));
-  }
+  const pose = (eye, look, floorY) =>
+    page.evaluate(
+      ([e, l, y, eyeH]) => {
+        const cam = window.__galleryCamera;
+        cam.position.set(e[0], y + eyeH, e[1]);
+        cam.lookAt(l[0], y + l[1], l[2]);
+        cam.updateMatrixWorld();
+      },
+      [eye, look, floorY, EYE],
+    );
 
   const screenshots = [];
-  let zoomed = false;
+  let floor = 0;
   for (const shot of SHOTS) {
-    if (zoomed) {
-      await page.keyboard.press("KeyF");
-      zoomed = false;
+    if (shot.floor !== floor) {
+      await page.keyboard.press(`Digit${shot.floor + 1}`);
+      floor = shot.floor;
+      await page.waitForTimeout(1500);
     }
-    if (shot.floorKey) {
-      await page.keyboard.press(`Digit${shot.floorKey}`);
-      await page.waitForTimeout(800);
-    }
-    await relock();
-    // Walking is integrated per frame with dt capped at 0.1s, so a frame
-    // that stalls on a texture upload moves the player less than the time
-    // it took. Let the teleport's textures land before any key is held.
-    await settled({ minMs: 1500 });
-    const fps = await page.evaluate(
-      () =>
-        new Promise((resolve) => {
-          let frames = 0;
-          const start = performance.now();
-          const tick = () => {
-            frames++;
-            if (performance.now() - start < 1000) requestAnimationFrame(tick);
-            else resolve(frames);
-          };
-          requestAnimationFrame(tick);
-        }),
-    );
-    console.log(`  ${fps} fps before walking`);
-    for (const step of shot.steps) {
-      if (step.turn) await turn(deg(step.turn), 0);
-      if (step.pitch) await turn(0, -deg(step.pitch));
-      if (step.hold) {
-        await page.keyboard.down(step.hold);
-        await page.waitForTimeout(step.ms);
-        await page.keyboard.up(step.hold);
-      }
-      if (step.zoom !== undefined && step.zoom !== zoomed) {
-        await page.keyboard.press("KeyF");
-        zoomed = step.zoom;
-      }
-    }
+    const floorY = shot.floor * STOREY;
+    await pose(shot.eye, shot.look, floorY);
+    // Textures load for the rooms near the camera, so wait at the pose,
+    // then set it again: the player damps the eye back to its height
+    // over the floor under it, and the spawn effect can re-aim it.
     await settled();
-    const floor = await floorTitle();
+    await pose(shot.eye, shot.look, floorY);
+    await page.waitForTimeout(1500);
+    const floorName = await floorTitle();
 
     const file = `${FILE_PREFIX}${shot.slug}.jpg`;
     const outPath = path.join(OUT_DIR, file);
     const largeFile = `${FILE_PREFIX}${shot.slug}-large.jpg`;
     const largePath = path.join(OUT_DIR, largeFile);
     // A 5120x2880 PNG takes well over Playwright's 30s default to encode.
-    const png = await page.screenshot({ type: "png", timeout: 180_000 });
+    const png = await page.screenshot({ type: "png", timeout: 300_000 });
     const jpeg = { quality: 90, mozjpeg: true, chromaSubsampling: "4:4:4" };
     await sharp(png).resize(OUTPUT.width, OUTPUT.height).jpeg(jpeg).toFile(outPath);
     await sharp(png).resize(OUTPUT_LARGE.width, OUTPUT_LARGE.height).jpeg(jpeg).toFile(largePath);
     screenshots.push({
       slug: shot.slug,
       label: shot.label,
-      floor,
+      floor: floorName,
       href: `/marketing/${file}`,
       width: OUTPUT.width,
       height: OUTPUT.height,
@@ -273,17 +321,38 @@ async function main() {
         height: OUTPUT_LARGE.height,
         bytes: (await stat(largePath)).size,
       },
-      alt: `Collection of Beauty 3D museum${floor ? `, ${floor} floor` : ""}: ${shot.subject}.`,
+      alt: `Collection of Beauty 3D museum${floorName ? `, ${floorName} floor` : ""}: ${shot.subject}.`,
     });
-    console.log(`[${shot.slug}] ${file}${floor ? ` (${floor})` : ""}`);
+    console.log(`[${shot.slug}] ${file}${floorName ? ` (${floorName})` : ""}`);
   }
   await browser.close();
 
+  // A partial run (--only) keeps the other shots of the manifest; a full
+  // run replaces it and removes the files of shots no longer listed.
+  const previous = existsSync(OUT_MANIFEST)
+    ? JSON.parse(await readFile(OUT_MANIFEST, "utf8")).screenshots
+    : [];
+  const taken = new Set(screenshots.map((s) => s.slug));
+  const kept = ONLY ? previous.filter((s) => !taken.has(s.slug)) : [];
+  if (!ONLY) {
+    const current = new Set(
+      screenshots.flatMap((s) => [path.basename(s.href), path.basename(s.large.href)]),
+    );
+    for (const name of await readdir(OUT_DIR)) {
+      if (name.startsWith(FILE_PREFIX) && !current.has(name)) {
+        await unlink(path.join(OUT_DIR, name));
+      }
+    }
+  }
   const manifest = {
     // Month, not day: the page says when the museum looked like this.
     capturedAt: new Date().toISOString().slice(0, 7),
-    source: BASE_URL,
-    screenshots,
+    source: "https://collectionofbeauty.com/gallery-3d",
+    screenshots: [...kept, ...screenshots].sort(
+      (a, b) =>
+        ALL_SHOTS.findIndex((s) => s.slug === a.slug) -
+        ALL_SHOTS.findIndex((s) => s.slug === b.slug),
+    ),
   };
   await writeFile(OUT_MANIFEST, `${JSON.stringify(manifest, null, 2)}\n`);
   console.log(`wrote ${path.relative(ROOT, OUT_MANIFEST)}`);

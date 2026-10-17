@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { ERAS } from "@/lib/gallery-eras";
+import { BLOCK_PLAN } from "@/lib/gallery-layout/layout-block";
 import { buildOpenGraph, SITE_NAME } from "@/lib/seo";
 import { Gallery3DClient } from "./gallery-3d-client";
 
@@ -9,14 +9,13 @@ import { Gallery3DClient } from "./gallery-3d-client";
 // the route shell renders immediately and the loading.tsx fallback
 // shows while the bundle downloads.
 
-// Floor count and the era names at either end come from the era table so
-// the copy can't claim a building the layout no longer builds. The old
-// hand-written version had drifted: it placed Ukiyo-e "between
-// Romanticism and Impressionism", but the East Asian Painting floor sits
-// between Realism and Impressionism.
-const FLOOR_COUNT = ERAS.length;
-const GROUND_ERA = ERAS[0]?.title ?? "the earliest era";
-const TOP_ERA = ERAS[ERAS.length - 1]?.title ?? "the most recent era";
+// Floor count and the floor names at either end come from the floor plan
+// so the copy can't claim a building the layout no longer builds. It said
+// "11 floors, one per era, joined by a central spiral staircase" for a day
+// after the block plan, with two or three eras a floor, replaced the tower.
+const FLOOR_COUNT = BLOCK_PLAN.length;
+const FIRST_FLOOR = BLOCK_PLAN[0]?.title ?? "the Old Masters";
+const TOP_FLOOR = BLOCK_PLAN[BLOCK_PLAN.length - 1]?.title ?? "the most recent art";
 
 // Short enough that the root layout's "%s · Collection of Beauty"
 // template still fits inside a search result; the fuller sentence goes
@@ -29,9 +28,9 @@ const MUSEUM_TITLE = `The Museum — ${FLOOR_COUNT} walkable floors`;
 // gallery-layout/floor-works.ts), so the copy now says what the
 // building actually hangs.
 const MUSEUM_DESCRIPTION =
-  `Walk through a museum of ${FLOOR_COUNT} floors in your browser: one floor per era, ` +
-  `${GROUND_ERA} at ground level rising to ${TOP_ERA}, joined by a central spiral ` +
-  "staircase. Paintings hang at their real-world size where the dimensions are known.";
+  `Walk through a museum of ${FLOOR_COUNT} floors in your browser, from ${FIRST_FLOOR} ` +
+  `at ground level to ${TOP_FLOOR} at the top, round an open court. ` +
+  "Paintings hang at their real-world size where the dimensions are known.";
 
 export const metadata: Metadata = {
   title: MUSEUM_TITLE,
@@ -83,8 +82,7 @@ export default function Gallery3DPage() {
       {/* Phrased to avoid an article in front of FLOOR_COUNT — "a 11-storey"
           is what a hardcoded "a" produces once the era table changes. */}
       <h1 className="sr-only">
-        The Museum — walk through {FLOOR_COUNT} floors of public-domain art, one per era, joined by
-        a central spiral staircase
+        The Museum — walk through {FLOOR_COUNT} floors of public-domain art round an open court
       </h1>
       <Gallery3DClient />
     </>
