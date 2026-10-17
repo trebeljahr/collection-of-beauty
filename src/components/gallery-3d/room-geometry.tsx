@@ -1,7 +1,7 @@
 "use client";
 
 import { useFrame } from "@react-three/fiber";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import {
@@ -70,7 +70,7 @@ const doorBlindMaterial = new THREE.MeshBasicMaterial({
 });
 const DOOR_BLIND_SETBACK = 0.45;
 
-export function RoomGeometry({
+export const RoomGeometry = memo(function RoomGeometry({
   room,
   sharedWalls,
   mountedRooms,
@@ -99,6 +99,11 @@ export function RoomGeometry({
    *  overlay can show first-room load progress / failures. */
   onPaintingSettled?: (key: string, status: "loaded" | "failed") => void;
 }) {
+  if (process.env.NODE_ENV !== "production" && typeof window !== "undefined") {
+    const probe = window as unknown as { __museumShellRenders?: number };
+    // The benchmark opts in before the gallery mounts.
+    if (probe.__museumShellRenders !== undefined) probe.__museumShellRenders++;
+  }
   const palette = paletteOfRoom(room);
   const mats = getPaletteMaterials(palette);
   // A room that carries its own era stands beside rooms in other
@@ -240,12 +245,6 @@ export function RoomGeometry({
   // stairwell-light.tsx).
   const isStandardRoom = !room.isStairwell;
 
-  // Paintings load lazily, image by image, only once the player is near
-  // this room (see useRoomWorks). Until then each is its picture light
-  // and a stand-in, so a room seen from afar is lit and hung.
-  const works = useRoomWorks(room, worksInFull || room.isStairwell);
-  const settledHandler = usePaintingSettledHandlers(onPaintingSettled);
-
   // The floor's mirror pass draws this room's works only while the
   // visitor is in or next to the room (floor-mirror.ts).
   const worksRef = useRef<THREE.Group>(null);
@@ -376,18 +375,11 @@ export function RoomGeometry({
         {/* Paintings — lit from the start, revealed lazily once the
           player nears this room, then a few per frame, nearest first. */}
         <group ref={worksRef}>
-          {works.mounted.map((p) => {
-            const paintingKey = `${room.id}-${p.artwork.id}-${p.position.join(",")}`;
-            return (
-              <Painting
-                key={paintingKey}
-                placement={p}
-                room={room}
-                revealed={works.revealed.has(p)}
-                onSettled={settledHandler(paintingKey)}
-              />
-            );
-          })}
+          <RoomWorks
+            room={room}
+            mayReveal={worksInFull || room.isStairwell}
+            onPaintingSettled={onPaintingSettled}
+          />
         </group>
       </group>
 
@@ -467,7 +459,7 @@ export function RoomGeometry({
       )}
     </group>
   );
-}
+});
 
 // Painting reveal tuning. A room's paintings mount in full only once the
 // camera is within PAINTING_LOAD_RADIUS (metres, XZ) of the room, and
@@ -629,6 +621,42 @@ function isNearestPending(
     if (otherDist < distSq) return false;
   }
   return true;
+}
+
+/** Keep the reveal ramp's state below the static room shell. Each batch
+ *  of works can mount or change detail without reconciling the walls,
+ *  floor, ceiling and fittings again. The group stays in RoomGeometry
+ *  so culling and reflection register the same object on first mount. */
+function RoomWorks({
+  room,
+  mayReveal,
+  onPaintingSettled,
+}: {
+  room: RoomLayout;
+  mayReveal: boolean;
+  onPaintingSettled?: (key: string, status: "loaded" | "failed") => void;
+}) {
+  // Until a work is revealed it keeps its picture light and a stand-in,
+  // so a room seen from afar is lit and hung.
+  const works = useRoomWorks(room, mayReveal);
+  const settledHandler = usePaintingSettledHandlers(onPaintingSettled);
+
+  return (
+    <>
+      {works.mounted.map((p) => {
+        const paintingKey = `${room.id}-${p.artwork.id}-${p.position.join(",")}`;
+        return (
+          <Painting
+            key={paintingKey}
+            placement={p}
+            room={room}
+            revealed={works.revealed.has(p)}
+            onSettled={settledHandler(paintingKey)}
+          />
+        );
+      })}
+    </>
+  );
 }
 
 /** Which of a room's works to mount right now, and which of those in
