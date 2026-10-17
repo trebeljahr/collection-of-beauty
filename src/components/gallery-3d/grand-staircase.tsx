@@ -212,8 +212,11 @@ const BALUSTER_SIDES = 8;
 const BALUSTER_FOOT_SHADE = 0.8;
 const BALUSTER_HEAD_SHADE = 0.66;
 /** The stone fascia over the edge of a floor round the opening: the
- *  floor's slab and 2 cm more. */
-const FASCIA_DEPTH = FLOOR_THICKNESS + 0.02;
+ *  floor's slab, the 2 cm of plenum to the ceiling under it
+ *  (stairwell-light.tsx), and 4 cm below that ceiling. At slab and
+ *  2 cm its underside lay in the ceiling's plane, and the plaster and
+ *  the marble fought along every gallery's edge (17 October 2026). */
+const FASCIA_DEPTH = FLOOR_THICKNESS + 0.06;
 const NEWEL_SIZE = 0.36;
 const NEWEL_RISE = 0.14;
 const SKIRT_WIDTH = 0.3;

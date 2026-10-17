@@ -43,6 +43,7 @@ import {
 import { registerCulledRoom } from "./room-culling";
 import { inRoomLight } from "./room-light";
 import { firstTreadHole, rectsAround, spiralHole } from "./stair-opening";
+import { ceilingYOf } from "./stairwell-light";
 import { type SkirtingClip, WallWithDoors } from "./wall";
 
 type Side = Door["side"];
@@ -148,7 +149,7 @@ export function RoomGeometry({
   // where the hall's void lies in front of it, and none where a stair's
   // opening in this floor meets a wall.
   const skirting = (side: Side): SkirtingClip => {
-    if (!room.sheer) return openingClip(room, side, width, depth, cxWorld, czWorld);
+    if (!room.sheer) return openingClip(room.floorOpening, side, width, depth, cxWorld, czWorld);
     if (!room.floorOpening) return undefined;
     const { side: sheer, depth: strip } = room.sheer;
     if (side === sheer) return null;
@@ -164,6 +165,12 @@ export function RoomGeometry({
       (side === "south" && sheer === "east");
     return atLow ? [{ xMin: -half + strip, xMax: half }] : [{ xMin: -half, xMax: half - strip }];
   };
+  // A cornice runs where the ceiling meets the wall: at the room's own
+  // height, or in a stair room a storey up (stairwell-light.tsx), less
+  // where a hall's ceiling is cut for the stair that leaves it.
+  const corniceY = room.isStairwell ? ceilingYOf(room) : room.ceilingHeight;
+  const corniceClip = (side: Side): SkirtingClip =>
+    openingClip(room.ceilingOpening, side, width, depth, cxWorld, czWorld);
   const laylights = useMemo(() => laylightPanels(room), [room]);
   // The ceiling, cut where each laylight is recessed into it.
   const ceilingGeom = useMemo(
@@ -393,7 +400,8 @@ export function RoomGeometry({
           doors={nDoors}
           skirting={skirting("north")}
           ownFace={ownWalls}
-          cornice={isStandardRoom ? room.ceilingHeight : undefined}
+          cornice={corniceY}
+          corniceClip={corniceClip("north")}
           groupRef={(group) => {
             wallRefs.current.north = group;
           }}
@@ -410,7 +418,8 @@ export function RoomGeometry({
           doors={sDoors}
           skirting={skirting("south")}
           ownFace={ownWalls}
-          cornice={isStandardRoom ? room.ceilingHeight : undefined}
+          cornice={corniceY}
+          corniceClip={corniceClip("south")}
           groupRef={(group) => {
             wallRefs.current.south = group;
           }}
@@ -427,7 +436,8 @@ export function RoomGeometry({
           doors={wDoors}
           skirting={skirting("west")}
           ownFace={ownWalls}
-          cornice={isStandardRoom ? room.ceilingHeight : undefined}
+          cornice={corniceY}
+          corniceClip={corniceClip("west")}
           groupRef={(group) => {
             wallRefs.current.west = group;
           }}
@@ -444,7 +454,8 @@ export function RoomGeometry({
           doors={eDoors}
           skirting={skirting("east")}
           ownFace={ownWalls}
-          cornice={isStandardRoom ? room.ceilingHeight : undefined}
+          cornice={corniceY}
+          corniceClip={corniceClip("east")}
           groupRef={(group) => {
             wallRefs.current.east = group;
           }}
@@ -976,14 +987,13 @@ function StairwellFloor({
  *  local x (see the door mapping in `RoomGeometry`). Unset where none
  *  meets it. */
 function openingClip(
-  room: RoomLayout,
+  opening: RoomLayout["floorOpening"],
   side: Side,
   width: number,
   depth: number,
   cx: number,
   cz: number,
 ): SkirtingClip {
-  const opening = room.floorOpening;
   if (!opening) return undefined;
   const alongX = side === "north" || side === "south";
   const half = (alongX ? width : depth) / 2;

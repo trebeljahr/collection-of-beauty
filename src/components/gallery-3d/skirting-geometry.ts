@@ -77,10 +77,28 @@ function trimBoards(
       baseY + dir * (SKIRTING_HEIGHT - SKIRTING_CAP_HEIGHT / 2),
       z(SKIRTING_CAP_PROUD),
     );
+    if (oneSided) {
+      dropBackFace(board);
+      dropBackFace(cap);
+    }
     parts.push(board, cap);
   }
   if (parts.length === 0) return null;
   const merged = mergeGeometries(parts, false);
   for (const p of parts) p.dispose();
   return merged;
+}
+
+/** Take the face at the wall (local -z) off a one-sided box. It lies in
+ *  the wall's plane and faces through it: where the room behind draws
+ *  its own wall on that line, the face shows in the other room and
+ *  fights that wall for depth. A skirting hid it there behind the
+ *  neighbour's own board; a cornice, at a ceiling height the neighbour
+ *  may not share, did not (17 October 2026). BoxGeometry writes its
+ *  faces in the order +x, -x, +y, -y, +z, -z, six indices each. */
+function dropBackFace(box: THREE.BufferGeometry): void {
+  const index = box.getIndex();
+  if (!index) return;
+  box.setIndex(Array.from(index.array).slice(0, 30));
+  box.clearGroups();
 }

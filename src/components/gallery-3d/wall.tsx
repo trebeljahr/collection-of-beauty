@@ -55,6 +55,7 @@ export function SolidWall({
   skirting,
   ownFace,
   cornice,
+  corniceClip,
 }: {
   position: Vec3;
   rotation: Vec3;
@@ -68,6 +69,7 @@ export function SolidWall({
   skirting?: SkirtingClip;
   ownFace?: boolean;
   cornice?: number;
+  corniceClip?: SkirtingClip;
 }) {
   return (
     <group ref={groupRef} position={position} rotation={rotation}>
@@ -79,7 +81,11 @@ export function SolidWall({
         spans={clipSpans([{ xMin: -width / 2, xMax: width / 2 }], skirting)}
         floorY={-height / 2}
         oneSided={ownFace}
-        cornice={cornice === undefined ? undefined : { width, y: cornice - height / 2 }}
+        cornice={
+          cornice === undefined
+            ? undefined
+            : { spans: corniceSpans(width, corniceClip), y: cornice - height / 2 }
+        }
         material={trim}
       />
     </group>
@@ -107,6 +113,12 @@ function clipSpans(
     .filter((s) => s.xMax - s.xMin > 0.001);
 }
 
+/** A cornice runs the wall's whole width, less where the ceiling
+ *  stops short of it: no door reaches the ceiling. */
+function corniceSpans(width: number, clip: SkirtingClip) {
+  return clipSpans([{ xMin: -width / 2, xMax: width / 2 }], clip);
+}
+
 /** Skirting along a wall's clear spans, and the cornice along its
  *  head where it meets the ceiling, in the wall's local frame. One mesh
  *  for both. */
@@ -120,27 +132,25 @@ function Skirting({
   spans: ReadonlyArray<{ xMin: number; xMax: number }>;
   floorY: number;
   oneSided?: boolean;
-  /** The wall's whole width and the ceiling's local height. A cornice
-   *  runs unbroken: no door reaches the ceiling. */
-  cornice?: { width: number; y: number };
+  /** Where the cornice runs, and the ceiling's local height. */
+  cornice?: { spans: ReadonlyArray<{ xMin: number; xMax: number }>; y: number };
   material: THREE.Material;
 }) {
   const key = spans.map((s) => `${s.xMin.toFixed(3)}:${s.xMax.toFixed(3)}`).join(",");
-  const corniceW = cornice?.width;
+  const corniceKey = cornice?.spans
+    .map((s) => `${s.xMin.toFixed(3)}:${s.xMax.toFixed(3)}`)
+    .join(",");
   const corniceY = cornice?.y;
-  // biome-ignore lint/correctness/useExhaustiveDependencies: `key` is the content of `spans`, whose array identity changes every render.
+  // biome-ignore lint/correctness/useExhaustiveDependencies: `key` and `corniceKey` are the content of `spans` and `cornice.spans`, whose array identities change every render.
   const geometry = useMemo(() => {
     const board = buildSkirtingGeometry(spans, floorY, oneSided);
-    const head =
-      corniceW === undefined || corniceY === undefined
-        ? null
-        : buildCorniceGeometry([{ xMin: -corniceW / 2, xMax: corniceW / 2 }], corniceY);
+    const head = cornice ? buildCorniceGeometry(cornice.spans, cornice.y) : null;
     if (!board || !head) return board ?? head;
     const merged = mergeGeometries([board, head], false);
     board.dispose();
     head.dispose();
     return merged;
-  }, [key, floorY, oneSided, corniceW, corniceY]);
+  }, [key, floorY, oneSided, corniceKey, corniceY]);
   useEffect(() => () => geometry?.dispose(), [geometry]);
   if (!geometry) return null;
   return <mesh geometry={geometry} material={material} layers={UNREFLECTED_LAYER} />;
@@ -172,6 +182,7 @@ export function WallWithDoors({
   skirting,
   ownFace,
   cornice,
+  corniceClip,
 }: {
   position: Vec3;
   rotation: Vec3;
@@ -191,8 +202,11 @@ export function WallWithDoors({
   ownFace?: boolean;
   /** Height of the room's ceiling over its floor: a cornice runs along
    *  the wall there, on this face. Unset for a wall with no ceiling at
-   *  room height (a stair hall's). */
+   *  room height. */
   cornice?: number;
+  /** Where along the wall the ceiling meets it: a hall's ceiling is
+   *  cut where its stair's opening touches the wall. */
+  corniceClip?: SkirtingClip;
 }) {
   if (doors.length === 0) {
     return (
@@ -207,6 +221,7 @@ export function WallWithDoors({
         skirting={skirting}
         ownFace={ownFace}
         cornice={cornice}
+        corniceClip={corniceClip}
       />
     );
   }
@@ -262,7 +277,11 @@ export function WallWithDoors({
         spans={clipSpans(strips, skirting)}
         floorY={-halfH}
         oneSided={ownFace}
-        cornice={cornice === undefined ? undefined : { width, y: cornice - halfH }}
+        cornice={
+          cornice === undefined
+            ? undefined
+            : { spans: corniceSpans(width, corniceClip), y: cornice - halfH }
+        }
         material={trim}
       />
       {sorted.map((d) => (

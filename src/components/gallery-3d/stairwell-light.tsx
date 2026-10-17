@@ -79,7 +79,7 @@ import { poolGainScale } from "./wall-light";
 const CEILING_Y = INTER_FLOOR_HEIGHT - 0.02;
 /** A room's ceiling over its floor: CEILING_Y, or as far under the slab
  *  in a storey that runs higher (`RoomLayout.storeyHeight`). */
-function ceilingYOf(room: RoomLayout): number {
+export function ceilingYOf(room: RoomLayout): number {
   return room.storeyHeight === undefined
     ? CEILING_Y
     : room.storeyHeight - (FLOOR_SEPARATION - CEILING_Y);
