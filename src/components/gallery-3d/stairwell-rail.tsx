@@ -21,6 +21,10 @@ import {
   BAR_RADIUS,
   finialGeometry,
   mergeBars,
+  pushRailCap,
+  pushRailRing,
+  pushRailSides,
+  railBarGeometry,
   railTopMaterial,
   StairSign,
   spiralGateHalfArc,
@@ -96,33 +100,8 @@ function buildCutoutRailGeometry(
     const oz = Math.sin(theta);
 
     const baseIdx = positions.length / 3;
-    // 0=TO, 1=TI, 2=BI, 3=BO (same convention as the spiral rail).
-    positions.push(cx + ox * RAIL_BAR_HALF_WIDTH, yTop, cz + oz * RAIL_BAR_HALF_WIDTH);
-    positions.push(cx - ox * RAIL_BAR_HALF_WIDTH, yTop, cz - oz * RAIL_BAR_HALF_WIDTH);
-    positions.push(
-      cx - ox * RAIL_BAR_HALF_WIDTH,
-      yTop - RAIL_BAR_HEIGHT,
-      cz - oz * RAIL_BAR_HALF_WIDTH,
-    );
-    positions.push(
-      cx + ox * RAIL_BAR_HALF_WIDTH,
-      yTop - RAIL_BAR_HEIGHT,
-      cz + oz * RAIL_BAR_HALF_WIDTH,
-    );
-
-    if (prevBaseIdx !== -1) {
-      const p = prevBaseIdx;
-      const c = baseIdx;
-      // Top (+Y), Bottom (−Y), Outer (+radial), Inner (−radial).
-      indices.push(p + 0, p + 1, c + 1);
-      indices.push(p + 0, c + 1, c + 0);
-      indices.push(p + 3, c + 3, c + 2);
-      indices.push(p + 3, c + 2, p + 2);
-      indices.push(p + 3, p + 0, c + 0);
-      indices.push(p + 3, c + 0, c + 3);
-      indices.push(p + 2, c + 2, c + 1);
-      indices.push(p + 2, c + 1, p + 1);
-    }
+    pushRailRing(positions, cx, yTop, cz, ox, oz);
+    if (prevBaseIdx !== -1) pushRailSides(indices, prevBaseIdx, baseIdx);
     prevBaseIdx = baseIdx;
   }
   // Cap both ends so the open rectangular cross-section doesn't read
@@ -132,10 +111,8 @@ function buildCutoutRailGeometry(
   const startEnd = segmentStartIdx;
   const endEnd = prevBaseIdx;
   if (endEnd > startEnd) {
-    indices.push(startEnd + 0, startEnd + 2, startEnd + 1);
-    indices.push(startEnd + 0, startEnd + 3, startEnd + 2);
-    indices.push(endEnd + 0, endEnd + 1, endEnd + 2);
-    indices.push(endEnd + 0, endEnd + 2, endEnd + 3);
+    pushRailCap(indices, startEnd, "start");
+    pushRailCap(indices, endEnd, "end");
   }
   const geom = new THREE.BufferGeometry();
   geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
@@ -267,10 +244,10 @@ function ShaftAccents({ floor, shaft }: { floor: FloorLayout; shaft: StairShaft 
     let lBridge: {
       seg1Mid: [number, number, number];
       seg1RotY: number;
-      seg1Len: number;
+      seg1Geom: THREE.BufferGeometry;
       seg2Mid: [number, number, number];
       seg2RotY: number;
-      seg2Len: number;
+      seg2Geom: THREE.BufferGeometry;
       cornerPos: [number, number, number];
       endPos: [number, number, number];
       supportPosts: Array<[number, number, number]>;
@@ -304,7 +281,7 @@ function ShaftAccents({ floor, shaft }: { floor: FloorLayout; shaft: StairShaft 
       const rComp = dx * rx + dz * rz;
       const cornerX = ax + tComp * tx;
       const cornerZ = az + tComp * tz;
-      // Both arms' centre-line sits at rail height; the boxes hang
+      // Both arms' centre-line sits at rail height; the arms hang
       // RAIL_BAR_HEIGHT down from the top, matching the cutout tube.
       const railY = floor.y + RAIL_HEIGHT - RAIL_BAR_HEIGHT / 2;
       const postY = floor.y + BALUSTER_HEIGHT / 2;
@@ -321,12 +298,12 @@ function ShaftAccents({ floor, shaft }: { floor: FloorLayout; shaft: StairShaft 
       // rotateY = -atan2(dz, dx) aligns a box's local +X with its run —
       // same convention as the other straight rail sections.
       lBridge = {
+        seg1Geom: railBarGeometry(Math.abs(tComp)),
+        seg2Geom: railBarGeometry(Math.abs(rComp)),
         seg1Mid: [(ax + cornerX) / 2, railY, (az + cornerZ) / 2],
         seg1RotY: -Math.atan2(cornerZ - az, cornerX - ax),
-        seg1Len: Math.abs(tComp),
         seg2Mid: [(cornerX + bx) / 2, railY, (cornerZ + bz) / 2],
         seg2RotY: -Math.atan2(bz - cornerZ, bx - cornerX),
-        seg2Len: Math.abs(rComp),
         cornerPos: [cornerX, railY, cornerZ],
         endPos: [bx, railY, bz],
         supportPosts,
@@ -353,12 +330,14 @@ function ShaftAccents({ floor, shaft }: { floor: FloorLayout; shaft: StairShaft 
   // floor swap. R3F doesn't auto-dispose externally-created geometries,
   // so without this every floor change strands them in VRAM. Both are
   // null on the ground floor (no rail), in which case there's nothing to
-  // dispose. The L-bridge uses declarative <boxGeometry> + the shared
-  // finialGeometry, both R3F-managed, so neither needs disposing here.
+  // dispose. The L-bridge's two arms are built here too; its finials
+  // are the shared finialGeometry.
   useEffect(
     () => () => {
       data?.railGeom?.dispose();
       data?.balusterGeom?.dispose();
+      data?.lBridge?.seg1Geom.dispose();
+      data?.lBridge?.seg2Geom.dispose();
     },
     [data],
   );
@@ -451,17 +430,17 @@ function ShaftAccents({ floor, shaft }: { floor: FloorLayout; shaft: StairShaft 
           <mesh
             position={[cx + lBridge.seg1Mid[0], lBridge.seg1Mid[1], cz + lBridge.seg1Mid[2]]}
             rotation={[0, lBridge.seg1RotY, 0]}
+            geometry={lBridge.seg1Geom}
             castShadow
           >
-            <boxGeometry args={[lBridge.seg1Len, RAIL_BAR_HEIGHT, 2 * RAIL_BAR_HALF_WIDTH]} />
             <primitive object={railTopMaterial} attach="material" />
           </mesh>
           <mesh
             position={[cx + lBridge.seg2Mid[0], lBridge.seg2Mid[1], cz + lBridge.seg2Mid[2]]}
             rotation={[0, lBridge.seg2RotY, 0]}
+            geometry={lBridge.seg2Geom}
             castShadow
           >
-            <boxGeometry args={[lBridge.seg2Len, RAIL_BAR_HEIGHT, 2 * RAIL_BAR_HALF_WIDTH]} />
             <primitive object={railTopMaterial} attach="material" />
           </mesh>
           <mesh

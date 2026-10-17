@@ -283,8 +283,8 @@ const signGlyphMaterial = new THREE.MeshBasicMaterial({
 /** Newel-cap finial radius. Has to be enough larger than the rail
  *  tube's cross-section that the sphere reads as a distinct
  *  decorative ball rather than a tight swelling at the rail end:
- *  the tube is RAIL_BAR_HEIGHT × 2*RAIL_BAR_HALF_WIDTH = 0.10 × 0.10,
- *  with corners ≈ 0.0707 m from centre. At R=0.085 the tube
+ *  the tube was RAIL_BAR_HEIGHT × 2*RAIL_BAR_HALF_WIDTH = 0.10 × 0.10,
+ *  with corners ≈ 0.0707 m from centre (its top is round now). At R=0.085 the tube
  *  emerges from the sphere at distance √(R²−h²) ≈ 0.069 m from the
  *  centre — visually the rail appears to grow out of a tiny bump,
  *  with a sharp crease where the flat tube face meets the curved
@@ -294,6 +294,79 @@ const signGlyphMaterial = new THREE.MeshBasicMaterial({
  *  reuse one buffer. */
 const FINIAL_RADIUS = 0.13;
 export const finialGeometry = new THREE.SphereGeometry(FINIAL_RADIUS, 24, 16);
+
+/** The hand rail's cross-section, as [outward, up] offsets from the
+ *  middle of its top edge, counter-clockwise from the outer side: a
+ *  round top over straight sides and a flat underside where the
+ *  balusters meet it. A square tube with four vertices had one normal
+ *  across each face, so polished metal mirrored one tone of the room
+ *  along the whole rail; a round top carries the lamps of the
+ *  highlight map as a bright line along its crown. The outline is the
+ *  old tube's, so the balusters and the colliders stay as they were. */
+const RAIL_PROFILE: ReadonlyArray<readonly [number, number]> = (() => {
+  const r = RAIL_BAR_HALF_WIDTH;
+  const crown = 10;
+  const points: Array<[number, number]> = [];
+  for (let k = 0; k <= crown; k++) {
+    const phi = (Math.PI * k) / crown;
+    points.push([r * Math.cos(phi), -r + r * Math.sin(phi)]);
+  }
+  points.push([-r, -RAIL_BAR_HEIGHT], [r, -RAIL_BAR_HEIGHT]);
+  return points;
+})();
+
+/** One ring of the rail's profile at a sample: `top` the height of its
+ *  crown, (ox, oz) the outward unit vector. The rail must run so that
+ *  outward, up and the direction of travel are right-handed (outward
+ *  +x, up +y, travel +z), or its faces turn inward. */
+export function pushRailRing(
+  positions: number[],
+  cx: number,
+  top: number,
+  cz: number,
+  ox: number,
+  oz: number,
+): void {
+  for (const [out, up] of RAIL_PROFILE) {
+    positions.push(cx + ox * out, top + up, cz + oz * out);
+  }
+}
+
+/** The rail's surface between two rings that start at `p` and `c`. */
+export function pushRailSides(indices: number[], p: number, c: number): void {
+  const n = RAIL_PROFILE.length;
+  for (let k = 0; k < n; k++) {
+    const k1 = (k + 1) % n;
+    indices.push(p + k, p + k1, c + k1, p + k, c + k1, c + k);
+  }
+}
+
+/** A flat cap over the ring at `at`, facing back along the rail when
+ *  it is the first ring and forward when it is the last. */
+export function pushRailCap(indices: number[], at: number, end: "start" | "end"): void {
+  for (let k = 1; k < RAIL_PROFILE.length - 1; k++) {
+    if (end === "start") indices.push(at, at + k + 1, at + k);
+    else indices.push(at, at + k, at + k + 1);
+  }
+}
+
+/** A straight length of rail along local +x, centred on the origin
+ *  half-way up its profile: the box it replaces put its centre there. */
+export function railBarGeometry(length: number): THREE.BufferGeometry {
+  const positions: number[] = [];
+  const indices: number[] = [];
+  // Outward is -z, so that outward, up and +x are right-handed.
+  pushRailRing(positions, -length / 2, RAIL_BAR_HEIGHT / 2, 0, 0, -1);
+  pushRailRing(positions, length / 2, RAIL_BAR_HEIGHT / 2, 0, 0, -1);
+  pushRailSides(indices, 0, RAIL_PROFILE.length);
+  pushRailCap(indices, 0, "start");
+  pushRailCap(indices, RAIL_PROFILE.length, "end");
+  const geom = new THREE.BufferGeometry();
+  geom.setAttribute("position", new THREE.Float32BufferAttribute(positions, 3));
+  geom.setIndex(indices);
+  geom.computeVertexNormals();
+  return geom;
+}
 
 /**
  * Build a single spiral tread as an explicit BufferGeometry (annulus
@@ -682,14 +755,8 @@ function buildSpiralRail(
       return;
     }
     if (closeEnds) {
-      const s = segmentStartIdx;
-      const e = prevBaseIdx;
-      // Start cap (faces −tangent direction at the segment's first sample).
-      indices.push(s + 0, s + 2, s + 1);
-      indices.push(s + 0, s + 3, s + 2);
-      // End cap (faces +tangent direction at the segment's last sample).
-      indices.push(e + 0, e + 1, e + 2);
-      indices.push(e + 0, e + 2, e + 3);
+      pushRailCap(indices, segmentStartIdx, "start");
+      pushRailCap(indices, prevBaseIdx, "end");
     }
     if (segmentStartCenter) endpoints.push(segmentStartCenter);
     if (lastSampleCenter) endpoints.push(lastSampleCenter);
@@ -742,20 +809,7 @@ function buildSpiralRail(
       const oz = Math.sin(theta);
 
       const baseIdx = positions.length / 3;
-      // Vertex layout: 0=TO (top-outer), 1=TI (top-inner),
-      //                2=BI (bot-inner), 3=BO (bot-outer).
-      positions.push(cx + ox * RAIL_BAR_HALF_WIDTH, yTop, cz + oz * RAIL_BAR_HALF_WIDTH);
-      positions.push(cx - ox * RAIL_BAR_HALF_WIDTH, yTop, cz - oz * RAIL_BAR_HALF_WIDTH);
-      positions.push(
-        cx - ox * RAIL_BAR_HALF_WIDTH,
-        yTop - RAIL_BAR_HEIGHT,
-        cz - oz * RAIL_BAR_HALF_WIDTH,
-      );
-      positions.push(
-        cx + ox * RAIL_BAR_HALF_WIDTH,
-        yTop - RAIL_BAR_HEIGHT,
-        cz + oz * RAIL_BAR_HALF_WIDTH,
-      );
+      pushRailRing(positions, cx, yTop, cz, ox, oz);
       // Centre-line of the tube cross-section at this sample — used
       // for finial placement at each segment end.
       const centerY = yTop - RAIL_BAR_HEIGHT / 2;
@@ -766,22 +820,7 @@ function buildSpiralRail(
       }
       lastSampleCenter = sampleCenter;
 
-      if (prevBaseIdx !== -1) {
-        const p = prevBaseIdx;
-        const c = baseIdx;
-        // Top face (+Y normal).
-        indices.push(p + 0, p + 1, c + 1);
-        indices.push(p + 0, c + 1, c + 0);
-        // Bottom face (−Y normal).
-        indices.push(p + 3, c + 3, c + 2);
-        indices.push(p + 3, c + 2, p + 2);
-        // Outer face (+radial normal).
-        indices.push(p + 3, p + 0, c + 0);
-        indices.push(p + 3, c + 0, c + 3);
-        // Inner face (−radial normal).
-        indices.push(p + 2, c + 2, c + 1);
-        indices.push(p + 2, c + 1, p + 1);
-      }
+      if (prevBaseIdx !== -1) pushRailSides(indices, prevBaseIdx, baseIdx);
       prevBaseIdx = baseIdx;
     }
     // One baluster per step, mounted on step i's tread with its
