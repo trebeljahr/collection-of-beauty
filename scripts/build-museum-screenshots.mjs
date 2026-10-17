@@ -26,10 +26,11 @@
 //   pnpm marketing:screenshots                          # main's dev server on :3547
 //   pnpm marketing:screenshots --base http://localhost:4000
 //   pnpm marketing:screenshots --only salon,court       # retake a few
+//   pnpm marketing:screenshots --only court --out /tmp/x  # preview, no manifest
 // then `pnpm marketing:press-kit-zip`.
 
 import { existsSync } from "node:fs";
-import { readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
+import { mkdir, readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -37,7 +38,11 @@ import { chromium } from "playwright-core";
 import sharp from "sharp";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
-const OUT_DIR = path.join(ROOT, "public", "marketing");
+const OUT_ARG = process.argv.indexOf("--out");
+// `--out <dir>` writes the shots there and leaves the manifest alone: a
+// preview, or the two sides of a before/after.
+const PREVIEW_DIR = OUT_ARG > 0 ? path.resolve(process.argv[OUT_ARG + 1]) : undefined;
+const OUT_DIR = PREVIEW_DIR ?? path.join(ROOT, "public", "marketing");
 const OUT_MANIFEST = path.join(ROOT, "src", "data", "press-screenshots.json");
 const FILE_PREFIX = "collection-of-beauty-museum-";
 
@@ -280,6 +285,7 @@ async function main() {
       [eye, look, floorY, EYE],
     );
 
+  await mkdir(OUT_DIR, { recursive: true });
   const screenshots = [];
   let floor = 0;
   for (const shot of SHOTS) {
@@ -326,6 +332,7 @@ async function main() {
     console.log(`[${shot.slug}] ${file}${floorName ? ` (${floorName})` : ""}`);
   }
   await browser.close();
+  if (PREVIEW_DIR) return;
 
   // A partial run (--only) keeps the other shots of the manifest; a full
   // run replaces it and removes the files of shots no longer listed.

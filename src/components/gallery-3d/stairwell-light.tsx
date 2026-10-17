@@ -42,6 +42,7 @@ import {
   lensGlow,
   POOL_GAIN,
   POOL_SHOULDER,
+  poolCapGlsl,
   SURFACE_LIFT,
   setThresholds,
   thresholdFadeGlsl,
@@ -155,6 +156,7 @@ const washSlots = (doors: number) => Math.max(4, Math.ceil(doors / 4) * 4);
  *  in the room and the spill past its doors both take it. */
 const washLightGlsl = /* glsl */ `
 #define MAX_CANS ${MAX_CANS}
+${poolCapGlsl}
 uniform vec4 uCanA[MAX_CANS]; // where it hangs, intensity
 uniform vec4 uCanB[MAX_CANS]; // beam axis, the floor it lights nothing under
 uniform vec4 uCanC[MAX_CANS]; // cos outer, cos inner, aim distance squared (0: falls with its own),
@@ -188,7 +190,7 @@ vec3 washLight() {
     + slot(vCans2.x) + slot(vCans2.y) + slot(vCans2.z) + slot(vCans2.w);
   e = e / (1.0 + uShoulder * e);
   float k = 1.0 - smoothstep(uFog.x, uFog.y, vDepth);
-  return uColor * e * k * vLit.y;
+  return capPool(uColor * e * k * vLit.y);
 }
 `;
 

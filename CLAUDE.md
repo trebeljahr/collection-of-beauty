@@ -1594,7 +1594,15 @@ required by the Dockerfile — don't remove it.
   - frames, canvas and plaque sit in front of the quad and are not lit
     by it. The plaque card and the mat board carry their own emissive
     for that reason, and frame materials add the light themselves (see
-    the frame maps below).
+    the frame maps below);
+  - the light a quad adds goes through `capPool` (`painting-light.tsx`,
+    used by the washers too). A fragment's colour is clamped to 1 per
+    channel before the blend, and on a deep wall `poolGainScale` takes
+    the warm tint past 1: red stopped rising first, then green, then
+    blue, and every pool on the slate grey of the Impressionist floor
+    had a green and a pink ring round its top (17 October 2026). The
+    cap eases the brightest channel to 1 above 0.8 and scales the other
+    two with it. A new light drawn with this blend needs it too.
 - **Bloom is per light, not a pass** ([`glow.ts`](src/components/gallery-3d/glow.ts)).
   Rico, 17 October 2026: the stair halls' lamp globes should look
   switched on, and lights generally want "a little bit" of bloom. A

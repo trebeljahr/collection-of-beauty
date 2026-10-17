@@ -48,6 +48,29 @@ const FADE_IN_S = 0.6;
 /** Offset of the quads off their surfaces, metres. */
 export const SURFACE_LIFT = 0.002;
 
+/**
+ * GLSL for the light a pool or a washer adds, kept below 1 in every
+ * channel. The blend multiplies the framebuffer by (rgb + a), and a
+ * fragment's colour is clamped to 1 per channel before the blend. On a
+ * deep wall `poolGainScale` doubles the light, and the warm tint then
+ * clipped red first, green next and blue last: each channel stopped
+ * rising at another radius, and the pool's edge on the Impressionist
+ * floor's slate grey showed a green and a pink ring. Here the brightest
+ * channel eases toward 1 above `POOL_KNEE` and the other two follow it
+ * in proportion, so the light keeps its tint. On a pale wall a pool
+ * peaks near 0.65 and is left as it was.
+ */
+export const POOL_KNEE = 0.8;
+export const poolCapGlsl = /* glsl */ `
+vec3 capPool(vec3 c) {
+  float m = max(c.r, max(c.g, c.b));
+  if (m <= ${POOL_KNEE.toFixed(2)}) return c;
+  float room = ${(1 - POOL_KNEE).toFixed(2)};
+  float t = 1.0 - room + room * (1.0 - exp(-(m - 1.0 + room) / room));
+  return c * (t / m);
+}
+`;
+
 /** Where an unused threshold slot is parked: too far to fade anything. */
 const NO_THRESHOLD = 1e6;
 
@@ -133,6 +156,7 @@ varying vec3 vPos;
 varying vec3 vNormal;
 varying float vDepth;
 ${thresholdFadeGlsl(POOL_THRESHOLDS)}
+${poolCapGlsl}
 float boxSdf(vec2 p, vec2 c, vec2 h) {
   vec2 d = abs(p - c) - h;
   return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
@@ -174,7 +198,7 @@ void main() {
   if (n.y > 0.5) k *= thresholdFade(vPos.xz);
   // The wall's boost stays off the floor: every era has the same oak.
   float gain = n.z > 0.5 ? uWallGain : 1.0;
-  gl_FragColor = vec4(uColor * e * k * gain, 1.0 - min(contact, 0.6) * k);
+  gl_FragColor = vec4(capPool(uColor * e * k * gain), 1.0 - min(contact, 0.6) * k);
 }
 `;
 
