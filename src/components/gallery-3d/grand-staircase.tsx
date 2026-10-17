@@ -229,8 +229,14 @@ const BEAM_WIDTH = 0.36;
 const BEAM_DEPTH = 0.75;
 /** How far the carpet stands off the stone. */
 const CARPET_LIFT = 0.012;
-/** How far the runner's roll over a nosing cuts off the corner. */
+/** The radius of the runner's roll over a nosing, at its face, and the
+ *  facets that draw the quarter turn. The roll is centred inside the
+ *  stone, so it meets the riser and the tread `CARPET_LIFT` off the
+ *  stone and clears the nosing's corner by 6.6 mm. A 45° cut of this
+ *  size passed 1 mm inside the corner, and the marble showed through it
+ *  as a pale line along every step. */
 const CARPET_ROLL = 0.025;
+const CARPET_ROLL_FACETS = 4;
 /** A tread's nosing: how far it stands out over the riser below and how
  *  thick it is. The face under it looks down and takes the downward
  *  share of the light, a dark line under every step edge. Without it a
@@ -653,33 +659,59 @@ function addPatch(
       // The runner covers the tread and falls from the nosing to the
       // tread below, the way a runner laid over a nosing does.
       const front = nose - toward * CARPET_LIFT;
+      // Over the nosing the runner turns on a quarter round about a line
+      // inside the stone, not a box's corner: a hard arris was what made
+      // it read as painted board. (dz, dy) below are measured from that
+      // line, dz up the flight and dy up.
+      const inset = CARPET_ROLL - CARPET_LIFT;
+      const zc = nose + toward * inset;
+      const yc = top - inset;
       // The field's uv runs up the flight as the runner is laid: across
-      // it u, and v the length of runner from the flight's foot, tread
-      // and riser after one another, so the pattern turns over the
-      // nosing and does not restart on every riser.
-      const laid = i * (run + rise);
-      field.uvAt = (q, n) =>
-        Math.abs(n[1]) > 0.5
-          ? [q[0] - p.cx, laid + rise + (q[2] - za) * toward]
-          : [q[0] - p.cx, laid + (q[1] - below)];
-      // Over the nosing the runner turns on a 45° roll, not a box's
-      // corner: a hard arris was what made it read as painted board.
-      const lid = top + CARPET_LIFT;
-      const roll = front + toward * CARPET_ROLL;
+      // it u, and v the length of runner from the flight's foot, the
+      // riser from the tread below, the roll, then the tread to the next
+      // riser. Every step is the same length of runner, so the pattern
+      // carries on over the nosing and into the next riser unbroken.
+      const riserLength = rise - CARPET_ROLL;
+      const rollLength = (CARPET_ROLL * Math.PI) / 2;
+      const laid = i * (rise + run + rollLength - 2 * CARPET_ROLL);
+      field.uvAt = (q) => {
+        const dz = (q[2] - zc) * toward;
+        const dy = q[1] - yc;
+        const u = q[0] - p.cx;
+        if (dz >= 0) return [u, laid + riserLength + rollLength + dz];
+        if (dy <= 0) return [u, laid + riserLength + dy];
+        return [u, laid + riserLength + CARPET_ROLL * Math.atan2(dy, -dz)];
+      };
+      const at = (r: number, a: number): [number, number] => [
+        zc - toward * r * Math.cos(a),
+        yc + r * Math.sin(a),
+      ];
       for (const [x0, x1, colour] of stripes) {
         const to = colour ? edge : field;
         if (colour) edge.tint = colour;
-        to.hexa([
-          [x0, below, front],
-          [x1, below, front],
-          [x1, below, roll],
-          [x0, below, roll],
-          [x0, lid - CARPET_ROLL, front],
-          [x1, lid - CARPET_ROLL, front],
-          [x1, lid, roll],
-          [x0, lid, roll],
-        ]);
-        to.box(x0, x1, below, lid, Math.min(roll, zb), Math.max(roll, zb));
+        // The riser, up to where the roll begins.
+        to.box(x0, x1, below, yc, Math.min(front, zc), Math.max(front, zc));
+        // The roll, a wedge a facet, the carpet's thickness deep.
+        for (let k = 0; k < CARPET_ROLL_FACETS; k++) {
+          const a0 = (k / CARPET_ROLL_FACETS) * (Math.PI / 2);
+          const a1 = ((k + 1) / CARPET_ROLL_FACETS) * (Math.PI / 2);
+          const [zi0, yi0] = at(inset, a0);
+          const [zo0, yo0] = at(CARPET_ROLL, a0);
+          const [zi1, yi1] = at(inset, a1);
+          const [zo1, yo1] = at(CARPET_ROLL, a1);
+          to.hexa([
+            [x0, yi0, zi0],
+            [x1, yi0, zi0],
+            [x1, yo0, zo0],
+            [x0, yo0, zo0],
+            [x0, yi1, zi1],
+            [x1, yi1, zi1],
+            [x1, yo1, zo1],
+            [x0, yo1, zo1],
+          ]);
+        }
+        // The tread, from the roll to the next riser.
+        to.box(x0, x1, below, top + CARPET_LIFT, Math.min(zc, zb), Math.max(zc, zb));
       }
       field.uvAt = null;
       // The rod lies in the angle at the riser's foot, on the tread below.

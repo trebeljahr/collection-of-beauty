@@ -1930,8 +1930,14 @@ required by the Dockerfile — don't remove it.
   - **The runner.** Its field is its own mesh on the patterned map,
     with uvs laid up the flight (tread, riser, tread: `Solid.uvAt`);
     its binding and gold band are vertex tints on the plain pile. It
-    turns over each nosing on a 2.5 cm roll (`CARPET_ROLL`) and falls
-    to the tread below, where a brass rod lies in the angle.
+    turns over each nosing on a quarter round of 2.5 cm (`CARPET_ROLL`)
+    and falls to the tread below, where a brass rod lies in the angle.
+    The field's v is the runner's length along that path, roll
+    included, so the pattern runs on unbroken from tread to riser.
+    Until 17 October 2026 the roll was a 45° cut that passed 1 mm
+    inside the nosing's corner, and the marble showed through as a
+    pale line along every step; v jumped 3 to 5 cm at each fold. Rico:
+    it should "feel like a continuous carpet".
   - **Balusters** are turned: a square block at foot and head, whose
     underside and top follow a sloped plinth and cap, and 8 smooth
     facets between, 136 triangles where the square ones were 48. A
