@@ -280,14 +280,14 @@ describe("visibleRooms, the stairwell", () => {
   });
 
   it("keeps the stair halls of one floor apart and stacks each through the floors", () => {
-    // The block plan has five on every floor: a stair hall at each end
-    // of its spine, the court between them, and a spiral's room north
-    // and south of the court; and the salon beyond the south one on the
-    // first two. Each keeps one key through every floor it stands on.
+    // The block plan has four on every floor: a stair hall at each end
+    // of its spine, the court between them, and a spiral's room south
+    // of the court; and the salon beyond it on the first two. Each
+    // keeps one key through every floor it stands on.
     const keys = blockPlan.floors.map((floor) => floor.rooms.flatMap((r) => shaftKey(r) ?? []));
     const first = keys[0];
-    expect(new Set(first).size).toBe(6);
-    expect(keys.map((k) => new Set(k).size)).toEqual([6, 6, 5, 5]);
+    expect(new Set(first).size).toBe(5);
+    expect(keys.map((k) => new Set(k).size)).toEqual([5, 5, 4, 4]);
     for (const floorKeys of keys) for (const key of floorKeys) expect(first).toContain(key);
   });
 
@@ -581,10 +581,10 @@ describe("wallSharers", () => {
   const named = (key: string) => floorRooms.find((r) => r.id.endsWith(`-${key}`)) as RoomLayout;
 
   it("names the rooms that stand against each side", () => {
-    // The court is a cell wider each way than the stair rooms, so a
-    // corner of each long gallery stands against it too.
+    // The court is a cell wider each way than the rooms north and south
+    // of it, so a corner of each long gallery stands against it too.
     expect(wallSharers(named("court"), floorRooms)).toEqual({
-      north: [named("stair-n").id, named("nw").id, named("ne").id],
+      north: [named("nw").id, named("n").id, named("ne").id],
       south: [named("stair-s").id, named("sw").id, named("se").id],
       east: [named("ce").id],
       west: [named("cw").id],

@@ -4,11 +4,12 @@
 // on each. Down its middle runs a spine of five bays: a stair hall 27.5
 // m wide and 25 m deep at each end, a court 27.5 m square in the
 // centre, and a gallery between each pair. A range runs along the north of the spine
-// and one along the south: a long gallery, a stair tower, a long
+// and one along the south: a long gallery, a room beside the court (the
+// artist's room in the north, a stair tower in the south), a long
 // gallery.
 //
 //   ┌─────────────────┬─────────┬─────────────────┐
-//   │       nw        │ stair-n │       ne        │   north
+//   │       nw        │    n    │       ne        │   north
 //   ├──────────┬──────┼─────────┼──────┬──────────┤
 //   │ │hall-w  │  cw  │  court  │  ce  │  hall-e│ │   the spine
 //   ├──────────┴──────┼─────────┼──────┴──────────┤
@@ -19,7 +20,7 @@
 //                   │             │
 //                   └─────────────┘
 //
-// Four stairs, each in the same place on every floor:
+// Three stairs, each in the same place on every floor:
 //
 // - A grand stair at each end of the spine (`grand-stair.ts`, the
 //   loggia): one flight up the middle to a half landing and two back
@@ -30,14 +31,23 @@
 //   3.95 m deep, with a gallery along the end wall beyond it. The
 //   hall's end wall stands a cell inside the building's: the strip
 //   between is no room.
-// - A spiral north and south of the court, in a room of its
-//   own (22.5 × 17.5 m) with a door to the court and to the gallery on
-//   either side.
+// - A spiral south of the court, in a room of its own (22.5 × 17.5 m)
+//   with a door to the court and to the gallery on either side.
+//
+// The room north of the court, the same size, held a second spiral
+// until 17 October 2026. Rico found it superfluous: the one beside the
+// salon serves the floors. It is now the artist's room (`ARTIST_ROOM`,
+// `Zone.own`), on each floor one painter of that floor in the colours
+// of their era: Rembrandt and Hokusai among rows of panels, Turner
+// between wing walls, and Monet's water garden open, with the Two
+// Willows (17 m) across the north wall. That wall closes the court's
+// short axis, seen through the portal from where a visit starts, and
+// the room's largest work hangs on its middle, over a bench.
 //
 // The court has no stair. It is where a visit starts: a hall open to
 // the roof, with a gallery round the opening on every floor above, a
 // portal in each wall, the grand stairs at the two ends of one axis and
-// the spirals at the two ends of the other.
+// the artist's room and the spiral at the two ends of the other.
 //
 // The halls and the court hang the works too large for a room, at their
 // real size (`giants.ts`): one to a stretch of wall on each storey, a
@@ -229,10 +239,11 @@ const span = (xMin: number, xMax: number, row: readonly [number, number]): CellR
 
 type RoomKey = string;
 type Side = Door["side"];
-/** The rooms that hang an era's works: four long galleries, and the two
- *  galleries of the spine. */
+/** The rooms that hang an era's works: four long galleries, the two
+ *  galleries of the spine, and the artist's room north of the court. */
 export const BLOCK_ROOMS: ReadonlyArray<{ key: RoomKey; rect: CellRect }> = [
   { key: "nw", rect: span(0, 18, ROW_N) },
+  { key: "n", rect: span(19, 27, ROW_N) },
   { key: "ne", rect: span(28, 46, ROW_N) },
   { key: "cw", rect: span(11, 17, ROW_M) },
   { key: "ce", rect: span(29, 35, ROW_M) },
@@ -246,14 +257,17 @@ export const BLOCK_ROOMS: ReadonlyArray<{ key: RoomKey; rect: CellRect }> = [
  *  so room 1 stood in the north-east and room 2 in the spine, and the
  *  map read as scattered digits. The eras still hang in their own
  *  order (`FloorPlan.zones`); only the numbers go round. */
-export const ROOM_NUMBER_ORDER: readonly RoomKey[] = ["sw", "nw", "ne", "ce", "cw", "se"];
-/** The two spiral stairs, north and south of the court, through every
- *  floor. `door` is the wall the court is behind: a spiral's first step
- *  faces it. */
+export const ROOM_NUMBER_ORDER: readonly RoomKey[] = ["sw", "nw", "n", "ne", "ce", "cw", "se"];
+/** The spiral stair south of the court, through every floor. `door` is
+ *  the wall the court is behind: the spiral's first step faces it. A
+ *  second stood north of the court until 17 October 2026; that room is
+ *  the artist's room now (`ARTIST_ROOM`). */
 export const BLOCK_SPIRALS: ReadonlyArray<{ key: RoomKey; rect: CellRect; door: Side }> = [
-  { key: "stair-n", rect: span(19, 27, ROW_N), door: "south" },
   { key: "stair-s", rect: span(19, 27, ROW_S), door: "north" },
 ];
+/** The room north of the court, on the court's short axis: on every
+ *  floor the room of one artist of that floor (`Zone.own`). */
+export const ARTIST_ROOM: RoomKey = "n";
 /**
  * The halls of the spine, open from the first floor to the roof.
  *
@@ -325,20 +339,47 @@ export function hallFront(hall: { turns: GrandStair["turns"] }): Side {
 export const HALL_SIDE_DOOR = 11.25;
 
 /** Doors a portal wide: the spine from end to end, and the short axis
- *  from one spiral through the court to the other. */
+ *  from the artist's room through the court to the spiral. */
 const PORTALS: ReadonlyArray<readonly [RoomKey, RoomKey]> = [
   ["hall-w", "cw"],
   ["cw", "court"],
   ["court", "ce"],
   ["ce", "hall-e"],
-  ["stair-n", "court"],
+  [ARTIST_ROOM, "court"],
   ["court", "stair-s"],
 ];
 /** Cells of wall two rooms have to share for a door between them. A
  *  long gallery meets the court at one cell, in the court's corner. */
 const MIN_SHARED_CELLS = 3;
 
-type Zone = { era: EraId; cells: readonly RoomKey[]; coverage?: number };
+type Zone = {
+  era: EraId;
+  cells: readonly RoomKey[];
+  coverage?: number;
+  /** A room of one artist's works (`OwnRoom`). The era's other rooms on
+   *  the floor hang none of them. */
+  own?: OwnRoom;
+};
+/** The works of a room of their own: an artist's, as the catalogue
+ *  spells the name, or those of them whose title names a `motif`, from
+ *  the year `since` (a work with no year passes). `name` is the room's
+ *  sign; unset, `roomTitle` names the artist. */
+export type OwnRoom = { artist: string; motif?: RegExp; since?: number; name?: string };
+export function ownRoomHolds(own: OwnRoom, artwork: ArtworkListing): boolean {
+  if (artwork.artist !== own.artist) return false;
+  if (own.since !== undefined && artwork.year != null && artwork.year < own.since) return false;
+  return !own.motif || own.motif.test(artwork.title) || own.motif.test(artwork.englishTitle ?? "");
+}
+/** Monet's water garden at Giverny, which he painted from 1897 until he
+ *  died: the water lilies, the Japanese bridge and the Orangerie's
+ *  panels. His earlier works hang with the Impressionists. */
+const MONETS_WATER_GARDEN: OwnRoom = {
+  artist: "Claude Monet",
+  motif:
+    /water[- ]?lil|nymph|lily pond|japanese bridge|bridge over the water|agapanth|rose arches/i,
+  since: 1897,
+  name: "Monet's Water Garden",
+};
 type FloorPlan = {
   title: string;
   /** One sentence for the entry card, under the title. Era blurbs
@@ -347,7 +388,8 @@ type FloorPlan = {
   /** Eras in the order they are walked, each with the rooms it hangs
    *  in, in the order of the walk: out of the court to the west, round
    *  the block by the north, and back by the south-east. An era's rooms
-   *  touch, or stand either side of a stair tower. */
+   *  touch, or stand either side of a room beside the court. One zone
+   *  is the artist's room (`ARTIST_ROOM`), of an era the floor hangs. */
   zones: readonly Zone[];
   /** How a room's freestanding walls are set out (`DividerStyle`). A
    *  room not named takes rows of panels in a gallery of the spine and
@@ -364,7 +406,6 @@ const HALL_NAMES: Readonly<Partial<Record<RoomKey, string>>> = {
   "hall-w": "West Stair Hall",
   "hall-e": "East Stair Hall",
   court: "Central Court",
-  "stair-n": "North Stair",
   "stair-s": "South Stair",
   salon: "Grand Salon",
 };
@@ -379,12 +420,13 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     styles: {
       ne: "long-rows",
       cw: "bays",
+      n: "rows",
       sw: "rows",
       ce: "bays",
       se: "long-rows",
     },
     screens: [
-      ["ne", "stair-n"],
+      ["ne", ARTIST_ROOM],
       ["nw", "cw"],
       ["ce", "se"],
     ],
@@ -397,6 +439,7 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
       // west to east as the French flag.
       { era: "gothic", cells: ["ne"] },
       { era: "renaissance", cells: ["cw", "nw"] },
+      { era: "baroque", cells: [ARTIST_ROOM], own: { artist: "Rembrandt van Rijn" } },
       { era: "baroque", cells: ["sw", "ce", "se"] },
     ],
   },
@@ -407,17 +450,19 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     styles: {
       sw: "bays",
       nw: "long-rows",
+      n: "staggered",
       ce: "staggered",
       se: "long-rows",
     },
     screens: [
-      ["ne", "stair-n"],
+      ["ne", ARTIST_ROOM],
       ["cw", "sw"],
       ["se", "ce"],
     ],
     zones: [
       { era: "enlightenment", cells: ["sw", "cw"] },
       { era: "romantic", cells: ["nw", "ne"] },
+      { era: "romantic", cells: [ARTIST_ROOM], own: { artist: "J. M. W. Turner" } },
       { era: "realism", cells: ["ce", "se"] },
     ],
   },
@@ -428,16 +473,21 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     styles: {
       cw: "bays",
       nw: "long-rows",
+      n: "open",
       ne: "long-rows",
       ce: "staggered",
     },
     screens: [
-      ["nw", "stair-n"],
+      ["nw", ARTIST_ROOM],
       ["sw", "cw"],
       ["ce", "ne"],
     ],
     zones: [
       { era: "fin-de-siecle", cells: ["sw", "cw", "nw"] },
+      // Its works are the water garden's panels, 4 to 17 m long: at the
+      // share of the other rooms they were three, and two walls stood
+      // bare.
+      { era: "fin-de-siecle", cells: [ARTIST_ROOM], own: MONETS_WATER_GARDEN, coverage: 0.7 },
       { era: "post-impressionism", cells: ["ne", "ce"] },
       { era: "modernism", cells: ["se"] },
     ],
@@ -449,6 +499,7 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     styles: {
       sw: "long-rows",
       cw: "staggered",
+      n: "rows",
       ne: "bays",
       ce: "long-rows",
       se: "long-rows",
@@ -460,6 +511,12 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
     ],
     zones: [
       { era: "natural-history", cells: ["sw", "cw", "nw"], coverage: BLOCK_PRINT_COVERAGE },
+      {
+        era: "ukiyo-e",
+        cells: [ARTIST_ROOM],
+        own: { artist: "Katsushika Hokusai" },
+        coverage: BLOCK_PRINT_COVERAGE,
+      },
       { era: "ukiyo-e", cells: ["ne", "ce", "se"], coverage: BLOCK_PRINT_COVERAGE },
     ],
   },
@@ -608,6 +665,10 @@ export function layoutBlock(
   return layout;
 }
 
+/** The eras a floor hangs, each once: an era with a room of its own has
+ *  two zones. */
+const erasOf = (plan: FloorPlan): EraId[] => [...new Set(plan.zones.map((z) => z.era))];
+
 const hallKey = (room: RoomLayout) => room.id.replace(/^f\d+-/, "");
 const hallRoom = (floor: FloorLayout, key: RoomKey) =>
   floor.rooms.find((r) => r.isStairwell && hallKey(r) === key)!;
@@ -629,8 +690,8 @@ function hangGiants(
 ): { hung: Set<string>; spirals: ReturnType<typeof stairHallHang> } {
   const works: Array<{ work: SizedWork; start: number }> = [];
   BLOCK_PLAN.forEach((plan, floorIndex) => {
-    for (const zone of plan.zones) {
-      for (const artwork of byEra.get(zone.era) ?? []) {
+    for (const era of erasOf(plan)) {
+      for (const artwork of byEra.get(era) ?? []) {
         const work = giantSize(artwork);
         if (work) works.push({ work, start: floorIndex });
       }
@@ -679,11 +740,11 @@ function hangGiants(
   }
   const inSalon = new Set(salonStoreys.flatMap((r) => r.placements.map((p) => p.artwork.id)));
 
-  // The spiral rooms take only what no hall's wall holds: the north
-  // one's outer wall, 22.5 m with no door, is the one wall left for a
-  // handscroll 12 m long once the end walls have their works (the south
-  // one's opens into the salon on the first two floors). Any other work
-  // a pair left hangs in its era's rooms.
+  // The spiral's room takes only what no hall's wall holds: its outer
+  // wall, 22.5 m, is the one wall left for a handscroll 12 m long once
+  // the end walls have their works, on the floors over the salon (on
+  // the first two it has the salon's door). Any other work a pair left
+  // hangs in its era's rooms.
   const stretches = floors.flatMap((floor) => [
     ...courts[floor.index].flat().flatMap(hallRuns),
     ...stairHalls.flatMap((h) =>
@@ -712,11 +773,11 @@ function hangGiants(
 }
 
 /**
- * Hang tall works on the spiral rooms' storeys: full-length portraits
+ * Hang tall works on the spiral room's storeys: full-length portraits
  * and altarpieces no gallery hung, each on its own floor (`tallSize`).
  * Rico, 17 October 2026: "the spiral stair case rooms could also hold
- * tall paintings nicely". A storey is 8.2 m high, and until then five
- * of the eight hung nothing.
+ * tall paintings nicely". A storey is 8.2 m high. There were two
+ * spiral rooms that day; the north one is the artist's room now.
  *
  * It runs after the galleries, from what they left, so it takes no
  * work from a gallery and changes none of their hang. A storey is one
@@ -725,8 +786,8 @@ function hangGiants(
  * mirror each other across the stair on the side walls and either
  * side of the portal to the court. A storey whose outer wall holds a
  * handscroll keeps it as the work on the axis. On the floors the salon
- * stands on, the south spiral's outer wall has the door to it: a pair
- * either side of it, and no work on the axis.
+ * stands on, the outer wall has the door to it: a pair either side of
+ * it, and no work on the axis.
  */
 function hangTallInSpirals(
   floors: FloorLayout[],
@@ -737,8 +798,8 @@ function hangTallInSpirals(
     floors.flatMap((f) => f.rooms.flatMap((r) => r.placements.map((p) => p.artwork.id))),
   );
   const works = BLOCK_PLAN.flatMap((plan, start) =>
-    plan.zones.flatMap((zone) =>
-      (byEra.get(zone.era) ?? []).flatMap((artwork) => {
+    erasOf(plan).flatMap((era) =>
+      (byEra.get(era) ?? []).flatMap((artwork) => {
         const work = hung.has(artwork.id) ? null : tallSize(artwork);
         return work ? [{ work, start }] : [];
       }),
@@ -785,6 +846,9 @@ function buildFloor(
   for (const zone of plan.zones)
     for (const cell of zone.cells) eraOfKey.set(cell, getEra(zone.era));
   const route = plan.zones.flatMap((zone) => [...zone.cells]);
+  const titleOfKey = new Map<RoomKey, string>();
+  for (const zone of plan.zones)
+    for (const cell of zone.cells) if (zone.own?.name) titleOfKey.set(cell, zone.own.name);
 
   const rooms: RoomLayout[] = [];
   const byKey = new Map<RoomKey, RoomLayout>();
@@ -913,6 +977,14 @@ function buildFloor(
     const apart = (bench: Bench) =>
       facing.every((f) => Math.hypot(f.x - bench.x, f.z - bench.z) >= SCREEN_BENCH_ROOM);
     room.benches = [...facing, ...room.benches.filter((b) => hasFloor(b) && apart(b))];
+    // A room still without a seat takes an island in front of its one
+    // wall without a door: in the artist's room, where its wing walls
+    // leave the bays too shallow, the north wall that ends the court's
+    // short axis.
+    if (room.benches.length === 0) {
+      const island = clear(wallIsland(room.cellBounds, room.doors));
+      room.benches = island?.every(hasFloor) ? island : [];
+    }
   }
 
   // The court's floor is seated in front of its north and south walls,
@@ -963,13 +1035,20 @@ function buildFloor(
     grandHalls: [],
   };
 
+  // The works of a room of their own hang in it alone: the other rooms
+  // of the floor take none of them.
+  const owned = plan.zones.flatMap((z) => (z.own ? [z.own] : []));
   const hang = (byEra: Map<EraId, ArtworkListing[]>, must: ReadonlySet<string>) => {
     for (const zone of plan.zones) {
+      const { own } = zone;
+      const works = (byEra.get(zone.era) ?? []).filter((a) =>
+        own ? ownRoomHolds(own, a) : !owned.some((o) => ownRoomHolds(o, a)),
+      );
       hangZone(
         floor,
         zone.cells.map((k) => byKey.get(k)!),
         getEra(zone.era),
-        byEra.get(zone.era) ?? [],
+        works,
         zone.coverage ?? BLOCK_WALL_COVERAGE,
         must,
       );
@@ -981,7 +1060,7 @@ function buildFloor(
       room.artworks = room.placements.map((p) => p.artwork);
       room.roomNumber = ROOM_NUMBER_ORDER.indexOf(key) + 1;
       room.movement = dominantMovement(room.artworks, era) ?? era.title;
-      room.title = roomTitle(room.artworks, era);
+      room.title = titleOfKey.get(key) ?? roomTitle(room.artworks, era);
       room.description = roomDescription(room.artworks, room.title);
     }
   };

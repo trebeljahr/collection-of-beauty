@@ -661,14 +661,16 @@ required by the Dockerfile — don't remove it.
   gallery of 17.5 m between each pair. A stair hall's end wall stands
   three cells inside the building's end wall; the strip between is no
   room (`cellOwner` -1, not walkable). North and south of the spine a range runs
-  the length of the block: a long gallery (47.5 × 17.5 m), a stair
-  tower (22.5 × 17.5 m) beside the court, a long gallery. So a floor is
-  six galleries (`BLOCK_ROOMS`), two stair halls and the court
-  (`BLOCK_HALLS`) and two spiral rooms (`BLOCK_SPIRALS`). The galleries
-  take the tower's dividers and benches. A floor holds two or three
-  eras, each in rooms that touch or stand either side of a stair tower
+  the length of the block: a long gallery (47.5 × 17.5 m), a room
+  of 22.5 × 17.5 m beside the court, a long gallery. The south one
+  is the spiral's stair tower, the north one the artist's room (next
+  point but one). So a floor is seven galleries (`BLOCK_ROOMS`), two
+  stair halls and the court (`BLOCK_HALLS`) and one spiral room
+  (`BLOCK_SPIRALS`). The galleries take the tower's dividers and
+  benches. A floor holds two or three eras, each in rooms that touch
+  or stand either side of a room beside the court
   (`BLOCK_PLAN[].zones`). What follows from it:
-  - **Four stairs, each in the same place on every floor.** Rico, 13
+  - **Three stairs, each in the same place on every floor.** Rico, 13
     October 2026, of the plan before (a hall at the centre and both
     ends of the spine, one stair to a hall, each between another pair
     of floors): the staircase "should be at the end and not in the
@@ -678,12 +680,31 @@ required by the Dockerfile — don't remove it.
     keeping. So:
     - a grand stair at each end of the spine, on every storey, one over
       another (the loggia, next point but two);
-    - the tower's spiral north and south of the court, through every
-      floor, its first step toward the court's door (`entryAngle`);
+    - the tower's spiral south of the court, through every floor, its
+      first step toward the court's door (`entryAngle`). A second stood
+      north of the court until 17 October 2026, when Rico found it
+      superfluous;
     - the court has no stair. It is where a visit starts and where a
       visitor sent to a floor lands (`GREAT_HALL`, `isAnchor`).
     From the court's floor one axis ends in the two grand stairs and
-    the other in the two spirals.
+    the other in the artist's room and the spiral.
+  - **The artist's room** (`ARTIST_ROOM`, key `n`), north of the court
+    where the second spiral stood. Rico asked for "a nice idea" for it
+    that fits the gallery's colours and may differ floor to floor. Each
+    floor gives it to one painter of that floor (`Zone.own`,
+    `OwnRoom`), in the palette of their era, and the era's other rooms
+    hang none of their works: Rembrandt (rows, 39 works), Turner
+    (staggered wing walls, 26), Monet's water garden (open, 9: the
+    Orangerie-size panels, the Two Willows across the north wall, at a
+    share of 0.7 because at 0.475 it hung three works and two walls
+    stood bare), Hokusai (rows, 38). The north wall is the end of the
+    court's short axis, seen through the portal from where a visit
+    starts; a room left with no seat takes an island in front of it
+    (`wallIsland`), so the room's largest work hangs there. An era with
+    a room of its own has two zones on its floor: iterate a floor's
+    eras through `erasOf(plan)`, or a giant is listed twice and hangs
+    twice. The artist is a choice: the pools on 17 October 2026 were
+    Rembrandt 57 works (80 m), Turner 89, Monet 339, Hokusai 53.
   - **A stair hall has three doors, on every floor: the portal of the
     spine, which its stair's foot faces** (`hallFront`), **and one in
     each side wall** (`HALL_SIDE_DOOR`). Rico's verdict on the plan
@@ -725,7 +746,8 @@ required by the Dockerfile — don't remove it.
     from the other side. The two planes lie on one line and face
     opposite ways, so there is no z-fight and each room is its own
     colour. In the tower a shared wall is one two-sided plane.
-  - **A floor has two spiral wells.** `floorShafts()` in
+  - **A floor has one spiral well** (two until 17 October 2026, so the
+    code takes any number). `floorShafts()` in
     `spiral-physics.ts` groups a floor's flights by centre;
     `findStairAbove` / `findStairBelow` stay within a well. The floor
     slab's colliders, the cutout rail, the gate signs and the stair
@@ -983,10 +1005,11 @@ required by the Dockerfile — don't remove it.
     not fixed: 0.21 to 0.23 in the three that are not the Grand Hall.
     One room fewer is not possible there (rooms open in mirrored
     pairs), and the one room behind the stair alone would be at 0.69.
-  - It hangs 1,481 works (17 October 2026): 1,339 in 24 galleries, 66
-    in the court and the stair halls, 28 in the salon and 48 in the
-    spiral rooms, 46 of them tall works ("A spiral room's storeys hang
-    tall works", below). Each corner of the block is part of a long gallery, which has less
+  - It hangs 1,494 works (17 October 2026, after the artist's room):
+    1,267 in 24 galleries, 112 in the four artist's rooms, 72 in the
+    court and the stair halls, 19 in the salon and 24 in the spiral
+    room ("A spiral room's storeys hang tall works", below). With two
+    spiral rooms it hung 1,381, 49 of them in those rooms. Each corner of the block is part of a long gallery, which has less
     wall than the rooms it could be: the plan before hung 1,726, 1,663
     of them in 43 rooms.
   - **Works in full take the texture pool, nearest room first**
@@ -1152,13 +1175,15 @@ required by the Dockerfile — don't remove it.
       stair halls, 3 in the spiral rooms and 2 in their era's galleries
       at real size (The Seven Works of Mercy, Heroes), which no pair
       took. A spiral room's giant is only what fits no stretch of a
-      hall but an end wall (`fitsStretch`): the north spiral's outer
-      wall is 22.5 m with no door. That is Les Nuages, whose floor's
-      two end walls hang the other two Orangerie panels, and the
-      Qingming handscroll, 11.86 m. Each hangs on its storey's axis
-      (`stairHallHang(...).axes`, `ownFloor`). The salon's door cuts
-      the south spiral's outer wall on the first two floors only, so
-      the Yangtze handscroll (11.15 m) hangs on the fourth floor's.
+      hall but an end wall (`fitsStretch`): the spiral's outer wall is
+      22.5 m, with the salon's door on the first two floors only. On
+      the third floor's hangs Les Nuages, whose floor's two end walls
+      hang the other two Orangerie panels, and on the fourth the
+      Qingming handscroll, 11.86 m, each on its storey's axis
+      (`stairHallHang(...).axes`, `ownFloor`). Until 17 October 2026 a
+      second spiral room stood north of the court and the Yangtze
+      handscroll (11.15 m) hung on the fourth floor's south one; it
+      hangs in that floor's north-east gallery now.
   - **A spiral room's storeys hang tall works** (`hangTallInSpirals`,
     `tallSize`). Rico, 17 October 2026: "the spiral stair case rooms
     could also hold tall paintings nicely". Until then five of the
@@ -1171,8 +1196,8 @@ required by the Dockerfile — don't remove it.
     floor. On the first two floors the south spiral's outer wall has
     the salon's door, so it hangs a pair either side of it and no work
     on the axis (`Bay.end` null). It runs after the salon too, which took El Greco's
-    Annunciation. 46 works on 17 October 2026, 6 to 9 a storey on the
-    first three floors, among them Rembrandt's Prodigal Son, the
+    Annunciation. 46 works on 17 October 2026 in two spiral rooms, 6
+    to 9 a storey on the first three floors (23 in the one left), among them Rembrandt's Prodigal Son, the
     Isenheim saints as a pair, Gainsborough's full-lengths and
     Whistler's White Girl. The top floor's eras have no tall work left
     over: the north storey keeps its handscroll and the south one
@@ -1869,6 +1894,9 @@ required by the Dockerfile — don't remove it.
     meet it under each tread's middle. Balusters on the spiral and the
     cutout rail are round bars with collars (`mergeBars`). The column
     is grey marble with uvs in metres from the ground, so storeys join.
+    It is an open tube, so the top revolution closes it with a disc:
+    open, from the top floor the tube's inside showed, its near half
+    culled, as a curled sheet of marble (Rico, 17 October 2026).
   - The room walls are untouched: "Walls are one flat colour", below.
 - Frame materials (`frame-materials.ts`): nine, one per *surface*
   (leaf, leaf on oak, dark wood, pale wood, lacquer, paint, mat board,
@@ -2004,9 +2032,9 @@ required by the Dockerfile — don't remove it.
     storey's is seen, and the walk goes on through all their doors. The
     well is not tested as an opening. A storey's flights, railings and
     stairwell lights are drawn with it (`registerShaftFittings`, from
-    `FloorScene`). On the block plan a floor has five: two stair
-    halls, the court and two spiral rooms. Their fittings are one
-    group, drawn while any of the five is seen.
+    `FloorScene`). On the block plan a floor has four: two stair
+    halls, the court and the spiral room. Their fittings are one
+    group, drawn while any of the four is seen.
   - **A room is three kinds of object.** Its contents (floor, ceiling,
     laylights, dividers, benches, works) are one group. Its walls are
     one group a side, outside that group: a wall between two rooms is

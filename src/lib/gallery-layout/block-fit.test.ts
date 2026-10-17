@@ -8,7 +8,6 @@ import { giantSize, tallSize } from "./giants";
 import { BLOCK_PLAN, BLOCK_SPIRALS, BLOCK_WALL_COVERAGE, layoutBlock } from "./layout-block";
 import { computeRoomRuns, runLength, sideClearance, type WallRun } from "./place-paintings";
 import { polyptychSize } from "./polyptych";
-import { eraOfRoom } from "./room-era";
 import type { Placement, RoomLayout } from "./types";
 
 // The block plan against the catalogue it hangs. Rico, 13 October 2026:
@@ -34,7 +33,7 @@ const zones = layout.floors.flatMap((floor) =>
     zone,
     floor: floor.index,
     target: zone.coverage ?? BLOCK_WALL_COVERAGE,
-    rooms: floor.rooms.filter((r) => !r.isStairwell && eraOfRoom(r).id === zone.era),
+    rooms: zone.cells.map((cell) => floor.rooms.find((r) => r.id === `f${floor.index}-${cell}`)!),
   })),
 );
 
@@ -146,7 +145,7 @@ describe("the block plan and the catalogue", () => {
   it("hangs tall works in the spiral rooms, of their own floor, in mirrored pairs", () => {
     // Rico, 17 October 2026: "the spiral stair case rooms could also
     // hold tall paintings nicely". Every floor whose eras have tall
-    // works no gallery hung fills both its spiral storeys.
+    // works no gallery hung fills its spiral storey.
     const spirals = layout.allRooms.filter((r) =>
       BLOCK_SPIRALS.some((s) => r.id.endsWith(`-${s.key}`)),
     );
@@ -182,7 +181,7 @@ describe("the block plan and the catalogue", () => {
     expect(wrong).toEqual([]);
     const counts = spirals.map((r) => `${r.id} ${r.placements.length}`);
     const full = spirals.filter((r) => r.floorIndex < 3 && r.placements.length >= 6);
-    expect(full.length, counts.join(", ")).toBe(6);
+    expect(full.length, counts.join(", ")).toBe(3);
   });
 
   it("hangs three works on each side wall of every storey of the salon", () => {
