@@ -1115,6 +1115,18 @@ export function StaircaseRenderer({
     return g;
   }, [columnHeight, lowerY]);
   useEffect(() => () => columnGeom.dispose(), [columnGeom]);
+  // The column is an open tube, so the top revolution closes it: open,
+  // a visitor looking down the well from the top floor saw the tube's
+  // inside, its near half culled, as a curled sheet of marble.
+  const columnCap = useMemo(() => {
+    if (hasFlightAbove) return null;
+    const g = new THREE.CircleGeometry(SPIRAL_COLUMN_RADIUS, 32).rotateX(-Math.PI / 2);
+    const pos = g.getAttribute("position");
+    const uv = g.getAttribute("uv");
+    for (let i = 0; i < uv.count; i++) uv.setXY(i, pos.getX(i), pos.getZ(i));
+    return g;
+  }, [hasFlightAbove]);
+  useEffect(() => () => columnCap?.dispose(), [columnCap]);
 
   return (
     <group position={[centerX, 0, centerZ]}>
@@ -1128,6 +1140,11 @@ export function StaircaseRenderer({
       <mesh geometry={columnGeom} position={[0, columnY, 0]} castShadow receiveShadow>
         <primitive object={columnMaterial} attach="material" />
       </mesh>
+      {columnCap && (
+        <mesh geometry={columnCap} position={[0, upperY, 0]}>
+          <primitive object={columnMaterial} attach="material" />
+        </mesh>
+      )}
 
       {/* Treads — single merged mesh per stair. */}
       <mesh geometry={stepsGeom} castShadow receiveShadow>
