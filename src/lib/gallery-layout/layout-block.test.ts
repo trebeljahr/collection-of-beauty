@@ -31,7 +31,6 @@ import {
   HALL_SIDE_DOOR,
   hallFront,
   layoutBlock,
-  ROOM_NUMBER_ORDER,
 } from "./layout-block";
 import {
   centredFootprint,
@@ -1023,13 +1022,17 @@ describe("the block plan", () => {
           zone.era,
         ).toEqual([]);
       }
-      // Rooms are numbered round the block, the same on every floor.
+      // Every gallery has a number, and an era's rooms run in one stretch.
       const all = zones.flatMap((z) => z.rooms);
       expect(new Set(all).size).toBe(all.length);
       expect(all).toHaveLength(floor.rooms.filter((r) => !r.isStairwell).length);
       const byNumber = [...all].sort((a, b) => (a.roomNumber ?? 0) - (b.roomNumber ?? 0));
       expect(byNumber.map((r) => r.roomNumber)).toEqual(all.map((_, i) => i + 1));
-      expect(byNumber.map((r) => r.id.split("-").pop())).toEqual([...ROOM_NUMBER_ORDER]);
+      const eraOf = new Map(zones.flatMap((z) => z.rooms.map((r) => [r.id, z.zone.era] as const)));
+      const runs = byNumber
+        .map((r) => eraOf.get(r.id))
+        .filter((era, i, eras) => i === 0 || era !== eras[i - 1]);
+      expect(runs, `floor ${floor.index + 1}`).toEqual([...new Set(runs)]);
       for (const room of floor.rooms.filter((r) => r.isStairwell)) {
         expect(room.roomNumber, room.id).toBeNull();
       }

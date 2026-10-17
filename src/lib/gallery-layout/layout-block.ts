@@ -250,14 +250,6 @@ export const BLOCK_ROOMS: ReadonlyArray<{ key: RoomKey; rect: CellRect }> = [
   { key: "sw", rect: span(0, 18, ROW_S) },
   { key: "se", rect: span(28, 46, ROW_S) },
 ];
-/** The order the map numbers the galleries, the same on every floor: a
- *  walk round the block from the south-west, up the west end, along the
- *  north range, back through the spine by the court, and out to the
- *  south-east. Rico, 17 October 2026: the numbers followed the eras,
- *  so room 1 stood in the north-east and room 2 in the spine, and the
- *  map read as scattered digits. The eras still hang in their own
- *  order (`FloorPlan.zones`); only the numbers go round. */
-export const ROOM_NUMBER_ORDER: readonly RoomKey[] = ["sw", "nw", "n", "ne", "ce", "cw", "se"];
 /** The spiral stair south of the court, through every floor. `door` is
  *  the wall the court is behind: the spiral's first step faces it. A
  *  second stood north of the court until 17 October 2026; that room is
@@ -391,6 +383,9 @@ type FloorPlan = {
    *  touch, or stand either side of a room beside the court. One zone
    *  is the artist's room (`ARTIST_ROOM`), of an era the floor hangs. */
   zones: readonly Zone[];
+  /** The order the map numbers the rooms, when it is not the order of
+   *  `zones`. Each era's rooms keep consecutive numbers. */
+  numbering?: readonly RoomKey[];
   /** How a room's freestanding walls are set out (`DividerStyle`). A
    *  room not named takes rows of panels in a gallery of the spine and
    *  bays in a long gallery. No two rooms that share a door are divided
@@ -416,7 +411,7 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
   {
     title: "Old Masters",
     blurb:
-      "European painting up to about 1700, with Botticelli and Dürer in room 3 and Poussin in room 6.",
+      "European painting up to about 1700, with Botticelli and Dürer in room 3 and Poussin in room 5.",
     styles: {
       ne: "long-rows",
       cw: "bays",
@@ -430,6 +425,11 @@ export const BLOCK_PLAN: readonly FloorPlan[] = [
       ["nw", "cw"],
       ["ce", "se"],
     ],
+    // Round the court from the west gallery of the spine, so the blue
+    // rooms are 1 and 2 and the red ones 4 to 7. Rico, 17 October 2026:
+    // in the order of the zones room 1 stood in the north-east and room 2
+    // in the spine.
+    numbering: ["cw", "nw", "ne", "ce", "se", "sw", ARTIST_ROOM],
     zones: [
       // One long gallery. The era has 69 works that are sharp enough to
       // hang: in three rooms they covered a third of the wall and read
@@ -846,6 +846,7 @@ function buildFloor(
   for (const zone of plan.zones)
     for (const cell of zone.cells) eraOfKey.set(cell, getEra(zone.era));
   const route = plan.zones.flatMap((zone) => [...zone.cells]);
+  const numbering = plan.numbering ?? route;
   const titleOfKey = new Map<RoomKey, string>();
   for (const zone of plan.zones)
     for (const cell of zone.cells) if (zone.own?.name) titleOfKey.set(cell, zone.own.name);
@@ -1058,7 +1059,7 @@ function buildFloor(
       const room = byKey.get(key)!;
       const era = eraOfKey.get(key) ?? floorEra;
       room.artworks = room.placements.map((p) => p.artwork);
-      room.roomNumber = ROOM_NUMBER_ORDER.indexOf(key) + 1;
+      room.roomNumber = numbering.indexOf(key) + 1;
       room.movement = dominantMovement(room.artworks, era) ?? era.title;
       room.title = titleOfKey.get(key) ?? roomTitle(room.artworks, era);
       room.description = roomDescription(room.artworks, room.title);
