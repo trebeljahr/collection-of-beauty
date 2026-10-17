@@ -334,6 +334,7 @@ function formatStats(): string {
     "texture pools (decoded est.)",
     `  base    ${mib(t.bytes)} / ${mib(t.budget)} · ${t.size}`,
     `  hi-res  ${mib(t.hiresBytes)} / ${mib(t.hiresBudget)} · ${t.hiresSize}`,
+    `  detail pinned ${mib(t.hiresPinnedBytes)} · reserved ${mib(t.hiresReservedBytes)} · speculative ${t.speculativeHiResInFlight}`,
     `  preload ${mib(t.preloadBytes)} · ${t.preloadSize}`,
     `  total   ${mib(t.bytes + t.hiresBytes + t.preloadBytes)}`,
     `  net ${t.activeLoads} active · ${t.queuedLoads} queued · upload ${t.queued} queued`,

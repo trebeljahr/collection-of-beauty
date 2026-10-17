@@ -27,13 +27,20 @@ import { paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import type { Placement, RoomLayout } from "@/lib/gallery-layout/types";
 import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 import { formatCm, trustworthyRealSize } from "@/lib/real-size";
-import { GALLERY_LOD_WIDTH, textureVariantUrl } from "@/lib/utils";
-import { FOV_DEFAULT_DEG, ladderHeightPx, ZOOM_PIXEL_HEADROOM } from "./camera-config";
+import { textureVariantUrl } from "@/lib/utils";
+import { ladderHeightPx } from "./camera-config";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { buildFrameGeometry } from "./frame-geometry";
 import { FramePaint } from "./frame-paint";
 import { PaintingLight } from "./painting-light";
 import { buildLightRig, wallContextFor } from "./painting-light-rig";
+import {
+  derivePaintingLodTiers,
+  type LodRequest,
+  type LodSample,
+  planPaintingLod,
+  selectLodTier,
+} from "./painting-lod";
 import { createPaintingPreview } from "./painting-preview";
 import { type PaintingEntry, registerPainting, unregisterPainting } from "./painting-registry";
 import { frameMaterials, plaqueBaseMaterial, plaqueMountMaterial } from "./palette-materials";
@@ -41,16 +48,14 @@ import { buildPanelGeometry } from "./panel-geometry";
 import { setWorkBounds } from "./room-culling";
 import { inRoomLight } from "./room-light";
 import {
-  estimateTextureBytes,
   getHiRes,
-  HIRES_ENTRY_BYTE_CAP,
   isPrefetched,
-  type LoadHiResOpts,
   type LoadOrigin,
   loadCached,
-  loadHiRes,
   peekCached,
+  retainHiRes,
   roomLoadZone,
+  tryLoadHiRes,
 } from "./texture-cache";
 import { poolGainScale } from "./wall-light";
 
@@ -66,367 +71,9 @@ import { poolGainScale } from "./wall-light";
  * The texture-cache handles LRU eviction + rAF-paced GPU uploads so a floor-wide burst of
  * loads doesn't hitch the frame.
  */
-// Tiered proximity LOD. Each tier identifies a texture source and four
-// distance bands. Distances are CLOSEST-POINT to the painting's
-// rectangular surface (see LodController) — not to its centre. So
-// "1 m" means "1 m from any point on the canvas", which is what the
-// player actually intuits as "I'm right up against it".
-//
-//   prefetch ─ start the network fetch eagerly so the swap feels
-//              instantaneous when the player crosses upgrade.
-//   upgrade  ─ first time we display this tier (must be cached).
-//   downgrade ─ hysteresis: keep displaying once selected until the
-//              player retreats past this radius.
-//   release  ─ abort any in-flight fetch past this distance.
-//
-// Tiers are listed highest → lowest. The base texture is always loaded
-// by the parent <Painting>; the tiers below are upgrades on top of it.
-//
-// The tier list and its bands are DERIVED PER PAINTING at mount, from
-// the work's display size and the actual backing-buffer height, rather
-// than being a shared hard-coded table. See `deriveTiers` below for the
-// arithmetic and the measurements that motivated it.
-type LodTier = {
-  prefetchSq: number;
-  upgradeSq: number;
-  downgradeSq: number;
-  releaseSq: number;
-  /** Pre-built variant width this tier loads — a FILENAME, not a
-   *  resolution (see `effectiveWidth`). */
-  width: number;
-};
-
-// Module-scope scratch reused by the registration effect to avoid
-// allocating a fresh Quaternion per painting on mount. A floor swap
-// can mount hundreds of paintings in one frame; reusing this drops one
-// allocation per painting from a hot-ish path. The Vector3s for the
-// entry's worldPos / worldRight / worldUp must stay per-painting (they
-// live for the painting's whole lifetime in the registry).
+// Registration runs only at mount; the controller reuses these world axes.
 const _registerScratchQuat = new THREE.Quaternion();
-
-// Candidate rungs, ASCENDING. This is the whole module-scope tier
-// table now — which rungs a given painting actually gets, and at what
-// distances they swap in, is derived per painting in `deriveTiers`.
-//
-// GALLERY_LOD_WIDTH (6144) is a conditional per-source rung: shrink
-// only emits it for sources whose full-size encode is wider than
-// 6144 px, so it is deliberately not a member of VARIANT_WIDTHS (a
-// ladder rung is emitted for every work regardless of source size,
-// which would make 6144 the max of every work's variantWidths and hand
-// a DZI pyramid to ~3,600 works that have none — see variant-config.mjs).
-// No work reports 6144 until `pnpm assets:shrink` runs again; the
-// availability clamp in `deriveTiers` skips it for all 4,571 of them
-// until then, which is what makes this shippable ahead of the re-shrink.
-const LOD_LADDER = [960, 1920, 2560, 4096, GALLERY_LOD_WIDTH];
-
-// Closest approach we design for, in metres, measured surface-to-eye.
-//
-// This is a POLICY number, not a measurement — do not "fix" it to the
-// geometric floor. The true floor is ~0.27 m: PLAYER_RADIUS is 0.3
-// (player.tsx) and keeps the collision capsule's *centre* that far from
-// the wall plane, the collision controller tests walls and staircases
-// only (frames and canvases are not colliders), and the canvas surface
-// sits just 0.034 m proud of the wall (PAINTING_WALL_OFFSET 0.02 plus
-// the plane's local z 0.014). Designing for 0.27 m would ask for 1.7×
-// the pixels and put nearly every work back on the top rung, erasing
-// the memory win for detail nobody can resolve while their nose is
-// against the frame. 0.45 m says: we promise 1:1 with screen pixels at
-// a natural viewing distance, and accept mild softness closer in.
-const D_MIN = 0.45;
-
-/** Backing-height quantum for the LOD derivation, in pixels. See
- *  `derivationHeightPx` in PaintingPlane for the accuracy trade. */
 const LOD_HEIGHT_QUANTUM_PX = 256;
-
-// The FOV the ladder is derived AGAINST: FOV_DEFAULT_DEG, always — never
-// the camera's live `fov`.
-//
-// The camera's FOV is animated. player.tsx damps it from 50 to 25 on the
-// F key so the player can read a painting from across the room, and
-// `camera.fov` is mutated in place, which means an effect that samples it
-// (a) has no dependency that fires when it changes and (b) captures
-// whatever value happened to be live at mount. Deriving from it gave two
-// distinct bugs at once: a ladder frozen at whatever the FOV was when
-// that painting's base texture landed, and — since a floor's ~300 base
-// textures arrive progressively — two identical works ending up with
-// different ladders purely by arrival time. A player who pressed F
-// mid-stream pinned every painting that finished loading in that window
-// to a 2.43x pixel target for the rest of the session.
-//
-// So the ladder is a fixed, deterministic function of the work and the
-// canvas, and the ZOOM is handled where it belongs: the LodController
-// hands `lodUpdate` a second, FOV-normalised distance (`displaySq`, see
-// camera-config.ts), so at fov 25 every band is reached at 2.10x its
-// nominal radius and the picker climbs the ladder correspondingly
-// earlier. Bands respond to zoom; rungs don't.
-
-// Hysteresis and lead, as ratios of a tier's upgrade radius. Read off
-// the old hand-written table so behaviour stays in family: it ran
-// downgrade/upgrade at 1.43 / 1.40 / 1.25 and release/upgrade at
-// 2.38 / 2.75 / 2.25 across its three band groups.
-const DOWNGRADE_RATIO = 1.4;
-const RELEASE_RATIO = 2.4;
-// The prefetch lead is ADDITIVE, not a ratio: it has to cover metres
-// the player walks, not a fraction of a radius. 1.0 m = 0.6 m of tick
-// quantisation (3 m/s against the LOD controller's ~5 Hz, so the fetch
-// can only start on a tick and the player may already be 0.6 m inside
-// the radius when it does) plus ~0.4 m of fetch, decode and upload. The
-// old table was thinner than this — its top tier's lead was
-// 1.5 − 1.05 = 0.45 m, less than a single tick of walking.
-const PREFETCH_LEAD_M = 1.0;
-// Release must stay comfortably OUTSIDE prefetch, or a player parked
-// between the two boundaries starts a fetch on one tick and aborts it
-// on the next, forever. `RELEASE_RATIO × upgrade` alone doesn't
-// guarantee that once the lead is additive (a 0.5 m upgrade radius
-// gives prefetch 1.5 m against release 1.2 m), so the release radius is
-// floored at this multiple of prefetch. The old table ran
-// release/prefetch at 1.67–2.2.
-const RELEASE_PREFETCH_MARGIN = 1.6;
-
-// Screen pixels per world metre at D_MIN, for a perspective camera:
-//
-//     pxPerM = backingHeightPx / (2 · d · tan(fov/2))
-//
-// `gl.domElement.height` is BACKING pixels, so the dpr clamp ([1,2] in
-// index.tsx) is already folded in. The figure is isotropic — horizontal
-// px/m is W/(2·d·tan(hfov/2)) with tan(hfov/2) = aspect·tan(vfov/2) and
-// W = aspect·H, which reduces to the same expression — so one scalar
-// serves both axes and the width axis alone is the binding constraint
-// (shrink resizes variants by WIDTH, so an aspect-preserving variant
-// satisfies height automatically).
-//
-// Memoised on height: a floor swap mounts several hundred paintings in
-// one frame and they all share one canvas, so this does one Math.tan per
-// resize rather than one per painting.
-const TAN_HALF_REFERENCE_FOV = Math.tan(((FOV_DEFAULT_DEG / 2) * Math.PI) / 180);
-let _pxPerMHeight = -1;
-let _pxPerMValue = 0;
-function pxPerMetreAtDMin(backingHeightPx: number): number {
-  // Height can legitimately be 0 for a frame during a canvas remount
-  // (see the WebGL context-loss recovery in index.tsx). Fall back to a
-  // plausible viewport rather than deriving a zero-pixel target.
-  const h = backingHeightPx > 0 ? backingHeightPx : 1080;
-  if (h !== _pxPerMHeight) {
-    _pxPerMHeight = h;
-    _pxPerMValue = h / (2 * D_MIN * TAN_HALF_REFERENCE_FOV);
-  }
-  return _pxPerMValue;
-}
-
-// Scratch reused across `deriveTiers` calls — same discipline as
-// _registerScratchQuat above. deriveTiers runs synchronously start to
-// finish, so a shared buffer is safe even when a floor swap calls it
-// hundreds of times in one frame.
-const _tierLabels: number[] = [];
-const _tierEffs: number[] = [];
-const NO_TIERS: LodTier[] = [];
-
-/** A `variantWidths` entry is a FILENAME, not a resolution.
- *  `shrink-sources.mjs` resizes with `targetW = Math.min(rung, sourceWidth)`
- *  and `withoutEnlargement`, so an 1,807 px scan still gets a file called
- *  `4096.avif` holding 1,807 px. 3,597 of the 4,571 catalogued works list
- *  4096 while their source is narrower than that, and 2,524 works carry
- *  two or more rungs that decode to identical pixels (4,625 redundant
- *  rungs corpus-wide) — which the old table happily fetched as separate
- *  cache entries. Every size decision below therefore runs on the
- *  EFFECTIVE width, and the dedupe drops those duplicate fetches. */
-function effectiveWidth(label: number, sourceWidth: number): number {
-  return sourceWidth > 0 ? Math.min(label, sourceWidth) : label;
-}
-
-/**
- * Derive this painting's LOD rungs and their distance bands.
- *
- * WHY per painting. The old table pinned every work to a fixed 4096 px
- * top tier upgrading at a fixed 1.05 m, which was wrong in both
- * directions at once. Corpus long edges (metres) run p10 0.36, p50 0.77,
- * p90 1.84, p99 4.25, and at an 1800 px backing height:
- *
- *     d = 1.05 m → 1117 px/m:   2% of works need >4096, 89% need ≤1920
- *     d = 0.40 m → 2932 px/m:  15% need >4096, 45% need ≤1920
- *   (4K, 2160 px)
- *     d = 1.05 m → 1340 px/m:   3% need >4096, 85% need ≤1920
- *     d = 0.40 m → 3519 px/m:  21% need >4096, 41% need ≤1920
- *
- * So a 0.77 m plate was ~3× oversampled even nose-against-canvas (a
- * 4096 tier is ~64 MB of RGBA + mipmaps), while the ~15–21% of works
- * over ~1.4 m that the player can actually walk up to were under-
- * provisioned. Measured over the real catalogue at 1800 px backing, the
- * derivation below drops the mean top-rung decode from 44.3 MiB to
- * 19.8 MiB (rung histogram 960:1177, 1920:1973, 2560:869, 4096:477) and
- * to 26.0 MiB at 2160 px — which is what pays for the big canvases
- * reaching further up the ladder at roughly constant pool pressure.
- *
- * THE TARGET. `wantPx = renderWidthM × pxPerM(D_MIN)`. Width, not long
- * edge: variants are resized by width, and px/m is isotropic, so the
- * width axis is the only binding constraint — using the long edge
- * over-provisions every portrait work by its aspect ratio (30.5 MiB vs
- * 19.9 MiB mean, measured).
- *
- * THREE CLAMPS, applied in this order:
- *   1. `gl.capabilities.maxTextureSize` — a rung the GPU cannot upload.
- *   2. the widths the artwork actually has (`variantWidths`) —
- *      requesting one that was never built 404s.
- *   3. HIRES_ENTRY_BYTE_CAP — a third of the hi-res pool. This is the
- *      lesson the removed 8192 px tier paid for: a single entry larger
- *      than the pool evicts everything on insert and is evicted straight
- *      back out by the next load, and because `lodUpdate` re-requests
- *      any tier that isn't resident, that becomes a permanent 5 Hz
- *      treadmill of decodes and uploads. That is the walking stutter.
- *      It has teeth before 6144 exists: 462 works' current top rung
- *      decodes above the cap (tall portraits — a 2:3 work at 4096 is
- *      4096 × 6144 = 128.6 MiB), 22 of them already past the pool's
- *      dev-warning line. Those works now stop a rung lower.
- * Then the top rung is the smallest survivor that meets `wantPx` (or
- * the largest survivor, if none does) and everything above it is
- * dropped, so the array handed to `lodUpdate` is already trimmed.
- *
- * THE BANDS (item 5). A rung of effective width Wpx reaches 1:1 with
- * screen pixels at `d = renderWidthM·H / (2·Wpx·tan(fov/2))`, which
- * factors to `D_MIN · wantPx / Wpx` — one divide per rung. Crucially a
- * rung's upgrade radius is the 1:1 distance of the rung BELOW it, not
- * its own: the top rung is chosen so that its own 1:1 distance IS
- * D_MIN, so using it would only ever upgrade nose-against-canvas —
- * strictly worse than the 1.05 m it replaces. Reading it off the rung
- * below says the right thing instead: swap up exactly where the rung
- * you are showing stops being adequate.
- *
- * Worked example, a 1.5 m-wide 4:3 work at 1800 backing px: upgrade to
- * 1920 at 1.83 m (was 2.00), to 2560 at 0.92 m (was 1.05), to 4096 at
- * 0.69 m (was 1.05). The median 0.77 m work tops out at 2560 rather
- * than 4096 and upgrades at 1.88 / 0.94 / 0.47 m.
- *
- * Monotonicity is free: effective widths strictly increase up the
- * ladder after the dedupe and the 1:1 distance goes as 1/Wpx, so every
- * band widens as the rungs get coarser. No sort, no invertible ladder.
- *
- * ZOOM. All of the above is derived at FOV_DEFAULT_DEG. The F-key zoom
- * is not a fourth clamp and does not add a rung; it arrives as a scaled
- * distance (`displaySq`), so at fov 25 each of these bands is reached at
- * 2.1034x its nominal radius and the picker simply climbs the ladder
- * sooner. Provisioning the LADDER for the zoomed case instead would
- * multiply every target by 2.1034 and put most of the corpus straight
- * back on the 4096 rung — the exact over-provisioning this function
- * exists to undo — to serve a mode that only works standing still.
- */
-function deriveTiers(
-  artwork: ArtworkListing,
-  baseWidth: number,
-  renderWidthM: number,
-  texAspect: number,
-  backingHeightPx: number,
-  maxTextureSize: number,
-): LodTier[] {
-  const widths = artwork.variantWidths;
-  if (!widths || widths.length === 0) return NO_TIERS;
-
-  const sourceWidth = artwork.width ?? 0;
-  const pxPerM = pxPerMetreAtDMin(backingHeightPx);
-  const wantPx = renderWidthM * pxPerM;
-  const baseEff = effectiveWidth(baseWidth, sourceWidth);
-  // Nothing above the base could ever be displayed: even the F-key zoom,
-  // which is worth 2.1034x the pixels, asks for less than the base
-  // already carries. Without this a work with a generous base on a small
-  // window still gets a rung whose upgrade radius sits inside D_MIN —
-  // prefetched on every pass, displayable never. It fires only on small
-  // viewports (0 placements at 1800 backing px, 283 at 1024 keep exactly
-  // one rung as zoom headroom and 0 are dropped as unreachable), which is
-  // precisely the case where the pool can least afford dead entries.
-  if (baseEff >= wantPx * ZOOM_PIXEL_HEADROOM) return NO_TIERS;
-
-  const labels = _tierLabels;
-  const effs = _tierEffs;
-  labels.length = 0;
-  effs.length = 0;
-
-  let prevEff = baseEff;
-  for (let i = 0; i < LOD_LADDER.length; i++) {
-    const label = LOD_LADDER[i];
-    const effW = effectiveWidth(label, sourceWidth);
-    const effH = Math.max(1, Math.round(effW / texAspect));
-    // Clamp 1 — GPU limit. `break`, not `continue`: effective widths are
-    // non-decreasing up the ladder, so nothing above this fits either.
-    if (effW > maxTextureSize || effH > maxTextureSize) break;
-    // Clamp 2 — the artwork's own manifest. Linear scan of ≤9 numbers,
-    // which beats allocating a Set per painting on a floor swap.
-    if (!widths.includes(label)) continue;
-    // Clamp 3 — decoded bytes. Same monotonicity argument for `break`.
-    if (estimateTextureBytes(effW, effH) > HIRES_ENTRY_BYTE_CAP) break;
-    // Nothing to gain: this rung decodes to pixels the rung below (or
-    // the base texture) already shows.
-    if (effW <= prevEff) continue;
-    labels.push(label);
-    effs.push(effW);
-    prevEff = effW;
-    // First rung that meets the target is the top of this painting's
-    // ladder — anything sharper cannot be resolved at D_MIN.
-    //
-    // The push happens BEFORE this test on purpose. When the base texture
-    // already meets `wantPx` the loop still emits one rung above it, and
-    // that rung is the zoom headroom: its upgrade radius lands inside
-    // D_MIN, so it is unreachable by walking, but `displaySq` shrinks by
-    // 0.475 while F is held and brings it into range at 2.10x that radius.
-    // The guard above is what keeps this from emitting a rung that stays
-    // unreachable even then.
-    if (effW >= wantPx) break;
-  }
-
-  const n = labels.length;
-  if (n === 0) return NO_TIERS;
-
-  // `oneToOne / Wpx` is the distance at which a rung of effective width
-  // Wpx hits 1:1; the numerator is a per-painting constant.
-  const oneToOne = D_MIN * wantPx;
-  // Emitted highest → lowest, which is the order the picker walks.
-  const tiers: LodTier[] = new Array(n);
-  for (let i = 0; i < n; i++) {
-    const below = i === 0 ? baseEff : effs[i - 1];
-    const upgrade = oneToOne / below;
-    const prefetch = upgrade + PREFETCH_LEAD_M;
-    const downgrade = upgrade * DOWNGRADE_RATIO;
-    const release = Math.max(upgrade * RELEASE_RATIO, prefetch * RELEASE_PREFETCH_MARGIN);
-    tiers[n - 1 - i] = {
-      width: labels[i],
-      prefetchSq: prefetch * prefetch,
-      upgradeSq: upgrade * upgrade,
-      downgradeSq: downgrade * downgrade,
-      releaseSq: release * release,
-    };
-  }
-  return tiers;
-}
-
-// There used to be an "original" tier above 4096 that decoded the
-// per-source full-size AVIF (capped at 8192 px) so the walkable scene
-// reached true source detail at 1 m. It cost far more than it bought,
-// and the byte clamp in `deriveTiers` exists to stop it recurring:
-//
-//   • Size. Of the 967 works whose source is bigger than 4096 px, the
-//     median decodes to 237 MB of RGBA + mipmaps at the 8192 cap, up to
-//     338 MB — and 576 of them are individually larger than the whole
-//     hi-res pool budget. One painting could evict the entire pool and
-//     still leave it over budget, so the next hi-res load evicted the
-//     original straight back out. `lodUpdate` re-requests any tier that
-//     isn't resident, so at 5 Hz that became a permanent treadmill of
-//     quarter-gigabyte decodes and uploads while merely standing near a
-//     big canvas. That is the walking stutter.
-//   • Detail. The tier upgraded at 1.05 m, where a 1.5 m-tall canvas
-//     filled the then 75° vertical FOV — ~1600 device px on a retina laptop,
-//     ~2160 on a 4K panel. The 4096 px variant is already 3072 px tall
-//     on a 4:3 work. 8192 was 3× oversampled and unresolvable.
-//
-// Pixel-peeping still works: the zoom modal streams the DZI tile
-// pyramid (see zoom-modal.tsx) and only uses the cached scene texture as
-// an instant placeholder under the cross-fade.
-//
-// 6144 is the rung that replaces it, and it is affordable where 8192 was
-// not for two reasons. It decodes to 144.7 MiB at 4:3 against 8192's
-// 237 MB median, and — unlike the old tier, which every big work took
-// unconditionally at 1.05 m — it is now gated by all three clamps
-// above, so a work only reaches for it when it genuinely resolves
-// >4096 px at D_MIN and the entry still fits the per-entry byte cap.
-// At the current 320 MB pool that cap admits 6144 only on wide canvases
-// (aspect ≥ 1.81); see HIRES_ENTRY_BYTE_CAP in texture-cache.ts.
 
 /** Memoised on its props: `RoomGeometry` re-renders every frame of its
  *  paintings reveal ramp (`setCount` from `useFrame`), and without this
@@ -1386,6 +1033,7 @@ function PaintingPlane({
   // base texture for a tick. A width also stays meaningful when the
   // re-derived ladder has a different length, which an index would not.
   const displayedWidthRef = useRef(0);
+  const displayedLeaseRef = useRef<(() => void) | undefined>(undefined);
 
   // Sync the material's initial map + color BEFORE the first paint so
   // preview is present on first visits too. Runs after the mesh and
@@ -1422,6 +1070,8 @@ function PaintingPlane({
     material.needsUpdate = true;
     return () => {
       preview?.dispose();
+      displayedLeaseRef.current?.();
+      displayedLeaseRef.current = undefined;
     };
   }, [url, thumbUrl, artwork.thumbHash, artwork.dominantColor]);
 
@@ -1559,7 +1209,7 @@ function PaintingPlane({
     const texAspect = img?.width && img?.height ? img.width / img.height : widthM / heightM;
     const renderWidthM = widthM / heightM > texAspect ? heightM * texAspect : widthM;
 
-    const tiers = deriveTiers(
+    const tiers = derivePaintingLodTiers(
       artwork,
       baseWidth,
       renderWidthM,
@@ -1568,158 +1218,127 @@ function PaintingPlane({
       gl.capabilities.maxTextureSize,
     );
     const tierUrls = tiers.map((t) => textureVariantUrl(artwork.objectKey, t.width, "avif"));
-    const tierLoadOpts: LoadHiResOpts[] = tiers.map(() => ({ origin }));
-    const pending: (AbortController | null)[] = tiers.map(() => null);
+    let pending: { tier: number; controller: AbortController } | null = null;
+    let hiddenSince: number | null = null;
+    let disposed = false;
+    let displayedTier = tiers.findIndex((tier) => tier.width === displayedWidthRef.current);
 
-    // -1 = the base texture; otherwise an index into `tiers`. Recovered
-    // from the ref so a re-derivation (resize) keeps showing whatever is
-    // already up.
-    //
-    // When the rung it named is gone from the new ladder — which happens
-    // whenever the window SHRINKS past a quantum, for 13–26% of works
-    // depending on the step — the old code reset the material to the base
-    // texture on the spot and only recovered on the next 5 Hz tick. That
-    // is a visible pop from 2560 px down to a 480 px base for up to
-    // 200 ms, on the painting the player is standing in front of, every
-    // time they drag a window smaller. Instead, fall back to the sharpest
-    // rung of the NEW ladder that is already resident: the ladder shrank
-    // by dropping its top, so the rung below it is normally still warm
-    // (`lowestUsefulTier` keeps displayed+1 touched) and the step down is
-    // one rung rather than all of them. `getHiRes` MRU-touches, so what
-    // we adopt is pinned rather than a candidate for the eviction we'd
-    // otherwise be racing. Base texture only if nothing survives.
-    //
-    // Note we do NOT keep displaying the vanished rung: nothing would
-    // touch it in the LRU any more, so it could be disposed out from
-    // under the material — the "painting renders as nothing" ghost the
-    // `peekCached` call below exists to prevent.
-    let displayedTier = -1;
-    if (displayedWidthRef.current !== 0) {
-      displayedTier = tiers.findIndex((t) => t.width === displayedWidthRef.current);
-      if (displayedTier === -1) {
-        for (let i = 0; i < tiers.length; i++) {
-          if (getHiRes(tierUrls[i]) !== undefined) {
-            displayedTier = i;
-            break;
-          }
-        }
-        material.map =
-          displayedTier === -1 ? baseTexture : (getHiRes(tierUrls[displayedTier]) ?? baseTexture);
-        material.needsUpdate = true;
-        displayedWidthRef.current = displayedTier === -1 ? 0 : tiers[displayedTier].width;
-      }
+    const install = (index: number) => {
+      const texture = index === -1 ? baseTexture : getHiRes(tierUrls[index]);
+      if (!texture) return;
+      const release = index === -1 ? undefined : retainHiRes(tierUrls[index]);
+      material.map = texture;
+      material.needsUpdate = true;
+      displayedLeaseRef.current?.();
+      displayedLeaseRef.current = release;
+      displayedTier = index;
+      displayedWidthRef.current = index === -1 ? 0 : tiers[index].width;
+    };
+    // Reclaim a retained rung after resize, or use the sharpest resident
+    // survivor of the new ladder. Never keep a disposed map on the mesh.
+    if (
+      displayedWidthRef.current !== 0 &&
+      (displayedTier === -1 || !getHiRes(tierUrls[displayedTier]))
+    ) {
+      displayedTier = tiers.findIndex((_, i) => getHiRes(tierUrls[i]) !== undefined);
     }
+    install(displayedTier);
 
-    const lodUpdate = (distSq: number, displaySq: number) => {
-      // Touch the base 960 px texture in the LRU on every tick so it
-      // can't be evicted while this painting is mounted. The texture
-      // cache disposes evicted entries (frees the GPU upload), and a
-      // painting still holding a now-disposed texture renders as
-      // nothing — that was the "images don't show up after going back
-      // down a floor" symptom: a fresh floor's load burst pushed the
-      // previous floor's textures past the LRU's 96-entry capacity,
-      // disposed them, and on revisit the painting tried to render a
-      // ghost. The old useCachedTexture path got this for free because
-      // it called cache.get() (an MRU-touch) on every render; the
-      // progressive loader peeks once on mount and otherwise wouldn't
-      // touch the cache at all.
+    const cancelPending = () => {
+      pending?.controller.abort();
+      pending = null;
+    };
+
+    const lodUpdate = (sample: LodSample): LodRequest | null => {
       peekCached(url);
+      if (!sample.visible) {
+        hiddenSince ??= sample.time;
+        // A small grace avoids churn at screen edges during head turns.
+        if (sample.time - hiddenSince > 0.4) {
+          cancelPending();
+          if (displayedTier !== -1) install(-1);
+        }
+        return null;
+      }
+      hiddenSince = null;
+      let plan = planPaintingLod(tiers, sample, displayedTier);
+      const required = selectLodTier(tiers, sample.displaySq, displayedTier);
+      // Satisfy a missing visible rung before spending a speculative slot
+      // on a sharper future rung of the same painting.
+      if (plan?.speculative && required !== -1 && !getHiRes(tierUrls[required])) {
+        plan = {
+          target: required,
+          speculative: false,
+          priority: plan.priority,
+        };
+      }
+      const wanted = plan?.target ?? -1;
+      if (
+        pending &&
+        (wanted === -1 ||
+          (sample.displaySq > tiers[pending.tier].releaseSq &&
+            sample.predictedSq > tiers[pending.tier].releaseSq))
+      )
+        cancelPending();
 
-      // Prefetch each tier as the player enters its radius. `distSq`
-      // here, in real metres — not the FOV-normalised `displaySq`. A
-      // prefetch radius is a bet about how far the player might WALK
-      // before the bytes land, and walking cancels the FOV zoom outright
-      // (player.tsx), so a stationary zoomed player must not pull the
-      // room's top rungs into the pool at 2.10x their radius. What zoom
-      // does change is which of the already-fetched rungs displays, and
-      // that is the picker's business below. getHiRes
-      // (used as our "is it cached?" check) touches MRU as a side effect,
-      // so prefetched tiers stay alive in the LRU as long as we're still
-      // in their prefetch radius — they only become eviction candidates
-      // once the player walks past the release boundary.
-      // Stop one rung below the tier we're already showing. Lower
-      // indices are sharper, so anything further down is a stepping
-      // stone we've climbed past — re-fetching it only adds eviction
-      // pressure to the hi-res pool, and because `lodUpdate` re-requests
-      // whatever isn't resident, the LRU freeing one would put it
-      // straight back in the queue on the next tick.
-      //
-      // The one rung of slack is the retreat path: `getHiRes` here also
-      // MRU-touches, so the tier we'd demote to on walking away stays
-      // warm instead of aging out and popping back to the base texture
-      // for a tick.
-      const lowestUsefulTier =
-        displayedTier === -1 ? tiers.length - 1 : Math.min(displayedTier + 1, tiers.length - 1);
-      for (let i = 0; i <= lowestUsefulTier; i++) {
-        const tier = tiers[i];
-        if (distSq < tier.prefetchSq && !pending[i] && getHiRes(tierUrls[i]) === undefined) {
-          const ctl = new AbortController();
-          pending[i] = ctl;
-          loadHiRes(tierUrls[i], gl, ctl.signal, tierLoadOpts[i])
+      // Keep the best resident fallback until a selected upgrade is ready.
+      // Actual-demand downgrades retain hysteresis; no base flash while loading.
+      const current = selectLodTier(tiers, sample.displaySq, displayedTier);
+      if (current === -1 && wanted === -1) {
+        if (displayedTier !== -1) install(-1);
+      } else if (current !== -1 && displayedTier !== wanted) {
+        const fallback = tiers.findIndex((_, i) => i >= current && getHiRes(tierUrls[i]));
+        if (fallback !== -1 && fallback !== displayedTier) install(fallback);
+      }
+      if (!plan) return null;
+      const target = plan.target;
+      return {
+        bytes: tiers[target].bytes,
+        requiredBytes:
+          required === -1
+            ? 0
+            : Math.max(
+                tiers[required].bytes,
+                displayedTier === -1 ? 0 : tiers[displayedTier].bytes,
+              ),
+        speculative: plan.speculative,
+        priority: plan.priority,
+        release: () => {
+          cancelPending();
+          if (displayedTier !== -1) install(-1);
+        },
+        cancel: () => {
+          if (pending?.tier === target && plan.speculative) cancelPending();
+          if (displayedTier === target && plan.speculative) {
+            const fallback =
+              current === -1
+                ? -1
+                : tiers.findIndex((_, i) => i >= current && getHiRes(tierUrls[i]));
+            install(fallback);
+          }
+        },
+        accept: () => {
+          if (getHiRes(tierUrls[target])) {
+            if (target !== displayedTier) install(target);
+            return;
+          }
+          // One useful tier at a time, rather than every intervening rung.
+          if (pending) return;
+          const controller = new AbortController();
+          const promise = tryLoadHiRes(tierUrls[target], gl, controller.signal, {
+            origin,
+            estimatedBytes: tiers[target].bytes,
+            speculative: plan.speculative,
+          });
+          if (!promise) return;
+          pending = { tier: target, controller };
+          promise
             .catch(() => {})
             .finally(() => {
-              if (pending[i] === ctl) pending[i] = null;
+              if (!disposed && pending?.controller === controller) pending = null;
             });
-        }
-      }
-
-      // Pick the highest tier we should display: walk highest → lowest,
-      // upgrade if we're inside upgradeSq, or hold our current tier if
-      // we're still inside its downgradeSq (hysteresis). First match
-      // wins. `displaySq`, not `distSq` — see the prefetch loop above.
-      //
-      // The hold test is strictly weaker than the acquire test and
-      // downgrade > upgrade for every tier, so at any fixed distance the
-      // picker has a fixed point — a player standing near a boundary
-      // cannot flip between two textures. That anti-oscillation property
-      // is structural, which is why the derived bands keep the ratios
-      // rather than deriving downgrade independently: any scheme where
-      // downgrade could land below upgrade oscillates at the LOD tick
-      // rate.
-      //
-      // The absolute margin the ratio buys is 0.4 × the tier's upgrade
-      // radius. Measured over the 2,801 real placements, the tightest
-      // rung in the corpus has an upgrade radius of 0.38 m at an 1800 px
-      // backing height (0.45 m at 2160, 0.22 m on a small 1024 px
-      // window), so the smallest gap anywhere is ~0.15 m — ~0.09 m at
-      // 1024. Still two orders of magnitude above the sub-centimetre
-      // head-bob and strafe jitter it defends against, but roughly half
-      // what an earlier version of this comment claimed: anyone trimming
-      // DOWNGRADE_RATIO toward 1.0 has less headroom than that number
-      // suggested.
-      let targetTier = -1;
-      for (let i = 0; i < tiers.length; i++) {
-        const tier = tiers[i];
-        const want =
-          (displayedTier === i && displaySq < tier.downgradeSq) || displaySq < tier.upgradeSq;
-        if (!want) continue;
-        const tex = getHiRes(tierUrls[i]); // touches MRU → pins it
-        if (tex) {
-          targetTier = i;
-          break;
-        }
-      }
-
-      if (targetTier !== displayedTier) {
-        material.map =
-          targetTier === -1 ? baseTexture : (getHiRes(tierUrls[targetTier]) ?? baseTexture);
-        material.needsUpdate = true;
-        displayedTier = targetTier;
-        displayedWidthRef.current = targetTier === -1 ? 0 : tiers[targetTier].width;
-      }
-
-      // Past the release radius for a given tier — abort any pending
-      // fetch. The texture (if any was placed in the LRU before we
-      // got here) is left to age out naturally.
-      for (let i = 0; i < tiers.length; i++) {
-        if (distSq > tiers[i].releaseSq) {
-          const ctl = pending[i];
-          if (ctl) {
-            ctl.abort();
-            pending[i] = null;
-          }
-        }
-      }
+        },
+      };
     };
 
     const entry = entryRef.current;
@@ -1733,7 +1352,8 @@ function PaintingPlane({
       // Abort any prefetches; leave the entry in the registry — the
       // early-mount effect owns its lifecycle. Strip lodUpdate so a
       // stale closure can't fire after baseLoaded flips back.
-      for (const ctl of pending) ctl?.abort();
+      disposed = true;
+      cancelPending();
       const e = entryRef.current;
       if (e) e.lodUpdate = undefined;
     };

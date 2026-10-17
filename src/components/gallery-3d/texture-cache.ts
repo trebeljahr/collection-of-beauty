@@ -175,14 +175,24 @@ function textureBytes(tex: THREE.Texture): number {
   return estimateTextureBytes(img?.width ?? 0, img?.height ?? 0);
 }
 
+function disposeTexture(texture: THREE.Texture): void {
+  texture.dispose();
+  // THREE disposes the GPU allocation, but the ImageBitmap remains ours.
+  const bitmap = texture.image as { close?: () => void } | undefined;
+  bitmap?.close?.();
+}
+
 class TextureLRU {
   private map = new Map<string, THREE.Texture>();
   private bytes = 0;
+  private pins = new Map<string, number>();
+  private reserved = 0;
   /** Optional GPU-memory ceiling. When set, entries are evicted oldest-
    *  first until the pool fits, independent of the entry count. */
   constructor(
     private capacity: number,
     private byteBudget = Number.POSITIVE_INFINITY,
+    private ownsBitmaps = false,
   ) {}
 
   get size(): number {
@@ -195,6 +205,46 @@ class TextureLRU {
 
   get budget(): number {
     return this.byteBudget;
+  }
+
+  get reservedBytes(): number {
+    return this.reserved;
+  }
+
+  get pinnedBytes(): number {
+    let bytes = 0;
+    for (const key of this.pins.keys()) {
+      const texture = this.map.get(key);
+      if (texture) bytes += textureBytes(texture);
+    }
+    return bytes;
+  }
+
+  /** Reserve decoded memory before fetching. Unused cached detail makes
+   *  room now, so queued bitmaps count against the same bound as uploads. */
+  reserve(bytes: number, replacing = 0): boolean {
+    if (this.pinnedBytes + this.reserved - replacing + bytes > this.byteBudget) return false;
+    this.reserved += bytes - replacing;
+    this.evictToBudget();
+    return true;
+  }
+
+  releaseReservation(bytes: number): void {
+    this.reserved = Math.max(0, this.reserved - bytes);
+  }
+
+  retain(key: string): (() => void) | undefined {
+    if (!this.get(key)) return undefined;
+    this.pins.set(key, (this.pins.get(key) ?? 0) + 1);
+    let released = false;
+    return () => {
+      if (released) return;
+      released = true;
+      const remaining = (this.pins.get(key) ?? 1) - 1;
+      if (remaining > 0) this.pins.set(key, remaining);
+      else this.pins.delete(key);
+      this.evictToBudget();
+    };
   }
 
   /** Whether `key` is in the pool, without the MRU touch of `get`. */
@@ -235,20 +285,30 @@ class TextureLRU {
     this.evictToBudget();
   }
 
-  /** Never evicts down to nothing: after a `put` the sole survivor is the
-   *  entry the caller is about to display, and after a re-budget it is
-   *  whatever was touched most recently — which for the hi-res pool is
-   *  the texture currently on a painting's material. Dropping it would
-   *  dispose a GPU texture that is still bound. */
+  /** Detail has explicit display pins and includes outstanding decode
+   *  reservations. Base/preload pools retain their previous last-entry
+   *  behavior. A smaller viewport can temporarily leave existing display
+   *  pins over budget; new detail waits until those pins are released. */
   private evictToBudget(): void {
-    while (this.map.size > 1 && (this.map.size > this.capacity || this.bytes > this.byteBudget)) {
-      const oldest = this.map.keys().next().value;
+    const minimum = this.ownsBitmaps ? 0 : 1;
+    while (
+      this.map.size > minimum &&
+      (this.map.size > this.capacity || this.bytes + this.reserved > this.byteBudget)
+    ) {
+      let oldest: string | undefined;
+      for (const key of this.map.keys()) {
+        if (!this.pins.has(key)) {
+          oldest = key;
+          break;
+        }
+      }
       if (oldest === undefined) break;
       const old = this.map.get(oldest);
       this.map.delete(oldest);
       if (old) {
         this.bytes -= textureBytes(old);
-        old.dispose();
+        if (this.ownsBitmaps) disposeTexture(old);
+        else old.dispose();
       }
     }
   }
@@ -305,8 +365,13 @@ function aniso(renderer: THREE.WebGLRenderer | null): number {
   }
 }
 
-const hiresCache = new TextureLRU(HIRES_CACHE_CAPACITY, HIRES_BASE_BYTE_BUDGET);
+const hiresCache = new TextureLRU(HIRES_CACHE_CAPACITY, HIRES_BASE_BYTE_BUDGET, true);
 const hiresInFlight = new Map<string, Promise<THREE.Texture>>();
+const HIRES_MAX_ACTIVE = 2;
+const HIRES_RETRY_DELAY_MS = 10_000;
+const HIRES_PERMANENT_RETRY_DELAY_MS = 60_000;
+const hiresFailures = new Map<string, number>();
+const speculativeHiRes = new Set<string>();
 
 /**
  * Re-size the hi-res pool for the current canvas. Called by the
@@ -469,6 +534,8 @@ type UploadTask = {
   tex: THREE.Texture;
   renderer: THREE.WebGLRenderer;
   resolve: () => void;
+  reject: (error: unknown) => void;
+  signal?: AbortSignal;
   origin: LoadOrigin;
   kind: LoadKind;
 };
@@ -494,6 +561,10 @@ function pumpUploads() {
   do {
     const task = takeBest(uploadQueue);
     if (!task) break;
+    if (task.signal?.aborted) {
+      task.reject(abortError());
+      continue;
+    }
     try {
       task.renderer.initTexture(task.tex);
     } catch {
@@ -510,10 +581,68 @@ function enqueueUpload(
   renderer: THREE.WebGLRenderer,
   kind: LoadKind,
   origin: LoadOrigin = null,
+  signal?: AbortSignal,
 ): Promise<void> {
-  return new Promise((resolve) => {
-    uploadQueue.push({ tex, renderer, resolve, origin, kind });
+  return new Promise((resolve, reject) => {
+    if (signal?.aborted) {
+      reject(abortError());
+      return;
+    }
+    const cleanup = () => signal?.removeEventListener("abort", onAbort);
+    const task: UploadTask = {
+      tex,
+      renderer,
+      origin,
+      kind,
+      signal,
+      resolve: () => {
+        cleanup();
+        resolve();
+      },
+      reject: (error) => {
+        cleanup();
+        reject(error);
+      },
+    };
+    const onAbort = () => {
+      const index = uploadQueue.indexOf(task);
+      if (index !== -1) uploadQueue.splice(index, 1);
+      task.reject(abortError());
+    };
+    signal?.addEventListener("abort", onAbort, { once: true });
+    uploadQueue.push(task);
     schedulePump();
+  });
+}
+
+function abortError(): DOMException {
+  return new DOMException("Texture load aborted", "AbortError");
+}
+
+function throwIfAborted(signal?: AbortSignal): void {
+  if (signal?.aborted) throw abortError();
+}
+
+/** Stop waiting for shared bytes without cancelling their other users. */
+function waitWithSignal<T>(promise: Promise<T>, signal?: AbortSignal): Promise<T> {
+  if (!signal) return promise;
+  return new Promise((resolve, reject) => {
+    if (signal.aborted) {
+      reject(abortError());
+      return;
+    }
+    const onAbort = () => reject(abortError());
+    signal.addEventListener("abort", onAbort, { once: true });
+    promise.then(
+      (value) => {
+        signal.removeEventListener("abort", onAbort);
+        resolve(value);
+      },
+      (error: unknown) => {
+        signal.removeEventListener("abort", onAbort);
+        reject(error);
+      },
+    );
   });
 }
 
@@ -542,13 +671,29 @@ let activeLoads = 0;
 type LoadWaiter = { resolve: () => void; origin: LoadOrigin; kind: LoadKind };
 const loadWaiters: LoadWaiter[] = [];
 
-function acquireLoadSlot(kind: LoadKind, origin: LoadOrigin): Promise<void> {
+function acquireLoadSlot(kind: LoadKind, origin: LoadOrigin, signal?: AbortSignal): Promise<void> {
+  if (signal?.aborted) return Promise.reject(abortError());
   if (activeLoads < NETWORK_CONCURRENCY) {
     activeLoads++;
     return Promise.resolve();
   }
-  return new Promise((resolve) => {
-    loadWaiters.push({ resolve, origin, kind });
+  return new Promise((resolve, reject) => {
+    const waiter: LoadWaiter = {
+      resolve: () => {
+        signal?.removeEventListener("abort", onAbort);
+        resolve();
+      },
+      origin,
+      kind,
+    };
+    const onAbort = () => {
+      const index = loadWaiters.indexOf(waiter);
+      if (index !== -1) loadWaiters.splice(index, 1);
+      signal?.removeEventListener("abort", onAbort);
+      reject(abortError());
+    };
+    signal?.addEventListener("abort", onAbort, { once: true });
+    loadWaiters.push(waiter);
   });
 }
 
@@ -566,9 +711,11 @@ async function withLoadSlot<T>(
   kind: LoadKind,
   origin: LoadOrigin,
   fn: () => Promise<T>,
+  signal?: AbortSignal,
 ): Promise<T> {
-  await acquireLoadSlot(kind, origin);
+  await acquireLoadSlot(kind, origin, signal);
   try {
+    throwIfAborted(signal);
     return await fn();
   } finally {
     releaseLoadSlot();
@@ -719,21 +866,28 @@ async function fetchTextureBlob(
   signal: AbortSignal | undefined,
   withTimeout: boolean,
 ): Promise<Blob> {
+  throwIfAborted(signal);
   const stored = prefetchedBlobs.get(url);
   if (stored) return stored;
   const pending = prefetchInFlight.get(url);
   if (pending) {
-    const blob = await pending;
+    const blob = await waitWithSignal(pending, signal);
+    throwIfAborted(signal);
     if (blob) return blob;
   }
-  return withLoadSlot(kind, origin, async () => {
-    const download = async (s: AbortSignal | undefined) => {
-      const res = await fetch(url, { credentials: "omit", signal: s });
-      if (!res.ok) throw new TextureHttpError(url, res.status);
-      return res.blob();
-    };
-    return withTimeout ? withTextureTimeout(url, download) : download(signal);
-  });
+  return withLoadSlot(
+    kind,
+    origin,
+    async () => {
+      const download = async (s: AbortSignal | undefined) => {
+        const res = await fetch(url, { credentials: "omit", signal: s });
+        if (!res.ok) throw new TextureHttpError(url, res.status);
+        return res.blob();
+      };
+      return withTimeout ? withTextureTimeout(url, download) : download(signal);
+    },
+    signal,
+  );
 }
 
 function isPermanentHttpError(err: unknown): boolean {
@@ -869,48 +1023,135 @@ async function loadTextureCached(
 // out hi-res textures the player is currently looking at, and the
 // other way round.
 //
-// `getHiRes` touches MRU on read, which is what callers in the LOD
-// loop want: anything they query is either currently displayed or
-// about to be, so pinning it in the LRU until the player walks away
-// is exactly the right behaviour.
+// getHiRes refreshes recency. Displayed textures also need an explicit
+// retainHiRes lease, so background inserts cannot dispose a bound image.
 // ─────────────────────────────────────────────────────────────────────
 
 export function getHiRes(url: string): THREE.Texture | undefined {
   return hiresCache.get(url);
 }
 
-/** Optional knobs for `loadHiRes`. There used to be a `maxSize` here
- *  that capped the decoded bitmap for the "original" LOD tier; that tier
- *  is gone (see the ladder note in painting.tsx). Every remaining tier is
- *  a pre-built variant, and the caller now clamps its own top rung
- *  against HIRES_ENTRY_BYTE_CAP before requesting it — so the size
- *  guarantee lives at the point where the rung is chosen rather than
- *  here, where it could only truncate a decode already paid for. */
+export function getHiResByteBudget(): number {
+  return hiresCache.budget;
+}
+
+/** Keep a displayed texture alive until the material swaps or unmounts. */
+export function retainHiRes(url: string): (() => void) | undefined {
+  return hiresCache.retain(url);
+}
+
+/** The caller derives a pre-built tier's size before requesting it. */
 export type LoadHiResOpts = {
   /** World position of the painting this tier belongs to, so the load
    *  queues can serve the nearest one first. */
   origin?: LoadOrigin;
 };
 
+/** Promise-based compatibility entry point. New streaming callers use
+ *  tryLoadHiRes so a busy pool postpones work without rejected promises. */
 export function loadHiRes(
   url: string,
   renderer: THREE.WebGLRenderer | null,
   signal?: AbortSignal,
   opts?: LoadHiResOpts,
 ): Promise<THREE.Texture> {
+  return (
+    tryLoadHiRes(url, renderer, signal, {
+      ...opts,
+      estimatedBytes: HIRES_ENTRY_BYTE_CAP,
+      speculative: false,
+    }) ?? Promise.reject(new Error(`Detail texture deferred: ${url}`))
+  );
+}
+
+/** Admit a bounded amount of detail through its entire fetch/decode/upload
+ *  lifetime. Null means no work started: the controller may retry later.
+ *  A cache hit or an existing admitted URL never consumes a second slot. */
+export function tryLoadHiRes(
+  url: string,
+  renderer: THREE.WebGLRenderer | null,
+  signal: AbortSignal | undefined,
+  opts: LoadHiResOpts & { estimatedBytes: number; speculative: boolean },
+): Promise<THREE.Texture> | null {
+  if (signal?.aborted) return Promise.reject(abortError());
   const cached = hiresCache.get(url);
   if (cached) return Promise.resolve(cached);
   const existing = hiresInFlight.get(url);
   if (existing) return existing;
 
+  const retryAt = hiresFailures.get(url);
+  if (retryAt !== undefined) {
+    if (retryAt > performance.now()) return null;
+    hiresFailures.delete(url);
+  }
+  const estimate = opts.estimatedBytes;
+  if (
+    !Number.isFinite(estimate) ||
+    estimate <= 0 ||
+    estimate > HIRES_ENTRY_BYTE_CAP ||
+    hiresInFlight.size >= HIRES_MAX_ACTIVE ||
+    !hiresCache.reserve(estimate)
+  ) {
+    return null;
+  }
+
+  let reserved = estimate;
+  const controller = new AbortController();
+  const onAbort = () => controller.abort();
+  signal?.addEventListener("abort", onAbort, { once: true });
+  let timedOut = false;
+  const deadline = window.setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, TEXTURE_LOAD_TIMEOUT_MS);
+  if (opts.speculative) speculativeHiRes.add(url);
+
   const promise = (async () => {
-    const origin = opts?.origin ?? null;
-    const blob = await fetchTextureBlob(url, "detail", origin, signal, false);
-    const tex = await textureFromBlob(blob, url, renderer, signal);
-    if (renderer) await enqueueUpload(tex, renderer, "detail", origin);
-    hiresCache.put(url, tex);
-    return tex;
+    const origin = opts.origin ?? null;
+    let texture: THREE.Texture | undefined;
+    try {
+      const blob = await fetchTextureBlob(url, "detail", origin, controller.signal, false);
+      texture = await textureFromBlob(blob, url, renderer, controller.signal);
+      throwIfAborted(controller.signal);
+      const actual = textureBytes(texture);
+      if (actual > HIRES_ENTRY_BYTE_CAP || !hiresCache.reserve(actual, reserved)) {
+        throw new Error(`Decoded detail exceeds available texture budget: ${url}`);
+      }
+      reserved = actual;
+      if (renderer) await enqueueUpload(texture, renderer, "detail", origin, controller.signal);
+      throwIfAborted(controller.signal);
+      if (!hiresCache.reserve(reserved, reserved)) {
+        throw new Error(`Texture budget changed during detail upload: ${url}`);
+      }
+      // Transfer the reservation into residency without an intervening
+      // await: another request cannot claim the same bytes in between.
+      hiresCache.releaseReservation(reserved);
+      reserved = 0;
+      hiresCache.put(url, texture);
+      return texture;
+    } catch (error) {
+      if (texture) disposeTexture(texture);
+      // User movement is cancellation, not a failed URL. Network/HTTP,
+      // decode and deadline failures cool down instead of retrying at
+      // every controller tick.
+      if (!controller.signal.aborted || timedOut) {
+        const cooldown = isPermanentHttpError(error)
+          ? HIRES_PERMANENT_RETRY_DELAY_MS
+          : HIRES_RETRY_DELAY_MS;
+        hiresFailures.delete(url);
+        hiresFailures.set(url, performance.now() + cooldown);
+        if (hiresFailures.size > TEXTURE_CACHE_CAPACITY) {
+          const oldest = hiresFailures.keys().next().value;
+          if (oldest !== undefined) hiresFailures.delete(oldest);
+        }
+      }
+      throw error;
+    }
   })().finally(() => {
+    window.clearTimeout(deadline);
+    signal?.removeEventListener("abort", onAbort);
+    hiresCache.releaseReservation(reserved);
+    speculativeHiRes.delete(url);
     hiresInFlight.delete(url);
   });
 
@@ -1003,14 +1244,17 @@ export function preloadCached(
   if (existing) return existing;
 
   const promise = (async () => {
+    let texture: THREE.Texture | undefined;
     try {
       if (signal?.aborted) return null;
       const blob = await fetchTextureBlob(url, "preview", origin, signal, false);
-      const texture = await textureFromBlob(blob, url, renderer, signal);
-      if (renderer) await enqueueUpload(texture, renderer, "preview", origin);
+      texture = await textureFromBlob(blob, url, renderer, signal);
+      if (renderer) await enqueueUpload(texture, renderer, "preview", origin, signal);
+      throwIfAborted(signal);
       preloadCache.put(url, texture);
       return texture;
     } catch {
+      if (texture) disposeTexture(texture);
       return null;
     }
   })().finally(() => {
@@ -1061,6 +1305,18 @@ export const _textureCacheDebug = {
   },
   get hiresInFlight() {
     return hiresInFlight.size;
+  },
+  get hiresReservedBytes() {
+    return hiresCache.reservedBytes;
+  },
+  get hiresPinnedBytes() {
+    return hiresCache.pinnedBytes;
+  },
+  get speculativeHiResInFlight() {
+    return speculativeHiRes.size;
+  },
+  get hiresFailedUrls() {
+    return hiresFailures.size;
   },
   get preloadSize() {
     return preloadCache.size;
