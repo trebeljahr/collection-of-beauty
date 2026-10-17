@@ -8,7 +8,7 @@
 //
 //   - a recording its performer released under a Creative Commons
 //     licence or into the public domain (Musopen, Wikimedia Commons,
-//     Free Music Archive), or
+//     IMSLP, Free Music Archive), or
 //   - a 78 rpm record published before 1963. Performers' and producers'
 //     rights in a recording ran 50 years from publication until the EU
 //     extended them to 70 in 2013 (Directive 2011/77/EU); the extension
@@ -25,11 +25,21 @@
 // The playlist has Liebestraum No. 3 twice (Lang Lang, Jenő Jandó); it
 // plays once here.
 //
+// A 78 is free, but its surface noise is loud under quiet music. On
+// 17 October 2026 Rico heard rain under four of them (Furtwängler's
+// Air, Fournier's Swan, Aribo's Rêverie, Backhaus's Liebestraum), and
+// each was replaced with a modern recording that is free. Measured as
+// the band over 4 kHz in a piece's quietest tenth, under its loud
+// passages: the 78s 30 to 40 dB, the recordings now used 53 to 80 dB.
+// The pre-1963 LPs that turned up (Navarra's Swan of 1956, Menuhin's
+// Air of 1961, Vidusso's Rêverie of 1951) were 30 to 49 dB.
+//
 // `pnpm music:build` downloads each source, checks its SHA-1 against
-// the value below, and encodes it to `assets-web/music/v1/<id>.mp3`
-// (loudness-normalised, trimmed where `trim` says). `pnpm assets:sync`
-// publishes that folder with the rest of assets-web. The files are
-// served immutable, so a re-encode goes under a new version folder.
+// the value below, and encodes it to `assets-web/music/v2/<id>.mp3`
+// (loudness-normalised, cut to where the music starts and ends, and
+// trimmed where `trim` says). `pnpm assets:sync` publishes that folder
+// with the rest of assets-web. The files are served immutable, so a
+// re-encode goes under a new version folder.
 
 export type MusicLicence = {
   name: string;
@@ -37,7 +47,7 @@ export type MusicLicence = {
 };
 
 export type MusicTrack = {
-  /** File stem under `music/v1/`. Also the key of the shuffle bag a
+  /** File stem under `MUSIC_DIR`. Also the key of the shuffle bag a
    *  visitor's browser keeps, so renaming one restarts their cycle. */
   id: string;
   /** The piece, as a concert programme names it. */
@@ -61,8 +71,10 @@ export type MusicTrack = {
   /** Public-domain status in the US, where it differs from the EU. */
   usStatus?: string;
   /** The file `music:build` downloads, and its SHA-1 as the source
-   *  reports it. */
-  download: { url: string; sha1: string };
+   *  reports it. `browserOnly`: the host answers a script with a bot
+   *  check (IMSLP), so the file is saved from a browser to
+   *  `assets/music/<id>.<ext>` and the build checks its SHA-1. */
+  download: { url: string; sha1: string; browserOnly?: true };
   /** A 78 transfer is mono; encode it as such. */
   mono?: boolean;
   /** Seconds to cut from the start and the end (count-in, applause,
@@ -71,6 +83,7 @@ export type MusicTrack = {
 };
 
 const CC_BY_3 = { name: "CC BY 3.0", url: "https://creativecommons.org/licenses/by/3.0/" };
+const CC_BY_4 = { name: "CC BY 4.0", url: "https://creativecommons.org/licenses/by/4.0/" };
 const CC_BY_SA_3 = {
   name: "CC BY-SA 3.0",
   url: "https://creativecommons.org/licenses/by-sa/3.0/",
@@ -81,9 +94,6 @@ const CC_BY_SA_4 = {
 };
 const CC0 = { name: "CC0 1.0", url: "https://creativecommons.org/publicdomain/zero/1.0/" };
 const PUBLIC_DOMAIN = { name: "Public domain", url: null };
-
-const PRE_1963_EU =
-  "Published before 1963, so the performers' and the producer's rights have ended in the EU.";
 
 /** In playlist order. The player shuffles; the credits list them so. */
 export const GALLERY_MUSIC: readonly MusicTrack[] = [
@@ -106,25 +116,22 @@ export const GALLERY_MUSIC: readonly MusicTrack[] = [
     },
   },
   {
-    id: "debussy-reverie-aribo",
+    id: "debussy-reverie-kolodin",
     work: "Rêverie, L. 68",
     composer: "Claude Debussy",
     composerDates: "1862–1918",
-    performer: "Iskar Aribo (Isaak Cohen), piano",
-    recorded:
-      "Paris, c. 1935–36; Pro Musica PM 113, reissued October 1936 as Treasury of Music T 10. Transfer by Andrew Hallifax for DogintheManger",
-    licence: PUBLIC_DOMAIN,
-    sourceName: "Internet Archive",
-    sourceUrl:
-      "https://archive.org/details/treasury-of-music-t-10-debussy-isle-joyeuse-reverie-aribo",
-    pre1963: true,
-    rights: PRE_1963_EU,
-    usStatus: "Protected in the US until 2037 (published 1936).",
+    performer: "Luis Kolodin, piano",
+    recorded: "Published by Luis Kolodin, 2020",
+    licence: CC_BY_SA_4,
+    sourceName: "IMSLP",
+    sourceUrl: "https://imslp.org/wiki/R%C3%AAverie%2C_CD_76_(Debussy%2C_Claude)",
+    rights:
+      "Luis Kolodin released the recording under CC BY-SA 4.0 on IMSLP (upload of 9 August 2022).",
     download: {
-      url: "https://archive.org/download/treasury-of-music-t-10-debussy-isle-joyeuse-reverie-aribo/Treasury%20of%20Music%20Series%20T%2010%20%5BPM%20112-II%5D%20Debussy%20R%C3%AAverie%20Aribo.flac",
-      sha1: "e67e96e9fe201714919eb08766668c330da3e2ca",
+      url: "https://imslp.org/images/c/c8/PMLP2404-Y2Mate.is_-_Luis_Kolodin_plays_Debussy%27s_R%C3%AAverie-DiC0EEvFE3g-160k-1660024770846.mp3",
+      sha1: "a5e443ed42b5aeebbb34629844ff53c6803fc014",
+      browserOnly: true,
     },
-    mono: true,
   },
   {
     id: "chopin-nocturne-op9-2-levy",
@@ -196,25 +203,22 @@ export const GALLERY_MUSIC: readonly MusicTrack[] = [
     },
   },
   {
-    id: "liszt-liebestraum-3-backhaus",
+    id: "liszt-liebestraum-3-kolodin",
     work: "Liebestraum No. 3 in A-flat major, S. 541/3",
     composer: "Franz Liszt",
     composerDates: "1811–1886",
-    performer: "Wilhelm Backhaus, piano",
-    recorded:
-      "His Master's Voice DB 926, matrix Cc 7154, 1926. Transfer by George Blood L.P. for the Internet Archive's Great 78 Project",
-    licence: PUBLIC_DOMAIN,
-    sourceName: "Internet Archive",
-    sourceUrl:
-      "https://archive.org/details/78_liebestrume-no-3_wilhelm-backhaus-liszt_gbia7004357b",
-    pre1963: true,
-    rights: PRE_1963_EU,
-    usStatus: "Protected in the US until 1 January 2027 (published 1926).",
+    performer: "Luis Kolodin, piano",
+    recorded: "Published by Luis Kolodin, 2022",
+    licence: CC_BY_SA_4,
+    sourceName: "IMSLP",
+    sourceUrl: "https://imslp.org/wiki/Liebestr%C3%A4ume%2C_S.541_(Liszt%2C_Franz)",
+    rights:
+      "Luis Kolodin released the recording under CC BY-SA 4.0 on IMSLP (upload of 1 August 2022).",
     download: {
-      url: "https://archive.org/download/78_liebestrume-no-3_wilhelm-backhaus-liszt_gbia7004357b/LIEBESTR%C3%84UME-NO.%203%20-%20WILHELM%20BACKHAUS%20-%20LISZT.flac",
-      sha1: "145c9dc70b86c92fbcb64b8bb4681388e63c80f6",
+      url: "https://imslp.org/images/6/67/PMLP2598-LISZT.mp3",
+      sha1: "ca4b5564e4735c2f033de20aa7db6c9e9a5b4e95",
+      browserOnly: true,
     },
-    mono: true,
   },
   {
     id: "bach-cello-suite-1-prelude-michel",
@@ -286,50 +290,48 @@ export const GALLERY_MUSIC: readonly MusicTrack[] = [
     },
   },
   {
-    id: "saint-saens-the-swan-fournier",
+    id: "saint-saens-the-swan-colliard",
     work: "The Carnival of the Animals: XIII. The Swan",
     composer: "Camille Saint-Saëns",
     composerDates: "1835–1921",
-    performer: "Pierre Fournier, cello; Gerald Moore, piano",
-    recorded:
-      "His Master's Voice DA 1868, matrix OEA 11209, 1947. Transfer by George Blood L.P. for the Internet Archive's Great 78 Project",
-    licence: PUBLIC_DOMAIN,
-    sourceName: "Internet Archive",
-    sourceUrl:
-      "https://archive.org/details/78_le-cygne-the-swan_pierre-fournier-gerald-moore-saint-sans_gbia7017614a",
-    pre1963: true,
-    rights: PRE_1963_EU,
-    usStatus: "Protected in the US until 2058 (published 1947).",
+    performer: "Matilda Colliard, cello; Stefano Ligoratti, piano",
+    recorded: "Live; published by Classica Viva, Milan, 2015",
+    licence: CC_BY_4,
+    sourceName: "IMSLP",
+    sourceUrl: "https://imslp.org/wiki/Le_carnaval_des_animaux_(Saint-Sa%C3%ABns%2C_Camille)",
+    rights:
+      "The performers released the recording under CC BY 4.0 on IMSLP (upload of 14 July 2015).",
     download: {
-      url: "https://archive.org/download/78_le-cygne-the-swan_pierre-fournier-gerald-moore-saint-sans_gbia7017614a/LE%20CYGNE%20%28THE%20SWAN%29%20-%20PIERRE%20FOURNIER%20-%20Gerald%20Moore.flac",
-      sha1: "ee7511208ff83ae17ecbab468053b2ff6e5b0a6a",
+      url: "https://imslp.org/images/2/2c/PMLP06099-Le_Cygne.mp3",
+      sha1: "afef94fe92f7232d069014466d011d1201b90928",
+      browserOnly: true,
     },
-    mono: true,
+    // The room after the last note, faded out by the uploader.
+    trim: { end: 4 },
   },
   {
-    id: "bach-air-bwv1068-furtwangler",
+    id: "bach-air-bwv1068-usaf-strings",
     work: "Orchestral Suite No. 3 in D major, BWV 1068: II. Air",
     composer: "Johann Sebastian Bach",
     composerDates: "1685–1750",
-    performer: "Berlin Philharmonic Orchestra, Wilhelm Furtwängler",
-    recorded: "Grammophon 66926 (B 21226), c. 1929. Transfer by a private collector",
+    performer: "Air Force Strings, United States Air Force Band",
+    recorded: "Collage, 2000",
     licence: PUBLIC_DOMAIN,
-    sourceName: "Internet Archive",
-    sourceUrl: "https://archive.org/details/bach-air-furtwangler",
-    pre1963: true,
-    rights: PRE_1963_EU,
-    usStatus: "Protected in the US until 2030 (published c. 1929).",
+    sourceName: "Wikimedia Commons",
+    sourceUrl:
+      "https://commons.wikimedia.org/wiki/File:Air_-_Air_Force_Strings_-_United_States_Air_Force_Band.mp3",
+    rights:
+      "Recorded and published by the United States Air Force, which gives its band's recordings to the public domain.",
     download: {
-      url: "https://archive.org/download/bach-air-furtwangler/Bach%20Air%20Furtw%C3%A4ngler.flac",
-      sha1: "25a1f16814db66dec729d5fc18cc861ccd425ddc",
+      url: "https://upload.wikimedia.org/wikipedia/commons/e/ec/Air_-_Air_Force_Strings_-_United_States_Air_Force_Band.mp3",
+      sha1: "7e02e9bec693f03b9682b236d9430f0f5956bc50",
     },
-    mono: true,
   },
 ];
 
 /** Where the encoded files live in assets-web and on the asset origin.
  *  Bump the version for a re-encode: the files are cached immutable. */
-export const MUSIC_DIR = "music/v1";
+export const MUSIC_DIR = "music/v2";
 
 export function musicObjectKey(track: Pick<MusicTrack, "id">): string {
   return `${MUSIC_DIR}/${track.id}.mp3`;

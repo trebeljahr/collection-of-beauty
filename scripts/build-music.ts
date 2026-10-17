@@ -9,11 +9,16 @@
  *
  * The track list, its sources and their SHA-1s are in
  * src/lib/gallery-music.ts. Sources land in `assets/music/` (never
- * synced, like every original) and encodes in `assets-web/music/v1/`,
+ * synced, like every original) and encodes in `assets-web/<MUSIC_DIR>/`,
  * which `pnpm assets:sync` publishes. The asset origin serves them
  * immutable: change an encode setting, bump `MUSIC_DIR` too.
  *
- * Encoding: an optional trim, then ffmpeg's loudnorm in two passes
+ * A source marked `browserOnly` (IMSLP, which answers a script with a
+ * bot check) is not downloaded: save it from a browser to the path the
+ * error names, and the build checks its SHA-1 like any other.
+ *
+ * Encoding: an optional trim, then a cut to where the music starts and
+ * ends (`musicSpan`), then ffmpeg's loudnorm in two passes
  * (measure, then a linear gain to -18 LUFS, so a quiet 78 and a close
  * modern recording sit at one level without compressing either), then
  * LAME VBR quality 2. MP3 because every browser plays it and every
@@ -73,6 +78,11 @@ async function fetchSource(track: MusicTrack): Promise<string> {
       `${path} has SHA-1 ${sum}, expected ${track.download.sha1}. Move it aside and run again.`,
     );
   }
+  if (track.download.browserOnly) {
+    throw new Error(
+      `the host refuses scripts. Open ${track.sourceUrl} in a browser, save ${track.download.url} as ${path}, and run again.`,
+    );
+  }
   console.log(`[music] ${track.id}: downloading ${track.download.url}`);
   const res = await fetch(track.download.url, { headers: { "User-Agent": USER_AGENT } });
   if (!res.ok) throw new Error(`${track.id}: GET ${track.download.url} → ${res.status}`);
@@ -108,6 +118,64 @@ function preFilters(track: MusicTrack, duration: number): string[] {
   // A 78's rumble sits under 40 Hz; nothing musical is lost there.
   if (track.mono) filters.push("highpass=f=40");
   return filters;
+}
+
+// Where the music starts and ends. A source can open on seconds of
+// silence or room tone (Moonlight 4.5 s, the Air Force Air 4.3 s) and
+// close on as much again, and the player already waits GAP_MS between
+// two pieces. Levels are read in 50 ms windows against the piece's own
+// loud passages (95th percentile), so a quiet recording is judged as
+// loud as a close one. A note's attack crosses 45 dB under that within
+// a window; at the end the cut waits until 50 dB under, so a piano's
+// last chord rings out. On the 13 sources of 17 October 2026, the start
+// moved by at most 0.2 s between 35 and 45 dB.
+const SPAN_WINDOW_S = 0.05;
+const ONSET_DB = 45;
+const RELEASE_DB = 50;
+/** Kept before the first note and after the last sound. */
+const LEAD_IN_S = 0.25;
+const TAIL_S = 1;
+
+async function musicSpan(src: string, pre: string[]): Promise<{ start: number; end: number }> {
+  const rate = 11025;
+  const { stdout } = await run(
+    "ffmpeg",
+    [
+      "-v",
+      "error",
+      "-i",
+      src,
+      "-af",
+      [...pre, `aresample=${rate}`].join(","),
+      "-ac",
+      "1",
+      "-f",
+      "f32le",
+      "-",
+    ],
+    { encoding: "buffer", maxBuffer: 256 * 1024 * 1024 },
+  );
+  const samples = new Float32Array(
+    stdout.buffer,
+    stdout.byteOffset,
+    Math.floor(stdout.byteLength / 4),
+  );
+  const win = Math.round(rate * SPAN_WINDOW_S);
+  const levels: number[] = [];
+  for (let i = 0; i + win <= samples.length; i += win) {
+    let sum = 0;
+    for (let j = i; j < i + win; j++) sum += samples[j] * samples[j];
+    levels.push(10 * Math.log10(sum / win + 1e-18));
+  }
+  const loud = [...levels].sort((a, b) => a - b)[Math.floor(levels.length * 0.95)];
+  const first = levels.findIndex((l) => l > loud - ONSET_DB);
+  let last = levels.length - 1;
+  while (last > first && levels[last] <= loud - RELEASE_DB) last--;
+  const length = samples.length / rate;
+  return {
+    start: Math.max(0, first * SPAN_WINDOW_S - LEAD_IN_S),
+    end: Math.min(length, (last + 1) * SPAN_WINDOW_S + TAIL_S),
+  };
 }
 
 async function durationOf(path: string): Promise<number> {
@@ -150,6 +218,11 @@ async function encode(track: MusicTrack, src: string): Promise<void> {
   if (track.mono && (await channelsOf(src)) === 1) {
     pre.splice(pre.indexOf("pan=mono|c0=0.5*c0+0.5*c1"), 1);
   }
+  const span = await musicSpan(src, pre);
+  pre.push(
+    `atrim=start=${span.start.toFixed(3)}:end=${span.end.toFixed(3)}`,
+    "asetpts=PTS-STARTPTS",
+  );
   const loudnorm = `loudnorm=I=${TARGET_LUFS}:TP=${TARGET_TRUE_PEAK}:LRA=${TARGET_LRA}`;
 
   const pass1 = await run(
@@ -171,16 +244,16 @@ async function encode(track: MusicTrack, src: string): Promise<void> {
   if (!json) throw new Error(`${track.id}: loudnorm printed no measurement`);
   const m = JSON.parse(json) as LoudnormMeasure;
 
-  const fadeOutAt = Math.max(0, duration - (track.trim?.start ?? 0) - (track.trim?.end ?? 0) - 1.5);
+  const fadeOutAt = Math.max(0, span.end - span.start - TAIL_S);
   const filters = [
     ...pre,
     `${loudnorm}:measured_I=${m.input_i}:measured_TP=${m.input_tp}:measured_LRA=${m.input_lra}:measured_thresh=${m.input_thresh}:offset=${m.target_offset}:linear=true`,
     // loudnorm resamples to 192 kHz internally; LAME wants 44.1.
     "aresample=44100",
-    // Ends cut by `trim` would click; a short fade on both is inaudible
-    // on an untrimmed recording, which starts and ends in silence.
-    "afade=t=in:d=0.3",
-    `afade=t=out:st=${fadeOutAt.toFixed(3)}:d=1.5`,
+    // A cut end would click. The fade in ends before the first note;
+    // the fade out spans the tail kept after the last sound.
+    `afade=t=in:d=${(LEAD_IN_S * 0.8).toFixed(2)}`,
+    `afade=t=out:st=${fadeOutAt.toFixed(3)}:d=${TAIL_S}`,
   ];
 
   await mkdir(dirname(out), { recursive: true });
@@ -218,7 +291,7 @@ async function encode(track: MusicTrack, src: string): Promise<void> {
   ]);
   await rename(tmp, out);
   console.log(
-    `[music] ${track.id}: ${m.input_i} LUFS → ${TARGET_LUFS} (gain ${(TARGET_LUFS - Number(m.input_i)).toFixed(1)} dB) → ${out}`,
+    `[music] ${track.id}: ${span.start.toFixed(2)}–${span.end.toFixed(2)} s of ${duration.toFixed(2)}, ${m.input_i} LUFS → ${TARGET_LUFS} (gain ${(TARGET_LUFS - Number(m.input_i)).toFixed(1)} dB) → ${out}`,
   );
 }
 

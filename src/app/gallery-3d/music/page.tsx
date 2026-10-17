@@ -33,21 +33,31 @@ export default function MuseumMusicPage() {
           plays these {GALLERY_MUSIC.length} recordings in random order. Each plays once before any
           plays again. The settings in the museum turn the music off or skip to the next piece.
         </p>
+        {records === 0 ? (
+          <p>
+            Each was released by its performers under a Creative Commons licence or into the public
+            domain.
+          </p>
+        ) : (
+          <p>
+            Of these, {GALLERY_MUSIC.length - records} were released by their performers under a
+            Creative Commons licence or into the public domain. The other {records} are 78 rpm
+            records published before 1963. In the EU the rights in a recording ran 50 years from
+            publication until 2013, when they were extended to 70 years for recordings that were
+            still protected. So no rights remain in these records in the EU.{" "}
+            {usProtected === records
+              ? "All of them are still protected in the United States"
+              : `${usProtected} of them are still protected in the United States`}
+            ; each entry below gives the year it becomes free there.
+          </p>
+        )}
         <p>
-          Of these, {GALLERY_MUSIC.length - records} were released by their performers under a
-          Creative Commons licence or into the public domain. The other {records} are 78 rpm records
-          published before 1963. In the EU the rights in a recording ran 50 years from publication
-          until 2013, when they were extended to 70 years for recordings that were still protected.
-          So no rights remain in these records in the EU.{" "}
-          {usProtected === records
-            ? "All of them are still protected in the United States"
-            : `${usProtected} of them are still protected in the United States`}
-          ; each entry below gives the year it becomes free there.
-        </p>
-        <p>
-          The files here are not the originals. Each was converted to MP3 and set to the same
-          loudness, and the 78 rpm records were mixed to mono with the rumble below 40 Hz removed.
-          The licence of each recording applies to this version as well.
+          The files here are not the originals. Each was converted to MP3, set to the same loudness
+          and cut to where the music starts and ends
+          {records > 0
+            ? ", and the 78 rpm records were mixed to mono with the rumble below 40 Hz removed"
+            : ""}
+          . The licence of each recording applies to this version as well.
         </p>
       </section>
 

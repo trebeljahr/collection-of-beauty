@@ -2135,19 +2135,28 @@ required by the Dockerfile — don't remove it.
 - The pieces are from Rico's Spotify playlist "Beautiful Stillness",
   where the composer died before 1956. The Spotify recordings are in
   copyright, so each is another recording: one its performer released
-  under CC or into the public domain (Musopen, Commons, Free Music
-  Archive), or a 78 published before 1963, which is free in the EU
-  (rights ran 50 years until 2013 and the extension revived none).
-  Four of the 78s are still protected in the US; the site follows
-  German law, as for the paintings. Do not take a recording from
-  Spotify, YouTube or a modern CD reissue's own mastering claim.
+  under CC or into the public domain (Musopen, Commons, IMSLP, Free
+  Music Archive), or a 78 published before 1963, which is free in the
+  EU (rights ran 50 years until 2013 and the extension revived none).
+  Do not take a recording from Spotify, YouTube or a modern CD
+  reissue's own mastering claim.
+- A 78's surface noise is loud under quiet music. On 17 October 2026
+  Rico heard rain under all four 78s, and each was replaced with a
+  modern free recording (comment at the top of `gallery-music.ts`, with
+  the measure). Pre-1963 LPs measured little better. Prefer a modern
+  recording; a 78 is the last resort.
+- IMSLP answers a script with a bot check, so its sources are
+  `browserOnly`: saved from a browser into `assets/music/<id>.mp3`,
+  where the build checks the SHA-1. Chrome passes the check by itself,
+  but after one download it holds back further downloads from the site.
 - `src/lib/gallery-music.ts` holds each track's source, SHA-1, licence
   and rights note; `/gallery-3d/music` prints the credits CC BY and BY-SA
   require. `pnpm music:build` downloads to `assets/music/` and encodes
-  to `assets-web/music/v1/<id>.mp3` (-18 LUFS, linear gain, 78s mono).
+  to `assets-web/music/v2/<id>.mp3` (-18 LUFS, linear gain, cut to the
+  music at both ends).
   The files reach the asset origin only through `pnpm assets:sync`.
-  They are served immutable: a re-encode goes to `music/v2/`
-  (`MUSIC_DIR`), never over v1.
+  They are served immutable: a re-encode goes to a new version folder
+  (`MUSIC_DIR`), never over an old one.
 - Not in `public/audio/`: that folder is copied into every release
   (`scripts/RETAINED-ASSETS.md`), and 70 MB of music would ride along.
 
