@@ -1115,6 +1115,28 @@ required by the Dockerfile — don't remove it.
     in full that have no base in the pool. The court's middle is open
     over the first floor: a camera set there on another floor falls to
     the first, and the reading is the first floor's.
+  - **Loads queue by room, and the rooms round the visitor download
+    ahead** (`texture-cache.ts`). A load's rank is the distance from
+    the visitor to the room its work hangs in (`roomLoadZone`), plus 4 m
+    for a base and 8 m for a detail rung over a 256 px preview. Until
+    17 October 2026 every preview went before any base, and the upload
+    pump took one texture a frame: where a visit starts about 170 works
+    reveal at once, so the court's 8 bases that the Enter button waits
+    for queued behind 170 previews. Headless at 8 Mbit/s and 150 ms,
+    Enter came at 20 s with 277 images fetched; now at 10 s with 36,
+    most of the rest the JS and `/api/artworks/museum` (2.7 MB in dev,
+    505 KB gzipped in prod). The pump now uploads for up to 4 ms a
+    frame.
+    Rooms with works on the visitor's storey that are not in full and
+    rank within 34 m as `grantReveals` ranks them (`prefetchRooms` in
+    `reveal-budget.ts`) download their works' bases as bytes into a
+    48 MB store (`setPrefetch`). Nothing is decoded or uploaded until
+    the room is in full. Prefetch starts only when no room in full is
+    still mounting works and no foreground load waits, and leaves two
+    of the six network slots free. A work whose base is prefetched
+    skips its preview. On 17 October 2026, walking from the court into
+    the north and south-west galleries fetched none of their 83 bases.
+    The debug HUD's `prefetch` line counts the store.
   - Changed on the way. `?plan=wings`, 12.5 m galleries in rings round
     a salon, 44 rooms a floor: rooms too small, too many, no dividers,
     too few doors between them. Then this block with its three stair

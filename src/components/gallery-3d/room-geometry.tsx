@@ -5,7 +5,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import {
+  baseVariantWidth,
   grantReveals,
+  prefetchRooms,
   REVEAL_BYTE_BUDGET,
   type RevealClaim,
   roomRevealBytes,
@@ -26,6 +28,7 @@ import {
   hasStairwellCutout,
   INTER_FLOOR_HEIGHT,
 } from "@/lib/gallery-layout/world-coords";
+import { textureVariantUrl } from "@/lib/utils";
 import { RoomBenches } from "./bench";
 import { RoomDividers } from "./divider";
 import { registerMirrorRoom } from "./floor-mirror";
@@ -44,6 +47,7 @@ import { registerCulledRoom } from "./room-culling";
 import { inRoomLight } from "./room-light";
 import { groundLandingHole, rectsAround, spiralHole } from "./stair-opening";
 import { ceilingYOf } from "./stairwell-light";
+import { type PrefetchItem, roomLoadZone, setPrefetch } from "./texture-cache";
 import { type SkirtingClip, WallWithDoors } from "./wall";
 
 type Side = Door["side"];
@@ -497,9 +501,13 @@ type RoomClaim = RevealClaim & {
   floorY: number;
   /** It has works and is on a storey that shows them in full. */
   eligible: boolean;
+  /** Its works' base textures, to download before it is in full. */
+  prefetch: readonly PrefetchItem[];
 };
 const revealClaims = new Map<string, RoomClaim>();
 let revealGrants: ReadonlySet<string> = new Set();
+/** The rooms last handed to the prefetch queue, joined. */
+let prefetchKey = "";
 // A room that loses its place gives its paintings up this many a frame,
 // the last revealed first. It can lose it with the visitor a few metres
 // off, and 80 paintings unmounted in one frame is a hitch.
@@ -538,6 +546,14 @@ export function roomRevealClaims(): Array<RevealClaim & { id: string; granted: b
 /** Ranks the rooms' claims on the base texture pool, once a frame.
  *  Mount one per scene: without it no room shows its works in full. */
 export function RoomReveals() {
+  // Leaving the museum stops the downloads that are queued.
+  useEffect(
+    () => () => {
+      prefetchKey = "";
+      setPrefetch([]);
+    },
+    [],
+  );
   useFrame(({ camera }) => {
     // Every room is measured here, from one camera position. Measured
     // each in its own frame callback, the rooms of the frame a visitor
@@ -556,6 +572,17 @@ export function RoomReveals() {
         claim.distance <= (claim.holds ? PAINTING_UNLOAD_RADIUS : PAINTING_LOAD_RADIUS);
     }
     revealGrants = grantReveals(revealClaims);
+    // The rooms near the visitor that are not in full download their
+    // works ahead, bytes only (texture-cache.ts, "Network prefetch").
+    // Not while a room in full is still mounting its works: their
+    // loads are not queued yet, and a prefetch started now would hold
+    // a slot one of them wants.
+    const ahead = pendingRooms.size > 0 ? [] : prefetchRooms(revealClaims, revealGrants);
+    const aheadKey = ahead.join(" ");
+    if (aheadKey !== prefetchKey) {
+      prefetchKey = aheadKey;
+      setPrefetch(ahead.flatMap((id) => revealClaims.get(id)?.prefetch ?? []));
+    }
     let asking = 0;
     let bytes = 0;
     for (const [id, claim] of revealClaims) {
@@ -662,6 +689,11 @@ function useRoomWorks(
       ...bounds,
       floorY: room.worldRect.y,
       eligible: false,
+      prefetch: room.placements.map((p) => ({
+        // The URL the work loads its base from (painting.tsx).
+        url: textureVariantUrl(p.artwork.objectKey, baseVariantWidth(p.artwork), "avif"),
+        origin: { at: p.position, zone: roomLoadZone(room) },
+      })),
     }),
     [room, bounds],
   );

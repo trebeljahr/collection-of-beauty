@@ -44,10 +44,13 @@ import {
   estimateTextureBytes,
   getHiRes,
   HIRES_ENTRY_BYTE_CAP,
+  isPrefetched,
   type LoadHiResOpts,
+  type LoadOrigin,
   loadCached,
   loadHiRes,
   peekCached,
+  roomLoadZone,
 } from "./texture-cache";
 import { poolGainScale } from "./wall-light";
 
@@ -457,6 +460,11 @@ export const Painting = memo(function Painting({
   // only as the player approaches, including 960 px for larger canvases.
   const baseWidth = baseVariantWidth(artwork);
   const url = textureVariantUrl(artwork.objectKey, baseWidth, "avif");
+  // Its loads queue by the room it hangs in (texture-cache.ts).
+  const loadOrigin = useMemo(
+    (): LoadOrigin => ({ at: position, zone: roomLoadZone(room) }),
+    [position, room],
+  );
 
   // Aspect-corrected plane size. The slot's widthM/heightM are derived
   // from realDimensions (or pixel aspect, or a default) — but those can
@@ -620,7 +628,7 @@ export const Painting = memo(function Painting({
           <PaintingPlane
             url={url}
             baseWidth={baseWidth}
-            origin={position}
+            origin={loadOrigin}
             thumbUrl={textureVariantUrl(artwork.objectKey, 256, "avif")}
             widthM={dW}
             heightM={dH}
@@ -1305,11 +1313,12 @@ function PaintingPlane({
   /** Width of that base variant. LOD tiers at or below it are skipped —
    *  upgrading to a texture the painting already shows is pure waste. */
   baseWidth: number;
-  /** World position of this painting. Handed to every load it starts so
-   *  the shared network / GPU-upload queues can serve the paintings
-   *  nearest the player first — otherwise a floor loads in mount order
-   *  and the room you're standing in waits behind rooms you can't see. */
-  origin: readonly [number, number, number];
+  /** Where this painting hangs: its position and its room. Handed to
+   *  every load it starts so the shared network / GPU-upload queues can
+   *  serve the room nearest the player first — otherwise a floor loads
+   *  in mount order and the room you're standing in waits behind rooms
+   *  you can't see. */
+  origin: LoadOrigin;
   /** 256 px AVIF — tiny placeholder, typically lands within ~100 ms.
    *  Stretched onto the painting plane it reads as a soft blur of the
    *  real artwork, replacing the old solid-brown swatch flash. */
@@ -1435,7 +1444,9 @@ function PaintingPlane({
     // index that now names a different image.
     displayedWidthRef.current = 0;
 
-    if (!baseInstalled) {
+    // A base already downloaded ahead (texture-cache.ts, "Network
+    // prefetch") is as near as the preview would be: skip the preview.
+    if (!baseInstalled && !isPrefetched(url)) {
       loadCached(thumbUrl, gl, origin, "preview")
         .then((tex) => {
           if (cancelled || baseInstalled) return;
@@ -1458,7 +1469,7 @@ function PaintingPlane({
         });
     }
 
-    loadCached(url, gl, origin)
+    loadCached(url, gl, origin, "base")
       .then((tex) => {
         if (cancelled) return;
         baseInstalled = true;

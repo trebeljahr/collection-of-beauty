@@ -132,30 +132,11 @@ export function grantReveals(
   claims: ReadonlyMap<string, RevealClaim>,
   budget: number = REVEAL_BYTE_BUDGET,
 ): Set<string> {
-  const here = (id: string): boolean => {
-    const claim = claims.get(id);
-    return claim !== undefined && claim.distance <= DOORWAY_M && claim.rise < STOREY_REACH_M;
-  };
-  const atHand = (claim: RevealClaim): boolean =>
-    claim.distance <= DOORWAY_M || claim.doors.some(here);
-  const hallsAtHand = new Set<string>();
-  for (const claim of claims.values()) {
-    if (claim.shaft !== null && atHand(claim)) hallsAtHand.add(claim.shaft);
-  }
   const ranked: Array<{ id: string; cost: number; score: number }> = [];
+  const score = claimScorer(claims);
   for (const [id, claim] of claims) {
     if (!claim.asks) continue;
-    const hall = claim.shaft !== null;
-    const near = hall ? hallsAtHand.has(claim.shaft as string) : atHand(claim);
-    ranked.push({
-      id,
-      cost: claim.cost,
-      score:
-        claim.distance +
-        (hall ? 0 : claim.rise) +
-        (near ? 0 : DETOUR_M) -
-        (claim.holds ? HOLD_M : 0),
-    });
+    ranked.push({ id, cost: claim.cost, score: score(claim) - (claim.holds ? HOLD_M : 0) });
   }
   ranked.sort((a, b) => a.score - b.score || (a.id < b.id ? -1 : 1));
 
@@ -167,4 +148,58 @@ export function grantReveals(
     used += cost;
   }
   return granted;
+}
+
+/** How near a room is, in metres, as `grantReveals` ranks it:
+ *  `distance + rise`, a hall's storeys as near as the hall, and
+ *  `DETOUR_M` more for a room with no door to where the visitor stands. */
+function claimScorer(claims: ReadonlyMap<string, RevealClaim>): (claim: RevealClaim) => number {
+  const here = (id: string): boolean => {
+    const claim = claims.get(id);
+    return claim !== undefined && claim.distance <= DOORWAY_M && claim.rise < STOREY_REACH_M;
+  };
+  const atHand = (claim: RevealClaim): boolean =>
+    claim.distance <= DOORWAY_M || claim.doors.some(here);
+  const hallsAtHand = new Set<string>();
+  for (const claim of claims.values()) {
+    if (claim.shaft !== null && atHand(claim)) hallsAtHand.add(claim.shaft);
+  }
+  return (claim) => {
+    const hall = claim.shaft !== null;
+    const near = hall ? hallsAtHand.has(claim.shaft as string) : atHand(claim);
+    return claim.distance + (hall ? 0 : claim.rise) + (near ? 0 : DETOUR_M);
+  };
+}
+
+/** How near a room has to be, as `grantReveals` ranks rooms, for its
+ *  works' base textures to be downloaded before it is in full. A room
+ *  through a door of the visitor's comes into reach 14 m off, so this
+ *  starts its downloads 20 m earlier; a room behind a wall counts 14 m
+ *  further and starts 6 m earlier. */
+export const PREFETCH_REACH_M = 34;
+
+/**
+ * The rooms whose works to download ahead, nearest first: rooms with
+ * works on a storey that shows them (`eligible`), not in full
+ * (`granted`), within `reach`. A room passed over for the pool is among
+ * them while it is near, so it is ready when the pool frees.
+ *
+ * Only the bytes are fetched (texture-cache.ts, `setPrefetch`): a room
+ * that is never walked into costs network and a little memory, and no
+ * texture.
+ */
+export function prefetchRooms(
+  claims: ReadonlyMap<string, RevealClaim & { eligible: boolean }>,
+  granted: ReadonlySet<string>,
+  reach: number = PREFETCH_REACH_M,
+): string[] {
+  const score = claimScorer(claims);
+  const near: Array<{ id: string; score: number }> = [];
+  for (const [id, claim] of claims) {
+    if (!claim.eligible || claim.cost === 0 || granted.has(id)) continue;
+    const s = score(claim);
+    if (s <= reach) near.push({ id, score: s });
+  }
+  near.sort((a, b) => a.score - b.score || (a.id < b.id ? -1 : 1));
+  return near.map(({ id }) => id);
 }

@@ -336,7 +336,8 @@ function formatStats(): string {
     `  hi-res  ${mib(t.hiresBytes)} / ${mib(t.hiresBudget)} · ${t.hiresSize}`,
     `  preload ${mib(t.preloadBytes)} · ${t.preloadSize}`,
     `  total   ${mib(t.bytes + t.hiresBytes + t.preloadBytes)}`,
-    `  net ${t.activeLoads} active · ${t.queuedLoads} queued · upload ${t.previewQueued}/${t.queued} (preview/detail)`,
+    `  net ${t.activeLoads} active · ${t.queuedLoads} queued · upload ${t.queued} queued`,
+    `  prefetch ${t.prefetchSize} (${mib(t.prefetchBytes)} encoded) · ${t.prefetchInFlight} active · ${t.prefetchQueued} queued`,
     `  in-flight base ${t.inFlight} · hi-res ${t.hiresInFlight} · preload ${t.preloadInFlight}`,
     // Works in full, and how many of them still have their base texture
     // in the pool. Fewer means the pool evicted textures that are on a

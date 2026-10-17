@@ -9,6 +9,8 @@ import {
   estimateTextureBytes,
   grantReveals,
   HOLD_M,
+  PREFETCH_REACH_M,
+  prefetchRooms,
   REVEAL_BYTE_BUDGET,
   type RevealClaim,
   roomRevealBytes,
@@ -192,5 +194,56 @@ describe("the plans against the pool", () => {
     }
     expect(largest.bytes, largest.id).toBeGreaterThan(0);
     expect(largest.bytes, largest.id).toBeLessThanOrEqual(REVEAL_BYTE_BUDGET);
+  });
+});
+
+describe("prefetchRooms", () => {
+  const prefetch = (
+    entries: Record<string, Partial<RevealClaim> & { eligible?: boolean }>,
+    grantedIds: string[] = [],
+  ) =>
+    prefetchRooms(
+      new Map(
+        Object.entries(entries).map(([id, { eligible = true, ...over }]) => [
+          id,
+          { ...claim(over), eligible },
+        ]),
+      ),
+      new Set(grantedIds),
+    );
+
+  it("lists the near rooms not in full, nearest first", () => {
+    expect(
+      prefetch(
+        {
+          own: { doors: ["next", "far"] },
+          next: { distance: 20, doors: ["own"] },
+          far: { distance: 30, doors: ["own"] },
+          beyond: { distance: PREFETCH_REACH_M + 1, doors: ["own"] },
+        },
+        ["own"],
+      ),
+    ).toEqual(["next", "far"]);
+  });
+
+  it("counts a room behind a wall further off", () => {
+    const reach = PREFETCH_REACH_M - DETOUR_M;
+    expect(
+      prefetch({
+        own: { asks: false, cost: 0 },
+        behind: { distance: reach - 1 },
+        behindFar: { distance: reach + 1 },
+      }),
+    ).toEqual(["behind"]);
+  });
+
+  it("skips rooms with no works and storeys that show none", () => {
+    expect(
+      prefetch({
+        own: { cost: 0 },
+        upstairs: { distance: 2, eligible: false },
+        next: { distance: 4 },
+      }),
+    ).toEqual(["next"]);
   });
 });

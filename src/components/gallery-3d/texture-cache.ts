@@ -28,13 +28,17 @@
 // painting can paint a 256 px thumb, then the base, then each LOD tier
 // without re-suspending (and without re-rendering) in between.
 //
-// Mounted previews and nearby-floor thumbnails have first claim on
-// network and upload slots. Base/detail textures follow; distance orders
-// each priority. Separate preload storage cannot evict current paintings.
+// Network and upload slots go to the room nearest the visitor first,
+// its previews, then its bases, then its detail (see "Room-ordered
+// scheduling"). Separate preload storage cannot evict current paintings.
 // A mounted painting adopts an in-flight preload before fetching again.
+// Rooms round the visitor that are not in full yet download their base
+// textures ahead as bytes, without decoding them ("Network prefetch").
 
 import * as THREE from "three";
 import { BASE_POOL_BYTE_BUDGET, estimateTextureBytes } from "@/lib/gallery-layout/reveal-budget";
+import type { RoomLayout } from "@/lib/gallery-layout/types";
+import { CELL_SIZE } from "@/lib/gallery-layout/world-coords";
 import { textureVariantUrl, variantUrl } from "@/lib/utils";
 
 // Base-texture pool. Two limits, whichever bites first:
@@ -330,28 +334,79 @@ export function setHiResByteBudget(backingHeightPx: number): void {
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// Distance-ordered scheduling.
+// Room-ordered scheduling.
 //
 // Both bottlenecks below (the network slot gate and the GPU upload
-// queue) used to be FIFO, so a floor loaded in whatever order React
-// happened to mount its paintings — the room the player is standing in
-// waited behind rooms three doorways away. Every queued item now
-// carries the world position of the painting it belongs to, and both
-// queues hand the next slot to whichever waiting item is closest to the
-// camera *right now*. The result is the room you're in filling first,
-// then the walls next door, expanding outward as you walk.
+// queue) hand the next slot to the waiting item with the lowest rank
+// *right now*: the player keeps moving while a hundred items sit in
+// the queue, so a rank taken at enqueue would be stale by the time the
+// slot frees up.
 //
-// Ordering is by live camera distance, not by the distance at enqueue
-// time: the player keeps moving while a hundred items sit in the queue,
-// so a snapshot taken at enqueue would be stale by the time the slot
-// frees up.
+// The rank is the distance in metres from the visitor to the ROOM the
+// work hangs in (0 inside it), plus a lag for the kind of load. Until
+// 17 October 2026 there were two tiers instead: every 256 px preview
+// went before any base, nearest painting first within a tier. Where a
+// visit starts, the court and the four galleries around it reveal about
+// 170 works at once, so the court's 8 bases, which the Enter button
+// waits for, queued behind 170 previews, and the upload pump took one
+// texture a frame, previews first. On a slow link the curtain sat on
+// "Loading first room… 2/8" for most of a minute. Now the room the
+// visitor stands in loads whole, previews then bases, before the next
+// room's previews; a room within BASE_LAG_M of the visitor (a doorway
+// they stand in) interleaves with it.
 // ─────────────────────────────────────────────────────────────────────
 
-/** World position a queued load belongs to. `null` means "unpositioned"
- *  — the zoom modal and other explicit user actions, which jump the
- *  queue entirely (they're a direct response to a click, not a
- *  speculative floor load). */
-export type LoadOrigin = readonly [number, number, number] | null;
+/** A room on the plan and the height of its floor. */
+export type LoadZone = {
+  readonly xMin: number;
+  readonly xMax: number;
+  readonly zMin: number;
+  readonly zMax: number;
+  readonly floorY: number;
+};
+
+const zones = new WeakMap<Pick<RoomLayout, "cellBounds" | "worldRect">, LoadZone>();
+
+/** A room's zone for the load queues, one object a room. */
+export function roomLoadZone(room: Pick<RoomLayout, "cellBounds" | "worldRect">): LoadZone {
+  let zone = zones.get(room);
+  if (!zone) {
+    const cb = room.cellBounds;
+    zone = {
+      xMin: cb.xMin * CELL_SIZE,
+      xMax: (cb.xMax + 1) * CELL_SIZE,
+      zMin: cb.zMin * CELL_SIZE,
+      zMax: (cb.zMax + 1) * CELL_SIZE,
+      floorY: room.worldRect.y,
+    };
+    zones.set(room, zone);
+  }
+  return zone;
+}
+
+/** Where a queued load belongs: a world position, or a position in a
+ *  room (`zone`), which ranks by the room's distance. `null` means
+ *  "unpositioned" — the zoom modal and other explicit user actions,
+ *  which jump the queue entirely (they're a direct response to a click,
+ *  not a speculative floor load). */
+export type LoadOrigin =
+  | readonly [number, number, number]
+  | { readonly at: readonly [number, number, number]; readonly zone: LoadZone }
+  | null;
+
+/** What a load is for. A preview is the 256 px thumb, a base the 480 px
+ *  texture a work shows from across its room, detail a proximity rung. */
+export type LoadKind = "preview" | "base" | "detail";
+
+/** Metres a kind of load counts further off than a preview of the same
+ *  room. A room's bases come after its previews, its detail after its
+ *  bases, and both before the previews of a room this much further. */
+const KIND_LAG_M: Record<LoadKind, number> = { preview: 0, base: 4, detail: 8 };
+/** Unpositioned loads rank this far ahead of everything positioned. */
+const UNPOSITIONED_RANK = -1e6;
+/** Standing eye height (player.tsx): the camera is this far over the
+ *  visitor's feet, which is what a room's floor height compares with. */
+const EYE_HEIGHT_M = 1.75;
 
 let cameraX = 0;
 let cameraY = 0;
@@ -367,23 +422,37 @@ export function setLoadCamera(x: number, y: number, z: number): void {
   cameraZ = z;
 }
 
-function originRank(origin: LoadOrigin): number {
-  if (!origin) return -1;
-  const dx = origin[0] - cameraX;
-  const dy = origin[1] - cameraY;
-  const dz = origin[2] - cameraZ;
-  return dx * dx + dy * dy + dz * dz;
+function isPlaced(
+  origin: Exclude<LoadOrigin, null>,
+): origin is { readonly at: readonly [number, number, number]; readonly zone: LoadZone } {
+  // Not `"at" in origin`: a tuple has `Array.prototype.at`.
+  return !Array.isArray(origin);
 }
 
-/** Pop the queued item closest to the camera. Linear scan: queues run to
+/** Rank of a load in metres: lower goes first. */
+function loadRank(origin: LoadOrigin, kind: LoadKind): number {
+  const lag = KIND_LAG_M[kind];
+  if (!origin) return UNPOSITIONED_RANK + lag;
+  const at = isPlaced(origin) ? origin.at : origin;
+  // The work's own distance breaks ties between works of one room.
+  const own = Math.hypot(at[0] - cameraX, at[1] - cameraY, at[2] - cameraZ);
+  if (!isPlaced(origin)) return own + lag;
+  const { zone } = origin;
+  const dx = cameraX - Math.min(Math.max(cameraX, zone.xMin), zone.xMax);
+  const dz = cameraZ - Math.min(Math.max(cameraZ, zone.zMin), zone.zMax);
+  const rise = Math.abs(cameraY - EYE_HEIGHT_M - zone.floorY);
+  return Math.hypot(dx, dz) + rise + lag + own * 1e-3;
+}
+
+/** Pop the queued item with the lowest rank. Linear scan: queues run to
  *  a few hundred entries at most and this runs once per freed slot /
- *  rAF tick, so a heap would be bookkeeping for no measurable win. */
-function takeNearest<T extends { origin: LoadOrigin }>(queue: T[]): T | undefined {
+ *  upload, so a heap would be bookkeeping for no measurable win. */
+function takeBest<T extends { origin: LoadOrigin; kind: LoadKind }>(queue: T[]): T | undefined {
   if (queue.length === 0) return undefined;
   let bestIdx = 0;
-  let bestRank = originRank(queue[0].origin);
+  let bestRank = loadRank(queue[0].origin, queue[0].kind);
   for (let i = 1; i < queue.length; i++) {
-    const rank = originRank(queue[i].origin);
+    const rank = loadRank(queue[i].origin, queue[i].kind);
     if (rank < bestRank) {
       bestRank = rank;
       bestIdx = i;
@@ -393,7 +462,7 @@ function takeNearest<T extends { origin: LoadOrigin }>(queue: T[]): T | undefine
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// GPU upload queue — one texImage2D per rAF tick.
+// GPU upload queue — a few milliseconds of texImage2D per rAF tick.
 // ─────────────────────────────────────────────────────────────────────
 
 type UploadTask = {
@@ -401,12 +470,17 @@ type UploadTask = {
   renderer: THREE.WebGLRenderer;
   resolve: () => void;
   origin: LoadOrigin;
+  kind: LoadKind;
 };
-type UploadPriority = "preview" | "high";
-// Preview uploads precede detail; nearest painting wins within a queue.
-const previewUploadQueue: UploadTask[] = [];
 const uploadQueue: UploadTask[] = [];
 let pumpScheduled = false;
+/** Uploads a tick may start once this much of it has gone on uploads.
+ *  A 256 px preview uploads in well under a millisecond and a 480 px
+ *  base in one or two, so one upload a tick held a room of 80 works at
+ *  160 frames, about 5 s at the 30 fps a loading scene runs at. A 4096
+ *  px rung takes tens of milliseconds and is the only upload of its
+ *  tick, as before. */
+const UPLOAD_MS_PER_TICK = 4;
 
 function schedulePump() {
   if (pumpScheduled) return;
@@ -416,8 +490,10 @@ function schedulePump() {
 
 function pumpUploads() {
   pumpScheduled = false;
-  const task = takeNearest(previewUploadQueue) ?? takeNearest(uploadQueue);
-  if (task) {
+  const start = performance.now();
+  do {
+    const task = takeBest(uploadQueue);
+    if (!task) break;
     try {
       task.renderer.initTexture(task.tex);
     } catch {
@@ -425,21 +501,18 @@ function pumpUploads() {
       // draw time instead. Not fatal.
     }
     task.resolve();
-  }
-  if (previewUploadQueue.length > 0 || uploadQueue.length > 0) {
-    schedulePump();
-  }
+  } while (performance.now() - start < UPLOAD_MS_PER_TICK);
+  if (uploadQueue.length > 0) schedulePump();
 }
 
 function enqueueUpload(
   tex: THREE.Texture,
   renderer: THREE.WebGLRenderer,
-  priority: UploadPriority = "high",
+  kind: LoadKind,
   origin: LoadOrigin = null,
 ): Promise<void> {
   return new Promise((resolve) => {
-    const q = priority === "preview" ? previewUploadQueue : uploadQueue;
-    q.push({ tex, renderer, resolve, origin });
+    uploadQueue.push({ tex, renderer, resolve, origin, kind });
     schedulePump();
   });
 }
@@ -454,7 +527,7 @@ function delay(ms: number): Promise<void> {
 // The browser caps connections per origin (~6 on HTTP/1.1), and in dev
 // every texture request is proxied through Next over plain HTTP/1.1.
 // When a floor mounts, ~100 paintings each fire a fetch in the same
-// tick (thumb + 960 base), and the FloorPreloader can add a whole
+// tick (thumb + base), and the FloorPreloader can add a whole
 // adjacent floor's worth on top. Left ungated they all pile onto those
 // few connections and the tail sits in the browser's request queue long
 // enough to trip the 15 s load timeout — the dev "[painting] … Timed
@@ -463,45 +536,204 @@ function delay(ms: number): Promise<void> {
 //
 // Crucially the per-load timeout is armed *inside* withLoadSlot — only
 // once a slot is held and the fetch is about to go out — so time spent
-// waiting for a slot never counts against the timeout. Preview-first
-// mirrors the upload queue: fill paintings before sharpening them.
+// waiting for a slot never counts against the timeout.
 const NETWORK_CONCURRENCY = 6;
 let activeLoads = 0;
-type LoadWaiter = { resolve: () => void; origin: LoadOrigin };
-const previewLoadWaiters: LoadWaiter[] = [];
-const highLoadWaiters: LoadWaiter[] = [];
+type LoadWaiter = { resolve: () => void; origin: LoadOrigin; kind: LoadKind };
+const loadWaiters: LoadWaiter[] = [];
 
-function acquireLoadSlot(priority: UploadPriority, origin: LoadOrigin): Promise<void> {
+function acquireLoadSlot(kind: LoadKind, origin: LoadOrigin): Promise<void> {
   if (activeLoads < NETWORK_CONCURRENCY) {
     activeLoads++;
     return Promise.resolve();
   }
   return new Promise((resolve) => {
-    const queue = priority === "preview" ? previewLoadWaiters : highLoadWaiters;
-    queue.push({ resolve, origin });
+    loadWaiters.push({ resolve, origin, kind });
   });
 }
 
 function releaseLoadSlot(): void {
-  // Hand the slot straight to the next waiter (previews first, nearest the
-  // player within each tier) without touching the counter; only drop
-  // the count when nobody is waiting.
-  const next = takeNearest(previewLoadWaiters) ?? takeNearest(highLoadWaiters);
-  if (next) next.resolve();
-  else activeLoads--;
+  const next = takeBest(loadWaiters);
+  if (next) {
+    next.resolve();
+    return;
+  }
+  activeLoads--;
+  pumpPrefetch();
 }
 
 async function withLoadSlot<T>(
-  priority: UploadPriority,
+  kind: LoadKind,
   origin: LoadOrigin,
   fn: () => Promise<T>,
 ): Promise<T> {
-  await acquireLoadSlot(priority, origin);
+  await acquireLoadSlot(kind, origin);
   try {
     return await fn();
   } finally {
     releaseLoadSlot();
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Network prefetch: bytes only.
+//
+// A room shows its works in full only once the visitor is within reach
+// of it and the base pool has room (reveal-budget.ts), and only then
+// does a work fetch its textures. On a slow link that left every room
+// to start its downloads as the visitor walked into it. The rooms round
+// the visitor that are not in full yet now download their works' base
+// textures ahead, as encoded bytes (`setPrefetch`, from RoomReveals in
+// room-geometry.tsx). Nothing is decoded or uploaded: the bytes cost
+// tens of kilobytes a work in memory, and no texture memory, until the
+// room is in full and its works ask for them (`fetchTextureBlob`).
+//
+// Prefetch takes a network slot only while no foreground load waits for
+// one, and leaves PREFETCH_SPARE_SLOTS free, so a work that comes into
+// view starts at once.
+// ─────────────────────────────────────────────────────────────────────
+
+/** Encoded bytes this store keeps, oldest dropped first. A base is 20 to
+ *  40 KB, so this is well over a thousand works, more than every room in
+ *  prefetch reach. */
+const PREFETCH_BYTE_BUDGET = 48 * 1024 * 1024;
+const PREFETCH_SPARE_SLOTS = 2;
+
+class BlobLRU {
+  private map = new Map<string, Blob>();
+  private bytes = 0;
+  constructor(private byteBudget: number) {}
+  get size(): number {
+    return this.map.size;
+  }
+  get byteSize(): number {
+    return this.bytes;
+  }
+  has(key: string): boolean {
+    return this.map.has(key);
+  }
+  get(key: string): Blob | undefined {
+    const blob = this.map.get(key);
+    if (blob) {
+      this.map.delete(key);
+      this.map.set(key, blob);
+    }
+    return blob;
+  }
+  put(key: string, blob: Blob): void {
+    const existing = this.map.get(key);
+    if (existing) {
+      this.bytes -= existing.size;
+      this.map.delete(key);
+    }
+    this.map.set(key, blob);
+    this.bytes += blob.size;
+    while (this.bytes > this.byteBudget && this.map.size > 1) {
+      const oldest = this.map.keys().next().value;
+      if (oldest === undefined) break;
+      this.bytes -= this.map.get(oldest)?.size ?? 0;
+      this.map.delete(oldest);
+    }
+  }
+}
+
+const prefetchedBlobs = new BlobLRU(PREFETCH_BYTE_BUDGET);
+const prefetchInFlight = new Map<string, Promise<Blob | null>>();
+/** URLs to prefetch, wanted now, nearest first at take time. */
+let prefetchQueue: Array<{ url: string; origin: LoadOrigin; kind: LoadKind }> = [];
+
+/** A texture to download ahead. */
+export type PrefetchItem = { url: string; origin: LoadOrigin };
+
+/**
+ * Replace what the prefetch queue wants. Downloads already running
+ * finish; queued URLs no longer listed are dropped, and URLs already
+ * downloaded, decoded or on their way are skipped.
+ */
+export function setPrefetch(items: readonly PrefetchItem[]): void {
+  prefetchQueue = [];
+  for (const { url, origin } of items) {
+    if (
+      prefetchedBlobs.has(url) ||
+      prefetchInFlight.has(url) ||
+      cache.has(url) ||
+      inFlight.has(url)
+    ) {
+      continue;
+    }
+    prefetchQueue.push({ url, origin, kind: "base" });
+  }
+  pumpPrefetch();
+}
+
+/** Whether `url` is downloaded or downloading, so a work can skip its
+ *  256 px preview: its base is as near as the preview would be. */
+export function isPrefetched(url: string): boolean {
+  return prefetchedBlobs.has(url) || prefetchInFlight.has(url);
+}
+
+function pumpPrefetch(): void {
+  while (
+    loadWaiters.length === 0 &&
+    activeLoads < NETWORK_CONCURRENCY - PREFETCH_SPARE_SLOTS &&
+    prefetchQueue.length > 0
+  ) {
+    const item = takeBest(prefetchQueue);
+    if (!item) break;
+    const { url } = item;
+    if (
+      prefetchedBlobs.has(url) ||
+      prefetchInFlight.has(url) ||
+      cache.has(url) ||
+      inFlight.has(url)
+    ) {
+      continue;
+    }
+    activeLoads++;
+    const promise = (async () => {
+      try {
+        const res = await fetch(url, { credentials: "omit" });
+        if (!res.ok) return null;
+        const blob = await res.blob();
+        prefetchedBlobs.put(url, blob);
+        return blob;
+      } catch {
+        return null;
+      }
+    })().finally(() => {
+      prefetchInFlight.delete(url);
+      releaseLoadSlot();
+    });
+    prefetchInFlight.set(url, promise);
+  }
+}
+
+/**
+ * The encoded bytes of `url`: from the prefetch store, from a prefetch
+ * on its way, or from the network inside a load slot.
+ */
+async function fetchTextureBlob(
+  url: string,
+  kind: LoadKind,
+  origin: LoadOrigin,
+  signal: AbortSignal | undefined,
+  withTimeout: boolean,
+): Promise<Blob> {
+  const stored = prefetchedBlobs.get(url);
+  if (stored) return stored;
+  const pending = prefetchInFlight.get(url);
+  if (pending) {
+    const blob = await pending;
+    if (blob) return blob;
+  }
+  return withLoadSlot(kind, origin, async () => {
+    const download = async (s: AbortSignal | undefined) => {
+      const res = await fetch(url, { credentials: "omit", signal: s });
+      if (!res.ok) throw new TextureHttpError(url, res.status);
+      return res.blob();
+    };
+    return withTimeout ? withTextureTimeout(url, download) : download(signal);
+  });
 }
 
 function isPermanentHttpError(err: unknown): boolean {
@@ -534,6 +766,33 @@ async function withTextureTimeout<T>(
   }
 }
 
+/** Decode encoded bytes into a texture ready for the upload queue.
+ *  `imageOrientation: flipY` avoids the expensive CPU flip THREE does
+ *  on upload when `flipY` is left true. */
+async function textureFromBlob(
+  blob: Blob,
+  url: string,
+  renderer: THREE.WebGLRenderer | null,
+  signal?: AbortSignal,
+): Promise<THREE.Texture> {
+  if (signal?.aborted) throw new DOMException("aborted", "AbortError");
+  const bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
+  if (signal?.aborted) {
+    bitmap.close();
+    throw new DOMException("aborted", "AbortError");
+  }
+  const texture = new THREE.Texture(bitmap);
+  texture.name = url;
+  texture.colorSpace = THREE.SRGBColorSpace;
+  texture.anisotropy = aniso(renderer);
+  texture.minFilter = THREE.LinearMipMapLinearFilter;
+  texture.magFilter = THREE.LinearFilter;
+  texture.generateMipmaps = true;
+  texture.flipY = false; // already flipped during createImageBitmap
+  texture.needsUpdate = true;
+  return texture;
+}
+
 // ─────────────────────────────────────────────────────────────────────
 // Main entry — fetch, decode, upload, cache.
 // ─────────────────────────────────────────────────────────────────────
@@ -542,7 +801,7 @@ async function loadTextureCached(
   url: string,
   renderer: THREE.WebGLRenderer | null,
   origin: LoadOrigin = null,
-  priority: UploadPriority = "high",
+  kind: LoadKind = "base",
 ): Promise<THREE.Texture> {
   const cached = cache.get(url);
   if (cached) return cached;
@@ -577,38 +836,15 @@ async function loadTextureCached(
 
     for (let attempt = 1; attempt <= TEXTURE_LOAD_ATTEMPTS; attempt++) {
       try {
-        const tex = await withLoadSlot(priority, origin, () =>
-          withTextureTimeout(url, async (signal) => {
-            // createImageBitmap decodes off-thread, which matters for a burst
-            // of painting loads. `imageOrientation: flipY` avoids the expensive
-            // CPU flip THREE does on upload when `flipY` is left true.
-            const res = await fetch(url, { credentials: "omit", signal });
-            if (!res.ok) throw new TextureHttpError(url, res.status);
-            const blob = await res.blob();
-            if (signal.aborted) throw new DOMException("aborted", "AbortError");
-            const bitmap = await createImageBitmap(blob, {
-              imageOrientation: "flipY",
-            });
-            if (signal.aborted) {
-              bitmap.close();
-              throw new DOMException("aborted", "AbortError");
-            }
-            const texture = new THREE.Texture(bitmap);
-            texture.name = url;
-            texture.colorSpace = THREE.SRGBColorSpace;
-            texture.anisotropy = aniso(renderer);
-            texture.minFilter = THREE.LinearMipMapLinearFilter;
-            texture.magFilter = THREE.LinearFilter;
-            texture.generateMipmaps = true;
-            texture.flipY = false; // already flipped during createImageBitmap
-            texture.needsUpdate = true;
-            return texture;
-          }),
-        );
+        // createImageBitmap decodes off-thread, which matters for a burst
+        // of painting loads, and runs outside the network slot: a
+        // prefetched work decodes without waiting for one.
+        const blob = await fetchTextureBlob(url, kind, origin, undefined, true);
+        const tex = await textureFromBlob(blob, url, renderer);
         // GPU upload runs outside the network gate + timeout: it has its
         // own rAF-paced queue, so a backed-up upload mustn't hold a
         // network slot or count toward the load timeout.
-        if (renderer) await enqueueUpload(tex, renderer, priority, origin);
+        if (renderer) await enqueueUpload(tex, renderer, kind, origin);
         cache.put(url, tex);
         return tex;
       } catch (err) {
@@ -668,28 +904,10 @@ export function loadHiRes(
   if (existing) return existing;
 
   const promise = (async () => {
-    const tex = await withLoadSlot("high", opts?.origin ?? null, async () => {
-      const res = await fetch(url, { credentials: "omit", signal });
-      if (!res.ok) throw new Error(`fetch ${url}: ${res.status}`);
-      const blob = await res.blob();
-      if (signal?.aborted) throw new DOMException("aborted", "AbortError");
-      const bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
-      if (signal?.aborted) {
-        bitmap.close();
-        throw new DOMException("aborted", "AbortError");
-      }
-      const texture = new THREE.Texture(bitmap);
-      texture.name = url;
-      texture.colorSpace = THREE.SRGBColorSpace;
-      texture.anisotropy = aniso(renderer);
-      texture.minFilter = THREE.LinearMipMapLinearFilter;
-      texture.magFilter = THREE.LinearFilter;
-      texture.generateMipmaps = true;
-      texture.flipY = false;
-      texture.needsUpdate = true;
-      return texture;
-    });
-    if (renderer) await enqueueUpload(tex, renderer, "high", opts?.origin ?? null);
+    const origin = opts?.origin ?? null;
+    const blob = await fetchTextureBlob(url, "detail", origin, signal, false);
+    const tex = await textureFromBlob(blob, url, renderer, signal);
+    if (renderer) await enqueueUpload(tex, renderer, "detail", origin);
     hiresCache.put(url, tex);
     return tex;
   })().finally(() => {
@@ -786,29 +1004,9 @@ export function preloadCached(
 
   const promise = (async () => {
     try {
-      const texture = await withLoadSlot("preview", origin, async () => {
-        if (signal?.aborted) return null;
-        const res = await fetch(url, { credentials: "omit", signal });
-        if (!res.ok) return null;
-        const blob = await res.blob();
-        if (signal?.aborted) return null;
-        const bitmap = await createImageBitmap(blob, { imageOrientation: "flipY" });
-        if (signal?.aborted) {
-          bitmap.close();
-          return null;
-        }
-        const t = new THREE.Texture(bitmap);
-        t.name = url;
-        t.colorSpace = THREE.SRGBColorSpace;
-        t.anisotropy = aniso(renderer);
-        t.minFilter = THREE.LinearMipMapLinearFilter;
-        t.magFilter = THREE.LinearFilter;
-        t.generateMipmaps = true;
-        t.flipY = false;
-        t.needsUpdate = true;
-        return t;
-      });
-      if (!texture) return null;
+      if (signal?.aborted) return null;
+      const blob = await fetchTextureBlob(url, "preview", origin, signal, false);
+      const texture = await textureFromBlob(blob, url, renderer, signal);
       if (renderer) await enqueueUpload(texture, renderer, "preview", origin);
       preloadCache.put(url, texture);
       return texture;
@@ -830,9 +1028,9 @@ export function loadCached(
   url: string,
   renderer: THREE.WebGLRenderer | null,
   origin: LoadOrigin = null,
-  priority: "preview" | "high" = "high",
+  kind: LoadKind = "base",
 ): Promise<THREE.Texture> {
-  return loadTextureCached(url, renderer, origin, priority);
+  return loadTextureCached(url, renderer, origin, kind);
 }
 
 export const _textureCacheDebug = {
@@ -876,13 +1074,22 @@ export const _textureCacheDebug = {
   get preloadInFlight() {
     return preloadInFlight.size;
   },
-  get previewQueued() {
-    return previewUploadQueue.length;
+  get prefetchSize() {
+    return prefetchedBlobs.size;
+  },
+  get prefetchBytes() {
+    return prefetchedBlobs.byteSize;
+  },
+  get prefetchQueued() {
+    return prefetchQueue.length;
+  },
+  get prefetchInFlight() {
+    return prefetchInFlight.size;
   },
   get activeLoads() {
     return activeLoads;
   },
   get queuedLoads() {
-    return previewLoadWaiters.length + highLoadWaiters.length;
+    return loadWaiters.length;
   },
 };

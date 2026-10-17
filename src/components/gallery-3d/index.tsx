@@ -44,7 +44,7 @@ import { Gallery3DSettings } from "./settings-modal";
 import { StaircaseRenderer } from "./staircase";
 import { StairwellLight, StairwellSpill } from "./stairwell-light";
 import { GrandStairSigns, StairwellAccents } from "./stairwell-rail";
-import { preloadCached } from "./texture-cache";
+import { preloadCached, roomLoadZone } from "./texture-cache";
 import { useGalleryMusic } from "./use-gallery-music";
 import { ZoomModal } from "./zoom-modal";
 
@@ -1293,21 +1293,21 @@ function FloorPreloader({
     // proximity loader takes over, so priming a whole floor just buries
     // the thumbs that matter behind a few hundred that don't (and
     // overruns the preload pool, evicting them again).
-    const all = other.rooms.flatMap((r) => r.placements);
-    all.sort(
-      (a, b) =>
-        (a.position[0] - stair.centerX) ** 2 +
-        (a.position[2] - stair.centerZ) ** 2 -
-        ((b.position[0] - stair.centerX) ** 2 + (b.position[2] - stair.centerZ) ** 2),
-    );
+    const all = other.rooms.flatMap((r) => r.placements.map((p) => ({ p, zone: roomLoadZone(r) })));
+    const stairDistSq = ({ p }: { p: (typeof all)[number]["p"] }) =>
+      (p.position[0] - stair.centerX) ** 2 + (p.position[2] - stair.centerZ) ** 2;
+    all.sort((a, b) => stairDistSq(a) - stairDistSq(b));
     // Dedup by objectKey so a repeated artwork doesn't enqueue twice.
     const seen = new Set<string>();
-    for (const p of all) {
+    for (const { p, zone } of all) {
       if (seen.size >= PRELOAD_LIMIT) break;
       const objectKey = p.artwork.objectKey;
       if (!objectKey || seen.has(objectKey)) continue;
       seen.add(objectKey);
-      preloadCached(textureVariantUrl(objectKey, 256, "avif"), gl, controller.signal, p.position);
+      preloadCached(textureVariantUrl(objectKey, 256, "avif"), gl, controller.signal, {
+        at: p.position,
+        zone,
+      });
     }
     return () => {
       controller.abort();
