@@ -52,9 +52,14 @@ export function buildFrameEnvEquirect(
     lampDirs.push([Math.cos(el) * Math.cos(az), Math.sin(el), Math.cos(el) * Math.sin(az)]);
   }
   for (let y = 0; y < H; y++) {
-    // Row 0 is straight up.
-    const lat = Math.PI / 2 - ((y + 0.5) / H) * Math.PI;
-    const v = (y + 0.5) / H;
+    // Row 0 is straight down. A DataTexture is uploaded without flipY,
+    // so its first row is v = 0, and three's equirect lookup puts v = 0
+    // at -y. Until 17 October 2026 row 0 was written as straight up:
+    // the lamps stood 48° under the horizon, and a gold rail seen from
+    // above caught them on its underside.
+    const lat = -Math.PI / 2 + ((y + 0.5) / H) * Math.PI;
+    // v runs from the top of the sky (0) to straight down (1).
+    const v = 1 - (y + 0.5) / H;
     let base: [number, number, number];
     if (v < 0.4) {
       const k = v / 0.4;
