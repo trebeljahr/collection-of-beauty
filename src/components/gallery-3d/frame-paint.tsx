@@ -27,6 +27,7 @@ import { PAINTING_WALL_OFFSET } from "@/lib/gallery-layout/place-paintings";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { paintedGiltFor } from "./frame-materials";
 import { litByRoom, releaseRoomLight } from "./room-light";
+import { staticTransform } from "./static-transform";
 
 const PX_PER_M = 3000;
 /** Stuck's grey-blue, sRGB: a thin coat, so on the scan it reads with
@@ -431,6 +432,7 @@ export function FramePaint({
     <>
       {parts.map((part) => (
         <mesh
+          {...staticTransform}
           key={part.key}
           position={part.position}
           geometry={part.geometry}

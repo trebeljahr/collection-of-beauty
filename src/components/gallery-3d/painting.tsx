@@ -47,6 +47,7 @@ import { frameMaterials, plaqueBaseMaterial, plaqueMountMaterial } from "./palet
 import { buildPanelGeometry } from "./panel-geometry";
 import { setWorkBounds } from "./room-culling";
 import { inRoomLight } from "./room-light";
+import { staticTransform } from "./static-transform";
 import {
   getHiRes,
   isPrefetched,
@@ -248,12 +249,12 @@ export const Painting = memo(function Painting({
   });
 
   return (
-    <group ref={groupRef} position={position} rotation={rotation}>
+    <group {...staticTransform} ref={groupRef} position={position} rotation={rotation}>
       {revealed ? (
         <>
           {panels ? (
             panels.map((panel) => (
-              <group key={`${panel.uv[0]}`} position={[panel.x, panel.y, 0]}>
+              <group {...staticTransform} key={`${panel.uv[0]}`} position={[panel.x, panel.y, 0]}>
                 <FrameMesh
                   design={{ ...design, reach: panel.reach }}
                   moulding={frameMoulding({ ...design, reach: panel.reach }, panel.w, panel.h)}
@@ -353,6 +354,7 @@ function FrameMesh({
   return (
     <>
       <mesh
+        {...staticTransform}
         geometry={geometry}
         material={frameMaterials(design, palette)}
         layers={UNREFLECTED_LAYER}
@@ -471,8 +473,13 @@ function StandIn({
 
   return (
     <>
-      <mesh geometry={band} material={standInFrameMaterial} layers={UNREFLECTED_LAYER} />
-      <mesh position={[0, 0, PICTURE_Z]}>
+      <mesh
+        {...staticTransform}
+        geometry={band}
+        material={standInFrameMaterial}
+        layers={UNREFLECTED_LAYER}
+      />
+      <mesh {...staticTransform} position={[0, 0, PICTURE_Z]}>
         <planeGeometry args={[widthM, heightM]} />
         <meshBasicMaterial ref={matRef} toneMapped={false} />
       </mesh>
@@ -665,14 +672,14 @@ function Plaque({
   const dimsTopY = bylineTopY - bylineBlockH - PLAQUE_LINE_GAP;
 
   return (
-    <group position={[localX, localY, 0]}>
+    <group {...staticTransform} position={[localX, localY, 0]}>
       {/* Brass mount plate */}
-      <mesh position={[0, 0, mountCenterZ]} layers={UNREFLECTED_LAYER}>
+      <mesh {...staticTransform} position={[0, 0, mountCenterZ]} layers={UNREFLECTED_LAYER}>
         <boxGeometry args={[PLAQUE_MOUNT_W, PLAQUE_MOUNT_H, PLAQUE_MOUNT_DEPTH]} />
         <primitive object={inRoomLight(plaqueMountMaterial, palette)} attach="material" />
       </mesh>
       {/* Cream face card on top of the mount */}
-      <mesh position={[0, 0, faceCenterZ]} layers={UNREFLECTED_LAYER}>
+      <mesh {...staticTransform} position={[0, 0, faceCenterZ]} layers={UNREFLECTED_LAYER}>
         <boxGeometry args={[PLAQUE_FACE_W, PLAQUE_FACE_H, PLAQUE_FACE_DEPTH]} />
         <primitive object={inRoomLight(plaqueBaseMaterial, palette)} attach="material" />
       </mesh>
@@ -1371,6 +1378,7 @@ function PaintingPlane({
 
   return (
     <mesh
+      {...staticTransform}
       ref={meshRef}
       position={[0, 0, PICTURE_Z]}
       userData={{ artwork }}
