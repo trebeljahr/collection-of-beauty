@@ -1,7 +1,10 @@
-import { describe, expect, it } from "vitest";
+import { act, createRoot, extend } from "@react-three/fiber";
+import { createElement, type ReactNode } from "react";
+import * as THREE from "three";
+import { describe, expect, it, vi } from "vitest";
 import { buildGrandStair, type GrandStairDesign } from "@/lib/gallery-layout/grand-stair";
 import { FLOOR_SEPARATION } from "@/lib/gallery-layout/world-coords";
-import { buildStair } from "./grand-staircase";
+import { buildStair, GrandStaircase } from "./grand-staircase";
 
 const DESIGNS: GrandStairDesign[] = ["loggia", "court"];
 const HALF = 13.75;
@@ -57,9 +60,140 @@ describe("grand stair geometry", () => {
               where = `${design}, storey ${storey}, ${name}, vertex ${i}`;
             }
           }
+          geometry.dispose();
         }
       }
     }
     expect(furthest, where).toBeLessThan(0);
+  });
+
+  it("indexes complete triangles with matching vertex attributes", () => {
+    const invalid: string[] = [];
+    let indexedSurfaces = 0;
+    for (const design of DESIGNS) {
+      const built = buildStair(stairOf(design, 0));
+      try {
+        for (const [name, geometry] of Object.entries(built)) {
+          // Solid surfaces carry vertex colours; globes and glow use separate builders.
+          if (!geometry?.getAttribute("color")) continue;
+          indexedSurfaces++;
+          const label = `${design}, ${name}`;
+          const position = geometry.getAttribute("position");
+          const index = geometry.getIndex();
+          if (!index || index.count === 0 || index.count % 3 !== 0) {
+            invalid.push(`${label}: missing index or incomplete triangle`);
+            continue;
+          }
+          if (
+            Object.values(geometry.attributes).some(
+              (attribute) => attribute.count !== position.count,
+            )
+          ) {
+            invalid.push(`${label}: attribute counts differ`);
+            continue;
+          }
+          for (let i = 0; i < index.count; i++) {
+            const vertex = index.getX(i);
+            if (!Number.isInteger(vertex) || vertex < 0 || vertex >= position.count) {
+              invalid.push(`${label}: invalid index ${vertex} at ${i}`);
+              break;
+            }
+          }
+        }
+      } finally {
+        for (const geometry of Object.values(built)) geometry?.dispose();
+      }
+    }
+    expect(indexedSurfaces).toBeGreaterThan(0);
+    expect(invalid).toEqual([]);
+  });
+
+  it("keeps indices attached through geometry disposal and rebuilds them on remount", async () => {
+    // Use the installed reconciler without a browser or GPU, as in static-transform.test.tsx.
+    extend({ Group: THREE.Group, Mesh: THREE.Mesh });
+    vi.stubGlobal("IS_REACT_ACT_ENVIRONMENT", true);
+    const root = createRoot({} as HTMLCanvasElement);
+    const renderer = { render: vi.fn(), setSize: vi.fn(), setPixelRatio: vi.fn() };
+    const stair = stairOf("loggia", 0);
+    let scene: THREE.Scene;
+    const render = async (children: ReactNode) => {
+      await act(async () => {
+        scene = root.render(children).getState().scene;
+      });
+    };
+    const geometries = () => {
+      const result: THREE.BufferGeometry[] = [];
+      scene.traverse((object) => {
+        if (object instanceof THREE.Mesh) result.push(object.geometry);
+      });
+      return result;
+    };
+    const observeDisposal = (owned: THREE.BufferGeometry[]) =>
+      owned.map((geometry) => {
+        const record = {
+          geometry,
+          index: geometry.getIndex(),
+          disposed: 0,
+          indexAtDispose: null as THREE.BufferAttribute | null,
+        };
+        geometry.addEventListener("dispose", () => {
+          record.disposed++;
+          record.indexAtDispose = geometry.getIndex();
+        });
+        return record;
+      });
+    try {
+      await root.configure({
+        gl: renderer as unknown as THREE.WebGLRenderer,
+        frameloop: "never",
+        size: { width: 100, height: 100, top: 0, left: 0 },
+        dpr: 1,
+      });
+      await render(createElement(GrandStaircase, { stair }));
+      const first = observeDisposal(geometries());
+      const solids = first.filter(({ geometry }) => geometry.hasAttribute("color"));
+      expect(solids.length).toBeGreaterThan(0);
+      expect(solids.every(({ index }) => index !== null)).toBe(true);
+
+      await render(createElement(GrandStaircase, { stair }));
+      expect(geometries().map((geometry) => geometry.uuid)).toEqual(
+        first.map(({ geometry }) => geometry.uuid),
+      );
+      expect(
+        first.every(
+          ({ geometry, index, disposed }) => geometry.getIndex() === index && disposed === 0,
+        ),
+      ).toBe(true);
+
+      await render(null);
+      expect(geometries()).toEqual([]);
+      expect(
+        first.every(
+          ({ index, disposed, indexAtDispose }) => disposed === 1 && indexAtDispose === index,
+        ),
+      ).toBe(true);
+
+      await render(createElement(GrandStaircase, { stair }));
+      const second = observeDisposal(geometries());
+      const previousGeometry = new Set(first.map(({ geometry }) => geometry));
+      const previousIndex = new Set(first.map(({ index }) => index));
+      expect(second.length).toBeGreaterThan(0);
+      expect(second.every(({ geometry }) => !previousGeometry.has(geometry))).toBe(true);
+      expect(
+        second
+          .filter(({ geometry }) => geometry.hasAttribute("color"))
+          .every(({ index }) => index !== null && !previousIndex.has(index)),
+      ).toBe(true);
+      await render(null);
+      expect(
+        second.every(
+          ({ index, disposed, indexAtDispose }) => disposed === 1 && indexAtDispose === index,
+        ),
+      ).toBe(true);
+      expect(renderer.render).not.toHaveBeenCalled();
+    } finally {
+      await act(async () => root.unmount());
+      vi.unstubAllGlobals();
+    }
   });
 });

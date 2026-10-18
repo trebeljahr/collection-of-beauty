@@ -299,6 +299,7 @@ class Solid {
   private readonly normal: number[] = [];
   private readonly color: number[] = [];
   private readonly uv: number[] = [];
+  private readonly indices: number[] = [];
   private readonly reach: number;
   private readonly back: number;
   private readonly vary: boolean;
@@ -421,15 +422,15 @@ class Solid {
       const to =
         routed && this.sides ? this.sides.to : unit[1] < -0.75 && this.under ? this.under : this;
       const at = to === this ? offset : UNCUT;
+      const base = to.position.length / 3;
       const corners: Array<[P3, number]> = [
         [a, ia],
         [b, ib],
         [cc, ic],
-        [a, ia],
-        [cc, ic],
         [d, id],
       ];
       for (const [p, i] of corners) to.push(p, unit, shade * (light?.[i] ?? 1), at);
+      to.indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
     }
   }
 
@@ -471,10 +472,12 @@ class Solid {
         const b = ring(k, (j + 1) % sides);
         const c = ring(k + 1, (j + 1) % sides);
         const d = ring(k + 1, j);
-        for (const q of [a, c, b, a, d, c]) {
+        const base = this.position.length / 3;
+        for (const q of [a, b, c, d]) {
           const shade = faceShade(q.n[0], q.n[1], q.n[2]) * light(q.p[1] - y);
           this.push(q.p, q.n, shade, offset, q.uv);
         }
+        this.indices.push(base, base + 2, base + 1, base, base + 3, base + 2);
       }
     }
   }
@@ -528,6 +531,7 @@ class Solid {
     g.setAttribute("normal", new THREE.Float32BufferAttribute(this.normal, 3));
     g.setAttribute("color", new THREE.Float32BufferAttribute(this.color, 3));
     g.setAttribute("uv", new THREE.Float32BufferAttribute(this.uv, 2));
+    g.setIndex(this.indices);
     g.computeBoundingSphere();
     return g;
   }
