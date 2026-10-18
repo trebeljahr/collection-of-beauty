@@ -23,6 +23,8 @@
 //     ZIP_VARIANT_WIDTH in collections.ts), and `zipStream` throws rather
 //     than silently emitting a corrupt archive if an offset ever wraps.
 
+import { crc32 } from "node:zlib";
+
 /** Beyond this, offsets no longer fit the 32-bit fields and the archive
  *  would need Zip64. Callers size their sets to stay well below it. */
 const ZIP32_MAX_OFFSET = 0xffffffff;
@@ -48,36 +50,21 @@ const EXTERNAL_ATTRS = (0o100644 << 16) >>> 0;
 const ZERO_DOS_TIME = 0;
 const ZERO_DOS_DATE = 0;
 
-const CRC_TABLE = buildCrcTable();
-
-function buildCrcTable(): Uint32Array {
-  const table = new Uint32Array(256);
-  for (let i = 0; i < 256; i++) {
-    let c = i;
-    for (let k = 0; k < 8; k++) {
-      c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
-    }
-    table[i] = c >>> 0;
-  }
-  return table;
-}
-
 /** Running CRC-32 (IEEE), fed one chunk at a time so entries never need
- *  to be held whole. Seed and finalise both use the standard 0xFFFFFFFF
- *  inversion. */
+ *  to be held whole. Node's native `zlib.crc32` does the arithmetic: the
+ *  `value` argument carries the previous result, so chunks chain without
+ *  any seed or inversion bookkeeping here. This module only runs in the
+ *  Node runtime (the collection route), never in the browser or on the
+ *  edge. */
 export class Crc32 {
-  private state = 0xffffffff;
+  private crc = 0;
 
   update(chunk: Uint8Array): void {
-    let c = this.state;
-    for (let i = 0; i < chunk.length; i++) {
-      c = CRC_TABLE[(c ^ chunk[i]) & 0xff] ^ (c >>> 8);
-    }
-    this.state = c;
+    this.crc = crc32(chunk, this.crc);
   }
 
   get value(): number {
-    return (this.state ^ 0xffffffff) >>> 0;
+    return this.crc;
   }
 }
 

@@ -1,3 +1,8 @@
+import { spawnSync } from "node:child_process";
+import { randomBytes } from "node:crypto";
+import { mkdtempSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { Crc32, type ZipEntry, zipStream } from "./zip-stream";
 
@@ -84,6 +89,35 @@ function readEntryBody(zip: Uint8Array, rec: { offset: number; size: number }) {
   return new TextDecoder().decode(zip.slice(start, start + rec.size));
 }
 
+/** The table-driven JavaScript CRC-32 that `Crc32` replaced, kept here as
+ *  the reference the native implementation is checked against. */
+function referenceCrc32(chunks: Uint8Array[]): number {
+  const table = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let k = 0; k < 8; k++) c = c & 1 ? 0xedb88320 ^ (c >>> 1) : c >>> 1;
+    table[i] = c >>> 0;
+  }
+  let state = 0xffffffff;
+  for (const chunk of chunks) {
+    for (let i = 0; i < chunk.length; i++) state = table[(state ^ chunk[i]) & 0xff] ^ (state >>> 8);
+  }
+  return (state ^ 0xffffffff) >>> 0;
+}
+
+function splitAt(bytes: Uint8Array, sizes: number[]): Uint8Array[] {
+  const out: Uint8Array[] = [];
+  let at = 0;
+  for (const size of sizes) {
+    out.push(bytes.subarray(at, at + size));
+    at += size;
+  }
+  out.push(bytes.subarray(at));
+  return out;
+}
+
+const hasUnzip = spawnSync("unzip", ["-v"]).status === 0;
+
 describe("Crc32", () => {
   it("matches the standard check vector", () => {
     const crc = new Crc32();
@@ -107,6 +141,55 @@ describe("Crc32", () => {
 
   it("returns the empty-input CRC before any update", () => {
     expect(new Crc32().value).toBe(0);
+  });
+
+  it("agrees with the JavaScript implementation it replaced", () => {
+    // Plain loop, one assertion: a call to `expect` per buffer would cost
+    // more than the CRCs on a starved machine (see CLAUDE.md, Tests).
+    const sizes = [0, 1, 2, 3, 7, 8, 9, 63, 64, 65, 1000, 4096, 65_536, 200_001];
+    const mismatches: string[] = [];
+    for (const size of sizes) {
+      const bytes = new Uint8Array(randomBytes(size));
+      const expected = referenceCrc32([bytes]);
+      const crc = new Crc32();
+      crc.update(bytes);
+      if (crc.value !== expected) mismatches.push(`${size} B: ${crc.value} != ${expected}`);
+    }
+    expect(mismatches).toEqual([]);
+  });
+
+  it("agrees with the JavaScript implementation on random chunking", () => {
+    const bytes = new Uint8Array(randomBytes(300_000));
+    const expected = referenceCrc32([bytes]);
+    const mismatches: string[] = [];
+    for (let round = 0; round < 20; round++) {
+      // Random cut points, empty chunks included: an upstream response can
+      // yield a zero-length chunk and the CRC must carry through it.
+      const cuts = Array.from({ length: 1 + (round % 9) }, () =>
+        Math.floor(Math.random() * 60_000),
+      );
+      const crc = new Crc32();
+      for (const piece of splitAt(bytes, cuts)) crc.update(piece);
+      if (crc.value !== expected) mismatches.push(`cuts ${cuts.join(",")}`);
+    }
+    expect(mismatches).toEqual([]);
+  });
+
+  it("reads a subarray view by its own bytes, not its backing buffer", () => {
+    // Network chunks are views into larger pooled buffers.
+    const backing = new Uint8Array(randomBytes(1024));
+    const view = backing.subarray(100, 300);
+    const crc = new Crc32();
+    crc.update(view);
+    expect(crc.value).toBe(referenceCrc32([view.slice()]));
+  });
+
+  it("stays unsigned for a CRC with the top bit set", () => {
+    // The standard check vector's CRC is 0xcbf43926; 0x80000000 and up must
+    // not turn negative on the way into the zip header's u32 fields.
+    const crc = new Crc32();
+    crc.update(enc.encode("123456789"));
+    expect(crc.value).toBeGreaterThan(0x7fffffff);
   });
 });
 
@@ -231,5 +314,35 @@ describe("zipStream", () => {
       },
     };
     await expect(collect([entry("ok.txt", "fine"), failing])).rejects.toThrow("Upstream 404");
+  });
+});
+
+describe("zipStream with a real extractor", () => {
+  it.skipIf(!hasUnzip)("builds an archive that `unzip -t` accepts", async () => {
+    const dir = mkdtempSync(path.join(tmpdir(), "zip-stream-"));
+    try {
+      const big = new Uint8Array(randomBytes(3_000_000));
+      const zip = await collect([
+        entry("small.txt", "alpha"),
+        entry("dir/chunked.txt", "content that arrives in pieces", 4),
+        entry("empty.txt", ""),
+        {
+          name: "dir/random.bin",
+          open: async () =>
+            (async function* () {
+              // Uneven chunks, as an upstream response delivers them.
+              for (const piece of splitAt(big, [1, 65_535, 70_000, 0, 999_999])) yield piece;
+            })(),
+        },
+      ]);
+      const file = path.join(dir, "out.zip");
+      writeFileSync(file, zip);
+
+      const result = spawnSync("unzip", ["-t", file], { encoding: "utf8" });
+      expect(result.stdout + result.stderr).toContain("No errors detected");
+      expect(result.status).toBe(0);
+    } finally {
+      rmSync(dir, { recursive: true, force: true });
+    }
   });
 });
