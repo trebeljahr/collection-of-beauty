@@ -447,6 +447,7 @@ class Solid {
     light: (height: number) => number,
   ) {
     const offset = this.held ?? this.nextOffset();
+    if (profile.length < 2) return;
     // The outline's slope at each ring, averaged over the bands either
     // side: an outward normal of a surface r(h) leans by -dr/dh.
     const slope = profile.map((_, k) => {
@@ -466,18 +467,22 @@ class Solid {
         uv: [(j / sides) * 0.4, y + h],
       };
     };
+    const base = this.position.length / 3;
+    for (let k = 0; k < profile.length; k++) {
+      for (let j = 0; j < sides; j++) {
+        const q = ring(k, j);
+        const shade = faceShade(q.n[0], q.n[1], q.n[2]) * light(q.p[1] - y);
+        this.push(q.p, q.n, shade, offset, q.uv);
+      }
+    }
     for (let k = 0; k < profile.length - 1; k++) {
       for (let j = 0; j < sides; j++) {
-        const a = ring(k, j);
-        const b = ring(k, (j + 1) % sides);
-        const c = ring(k + 1, (j + 1) % sides);
-        const d = ring(k + 1, j);
-        const base = this.position.length / 3;
-        for (const q of [a, b, c, d]) {
-          const shade = faceShade(q.n[0], q.n[1], q.n[2]) * light(q.p[1] - y);
-          this.push(q.p, q.n, shade, offset, q.uv);
-        }
-        this.indices.push(base, base + 2, base + 1, base, base + 3, base + 2);
+        const next = (j + 1) % sides;
+        const a = base + k * sides + j;
+        const b = base + k * sides + next;
+        const c = base + (k + 1) * sides + next;
+        const d = base + (k + 1) * sides + j;
+        this.indices.push(a, c, b, a, d, c);
       }
     }
   }
