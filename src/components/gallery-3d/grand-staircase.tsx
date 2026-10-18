@@ -285,6 +285,14 @@ function blockOffset(n: number): Cut {
   ];
 }
 const UNCUT: Cut = [0, 0, 0];
+const HEXA_FACES: ReadonlyArray<readonly [number, number, number, number]> = [
+  [0, 1, 2, 3],
+  [4, 5, 6, 7],
+  [0, 1, 5, 4],
+  [1, 2, 6, 5],
+  [2, 3, 7, 6],
+  [3, 0, 4, 7],
+];
 
 /** Collects flat-shaded boxes into one geometry. With a `reach`, no box
  *  goes further than that from the hall's centre in x or z, nor further
@@ -360,16 +368,23 @@ class Solid {
       const ax = Math.abs(n[0]);
       const ay = Math.abs(n[1]);
       const az = Math.abs(n[2]);
-      if (ay >= ax && ay >= az) [u, v] = [p[0], p[2]];
-      else if (ax >= az) [u, v] = [p[2], p[1]];
-      else [u, v] = [p[0], p[1]];
+      if (ay >= ax && ay >= az) {
+        u = p[0];
+        v = p[2];
+      } else if (ax >= az) {
+        u = p[2];
+        v = p[1];
+      } else {
+        u = p[0];
+        v = p[1];
+      }
     }
     this.position.push(p[0], p[1], p[2]);
     this.normal.push(n[0], n[1], n[2]);
     this.color.push(shade * this.tint[0], shade * this.tint[1], shade * this.tint[2]);
-    const turned: [number, number] =
-      offset[2] === 1 ? [v, -u] : offset[2] === 2 ? [-u, -v] : offset[2] === 3 ? [-v, u] : [u, v];
-    this.uv.push(turned[0] + offset[0], turned[1] + offset[1]);
+    const turnedU = offset[2] === 1 ? v : offset[2] === 2 ? -u : offset[2] === 3 ? -v : u;
+    const turnedV = offset[2] === 1 ? -u : offset[2] === 2 ? -v : offset[2] === 3 ? u : v;
+    this.uv.push(turnedU + offset[0], turnedV + offset[1]);
   }
 
   /** A box of eight corners: the four of its underside in order round
@@ -387,17 +402,12 @@ class Solid {
       centre[2] += p[2] / 8;
     }
     const offset = this.held ?? this.nextOffset();
-    const faces: Array<[number, number, number, number]> = [
-      [0, 1, 2, 3],
-      [4, 5, 6, 7],
-      [0, 1, 5, 4],
-      [1, 2, 6, 5],
-      [2, 3, 7, 6],
-      [3, 0, 4, 7],
-    ];
-    for (const face of sidesOnly ? faces.slice(2) : faces) {
-      let [ia, ib, ic, id] = face;
-      let [a, b, cc, d] = face.map((i) => c[i]);
+    for (let face = sidesOnly ? 2 : 0; face < HEXA_FACES.length; face++) {
+      let [ia, ib, ic, id] = HEXA_FACES[face];
+      const a = c[ia];
+      let b = c[ib];
+      const cc = c[ic];
+      let d = c[id];
       let n = cross(sub(b, a), sub(cc, a));
       if (lengthOf(n) < 1e-9) n = cross(sub(cc, a), sub(d, a));
       const len = lengthOf(n);
@@ -423,13 +433,10 @@ class Solid {
         routed && this.sides ? this.sides.to : unit[1] < -0.75 && this.under ? this.under : this;
       const at = to === this ? offset : UNCUT;
       const base = to.position.length / 3;
-      const corners: Array<[P3, number]> = [
-        [a, ia],
-        [b, ib],
-        [cc, ic],
-        [d, id],
-      ];
-      for (const [p, i] of corners) to.push(p, unit, shade * (light?.[i] ?? 1), at);
+      to.push(a, unit, shade * (light?.[ia] ?? 1), at);
+      to.push(b, unit, shade * (light?.[ib] ?? 1), at);
+      to.push(cc, unit, shade * (light?.[ic] ?? 1), at);
+      to.push(d, unit, shade * (light?.[id] ?? 1), at);
       to.indices.push(base, base + 1, base + 2, base, base + 2, base + 3);
     }
   }
