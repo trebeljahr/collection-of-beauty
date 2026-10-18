@@ -5,25 +5,28 @@
 // to turn healthy, then running `docker stop` on the old one. Traefik
 // keeps routing to the old container until it has EXITED, so a request
 // sent to it while it shuts down gets a 502, and one in flight when its
-// network goes away hangs until a 504. The one thing that makes Traefik
-// drop a container early is its Docker health leaving `healthy`.
+// network goes away hangs until a 504. Two things make Traefik drop a
+// container early: a failed check of Traefik's own load-balancer health
+// check (added by `hatchkit sync`), and its Docker health leaving `healthy`.
 //
 // So on SIGTERM this file:
-//   1. answers the health probe with 503. Coolify runs the probe INSIDE
-//      the container against 127.0.0.1; visitors arrive from Traefik,
-//      never over loopback, so they are served normally throughout.
-//   2. waits SHUTDOWN_DRAIN_SECONDS: time for Docker to count enough
-//      failed probes to mark the container unhealthy, and for Traefik to
-//      drop it. It counts the failed probes it answers; when a loaded host
-//      runs them late, it keeps waiting for HEALTH_CHECK_RETRIES of them, up
-//      to SHUTDOWN_DRAIN_EXTRA_SECONDS longer.
+//   1. answers both probes with 503, and nothing else: Docker's at once
+//      (Coolify runs it INSIDE the container against 127.0.0.1), Traefik's
+//      after PROXY_GRACE_MS (it comes with an X-Hatchkit-Drain header and
+//      no X-Forwarded-For; Traefik adds that to every request it forwards,
+//      so a visitor can't pose as it). Outside a drain Traefik's probe gets
+//      a 200 from here without reaching Next.
+//   2. waits SHUTDOWN_DRAIN_SECONDS: time for Traefik's check, or Docker's
+//      count of failed probes, to drop it. When neither has happened — a
+//      loaded host runs Docker's probes late — it keeps waiting for
+//      HEALTH_CHECK_RETRIES of them, up to SHUTDOWN_DRAIN_EXTRA_SECONDS longer.
 //   3. then runs the server's own SIGTERM handling (Next.js closes its
 //      server and exits): every SIGTERM listener the server registers is
 //      held until the drain ends. A server with none gets its HTTP
 //      servers closed and the process exited.
 //
 // SHUTDOWN_DRAIN_SECONDS comes from the Dockerfile and is timed against
-// the Coolify health check hatchkit sets (every 2 s, 5 retries). Unset or
+// the health checks hatchkit sets on the Coolify app. Unset or
 // 0 turns all of this off: dev, tests, and a compose app, whose container
 // is stopped BEFORE its replacement starts, so draining only delays that.
 // HEALTH_CHECK_PATH lists the probed paths, comma-separated; the default
@@ -42,8 +45,9 @@ const { isMainThread } = require("node:worker_threads");
 
 const drainMs = Math.max(0, Number(process.env.SHUTDOWN_DRAIN_SECONDS) || 0) * 1000;
 // Docker marks a container unhealthy after this many failed probes in a row;
-// only then does the proxy stop routing here.
-const healthRetries = Math.max(1, Number(process.env.HEALTH_CHECK_RETRIES) || 5);
+// only then does the proxy stop routing here (hatchkit's Docker drain timing
+// is 4 s x 3).
+const healthRetries = Math.max(1, Number(process.env.HEALTH_CHECK_RETRIES) || 3);
 // A loaded host runs probes late. The drain waits up to this long past
 // SHUTDOWN_DRAIN_SECONDS for the failures Docker needs, then stops anyway.
 const extraDrainMs = Math.max(0, Number(process.env.SHUTDOWN_DRAIN_EXTRA_SECONDS ?? 5)) * 1000;
@@ -57,6 +61,12 @@ const healthPaths = (process.env.HEALTH_CHECK_PATH || "/,/api/health")
 // left after any drain extension. With the 20 s drain the deadline is 28 s
 // after SIGTERM, inside `docker stop`'s 30 s before SIGKILL.
 const CLOSE_TIMEOUT_MS = 8000;
+// Traefik's own health check (X-Hatchkit-Drain, sent straight from Traefik,
+// never forwarded) keeps passing for this long after SIGTERM, at most a
+// quarter of the drain: Traefik drops a container on ONE failed check, and
+// can take 2 s to add the new one after Coolify starts this stop. One 503
+// to it takes this container out of rotation at once.
+const PROXY_GRACE_MS = Math.min(4000, drainMs / 4);
 
 // A child this process forks inherits `--require`. Only the process that
 // was started with it drains; the child keeps its normal SIGTERM.
@@ -82,6 +92,7 @@ function install() {
   let termAt = 0;
   let failedProbes = 0;
   let unhealthyAt = 0;
+  let proxyDroppedAt = 0;
   let release;
   const drained = new Promise((resolve) => {
     release = resolve;
@@ -92,19 +103,33 @@ function install() {
     const loopback = peer === "127.0.0.1" || peer === "::1" || peer === "::ffff:127.0.0.1";
     return loopback && healthPaths.includes((req.url || "").split("?")[0]);
   };
+  const isTraefikProbe = (req) =>
+    req.headers["x-hatchkit-drain"] !== undefined && req.headers["x-forwarded-for"] === undefined;
 
-  // Every http.Server: track the listening ones, and answer the probe
-  // while draining.
+  // Every http.Server: track the listening ones, and answer the probes.
   const emit = http.Server.prototype.emit;
   http.Server.prototype.emit = function (event, ...args) {
     if (event === "listening") servers.add(this);
     if (event === "close") servers.delete(this);
-    if (event === "request" && draining && isProbe(args[0])) {
-      failedProbes += 1;
-      if (failedProbes === healthRetries) unhealthyAt = Date.now();
-      args[1].writeHead(503, { "content-type": "text/plain", connection: "close" });
-      args[1].end("draining\n");
-      return true;
+    if (event === "request") {
+      const [req, res] = args;
+      if (isTraefikProbe(req)) {
+        const failing = draining && Date.now() - termAt >= PROXY_GRACE_MS;
+        if (failing && !proxyDroppedAt) proxyDroppedAt = Date.now();
+        res.writeHead(failing ? 503 : 200, {
+          "content-type": "text/plain",
+          ...(failing ? { connection: "close" } : { "cache-control": "no-store" }),
+        });
+        res.end(failing ? "draining\n" : "serving\n");
+        return true;
+      }
+      if (draining && isProbe(req)) {
+        failedProbes += 1;
+        if (failedProbes === healthRetries) unhealthyAt = Date.now();
+        res.writeHead(503, { "content-type": "text/plain", connection: "close" });
+        res.end("draining\n");
+        return true;
+      }
     }
     return emit.call(this, event, ...args);
   };
@@ -141,11 +166,14 @@ function install() {
     }, remaining).unref();
   };
 
-  // Docker must have seen enough failed probes for the proxy to have dropped
-  // this container. Normally that happened long before SHUTDOWN_DRAIN_SECONDS.
+  // Traefik must have dropped this container: its own check failed once, or
+  // Docker saw enough failed probes. Normally that happened long before
+  // SHUTDOWN_DRAIN_SECONDS.
   const settle = () => {
     const now = Date.now();
-    const seen = failedProbes >= healthRetries && now - unhealthyAt >= PROBE_MARGIN_MS;
+    const seen =
+      (proxyDroppedAt > 0 && now - proxyDroppedAt >= PROBE_MARGIN_MS) ||
+      (failedProbes >= healthRetries && now - unhealthyAt >= PROBE_MARGIN_MS);
     if (seen || now - termAt >= drainMs + extraDrainMs) return finish();
     timer = setTimeout(settle, 250);
   };
@@ -156,7 +184,7 @@ function install() {
     draining = true;
     termAt = Date.now();
     console.log(
-      `[drain] SIGTERM: failing the health check for at least ${drainMs / 1000}s so the proxy stops routing here, then shutting down`,
+      `[drain] SIGTERM: failing the health checks for at least ${drainMs / 1000}s so the proxy stops routing here, then shutting down`,
     );
     timer = setTimeout(settle, drainMs);
   };
