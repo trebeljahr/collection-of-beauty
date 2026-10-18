@@ -92,6 +92,14 @@ describe("grand stair geometry", () => {
             invalid.push(`${label}: attribute counts differ`);
             continue;
           }
+          for (const attribute of Object.values(geometry.attributes)) {
+            if (
+              attribute.array.byteOffset !== 0 ||
+              attribute.array.byteLength !== attribute.array.buffer.byteLength
+            ) {
+              invalid.push(`${label}: attribute retains unused backing storage`);
+            }
+          }
           for (let i = 0; i < index.count; i++) {
             const vertex = index.getX(i);
             if (!Number.isInteger(vertex) || vertex < 0 || vertex >= position.count) {
@@ -177,8 +185,20 @@ describe("grand stair geometry", () => {
       const second = observeDisposal(geometries());
       const previousGeometry = new Set(first.map(({ geometry }) => geometry));
       const previousIndex = new Set(first.map(({ index }) => index));
+      const previousBuffers = new Set(
+        first.flatMap(({ geometry }) =>
+          Object.values(geometry.attributes).map((attribute) => attribute.array.buffer),
+        ),
+      );
       expect(second.length).toBeGreaterThan(0);
       expect(second.every(({ geometry }) => !previousGeometry.has(geometry))).toBe(true);
+      expect(
+        second.every(({ geometry }) =>
+          Object.values(geometry.attributes).every(
+            (attribute) => !previousBuffers.has(attribute.array.buffer),
+          ),
+        ),
+      ).toBe(true);
       expect(
         second
           .filter(({ geometry }) => geometry.hasAttribute("color"))

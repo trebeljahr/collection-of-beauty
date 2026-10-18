@@ -303,10 +303,13 @@ const HEXA_FACES: ReadonlyArray<readonly [number, number, number, number]> = [
  *  looks at most nearly. With `vary`, each block is given its own place
  *  in the map, as each tread of a stair is its own slab of stone. */
 class Solid {
-  private readonly position: number[] = [];
-  private readonly normal: number[] = [];
-  private readonly color: number[] = [];
-  private readonly uv: number[] = [];
+  // Only completed vertex values enter these buffers. Geometry calculations
+  // still use the original numbers; no rounded value feeds another vertex.
+  private position = new Float32Array(0);
+  private normal = new Float32Array(0);
+  private color = new Float32Array(0);
+  private uv = new Float32Array(0);
+  private vertices = 0;
   private readonly indices: number[] = [];
   private readonly reach: number;
   private readonly back: number;
@@ -358,6 +361,22 @@ class Solid {
   }
 
   private push(p: P3, n: P3, shade: number, offset: Cut, uv?: [number, number]) {
+    // Grow all attributes together. Logical vertices exclude unused capacity.
+    if (this.vertices * 3 === this.position.length) {
+      const capacity = Math.max(64, this.vertices * 2);
+      const position = new Float32Array(capacity * 3);
+      const normal = new Float32Array(capacity * 3);
+      const color = new Float32Array(capacity * 3);
+      const uv = new Float32Array(capacity * 2);
+      position.set(this.position);
+      normal.set(this.normal);
+      color.set(this.color);
+      uv.set(this.uv);
+      this.position = position;
+      this.normal = normal;
+      this.color = color;
+      this.uv = uv;
+    }
     let u: number;
     let v: number;
     if (uv) {
@@ -379,12 +398,21 @@ class Solid {
         v = p[1];
       }
     }
-    this.position.push(p[0], p[1], p[2]);
-    this.normal.push(n[0], n[1], n[2]);
-    this.color.push(shade * this.tint[0], shade * this.tint[1], shade * this.tint[2]);
+    const at = this.vertices * 3;
+    this.position[at] = p[0];
+    this.position[at + 1] = p[1];
+    this.position[at + 2] = p[2];
+    this.normal[at] = n[0];
+    this.normal[at + 1] = n[1];
+    this.normal[at + 2] = n[2];
+    this.color[at] = shade * this.tint[0];
+    this.color[at + 1] = shade * this.tint[1];
+    this.color[at + 2] = shade * this.tint[2];
     const turnedU = offset[2] === 1 ? v : offset[2] === 2 ? -u : offset[2] === 3 ? -v : u;
     const turnedV = offset[2] === 1 ? -u : offset[2] === 2 ? -v : offset[2] === 3 ? u : v;
-    this.uv.push(turnedU + offset[0], turnedV + offset[1]);
+    this.uv[this.vertices * 2] = turnedU + offset[0];
+    this.uv[this.vertices * 2 + 1] = turnedV + offset[1];
+    this.vertices++;
   }
 
   /** A box of eight corners: the four of its underside in order round
@@ -432,7 +460,7 @@ class Solid {
       const to =
         routed && this.sides ? this.sides.to : unit[1] < -0.75 && this.under ? this.under : this;
       const at = to === this ? offset : UNCUT;
-      const base = to.position.length / 3;
+      const base = to.vertices;
       to.push(a, unit, shade * (light?.[ia] ?? 1), at);
       to.push(b, unit, shade * (light?.[ib] ?? 1), at);
       to.push(cc, unit, shade * (light?.[ic] ?? 1), at);
@@ -474,7 +502,7 @@ class Solid {
         uv: [(j / sides) * 0.4, y + h],
       };
     };
-    const base = this.position.length / 3;
+    const base = this.vertices;
     for (let k = 0; k < profile.length; k++) {
       for (let j = 0; j < sides; j++) {
         const q = ring(k, j);
@@ -537,12 +565,17 @@ class Solid {
   }
 
   build(): THREE.BufferGeometry | null {
-    if (this.position.length === 0) return null;
+    if (this.vertices === 0) return null;
     const g = new THREE.BufferGeometry();
-    g.setAttribute("position", new THREE.Float32BufferAttribute(this.position, 3));
-    g.setAttribute("normal", new THREE.Float32BufferAttribute(this.normal, 3));
-    g.setAttribute("color", new THREE.Float32BufferAttribute(this.color, 3));
-    g.setAttribute("uv", new THREE.Float32BufferAttribute(this.uv, 2));
+    // Exact copies keep spare capacity temporary and each build independent.
+    // BufferAttribute takes ownership without copying these Float32 arrays again.
+    g.setAttribute(
+      "position",
+      new THREE.BufferAttribute(this.position.slice(0, this.vertices * 3), 3),
+    );
+    g.setAttribute("normal", new THREE.BufferAttribute(this.normal.slice(0, this.vertices * 3), 3));
+    g.setAttribute("color", new THREE.BufferAttribute(this.color.slice(0, this.vertices * 3), 3));
+    g.setAttribute("uv", new THREE.BufferAttribute(this.uv.slice(0, this.vertices * 2), 2));
     g.setIndex(this.indices);
     g.computeBoundingSphere();
     return g;
