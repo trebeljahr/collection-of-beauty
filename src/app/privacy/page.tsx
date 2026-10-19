@@ -200,11 +200,9 @@ export default function PrivacyPage() {
             <p className="mt-2 text-[var(--muted-foreground)]">
               A report from your browser passes through Cloudflare's network on its way, like a
               request to this site (see Hosting). Like any request, a report reaches the server
-              together with your IP address. GlitchTip stores it with the report only in shortened
-              form: the last of the four numbers of an IPv4 address is set to 0, and an IPv6 address
-              keeps only its first four of eight blocks. GlitchTip deletes each report 90 days after
-              it arrives. Legal basis: Art. 6(1)(f) GDPR — legitimate interest in finding and fixing
-              errors in the service.
+              together with your IP address. GlitchTip removes the address from the report before it
+              stores it. GlitchTip deletes each report 90 days after it arrives. Legal basis: Art.
+              6(1)(f) GDPR — legitimate interest in finding and fixing errors in the service.
             </p>
           </div>
 

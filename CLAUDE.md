@@ -39,9 +39,13 @@ required by the Dockerfile — don't remove it.
   ships its ESM build, which is the one Turbopack's `import()` loads.
 - What a report may carry is `scrub.ts`, and `/privacy` says the same in
   words. Change one, change the other. GlitchTip itself writes the
-  client IP into every event on ingest, shortened because the project's
-  `scrubIPAddresses` is on: nothing the SDK does prevents it, so keep
-  that setting on.
+  client IP into every event on ingest, and nothing the SDK does
+  prevents it. Since 19 October 2026 the GlitchTip service's
+  `GLITCHTIP_PII_SCRUB_DEFAULT` lists `ip_address` as a sensitive key,
+  so every project stores `[Filtered]`, and `/privacy` says GlitchTip
+  removes the address. Without that setting the project's
+  `scrubIPAddresses` stores it with the last octet zeroed, and the page
+  would be wrong.
 
 ## Data shape
 
