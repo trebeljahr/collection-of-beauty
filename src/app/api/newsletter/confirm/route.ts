@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { reportServerError } from "@/lib/error-reporting/server";
 import { SITE_URL } from "@/lib/links";
 import { loadPublishedEditions } from "@/lib/newsletter/editions";
 import { isConfirmedOnList, sendTransactional } from "@/lib/newsletter/listmonk";
@@ -69,6 +70,7 @@ export async function GET(request: NextRequest) {
   try {
     alreadyConfirmed = await isConfirmedOnList(result.email);
   } catch (err) {
+    void reportServerError(err, { source: "newsletter.confirm", event: "list_lookup_failed" });
     log("error", "list_lookup_failed", {
       message: err instanceof Error ? err.message : String(err),
     });
@@ -80,6 +82,7 @@ export async function GET(request: NextRequest) {
   try {
     await confirmSubscription(result.email, result.issuedAt);
   } catch (err) {
+    void reportServerError(err, { source: "newsletter.confirm", event: "list_add_failed" });
     log("error", "list_add_failed", { message: (err as Error).message });
     return NextResponse.redirect(`${SITE_URL}/sub/error?reason=list_add_failed`, { status: 303 });
   }
@@ -92,6 +95,7 @@ export async function GET(request: NextRequest) {
       // Don't fail the confirmation over a welcome-send error — the
       // subscription itself is already live. They'll get the next
       // issue when it goes out.
+      void reportServerError(err, { source: "newsletter.confirm", event: "welcome_send_failed" });
       log("error", "welcome_send_failed", { message: (err as Error).message });
     }
   }

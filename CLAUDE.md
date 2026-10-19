@@ -21,6 +21,28 @@ infrastructure (KV, Blob, Edge Functions) unless explicitly asked.
 `output: "standalone"` in [`next.config.mjs`](next.config.mjs) is
 required by the Dockerfile — don't remove it.
 
+## Error reporting
+
+- Browser and server report to the GlitchTip project
+  `collection-of-beauty` at glitchtip.trebeljahr.com
+  (`src/lib/error-reporting/`). `SENTRY_DSN` (server) and
+  `NEXT_PUBLIC_SENTRY_DSN` (browser, inlined by `next build`) are both
+  encrypted in `.env.production`; there is no Coolify env or repo
+  variable for them. `next dev` and the tests have neither, so they load
+  no SDK and send nothing. `SENTRY_ENVIRONMENT` /
+  `NEXT_PUBLIC_SENTRY_ENVIRONMENT=wiring-check` tag a test run.
+- Server: `@sentry/node-core/light` (no OpenTelemetry), started in
+  `src/instrumentation.ts`, which also forwards `onRequestError`. A
+  route handler that catches an error to answer with a message must call
+  `reportServerError` itself, as the newsletter routes do.
+  `@sentry/node-core` is in `serverExternalPackages`; standalone tracing
+  ships its ESM build, which is the one Turbopack's `import()` loads.
+- What a report may carry is `scrub.ts`, and `/privacy` says the same in
+  words. Change one, change the other. GlitchTip itself writes the
+  client IP into every event on ingest, shortened because the project's
+  `scrubIPAddresses` is on: nothing the SDK does prevents it, so keep
+  that setting on.
+
 ## Data shape
 
 - `src/lib/data.ts` exports two artwork shapes:

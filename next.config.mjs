@@ -60,6 +60,13 @@ const LEGACY_HOSTS = ["beauty.trebeljahr.com", "www.collectionofbeauty.com"];
 const nextConfig = {
   output: "standalone",
   outputFileTracingRoot: __dirname,
+  // Error reporting (src/lib/error-reporting). "" when unset, so the browser
+  // reporter's condition on it is a literal and a build without a DSN
+  // drops the SDK chunk instead of shipping it unused.
+  env: { NEXT_PUBLIC_SENTRY_DSN: process.env.NEXT_PUBLIC_SENTRY_DSN ?? "" },
+  // The server SDK is loaded by a plain require at runtime, not bundled:
+  // standalone tracing copies it into the image like sharp.
+  serverExternalPackages: ["@sentry/node-core"],
   ...(process.env.NODE_ENV === "development"
     ? {
         allowedDevOrigins: [

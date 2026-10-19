@@ -4,6 +4,7 @@ import Script from "next/script";
 import { ProjectDonateLink } from "../components/project-donate-link";
 import "./globals.css";
 import { DonationSupportedTracker } from "@/components/donation-supported-tracker";
+import { ErrorReporting } from "@/components/error-reporting";
 import { Gallery3DProvider } from "@/components/gallery-3d-state";
 import { ImageCacheTracker } from "@/components/image-cache-tracker";
 import { NavigationTracker } from "@/components/navigation-tracker";
@@ -148,6 +149,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           changes no spacing. */}
       <body className="flex min-h-dvh flex-col antialiased" suppressHydrationWarning>
         <ReleaseNavigationGuard />
+        <ErrorReporting />
         <Script id="plausible-loader" strategy="afterInteractive">
           {`
               (function () {

@@ -7,7 +7,7 @@ import { IMPRINT_EMAIL } from "@/lib/links";
 export const metadata: Metadata = {
   title: "Privacy Policy",
   description:
-    "How Collection of Beauty handles personal data: analytics, newsletter, processors, and your rights under the GDPR.",
+    "How Collection of Beauty handles personal data: analytics, error reports, newsletter, processors, and your rights under the GDPR.",
   alternates: { canonical: "/privacy" },
   robots: { index: true, follow: true },
 };
@@ -157,6 +157,58 @@ export default function PrivacyPage() {
           </div>
 
           <div>
+            <h2 className="font-serif text-xl md:text-2xl">Error reports — GlitchTip</h2>
+            <p className="mt-2 text-[var(--muted-foreground)]">
+              When a page or the server hits an error that the code did not expect, the site sends a
+              report to a self-hosted instance of{" "}
+              <a
+                href="https://glitchtip.com/"
+                rel="noreferrer"
+                target="_blank"
+                className="underline hover:text-[var(--foreground)]"
+              >
+                GlitchTip
+              </a>{" "}
+              running at <code>glitchtip.trebeljahr.com</code> (server in Nuremberg, Germany,
+              operated by the controller). Without an error, nothing is sent. The reports are used
+              only to find and fix faults in the site.
+            </p>
+            <p className="mt-2 text-[var(--muted-foreground)]">A report contains:</p>
+            <ul className="mt-2 list-disc space-y-1 pl-5 text-[var(--muted-foreground)]">
+              <li>the error message and the stack trace of the code that raised it;</li>
+              <li>
+                the address of the page or request, with the query string and fragment removed;
+              </li>
+              <li>
+                for an error in the browser: the method, status and address (also without the query
+                string) of up to 30 earlier requests and page changes in that tab, and the browser
+                and operating system that your browser's user-agent string names;
+              </li>
+              <li>
+                the deployed version of the site, and whether the error happened in the browser or
+                on the server.
+              </li>
+            </ul>
+            <p className="mt-2 text-[var(--muted-foreground)]">
+              A report never contains your name, cookies, request headers other than the user agent,
+              form input or request bodies, console output, clicks or keystrokes. An email address
+              that appears in an error message is replaced before the report is sent. In the
+              browser, all of this is removed before the report leaves your device. There is no
+              session recording and no performance tracing, and the reporting script sets no cookies
+              and stores nothing on your device.
+            </p>
+            <p className="mt-2 text-[var(--muted-foreground)]">
+              A report from your browser passes through Cloudflare's network on its way, like a
+              request to this site (see Hosting). Like any request, a report reaches the server
+              together with your IP address. GlitchTip stores it with the report only in shortened
+              form: the last of the four numbers of an IPv4 address is set to 0, and an IPv6 address
+              keeps only its first four of eight blocks. GlitchTip deletes each report 90 days after
+              it arrives. Legal basis: Art. 6(1)(f) GDPR — legitimate interest in finding and fixing
+              errors in the service.
+            </p>
+          </div>
+
+          <div>
             <h2 className="font-serif text-xl md:text-2xl">Newsletter — Drops of Beauty</h2>
             <p className="mt-2 text-[var(--muted-foreground)]">
               The site offers an email newsletter, <em>Drops of Beauty</em>, of five artworks from
@@ -219,8 +271,8 @@ export default function PrivacyPage() {
               authorities under applicable U.S. law cannot be fully excluded.
             </p>
             <p className="mt-2 text-[var(--muted-foreground)]">
-              No other transfers to third countries take place. Plausible runs on EU infrastructure
-              under the controller's own administration.
+              No other transfers to third countries take place. Plausible and GlitchTip run on EU
+              infrastructure under the controller's own administration.
             </p>
           </div>
 
@@ -232,6 +284,7 @@ export default function PrivacyPage() {
                 service, then overwritten by log rotation.
               </li>
               <li>Plausible event data: aggregate counters only; no per-visitor record exists.</li>
+              <li>Error reports: deleted automatically 90 days after they arrive.</li>
               <li>
                 Cloudflare Web Analytics: totals by page, country, browser and device type.
                 Cloudflare does not store the IP address.

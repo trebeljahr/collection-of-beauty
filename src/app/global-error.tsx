@@ -11,7 +11,9 @@
 // only, so a CSS pipeline failure can't take the recovery UI down too.
 
 import { useEffect } from "react";
-import { reloadIfStaleDeploy } from "@/lib/stale-deploy";
+import { reportClientError } from "@/lib/error-reporting/reporter";
+import { CHUNK_RELOAD_REFUSED } from "@/lib/error-reporting/scrub";
+import { isStaleDeployError, reloadIfStaleDeploy } from "@/lib/stale-deploy";
 
 export default function GlobalError({
   error,
@@ -22,6 +24,11 @@ export default function GlobalError({
 }) {
   useEffect(() => {
     if (reloadIfStaleDeploy(error)) return;
+    reportClientError(error, {
+      source: "global",
+      ...(error.digest ? { digest: error.digest } : {}),
+      ...(isStaleDeployError(error) ? { chunkReload: CHUNK_RELOAD_REFUSED } : {}),
+    });
     console.error("[global error]", error.digest ?? "(no digest)", error);
   }, [error]);
 

@@ -10,7 +10,9 @@
 // retry instead of being forced to reload.
 
 import { useEffect } from "react";
-import { reloadIfStaleDeploy } from "@/lib/stale-deploy";
+import { reportClientError } from "@/lib/error-reporting/reporter";
+import { CHUNK_RELOAD_REFUSED } from "@/lib/error-reporting/scrub";
+import { isStaleDeployError, reloadIfStaleDeploy } from "@/lib/stale-deploy";
 
 export default function RouteError({
   error,
@@ -21,10 +23,16 @@ export default function RouteError({
 }) {
   useEffect(() => {
     if (reloadIfStaleDeploy(error)) return;
-    // This runs on the client, so it lands in the visitor's browser
-    // console only — nothing here reaches the container's stderr. The
-    // one durable handle is `digest`, the hashed ID Next assigns the
-    // error; it is also rendered below so a user can quote it.
+    // The report goes to GlitchTip (lib/error-reporting), tagged with
+    // `digest`, the hashed ID Next assigns the error. The server's report
+    // of the same error carries the same digest, and it is also rendered
+    // below so a user can quote it. A stale-deploy error gets here only
+    // when the reload-once guard refused, and is tagged so.
+    reportClientError(error, {
+      source: "app",
+      ...(error.digest ? { digest: error.digest } : {}),
+      ...(isStaleDeployError(error) ? { chunkReload: CHUNK_RELOAD_REFUSED } : {}),
+    });
     console.error("[route error]", error.digest ?? "(no digest)", error);
   }, [error]);
 

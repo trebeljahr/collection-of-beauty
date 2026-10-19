@@ -1,4 +1,5 @@
 import { type NextRequest, NextResponse } from "next/server";
+import { reportServerError } from "@/lib/error-reporting/server";
 import { SITE_URL } from "@/lib/links";
 import { resolveConfirmHero } from "@/lib/newsletter/confirmation-cover";
 import {
@@ -99,6 +100,10 @@ export async function POST(request: NextRequest) {
       heroAlt: hero.alt,
     });
   } catch (err) {
+    void reportServerError(err, {
+      source: "newsletter.subscribe",
+      event: "send_confirmation_failed",
+    });
     log("error", "send_confirmation_failed", { ip, message: (err as Error).message });
     return NextResponse.json(
       { error: "send_failed", message: "Could not send confirmation email. Please try again." },
