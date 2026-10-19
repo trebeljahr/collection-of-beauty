@@ -4,6 +4,7 @@
   "scaffoldedAt": "2026-05-01T14:58:07.056Z",
   "name": "collection-of-beauty",
   "domain": "collectionofbeauty.com",
+  "aliases": ["www.collectionofbeauty.com", "beauty.trebeljahr.com"],
   "features": ["s3"],
   "mlServices": [],
   "s3Provider": "existing",
