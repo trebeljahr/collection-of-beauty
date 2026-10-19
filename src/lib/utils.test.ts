@@ -139,13 +139,21 @@ describe("textureVariantUrl / deepZoomTileUrl", () => {
     // fetch pointing at the old one while the 2D site moved on.
     const key = "collection/D\u00fcsseldorf Ansicht.jpg";
     expect(textureVariantUrl(key, 4096, "avif")).toBe(
-      "/assets-raw/collection/D%C3%BCsseldorf%20Ansicht/4096.avif",
+      "/assets-raw/collection/D%C3%BCsseldorf%20Ansicht/4096.avif?cors",
     );
-    // Same tail as the CDN builder (ASSETS_BASE_URL is captured at
+    // Same path as the CDN builder (ASSETS_BASE_URL is captured at
     // module load, so in tests both bases are the dev "/assets-raw").
     expect(variantUrl(key, 4096, "avif")).toBe(
       "/assets-raw/collection/D%C3%BCsseldorf%20Ansicht/4096.avif",
     );
+  });
+
+  it("never shares a URL between a texture and an <img>", () => {
+    // An <img> load of a variant is cached without CORS headers, and a
+    // texture fetch of the same URL is then refused from the browser
+    // cache: the museum's Botticelli stayed a stand-in on 19 October 2026.
+    const key = "collection/Foo.jpg";
+    expect(textureVariantUrl(key, 480, "avif")).not.toBe(variantUrl(key, 480, "avif"));
   });
 
   it("fetches textures straight from the CDN in production", async () => {
@@ -157,7 +165,7 @@ describe("textureVariantUrl / deepZoomTileUrl", () => {
     vi.resetModules();
     const prod = await import("./utils");
     expect(prod.textureVariantUrl("collection/Foo.jpg", 480, "avif")).toBe(
-      "https://assets.example.test/collection/Foo/480.avif",
+      "https://assets.example.test/collection/Foo/480.avif?cors",
     );
     vi.resetModules();
   });
@@ -177,7 +185,7 @@ describe("textureVariantUrl / deepZoomTileUrl", () => {
     const [key, version] = Object.entries(assetVersions as Record<string, string>)[0];
     expect(assetVersion(key)).toBe(version);
     expect(variantUrl(key, 960, "avif")).toMatch(new RegExp(`/960\\.avif\\?v=${version}$`));
-    expect(textureVariantUrl(key, 960, "avif")).toMatch(new RegExp(`\\?v=${version}$`));
+    expect(textureVariantUrl(key, 960, "avif")).toMatch(new RegExp(`\\?v=${version}&cors$`));
     expect(publicVariantUrl(key, 960, "avif")).toMatch(new RegExp(`\\?v=${version}$`));
     expect(deepZoomTileUrl(key, 7, 3, 2)).toMatch(
       new RegExp(`/tiles/7/3_2\\.webp\\?v=${version}$`),

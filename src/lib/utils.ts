@@ -218,14 +218,26 @@ export function publicVariantUrl(objectKey: string, width: number, format: Varia
   return `${publicAssetsBaseUrl()}/${variantPath(objectKey, width, format)}`;
 }
 
+// Marks a texture URL as fetched with CORS. An <img> on the 2D pages asks
+// for the same file without CORS, and the CDN then answers without
+// Access-Control-Allow-Origin and without `Vary: Origin`. The browser
+// keeps that answer for a year (immutable) and hands it to the museum's
+// fetch() of the same URL, which fails the CORS check: every work a
+// visitor had seen on a page stayed a stand-in in the museum (19 October
+// 2026). The query gives textures their own entry in the browser cache
+// and at the edge. R2 and the dev asset server ignore it.
+const TEXTURE_QUERY = "cors";
+
 // Variant URL for a WebGL texture: the CDN in production, the same-origin
-// /assets-raw rewrite in dev (see TEXTURE_BASE_URL). The only URL builder
-// the 3D gallery uses (painting.tsx, texture-cache.ts, index.tsx), so it
-// must resolve to the same path shape as variantUrl() — hence the shared
-// variantPath(), not a second copy of the split.
+// /assets-raw rewrite in dev (see TEXTURE_BASE_URL), with TEXTURE_QUERY.
+// The only URL builder the 3D gallery uses (painting.tsx,
+// texture-cache.ts, index.tsx), so it must resolve to the same path shape
+// as variantUrl() — hence the shared variantPath(), not a second copy of
+// the split.
 export function textureVariantUrl(objectKey: string, width: number, format: VariantFormat): string {
   if (!objectKey) return "";
-  return `${TEXTURE_BASE_URL}/${variantPath(objectKey, width, format)}`;
+  const path = variantPath(objectKey, width, format);
+  return `${TEXTURE_BASE_URL}/${path}${path.includes("?") ? "&" : "?"}${TEXTURE_QUERY}`;
 }
 
 // Full srcSet string for a <source> element. Emits only the widths the
