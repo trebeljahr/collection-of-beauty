@@ -45,7 +45,7 @@ export default function PrivacyPage() {
       <div className="mx-auto max-w-2xl px-4 pb-8 md:pb-12">
         <header className="mb-8">
           <h1 className="font-serif text-3xl md:text-4xl">Privacy Policy</h1>
-          <p className="mt-2 text-sm text-[var(--muted-foreground)]">Last updated: 2026-05-17</p>
+          <p className="mt-2 text-sm text-[var(--muted-foreground)]">Last updated: 2026-10-19</p>
         </header>
 
         <section className="space-y-6 text-[var(--foreground)]">
@@ -86,6 +86,12 @@ export default function PrivacyPage() {
               not used for analytics or any other purpose. Legal basis: Art. 6(1)(f) GDPR —
               legitimate interest in operating a secure service.
             </p>
+            <p className="mt-2 text-[var(--muted-foreground)]">
+              Before a request reaches that server, it passes through the network of Cloudflare,
+              Inc. (101 Townsend St, San Francisco, CA 94107, USA). Cloudflare receives the IP
+              address, user agent and referrer of each request to deliver the site and protect it
+              against abuse. The same legal basis applies.
+            </p>
           </div>
 
           <div>
@@ -112,6 +118,41 @@ export default function PrivacyPage() {
               read, without using technologies that would require consent under § 25 TDDDG (the
               German implementation of the ePrivacy Directive). Because no information is stored on,
               or read from, your device, § 25 TDDDG does not apply.
+            </p>
+          </div>
+
+          <div>
+            <h2 className="font-serif text-xl md:text-2xl">
+              Page Load Measurement — Cloudflare Web Analytics
+            </h2>
+            <p className="mt-2 text-[var(--muted-foreground)]">
+              Cloudflare adds the script of{" "}
+              <a
+                href="https://developers.cloudflare.com/web-analytics/"
+                rel="noreferrer"
+                target="_blank"
+                className="underline hover:text-[var(--foreground)]"
+              >
+                Cloudflare Web Analytics
+              </a>{" "}
+              to each page. Your browser loads it from <code>static.cloudflareinsights.com</code>,
+              and the script sends its report to <code>collectionofbeauty.com/cdn-cgi/rum</code>.
+              The report holds the page URL, the referrer and how long the page took to load,
+              including Largest Contentful Paint, Interaction to Next Paint and Cumulative Layout
+              Shift. Cloudflare shows the controller totals by page, country, browser and device
+              type.
+            </p>
+            <p className="mt-2 text-[var(--muted-foreground)]">
+              The script sets no cookies and stores nothing on your device. It gives each page view
+              a random ID and keeps no ID from one page view to the next. Cloudflare receives your
+              IP address with the report, discards it at the nearest data center and does not store
+              it. Cloudflare does not add the script for visitors who connect through a Cloudflare
+              data center in the EU, the EEA, the United Kingdom or Switzerland.
+            </p>
+            <p className="mt-2 text-[var(--muted-foreground)]">
+              Legal basis for all other visitors: Art. 6(1)(f) GDPR — legitimate interest in knowing
+              how fast the pages load. You can object at any time (see Your Rights below) or block{" "}
+              <code>static.cloudflareinsights.com</code> with a content blocker.
             </p>
           </div>
 
@@ -173,6 +214,11 @@ export default function PrivacyPage() {
               have the rights set out below regardless of where the data is processed.
             </p>
             <p className="mt-2 text-[var(--muted-foreground)]">
+              Cloudflare, Inc. is established in the United States. It handles each request in a
+              data center of its network, normally the one nearest to you. Access by U.S.
+              authorities under applicable U.S. law cannot be fully excluded.
+            </p>
+            <p className="mt-2 text-[var(--muted-foreground)]">
               No other transfers to third countries take place. Plausible runs on EU infrastructure
               under the controller's own administration.
             </p>
@@ -186,6 +232,10 @@ export default function PrivacyPage() {
                 service, then overwritten by log rotation.
               </li>
               <li>Plausible event data: aggregate counters only; no per-visitor record exists.</li>
+              <li>
+                Cloudflare Web Analytics: totals by page, country, browser and device type.
+                Cloudflare does not store the IP address.
+              </li>
               <li>
                 Newsletter address: retained until you unsubscribe. Unsubscribed entries are kept in
                 ListMonk as a suppression record so that re-mailing does not happen after opt-out;
