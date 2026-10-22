@@ -23,7 +23,7 @@
 # that the framework explicitly inlines into client JS. Runtime secrets stay
 # encrypted in .env.production and are decrypted by dotenvx only when the
 # server process starts.
-ARG NODE_VERSION=24
+ARG NODE_VERSION=24.22.1
 ARG PREVIOUS_IMAGE
 
 FROM ${PREVIOUS_IMAGE} AS previous
