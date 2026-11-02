@@ -30,4 +30,3 @@ artworks:
 
 - Grouped by idea: a leaf that holds only water, fireworks that started a libel case, a tower painted again and again, a head made of plants, a life told as a river.
 - Sources: social queue posts 22, 5, 29, 21, 30. Facts there are checked; add none without a source.
-- The Li Di page still shows "Spring Tide with Rain (Li Di, Song dynasty)". The title fix is open in the pre-launch notes.

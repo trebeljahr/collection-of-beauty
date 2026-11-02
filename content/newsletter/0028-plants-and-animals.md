@@ -31,4 +31,4 @@ artworks:
 
 - Grouped by subject: a hare, sea anemones, a rose, irises and a tiger in a jungle built from hothouse plants.
 - Sources: social queue posts 10, 9, 14, 25, 11. Facts there are checked; add none without a source.
-- Two pages still show a catalogue title: "Haeckel Actiniae" and "Irises (Metropolitan Museum, 1890)". The title fix is open in the pre-launch notes.
+- The Irises page keeps the title "Irises (Metropolitan Museum, 1890)". The catalogue has a second Van Gogh "Irises" of 1890, at the Van Gogh Museum, and the bracket tells them apart.

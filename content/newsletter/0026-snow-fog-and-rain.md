@@ -32,4 +32,3 @@ artworks:
 
 - Grouped by subject: snow in Bruegel, Sesshū and Monet, a fog bank in Homer, rain in Turner.
 - Sources: social queue posts 1, 7, 20, 19, 15. Facts there are checked; add none without a source.
-- The Turner page still shows the title "Rain". The title fix is open in the pre-launch notes.

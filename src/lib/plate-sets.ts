@@ -273,14 +273,13 @@ function numberWord(n: number): string {
   return words[n] ?? String(n);
 }
 
-/** Readable label for one plate. Kunstformen filenames became titles of
- *  the form "Haeckel Discomedusae 98" — the artist's name and the plate
- *  number are both already rendered alongside, so strip them rather than
- *  print "Plate 98 · Haeckel Discomedusae 98". */
+/** Readable label for one plate. Kunstformen titles keep the filename's
+ *  plate number ("Discomedusae 98"), which is already rendered alongside,
+ *  so strip it rather than print "Plate 98 · Discomedusae 98". */
 export function plateLabel(set: PlateSet, plate: Plate): string {
   const title = displayTitle(plate.listing);
   if (set.id === "haeckel-kunstformen-der-natur") {
-    return title.replace(/^Haeckel\s+/i, "").replace(/\s+\d+$/, "");
+    return title.replace(/\s+\d+$/, "");
   }
   if (set.id === "audubon-birds-of-america") {
     const trimmed = title.replace(/\s*\(Plate\s+\d+\)\s*$/i, "");
