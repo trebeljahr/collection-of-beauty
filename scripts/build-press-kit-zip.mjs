@@ -5,7 +5,8 @@
 //   pnpm marketing:press-kit-zip
 //
 // Output:
-//   public/press-kit.zip
+//   public/press-kit.zip (gitignored; published with scripts/publish-press-kit.sh)
+//   scripts/press-kit-download.json, when the archive's bytes changed
 //
 // The archive includes public/marketing/, the live OG image, the live
 // wordmark when a wordmark asset exists, and a plaintext fact-sheet.txt
@@ -16,6 +17,7 @@ import { existsSync, constants as fsConstants } from "node:fs";
 import { access, mkdir, readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { fileSha256, recordPressKitBuild } from "./press-kit-download.mjs";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -82,8 +84,15 @@ async function main() {
     );
   }
 
+  const meta = recordPressKitBuild(await fileSha256(OUT_ZIP));
+
   console.log(
     `wrote ${path.relative(ROOT, OUT_ZIP)} (${formatBytes(size)}, ${entries.length} files)`,
+  );
+  console.log(
+    meta.published
+      ? "same bytes as the published object"
+      : `not published: ${meta.sha256}. CI builds no image until it is; see scripts/RETAINED-ASSETS.md`,
   );
 }
 

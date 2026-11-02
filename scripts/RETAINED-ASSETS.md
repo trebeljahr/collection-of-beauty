@@ -90,21 +90,36 @@ answers `/press-kit.zip` with a 307 to the content-addressed object
 asset origin, so storage owns the transfer and its ranges. The press page links
 are plain download anchors, so Next never prefetches the archive.
 
+`public/press-kit.zip` is a local build output: gitignored, and in
+`.dockerignore` so a local image matches CI's. No image carries it, so with
+`"published": false` the route is a 404 in any build without the file.
+The versions tracked until 2 November 2026 stay in git history.
+
 Published 2026-10-05, on 2026-10-17 with the block-plan screenshots, and on 2026-11-02 with the current English titles in its credits (each object verified by full SHA-256 from the public origin).
 To publish a changed press kit, with release authorization:
 
-1. `pnpm exec dotenvx run -f .env.production -- bash scripts/publish-press-kit.sh`
-   (append-only `rclone copyto --immutable`, attachment and immutable headers).
-2. `node scripts/press-kit-download.mjs --full`: status, length, attachment,
+1. `pnpm marketing:press-kit-zip`. It reads the vault's press-kit note, so it
+   runs on Rico's machine. Changed bytes write a new `sha256`, `bytes` and
+   `path` to the metadata and set `"published": false`; the same bytes change
+   nothing.
+2. `pnpm exec dotenvx run -f .env.production -- bash scripts/publish-press-kit.sh`
+   (the local zip must match the metadata; append-only
+   `rclone copyto --immutable`, attachment and immutable headers).
+3. `node scripts/press-kit-download.mjs --full`: status, length, attachment,
    ranges, caching and full SHA-256 from the public origin.
-3. Set `"published": true`, commit, release.
+4. Set `"published": true`, commit, release.
 
-CI runs `press-kit-download.mjs --ci`: the local file must match the metadata,
-and a published object must pass the remote header check before an image is
-built. `scripts/sync-assets.sh` excludes `downloads/**`, because `rclone sync`
-would otherwise delete these objects. Never delete a published object; a new
-press kit gets a new SHA path. Confirm the production `R2_ASSETS_BUCKET` serves
-`https://assets.collectionofbeauty.com` before step 1.
+CI runs `press-kit-download.mjs --ci` before an image is built: the metadata
+must say `"published": true`, and the object must pass every check of step 3,
+full SHA-256 included. A committed rebuild that was not published fails it, as a
+zip that differed from the metadata did while the zip was tracked. A checkout
+has no zip to compare, so the object's bytes are all that ties the metadata's
+hash to what visitors download. To release while a rebuild waits, restore the
+last published metadata: its object is still there. `scripts/sync-assets.sh`
+excludes `downloads/**`, because `rclone sync` would otherwise delete these
+objects. Never delete a published object; a new press kit gets a new SHA path.
+Confirm the production `R2_ASSETS_BUCKET` serves
+`https://assets.collectionofbeauty.com` before step 2.
 
 ## Routing and client state
 

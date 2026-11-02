@@ -24,6 +24,8 @@ build/
 out/
 .next/
 public/version.json
+# Built locally, served from storage. See scripts/RETAINED-ASSETS.md, "Press kit".
+public/press-kit.zip
 *.tsbuildinfo
 next-env.d.ts
 

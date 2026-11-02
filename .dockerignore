@@ -2,6 +2,9 @@
 assets
 assets-web
 
+# Local build output, served from storage (scripts/RETAINED-ASSETS.md, "Press kit")
+public/press-kit.zip
+
 # Node artifacts — installed fresh inside the image
 node_modules
 .next
