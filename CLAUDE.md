@@ -2368,6 +2368,9 @@ required by the Dockerfile — don't remove it.
     first write lands. The route holds the run for that address in memory
     while it lasts (`running`), so one welcome copy goes out. That covers one
     container, not two during a rolling release.
+  - The route's log holds event names and no error text. `listmonkFetch`
+    puts the path and ListMonk's answer in its error, and a failed lookup's
+    path names the address. The text goes to GlitchTip, through `scrub.ts`.
 - **The form's answer says nothing about the address.** Anyone can type
   anyone's address, so `POST /api/newsletter/subscribe` answers
   `{ ok: true }` for every valid one and does the rest in `after()`: a

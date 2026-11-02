@@ -199,6 +199,28 @@ describe("pressing the button", () => {
   });
 });
 
+describe("the log", () => {
+  // What `listmonkFetch` throws when a lookup fails: its path holds the address.
+  const refusal = new Error(
+    `listmonk GET /api/subscribers?search=%5E${encodeURIComponent(ADDRESS)}%24: 500 refused`,
+  );
+
+  it.each([
+    ["list_lookup_failed", () => vi.mocked(isConfirmedOnList).mockRejectedValueOnce(refusal)],
+    ["list_add_failed", () => vi.mocked(confirmSubscription).mockRejectedValueOnce(refusal)],
+    ["welcome_send_failed", () => vi.mocked(sendTransactional).mockRejectedValueOnce(refusal)],
+  ])("names no address on %s", async (event, fail) => {
+    vi.mocked(console.error).mockClear();
+    fail();
+
+    await press(mintConfirmToken(ADDRESS));
+
+    const logged = JSON.stringify(vi.mocked(console.error).mock.calls);
+    expect(logged).toContain(event);
+    expect(logged).not.toMatch(/reader|example/);
+  });
+});
+
 describe("confirmation consent boundary", () => {
   it("passes authenticated token issuance time to the consent check", async () => {
     const now = Date.now();

@@ -67,10 +67,9 @@ async function confirm(email: string, issuedAt: number): Promise<string> {
   try {
     alreadyConfirmed = await isConfirmedOnList(email);
   } catch (err) {
+    // No message in the log, here or below: a failed lookup names the address in its path.
     void reportServerError(err, { source: "newsletter.confirm", event: "list_lookup_failed" });
-    log("error", "list_lookup_failed", {
-      message: err instanceof Error ? err.message : String(err),
-    });
+    log("error", "list_lookup_failed");
     return `${SITE_URL}/sub/error?reason=list_lookup_failed`;
   }
 
@@ -78,7 +77,7 @@ async function confirm(email: string, issuedAt: number): Promise<string> {
     await confirmSubscription(email, issuedAt);
   } catch (err) {
     void reportServerError(err, { source: "newsletter.confirm", event: "list_add_failed" });
-    log("error", "list_add_failed", { message: (err as Error).message });
+    log("error", "list_add_failed");
     return `${SITE_URL}/sub/error?reason=list_add_failed`;
   }
 
@@ -91,7 +90,7 @@ async function confirm(email: string, issuedAt: number): Promise<string> {
       // subscription itself is already live. They'll get the next
       // issue when it goes out.
       void reportServerError(err, { source: "newsletter.confirm", event: "welcome_send_failed" });
-      log("error", "welcome_send_failed", { message: (err as Error).message });
+      log("error", "welcome_send_failed");
     }
   }
 
