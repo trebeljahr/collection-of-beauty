@@ -5,6 +5,7 @@ import { resolveConfirmHero } from "@/lib/newsletter/confirmation-cover";
 import {
   checkRateLimit,
   isAlreadySubscribed,
+  isListmonkUp,
   mintConfirmToken,
   normalizeEmail,
   sendAlreadySubscribedEmail,
@@ -104,11 +105,29 @@ export async function POST(request: NextRequest) {
     );
   }
 
+  // The health check takes no address, so an outage can tell a visitor to try
+  // again without saying anything about the address they typed.
+  if (!(await isListmonkUp())) {
+    void reportServerError(new Error("ListMonk health check failed"), {
+      source: "newsletter.subscribe",
+      event: "listmonk_unreachable",
+    });
+    log("error", "listmonk_unreachable");
+    return NextResponse.json(
+      {
+        error: "send_failed",
+        message: "Could not send the email. Please try again in a few minutes.",
+      },
+      { status: 502 },
+    );
+  }
+
   // Anyone can type anyone's address, so every valid address gets this same
   // answer, and it goes out before anything asks ListMonk about this one.
   // Waiting would give the answer away by time: a new address takes two
-  // more ListMonk calls than a confirmed one. So a failed send reaches
-  // GlitchTip and the log, and the form still says "check your inbox".
+  // more ListMonk calls than a confirmed one. So a send that fails after the
+  // health check reaches GlitchTip and the log, and the form still says
+  // "check your inbox".
   after(() =>
     mailAddress(email, ip).catch((err: unknown) => {
       void reportServerError(err, { source: "newsletter.subscribe", event: "send_failed" });

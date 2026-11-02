@@ -27,6 +27,7 @@ vi.mock("@/lib/newsletter/subscribe", async () => {
   return {
     ...actual,
     isAlreadySubscribed: vi.fn(async () => false),
+    isListmonkUp: vi.fn(async () => true),
     mintConfirmToken: vi.fn(actual.mintConfirmToken),
     sendAlreadySubscribedEmail: vi.fn(async () => {}),
     sendConfirmationEmail: vi.fn(async () => {}),
@@ -52,6 +53,7 @@ const { SITE_URL } = await import("@/lib/links");
 const subscribeMod = await import("@/lib/newsletter/subscribe");
 const { _resetRateLimit } = subscribeMod;
 const isAlreadySubscribed = vi.mocked(subscribeMod.isAlreadySubscribed);
+const isListmonkUp = vi.mocked(subscribeMod.isListmonkUp);
 const mintConfirmToken = vi.mocked(subscribeMod.mintConfirmToken);
 const sendAlreadySubscribedEmail = vi.mocked(subscribeMod.sendAlreadySubscribedEmail);
 const sendConfirmationEmail = vi.mocked(subscribeMod.sendConfirmationEmail);
@@ -84,6 +86,8 @@ beforeEach(() => {
   afterTasks.length = 0;
   isAlreadySubscribed.mockClear();
   isAlreadySubscribed.mockResolvedValue(false);
+  isListmonkUp.mockClear();
+  isListmonkUp.mockResolvedValue(true);
   mintConfirmToken.mockClear();
   sendAlreadySubscribedEmail.mockClear();
   sendAlreadySubscribedEmail.mockResolvedValue();
@@ -186,9 +190,28 @@ describe("POST /api/newsletter/subscribe", () => {
     const res = await POST(makeRequest({ email: "new@example.com" }));
     expect(res.status).toBe(200);
     expect(afterTasks).toHaveLength(1);
+    expect(isListmonkUp).toHaveBeenCalledExactlyOnceWith();
     expect(isAlreadySubscribed).not.toHaveBeenCalled();
     expect(sendConfirmationEmail).not.toHaveBeenCalled();
     expect(sendAlreadySubscribedEmail).not.toHaveBeenCalled();
+  });
+
+  it("tells every address to try again during an outage, and sends nothing", async () => {
+    vi.spyOn(console, "error").mockImplementation(() => {});
+    isListmonkUp.mockResolvedValue(false);
+
+    const fresh = await wireForm(await POST(makeRequest({ email: "new@example.com" })));
+    const confirmed = await wireForm(await POST(makeRequest({ email: "old@example.com" })));
+
+    expect(fresh.status).toBe(502);
+    expect(JSON.parse(fresh.body)).toMatchObject({ error: "send_failed" });
+    expect(confirmed).toEqual(fresh);
+    expect(afterTasks).toHaveLength(0);
+    expect(isAlreadySubscribed).not.toHaveBeenCalled();
+    expect(vi.mocked(reportServerError).mock.calls[0][1]).toEqual({
+      source: "newsletter.subscribe",
+      event: "listmonk_unreachable",
+    });
   });
 
   it.each([
@@ -219,6 +242,7 @@ describe("POST /api/newsletter/subscribe", () => {
     expect(sixth.status).toBe(429);
     expect(await sixth.json()).toMatchObject({ error: "rate_limited" });
     expect(afterTasks).toHaveLength(5);
+    expect(isListmonkUp).toHaveBeenCalledTimes(5);
   });
 });
 
@@ -262,6 +286,7 @@ describe("POST /api/newsletter/subscribe → ListMonk", () => {
     process.env.LISTMONK_TX_TEMPLATE_ID = "5";
     process.env.SES_FROM_EMAIL = "noreply@example.com";
     isAlreadySubscribed.mockImplementation(actual.isAlreadySubscribed);
+    isListmonkUp.mockImplementation(actual.isListmonkUp);
     sendAlreadySubscribedEmail.mockImplementation(actual.sendAlreadySubscribedEmail);
     sendConfirmationEmail.mockImplementation(actual.sendConfirmationEmail);
   });

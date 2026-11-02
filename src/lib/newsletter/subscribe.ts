@@ -163,7 +163,8 @@ export async function sendAlreadySubscribedEmail(
   });
 }
 
-/** Thin re-export so route code can stay close to its previous shape. */
+/** Thin re-exports so route code can stay close to its previous shape. */
+export { isListmonkUp } from "./listmonk";
 export { listmonkConfirm as confirmSubscription };
 
 // ────────────────────────────────────────────────────────────────────────────

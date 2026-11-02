@@ -64,6 +64,32 @@ async function listmonkFetch<T = unknown>(path: string, init: RequestInit = {}):
   return JSON.parse(text) as T;
 }
 
+// A hung ListMonk must not hang the signup form: this is the longest a visitor
+// waits to read "try again". Generous, because a false alarm turns a working
+// signup away.
+const HEALTH_TIMEOUT_MS = 5000;
+
+/**
+ * `false` when ListMonk cannot be reached, stops answering, or answers with
+ * a server error. It takes no address, so its answer is the same for everyone.
+ *
+ * A 4xx counts as up: ListMonk answered, and a role change on this one
+ * endpoint must not close the signup form.
+ */
+export async function isListmonkUp(): Promise<boolean> {
+  try {
+    const res = await fetch(`${baseUrl()}/api/health`, {
+      headers: { Authorization: authHeader(), Accept: "application/json" },
+      cache: "no-store",
+      signal: AbortSignal.timeout(HEALTH_TIMEOUT_MS),
+    });
+    await res.text();
+    return res.status < 500;
+  } catch {
+    return false;
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Environment helpers
 //

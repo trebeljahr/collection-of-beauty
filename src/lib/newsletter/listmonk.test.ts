@@ -4,6 +4,7 @@ import {
   ensureSubscriber,
   findSubscriber,
   isConfirmedOnList,
+  isListmonkUp,
   sendCampaign,
   sendTransactional,
 } from "./listmonk";
@@ -45,6 +46,50 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.unstubAllGlobals();
+});
+
+describe("isListmonkUp", () => {
+  it("asks the health endpoint and nothing else, with a timeout", async () => {
+    const fetchMock = vi.fn(async () => jsonResponse({ data: true }));
+    vi.stubGlobal("fetch", fetchMock);
+
+    expect(await isListmonkUp()).toBe(true);
+
+    const [[url, init]] = fetchMock.mock.calls as unknown as [[string, RequestInit]];
+    expect(url).toBe("https://listmonk.test/api/health");
+    expect(init.signal).toBeInstanceOf(AbortSignal);
+  });
+
+  it("counts a 4xx as up, so a role change cannot close the form", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse({ message: "permission denied" }, 403)),
+    );
+    expect(await isListmonkUp()).toBe(true);
+  });
+
+  it("counts a server error as down", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => jsonResponse({ message: "database down" }, 503)),
+    );
+    expect(await isListmonkUp()).toBe(false);
+  });
+
+  it("counts a failed or timed-out request as down, and does not throw", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => {
+        throw new DOMException("signal timed out", "TimeoutError");
+      }),
+    );
+    expect(await isListmonkUp()).toBe(false);
+  });
+
+  it("counts missing configuration as down, and does not throw", async () => {
+    delete process.env.LISTMONK_URL;
+    expect(await isListmonkUp()).toBe(false);
+  });
 });
 
 describe("findSubscriber", () => {

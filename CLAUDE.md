@@ -2360,6 +2360,13 @@ required by the Dockerfile — don't remove it.
   `send_failed`, and the visitor still reads "Check your inbox".
   `after()` needs Next's request scope: the route's tests stub it and run
   the queued work themselves.
+- **An outage still says "try again".** Before answering, the route calls
+  `isListmonkUp()` (`GET /api/health`, 5 s timeout). It takes no address,
+  so its 502 is the same for everyone, and it is reported as
+  `listmonk_unreachable`. A 4xx counts as up, so a role change on that
+  endpoint cannot close the form. The API user got `200 {"data":true}`
+  on 3 November 2026. It only narrows the gap: a send that fails after
+  the check passes is still lost, and the address is not kept.
 - **Confirmation emails that never arrive** are usually SES, not code.
   SES in eu-west-1 is in sandbox and delivers only to verified
   addresses. `/api/tx` queues the email and returns 200 before SMTP
