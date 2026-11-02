@@ -2381,7 +2381,9 @@ required by the Dockerfile — don't remove it.
   new address takes two more ListMonk calls than a confirmed one, and a
   failure answered with its own status gives it away too (a suppressed
   address got a 502). So a failed send reaches GlitchTip and the log as
-  `send_failed`, and the visitor still reads "Check your inbox".
+  `send_failed`, and the visitor still reads "Check your inbox". The log
+  line is the event name alone, as in the confirm route, because the error
+  text can name the email address.
   `after()` needs Next's request scope: the route's tests stub it and run
   the queued work themselves.
 - **The welcome copy carries our own unsubscribe link.** ListMonk's

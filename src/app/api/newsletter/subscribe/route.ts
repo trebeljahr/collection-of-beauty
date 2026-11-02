@@ -156,7 +156,8 @@ export async function POST(request: NextRequest) {
   after(() =>
     mailAddress(email).catch((err: unknown) => {
       void reportServerError(err, { source: "newsletter.subscribe", event: "send_failed" });
-      log("error", "send_failed", { message: (err as Error).message });
+      // No message: a failed lookup names the address in its path.
+      log("error", "send_failed");
     }),
   );
   return NextResponse.json({ ok: true });

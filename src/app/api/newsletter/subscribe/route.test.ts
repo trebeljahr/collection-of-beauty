@@ -238,6 +238,23 @@ describe("POST /api/newsletter/subscribe", () => {
     expect(errorLog.mock.calls[0][0]).toContain('"send_failed"');
   });
 
+  it("names no address in the log when a send fails", async () => {
+    const errorLog = vi.spyOn(console, "error").mockImplementation(() => {});
+    // What `listmonkFetch` throws when a lookup fails: its path holds the address.
+    sendConfirmationEmail.mockRejectedValueOnce(
+      new Error(
+        `listmonk GET /api/subscribers?search=%5E${encodeURIComponent("reader@example.com")}%24: 500 refused`,
+      ),
+    );
+
+    await POST(makeRequest({ email: "reader@example.com" }));
+    await runAfterTasks();
+
+    const logged = JSON.stringify(errorLog.mock.calls);
+    expect(logged).toContain("send_failed");
+    expect(logged).not.toMatch(/reader|example/);
+  });
+
   it("rate-limits after 5 requests from the same IP", async () => {
     for (let i = 0; i < 5; i++) {
       const res = await POST(makeRequest({ email: `u${i}@example.com` }));
