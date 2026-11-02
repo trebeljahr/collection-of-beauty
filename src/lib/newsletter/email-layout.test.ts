@@ -1,10 +1,12 @@
 import { render } from "@react-email/render";
 import { createElement } from "react";
 import { describe, expect, it } from "vitest";
+import AlreadySubscribed from "../../../emails/already-subscribed";
 import ConfirmSubscription from "../../../emails/confirm-subscription";
 import WeeklyDigest from "../../../emails/weekly-digest";
 
 const TEMPLATES = [
+  ["already-subscribed", AlreadySubscribed],
   ["confirm-subscription", ConfirmSubscription],
   ["weekly-digest", WeeklyDigest],
 ] as const;

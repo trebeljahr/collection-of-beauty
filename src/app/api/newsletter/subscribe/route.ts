@@ -1,4 +1,4 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { after, type NextRequest, NextResponse } from "next/server";
 import { reportServerError } from "@/lib/error-reporting/server";
 import { SITE_URL } from "@/lib/links";
 import { resolveConfirmHero } from "@/lib/newsletter/confirmation-cover";
@@ -7,6 +7,7 @@ import {
   isAlreadySubscribed,
   mintConfirmToken,
   normalizeEmail,
+  sendAlreadySubscribedEmail,
   sendConfirmationEmail,
 } from "@/lib/newsletter/subscribe";
 
@@ -37,6 +38,35 @@ function log(level: "info" | "error", event: string, extra: object = {}): void {
   const line = JSON.stringify({ scope: "newsletter.subscribe", level, event, ...extra });
   if (level === "error") console.error(line);
   else console.info(line);
+}
+
+/**
+ * Send the email this address should get: a confirmation link, or a note
+ * that it is already on the list. Only the address's owner learns which.
+ */
+async function mailAddress(email: string, ip: string): Promise<void> {
+  if (await isAlreadySubscribed(email)) {
+    await sendAlreadySubscribedEmail({ to: email, siteUrl: SITE_URL });
+    log("info", "already_subscribed", { ip });
+    return;
+  }
+
+  const token = mintConfirmToken(email);
+  // Never derive this from the request: behind Coolify's proxy the
+  // standalone server sees its own bind address (HOSTNAME=0.0.0.0,
+  // PORT=80), and that is what ended up in the emailed link.
+  const confirmUrl = `${SITE_URL}/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
+  const hero = resolveConfirmHero(SITE_URL);
+
+  await sendConfirmationEmail({
+    to: email,
+    confirmUrl,
+    heroImageUrl: hero.imageUrl,
+    heroArtworkUrl: hero.artworkUrl,
+    heroCaption: hero.caption,
+    heroAlt: hero.alt,
+  });
+  log("info", "confirmation_sent", { ip });
 }
 
 export async function POST(request: NextRequest) {
@@ -74,43 +104,16 @@ export async function POST(request: NextRequest) {
     );
   }
 
-  // Short-circuit confirmed members — no point sending another confirmation
-  // email and re-issuing a token that does nothing. UX-wise this also lets
-  // the form tell the user "you're already on the list" instead of "check
-  // your inbox" (which never arrives because the address is already live).
-  if (await isAlreadySubscribed(email)) {
-    log("info", "already_subscribed", { ip });
-    return NextResponse.json({ ok: true, alreadySubscribed: true });
-  }
-
-  const token = mintConfirmToken(email);
-  // Never derive this from the request: behind Coolify's proxy the
-  // standalone server sees its own bind address (HOSTNAME=0.0.0.0,
-  // PORT=80), and that is what ended up in the emailed link.
-  const confirmUrl = `${SITE_URL}/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
-  const hero = resolveConfirmHero(SITE_URL);
-
-  try {
-    await sendConfirmationEmail({
-      to: email,
-      confirmUrl,
-      heroImageUrl: hero.imageUrl,
-      heroArtworkUrl: hero.artworkUrl,
-      heroCaption: hero.caption,
-      heroAlt: hero.alt,
-    });
-  } catch (err) {
-    void reportServerError(err, {
-      source: "newsletter.subscribe",
-      event: "send_confirmation_failed",
-    });
-    log("error", "send_confirmation_failed", { ip, message: (err as Error).message });
-    return NextResponse.json(
-      { error: "send_failed", message: "Could not send confirmation email. Please try again." },
-      { status: 502 },
-    );
-  }
-
-  log("info", "confirmation_sent", { ip });
+  // Anyone can type anyone's address, so every valid address gets this same
+  // answer, and it goes out before anything asks ListMonk about this one.
+  // Waiting would give the answer away by time: a new address takes two
+  // more ListMonk calls than a confirmed one. So a failed send reaches
+  // GlitchTip and the log, and the form still says "check your inbox".
+  after(() =>
+    mailAddress(email, ip).catch((err: unknown) => {
+      void reportServerError(err, { source: "newsletter.subscribe", event: "send_failed" });
+      log("error", "send_failed", { ip, message: (err as Error).message });
+    }),
+  );
   return NextResponse.json({ ok: true });
 }

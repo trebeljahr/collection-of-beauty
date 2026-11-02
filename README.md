@@ -149,7 +149,8 @@ configured (by Hatchkit) to deliver via Amazon SES SMTP in eu-west-1.
 The app never talks to SES directly — it talks to ListMonk's HTTP API,
 which in turn fans out via SES. The double-opt-in confirmation email
 is rendered from React Email (`emails/confirm-subscription.tsx`) and
-dispatched through ListMonk's transactional template; digests
+dispatched through ListMonk's transactional template, as is the note a
+confirmed subscriber gets in its place (`emails/already-subscribed.tsx`); digests
 go through ListMonk campaigns, which auto-substitute
 `{{ UnsubscribeURL }}` per recipient.
 Email image URLs always use the deployed assets bucket (or

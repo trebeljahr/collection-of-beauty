@@ -1,6 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 import { render } from "@react-email/render";
 import { createElement } from "react";
+import AlreadySubscribed from "../../../emails/already-subscribed";
 import ConfirmSubscription from "../../../emails/confirm-subscription";
 import {
   ensureSubscriber,
@@ -88,8 +89,9 @@ export function normalizeEmail(raw: unknown): string | null {
 
 /**
  * `true` when the address is already a confirmed member of the
- * environment-resolved list. Used by the subscribe endpoint to
- * short-circuit and skip the confirmation send for repeat signups.
+ * environment-resolved list. Used by the subscribe endpoint to choose
+ * which email to send. Never let this reach the form's response: anyone
+ * can type anyone's address.
  *
  * Swallows network errors and returns `false` so a ListMonk hiccup
  * falls through to the normal send-confirmation path rather than 500ing
@@ -134,6 +136,29 @@ export async function sendConfirmationEmail(params: SendConfirmationEmailParams)
   await sendTransactional({
     to: params.to,
     subject: "Confirm your subscription · Drops of Beauty",
+    html,
+  });
+}
+
+export type SendAlreadySubscribedEmailParams = {
+  to: string;
+  /** Public site root, linked from the email. */
+  siteUrl: string;
+};
+
+/**
+ * Tell a confirmed member that their address went through the form. No
+ * token and no `ensureSubscriber`: the member exists in ListMonk already,
+ * and there is nothing left for them to confirm.
+ */
+export async function sendAlreadySubscribedEmail(
+  params: SendAlreadySubscribedEmailParams,
+): Promise<void> {
+  const html = await render(createElement(AlreadySubscribed, { siteUrl: params.siteUrl }));
+
+  await sendTransactional({
+    to: params.to,
+    subject: "You're already on the list · Drops of Beauty",
     html,
   });
 }

@@ -2347,11 +2347,23 @@ required by the Dockerfile — don't remove it.
   `preconfirm_subscriptions: true` on every create: ListMonk sends its
   own opt-in email (`app.send_optin_confirmation` is on) for an
   `unconfirmed` membership on a double list, next to ours.
+- **The form's answer says nothing about the address.** Anyone can type
+  anyone's address, so `POST /api/newsletter/subscribe` answers
+  `{ ok: true }` for every valid one and does the rest in `after()`: a
+  confirmation email to an address that is not on the list, the note in
+  `emails/already-subscribed.tsx` (no token) to a confirmed member. Until
+  2 November 2026 it answered `alreadySubscribed: true`. An `await` on
+  ListMonk before that response gives the answer away by time, since a
+  new address takes two more ListMonk calls than a confirmed one, and a
+  failure answered with its own status gives it away too (a suppressed
+  address got a 502). So a failed send reaches GlitchTip and the log as
+  `send_failed`, and the visitor still reads "Check your inbox".
+  `after()` needs Next's request scope: the route's tests stub it and run
+  the queued work themselves.
 - **Confirmation emails that never arrive** are usually SES, not code.
   SES in eu-west-1 is in sandbox and delivers only to verified
   addresses. `/api/tx` queues the email and returns 200 before SMTP
-  runs, so the form shows "Check your inbox" either way. The SES
-  rejection shows only in ListMonk's `GET /api/logs`.
+  runs. The SES rejection shows only in ListMonk's `GET /api/logs`.
 - The public archive lives at `/newsletter` (index) and
   `/newsletter/<slug>` (per-edition magazine-style page). Both are
   in the sitemap. Drafts never reach the public surface.

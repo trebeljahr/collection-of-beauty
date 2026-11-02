@@ -11,7 +11,6 @@ type Status =
   | { kind: "idle" }
   | { kind: "submitting" }
   | { kind: "success" }
-  | { kind: "already-subscribed" }
   | { kind: "error"; message: string };
 
 // Same regex as the server (src/lib/newsletter/subscribe.ts) so client and
@@ -92,9 +91,8 @@ export function SubscribeForm({
         });
         return;
       }
-      const data = (await res.json().catch(() => ({}))) as { alreadySubscribed?: boolean };
       setEmail("");
-      setStatus({ kind: data.alreadySubscribed ? "already-subscribed" : "success" });
+      setStatus({ kind: "success" });
     } catch {
       setStatus({ kind: "error", message: "Network error. Please try again." });
     } finally {
@@ -119,30 +117,8 @@ export function SubscribeForm({
         <p className="font-medium">Check your inbox.</p>
         {!compact && (
           <p className="mt-1 text-[var(--muted-foreground)]">
-            Tap the confirmation link to finish. Spam folder is the usual suspect if it doesn't
-            surface.
-          </p>
-        )}
-      </div>
-    );
-  }
-
-  if (status.kind === "already-subscribed") {
-    return (
-      <div
-        role="status"
-        aria-live="polite"
-        className={cn(
-          "rounded-lg border border-[var(--border)] bg-[var(--accent)] text-sm",
-          compact ? "p-3 text-xs" : "p-5",
-          className,
-        )}
-      >
-        <p className="font-medium">You&apos;re already on the list.</p>
-        {!compact && (
-          <p className="mt-1 text-[var(--muted-foreground)]">
-            That address is already a confirmed subscriber. Nothing to do. The next issue will reach
-            you when it goes out.
+            If this address is new here, tap the confirmation link in the email to finish. Spam
+            folder is the usual suspect if it doesn't surface.
           </p>
         )}
       </div>
