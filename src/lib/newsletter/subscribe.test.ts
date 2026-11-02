@@ -1,10 +1,11 @@
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Pinned before importing the module under test — token mint/verify reads
 // the env at call time, but defensive in case that ever changes.
 process.env.NEWSLETTER_TOKEN_SECRET = "test-secret-do-not-use-in-prod";
 
 import {
+  _rateLimitBuckets,
   _resetRateLimit,
   CONFIRM_TOKEN_TTL_MS,
   checkRateLimit,
@@ -85,5 +86,36 @@ describe("rate limiter", () => {
     for (let i = 0; i < 5; i++) checkRateLimit("9.9.9.9", t0);
     expect(checkRateLimit("9.9.9.9", t0)).toBe(false);
     expect(checkRateLimit("9.9.9.9", t0 + 60_001)).toBe(true);
+  });
+
+  describe("holding an address", () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    // /privacy: held "for the configured window (currently 60 seconds) and
+    // then discarded", with no later request needed to discard it.
+    it("discards an address when its window ends", () => {
+      checkRateLimit("1.2.3.4");
+      vi.advanceTimersByTime(59_999);
+      expect(_rateLimitBuckets()).toBe(1);
+      vi.advanceTimersByTime(1);
+      expect(_rateLimitBuckets()).toBe(0);
+    });
+
+    // A busy event loop runs the delete late, after a request opened a new window.
+    it("leaves a newer window alone when an old delete runs late", () => {
+      const t0 = Date.now();
+      checkRateLimit("1.2.3.4", t0);
+      vi.advanceTimersByTime(30_000);
+      checkRateLimit("1.2.3.4", t0 + 60_001);
+      vi.advanceTimersByTime(30_000);
+      expect(_rateLimitBuckets()).toBe(1);
+      vi.advanceTimersByTime(30_000);
+      expect(_rateLimitBuckets()).toBe(0);
+    });
   });
 });

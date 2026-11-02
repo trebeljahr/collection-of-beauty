@@ -23,18 +23,44 @@ type SubscribeBody = {
   website?: string;
 };
 
-function clientIp(request: NextRequest): string {
-  // Coolify / typical reverse proxy chain. `x-forwarded-for` is a comma-
-  // separated chain; the first entry is the original client. Fall back to
-  // a stable bucket key when nothing is set so misconfigured deploys
-  // still rate-limit (rather than disabling the limiter entirely).
-  const fwd = request.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0].trim();
-  const real = request.headers.get("x-real-ip");
-  if (real) return real;
-  return "unknown";
+/**
+ * An IPv6 client is handed a /64 or more and can use any address in it, so its
+ * bucket is the /64.
+ */
+function ipv6Network(ip: string): string {
+  const [head, tail = ""] = ip.toLowerCase().split("::");
+  const left = head.split(":").filter(Boolean);
+  const right = tail.split(":").filter(Boolean);
+  const zeros = Array<string>(Math.max(0, 8 - left.length - right.length)).fill("0");
+  return [...left, ...zeros, ...right]
+    .slice(0, 4)
+    .map((group) => group.replace(/^0+(?=.)/, ""))
+    .join(":");
 }
 
+/**
+ * What the rate limiter keys on, which a client must not be able to choose.
+ *
+ * Measured on the live site on 3 November 2026. Coolify's Traefik trusts no
+ * proxy, so it replaces `x-forwarded-for` and `x-real-ip` with the address it
+ * took the request from: a Cloudflare edge, one of many. Seven POSTs from one
+ * client came through five, so a retry got a new bucket and strangers shared
+ * one. `cf-connecting-ip` passes through and names the client. Cloudflare
+ * answers 403 to a client that sends its own, and the origin's firewall
+ * (hatchkit's `HATCHKIT-CF`) drops whatever does not come from Cloudflare.
+ * Without that firewall this header can be forged.
+ *
+ * A Worker on another Cloudflare account can set the header on a subrequest,
+ * and Cloudflare marks those with `cf-worker`. They share one bucket with any
+ * request that has no address, so a misconfigured deploy still rate-limits.
+ */
+function rateLimitKey(request: NextRequest): string {
+  const ip = request.headers.get("cf-connecting-ip");
+  if (!ip || request.headers.has("cf-worker")) return "unknown";
+  return ip.includes(":") ? ipv6Network(ip) : ip;
+}
+
+// No address on these lines: /privacy says the rate limiter alone holds it.
 function log(level: "info" | "error", event: string, extra: object = {}): void {
   const line = JSON.stringify({ scope: "newsletter.subscribe", level, event, ...extra });
   if (level === "error") console.error(line);
@@ -45,10 +71,10 @@ function log(level: "info" | "error", event: string, extra: object = {}): void {
  * Send the email this address should get: a confirmation link, or a note
  * that it is already on the list. Only the address's owner learns which.
  */
-async function mailAddress(email: string, ip: string): Promise<void> {
+async function mailAddress(email: string): Promise<void> {
   if (await isAlreadySubscribed(email)) {
     await sendAlreadySubscribedEmail({ to: email, siteUrl: SITE_URL });
-    log("info", "already_subscribed", { ip });
+    log("info", "already_subscribed");
     return;
   }
 
@@ -67,13 +93,12 @@ async function mailAddress(email: string, ip: string): Promise<void> {
     heroCaption: hero.caption,
     heroAlt: hero.alt,
   });
-  log("info", "confirmation_sent", { ip });
+  log("info", "confirmation_sent");
 }
 
 export async function POST(request: NextRequest) {
-  const ip = clientIp(request);
-  if (!checkRateLimit(ip)) {
-    log("info", "rate_limited", { ip });
+  if (!checkRateLimit(rateLimitKey(request))) {
+    log("info", "rate_limited");
     return NextResponse.json(
       { error: "rate_limited", message: "Too many requests. Please wait a minute." },
       { status: 429 },
@@ -93,7 +118,7 @@ export async function POST(request: NextRequest) {
   // Honeypot: real users never fill this. Return a 200-shaped success so
   // bots get no signal about what tripped them.
   if (body.website && body.website.trim().length > 0) {
-    log("info", "honeypot_triggered", { ip });
+    log("info", "honeypot_triggered");
     return NextResponse.json({ ok: true });
   }
 
@@ -129,9 +154,9 @@ export async function POST(request: NextRequest) {
   // health check reaches GlitchTip and the log, and the form still says
   // "check your inbox".
   after(() =>
-    mailAddress(email, ip).catch((err: unknown) => {
+    mailAddress(email).catch((err: unknown) => {
       void reportServerError(err, { source: "newsletter.subscribe", event: "send_failed" });
-      log("error", "send_failed", { ip, message: (err as Error).message });
+      log("error", "send_failed", { message: (err as Error).message });
     }),
   );
   return NextResponse.json({ ok: true });

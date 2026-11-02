@@ -180,32 +180,29 @@ const RATE_WINDOW_MS = 60_000;
 const RATE_MAX_PER_WINDOW = 5;
 const ipBuckets = new Map<string, { count: number; resetAt: number }>();
 
-// The limiter runs before the body is parsed, so every request — junk
-// included — allocates a bucket, and nothing here ever expires one on its
-// own. Sweep the dead entries whenever the map crosses this size; a whole
-// window's worth of distinct IPs is far below it, so the scan is rare and
-// never on the hot path.
-const RATE_SWEEP_AT = 10_000;
-
-function sweepExpired(now: number): void {
-  for (const [ip, bucket] of ipBuckets) {
-    if (bucket.resetAt < now) ipBuckets.delete(ip);
-  }
-}
-
 export function checkRateLimit(ip: string, now: number = Date.now()): boolean {
-  const bucket = ipBuckets.get(ip);
-  if (!bucket || bucket.resetAt < now) {
-    if (ipBuckets.size >= RATE_SWEEP_AT) sweepExpired(now);
-    ipBuckets.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+  const current = ipBuckets.get(ip);
+  if (!current || current.resetAt < now) {
+    const bucket = { count: 1, resetAt: now + RATE_WINDOW_MS };
+    ipBuckets.set(ip, bucket);
+    // /privacy says an address is held for the window and then discarded, so
+    // this cannot wait for a later request. `unref` lets a draining server exit.
+    setTimeout(() => {
+      if (ipBuckets.get(ip) === bucket) ipBuckets.delete(ip);
+    }, RATE_WINDOW_MS).unref();
     return true;
   }
-  if (bucket.count >= RATE_MAX_PER_WINDOW) return false;
-  bucket.count += 1;
+  if (current.count >= RATE_MAX_PER_WINDOW) return false;
+  current.count += 1;
   return true;
 }
 
 // Test-only — drop the bucket so unit tests don't bleed state across runs.
 export function _resetRateLimit(): void {
   ipBuckets.clear();
+}
+
+// Test-only — how many addresses the limiter holds right now.
+export function _rateLimitBuckets(): number {
+  return ipBuckets.size;
 }

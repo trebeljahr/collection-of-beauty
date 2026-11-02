@@ -69,12 +69,17 @@ async function wireForm(res: Response) {
   return { status: res.status, headers: [...res.headers], body: await res.text() };
 }
 
+const EDGE = "172.69.23.119";
+
 function makeRequest(body: unknown, headers: Record<string, string> = {}): NextRequest {
   return new NextRequest("http://localhost/api/newsletter/subscribe", {
     method: "POST",
     headers: {
       "content-type": "application/json",
-      "x-forwarded-for": "203.0.113.7", // distinct per test via beforeEach reset
+      // As the route gets them in production: the visitor, and the Cloudflare
+      // edge Traefik took the request from.
+      "cf-connecting-ip": "203.0.113.7", // distinct per test via beforeEach reset
+      "x-forwarded-for": EDGE,
       ...headers,
     },
     body: typeof body === "string" ? body : JSON.stringify(body),
@@ -116,7 +121,7 @@ describe("POST /api/newsletter/subscribe", () => {
     // What the standalone server sees behind Coolify's proxy.
     const req = new NextRequest("http://0.0.0.0:80/api/newsletter/subscribe", {
       method: "POST",
-      headers: { "content-type": "application/json", "x-forwarded-for": "203.0.113.8" },
+      headers: { "content-type": "application/json", "cf-connecting-ip": "203.0.113.8" },
       body: JSON.stringify({ email: "proxy@example.com" }),
     });
     const res = await POST(req);
@@ -243,6 +248,104 @@ describe("POST /api/newsletter/subscribe", () => {
     expect(await sixth.json()).toMatchObject({ error: "rate_limited" });
     expect(afterTasks).toHaveLength(5);
     expect(isListmonkUp).toHaveBeenCalledTimes(5);
+  });
+});
+
+describe("POST /api/newsletter/subscribe rate-limit key", () => {
+  const post = (headers: Record<string, string>) =>
+    POST(makeRequest({ email: "new@example.com" }, headers));
+
+  /** Spends a whole bucket, one set of headers a request, and checks it is spent. */
+  async function spendBucket(headersFor: (i: number) => Record<string, string>) {
+    for (let i = 0; i < 5; i++) expect((await post(headersFor(i))).status).toBe(200);
+    expect((await post(headersFor(5))).status).toBe(429);
+  }
+
+  it("gives a forged first x-forwarded-for entry no new bucket", async () => {
+    await spendBucket((i) => ({ "x-forwarded-for": `198.51.100.${i}, ${EDGE}` }));
+  });
+
+  // What the live site does with no forging at all: seven POSTs from one
+  // client came through five edge addresses.
+  it("gives a new Cloudflare edge address no new bucket", async () => {
+    await spendBucket((i) => ({
+      "x-forwarded-for": `172.70.214.${i}`,
+      "x-real-ip": `172.70.214.${i}`,
+    }));
+  });
+
+  it("gives two visitors behind one edge a bucket each", async () => {
+    await spendBucket(() => ({ "cf-connecting-ip": "203.0.113.20" }));
+    expect((await post({ "cf-connecting-ip": "203.0.113.21" })).status).toBe(200);
+  });
+
+  it("buckets an IPv6 client by its /64, however the address is written", async () => {
+    const sameNetwork = [
+      "2001:db8:1:2::1",
+      "2001:db8:1:2:aaaa:bbbb:cccc:dddd",
+      "2001:0db8:0001:0002::2",
+      "2001:DB8:1:2:0:0:0:3",
+      "2001:db8:1:2::4",
+      "2001:db8:1:2:ffff::",
+    ];
+    await spendBucket((i) => ({ "cf-connecting-ip": sameNetwork[i] }));
+    expect((await post({ "cf-connecting-ip": "2001:db8:1:3::1" })).status).toBe(200);
+  });
+
+  it("does not fold the zeros of a short IPv6 address into another /64", async () => {
+    await spendBucket(() => ({ "cf-connecting-ip": "2001:db8::1" }));
+    expect((await post({ "cf-connecting-ip": "2001:db8:0:1::1" })).status).toBe(200);
+  });
+
+  // Cloudflare documents that a Worker can set `cf-connecting-ip` on a
+  // subrequest to a host off its network, and marks every subrequest.
+  it("gives a Worker no bucket per address it names", async () => {
+    await spendBucket((i) => ({
+      "cf-connecting-ip": `198.51.100.${i}`,
+      "cf-worker": "example.net",
+    }));
+  });
+
+  it("puts every request without the header in one bucket", async () => {
+    for (let i = 0; i < 6; i++) {
+      const req = makeRequest(
+        { email: "new@example.com" },
+        { "x-forwarded-for": `198.51.100.${i}` },
+      );
+      req.headers.delete("cf-connecting-ip");
+      expect((await POST(req)).status).toBe(i < 5 ? 200 : 429);
+    }
+  });
+
+  // /privacy: the address "is held only by the rate limiter".
+  it("writes no address to the log", async () => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => {});
+    const error = vi.spyOn(console, "error").mockImplementation(() => {});
+
+    await post({});
+    isAlreadySubscribed.mockResolvedValueOnce(true);
+    await post({});
+    sendConfirmationEmail.mockRejectedValueOnce(new Error("listmonk down"));
+    await post({});
+    await runAfterTasks();
+    await POST(makeRequest({ email: "bot@example.com", website: "filled" }));
+    await post({});
+    await post({});
+
+    const lines = [...info.mock.calls, ...error.mock.calls].map(([line]) => String(line));
+    const events = lines.map((line) => JSON.parse(line).event).sort();
+    expect(events).toEqual([
+      "already_subscribed",
+      "confirmation_sent",
+      "honeypot_triggered",
+      "rate_limited",
+      "send_failed",
+    ]);
+    for (const line of lines) {
+      expect(line).not.toContain("203.0.113.7");
+      expect(line).not.toContain(EDGE);
+      expect(JSON.parse(line)).not.toHaveProperty("ip");
+    }
   });
 });
 

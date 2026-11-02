@@ -2367,6 +2367,23 @@ required by the Dockerfile — don't remove it.
   endpoint cannot close the form. The API user got `200 {"data":true}`
   on 3 November 2026. It only narrows the gap: a send that fails after
   the check passes is still lost, and the address is not kept.
+- **The signup rate limit keys on `cf-connecting-ip`** (`rateLimitKey` in
+  the route, /64 for IPv6), because nothing else names the client. On
+  3 November 2026, at the app container: `x-forwarded-for` and `x-real-ip`
+  held one Cloudflare edge address, whatever the client sent, since
+  Traefik has no `forwardedHeaders.trustedIPs` and rewrites both. Seven
+  POSTs from one client came through five edges. Until then the limiter
+  keyed on that edge, so a retry usually got a new bucket and strangers
+  shared one. A forged `cf-connecting-ip` gets 403 (`error code: 1000`)
+  from Cloudflare, and a direct connection to the origin times out
+  (`HATCHKIT-CF`), over IPv4 and IPv6. Open that firewall, or move the site
+  off Cloudflare, and the header can be forged: change the key with it.
+  Cloudflare's docs also let a Worker set the header on some subrequests.
+  Those carry `cf-worker` and share one bucket; this was not tried live.
+  Only Authenticated Origin Pulls would shut that route at the origin.
+- **The route logs no address**, and a bucket is deleted when its 60 s end,
+  because `/privacy` says the limiter holds the address for that long and
+  no one else does. Change one, change the other.
 - **Confirmation emails that never arrive** are usually SES, not code.
   SES in eu-west-1 is in sandbox and delivers only to verified
   addresses. `/api/tx` queues the email and returns 200 before SMTP
