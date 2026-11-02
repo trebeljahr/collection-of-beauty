@@ -2388,6 +2388,15 @@ required by the Dockerfile — don't remove it.
     address to write to.
   - `renderEdition` requires `unsubscribeUrl`, so no send can drop the
     block. A campaign passes `LISTMONK_UNSUBSCRIBE_URL`.
+  - The welcome copy also has the two headers ListMonk adds to a campaign,
+    `List-Unsubscribe` and `List-Unsubscribe-Post` (RFC 8058), for the mail
+    client's own button. Their address is the API route. A POST with
+    `List-Unsubscribe=One-Click` gets a status (200, 400, 500), because the
+    RFC forbids a redirect; a POST without that key is the page's button and
+    gets a 303; a GET leads to the page. The RFC also requires a DKIM
+    signature that covers both headers, or the receiver should not offer the
+    button. That has not been read off a mail SES signed: look for both in
+    the `h=` tag of a real welcome copy.
 - **An outage still says "try again".** Before answering, the route calls
   `isListmonkUp()` (`GET /api/health`, 5 s timeout). It takes no address,
   so its 502 is the same for everyone, and it is reported as

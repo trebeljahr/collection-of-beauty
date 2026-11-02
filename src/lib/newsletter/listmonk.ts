@@ -316,6 +316,8 @@ export type SendTransactionalParams = {
   to: string;
   subject: string;
   html: string;
+  /** Mail headers for this message, next to the configured Reply-To. */
+  headers?: Record<string, string>;
 };
 
 /**
@@ -329,7 +331,7 @@ export type SendTransactionalParams = {
  */
 export async function sendTransactional(params: SendTransactionalParams): Promise<void> {
   const templateId = Number(required("LISTMONK_TX_TEMPLATE_ID"));
-  const headers = resolveEmailHeaders();
+  const headers = [...resolveEmailHeaders(), ...(params.headers ? [params.headers] : [])];
   await listmonkFetch("/api/tx", {
     method: "POST",
     body: JSON.stringify({

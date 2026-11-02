@@ -28,7 +28,7 @@ type Membership = {
  */
 function fakeListmonk(lists: Membership[]) {
   const writes: unknown[] = [];
-  const mails: { body: string }[] = [];
+  const mails: { body: string; headers?: Record<string, string>[] }[] = [];
   const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
     const url = String(input);
     const body = init?.body ? JSON.parse(String(init.body)) : undefined;
@@ -56,7 +56,7 @@ function fakeListmonk(lists: Membership[]) {
         }
       }
     } else if (url.endsWith("/api/tx")) {
-      mails.push({ body: body.data.body });
+      mails.push({ body: body.data.body, headers: body.headers });
     }
     return new Response(JSON.stringify(answer), { status: 200 });
   });
@@ -152,8 +152,18 @@ describe("the welcome copy's unsubscribe link", () => {
     expect(listmonk.lists[0].subscription_updated_at).toBe(date);
   });
 
-  it("changes nothing on GET, which is all a mail filter does", () => {
-    expect((route as Record<string, unknown>).GET).toBeUndefined();
+  it("changes nothing on GET, which is all a mail filter does", async () => {
+    const listmonk = fakeListmonk([]);
+    const token = mintUnsubscribeToken(ADDRESS);
+    const url = `http://localhost/api/newsletter/unsubscribe?token=${encodeURIComponent(token)}`;
+
+    const response = route.GET(new NextRequest(url));
+
+    expect(response.status).toBe(303);
+    const location = new URL(response.headers.get("location") ?? "");
+    expect(location.pathname).toBe("/sub/unsubscribe");
+    expect(location.searchParams.get("token")).toBe(token);
+    expect(listmonk.fetchMock).not.toHaveBeenCalled();
   });
 
   it("refuses a confirm token and a forged one, and calls ListMonk for neither", async () => {
@@ -185,6 +195,88 @@ describe("the welcome copy's unsubscribe link", () => {
     const logged = JSON.stringify(vi.mocked(console.error).mock.calls);
     expect(logged).toContain("unsubscribe_failed");
     expect(logged).not.toMatch(/reader|example\.com/);
+  });
+});
+
+describe("the mail client's own Unsubscribe button", () => {
+  const confirmed = (): Membership[] => [
+    {
+      id: OUR_LIST,
+      subscription_status: "confirmed",
+      subscription_updated_at: "2026-01-01T00:00:00Z",
+    },
+  ];
+
+  function urlEncoded(): URLSearchParams {
+    return new URLSearchParams({ "List-Unsubscribe": "One-Click" });
+  }
+
+  function multipart(): FormData {
+    const form = new FormData();
+    form.set("List-Unsubscribe", "One-Click");
+    return form;
+  }
+
+  function press(url: string, body: BodyInit): Promise<Response> {
+    return route.POST(new NextRequest(url, { method: "POST", body }));
+  }
+
+  it.each([
+    ["application/x-www-form-urlencoded", urlEncoded],
+    ["multipart/form-data", multipart],
+  ])("takes the address off the list from the real send's headers, by %s, with no redirect", async (_type, body) => {
+    const listmonk = fakeListmonk([]);
+    await confirmClick(mintConfirmToken(ADDRESS));
+
+    const headers = Object.assign({}, ...(listmonk.mails[0]?.headers ?? []));
+    expect(headers["List-Unsubscribe-Post"]).toBe("List-Unsubscribe=One-Click");
+    const url = headers["List-Unsubscribe"]?.match(/^<(.+)>$/)?.[1] ?? "";
+    expect(url).toContain("/api/newsletter/unsubscribe?token=");
+
+    const response = await press(url, body());
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("location")).toBeNull();
+    expect(listmonk.writes.at(-1)).toEqual({
+      ids: [42],
+      action: "unsubscribe",
+      target_list_ids: [OUR_LIST],
+    });
+  });
+
+  it("answers a forged token and a ListMonk failure with a status, never a redirect", async () => {
+    fakeListmonk(confirmed());
+    const forged = await press(
+      "http://localhost/api/newsletter/unsubscribe?token=forged",
+      urlEncoded(),
+    );
+    expect(forged.status).toBe(400);
+    expect(forged.headers.get("location")).toBeNull();
+
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response("down", { status: 500 })),
+    );
+    const token = encodeURIComponent(mintUnsubscribeToken(ADDRESS));
+    const failed = await press(
+      `http://localhost/api/newsletter/unsubscribe?token=${token}`,
+      urlEncoded(),
+    );
+    expect(failed.status).toBe(500);
+    expect(failed.headers.get("location")).toBeNull();
+  });
+
+  it("still sends the page's own button back to the page", async () => {
+    fakeListmonk(confirmed());
+    const token = encodeURIComponent(mintUnsubscribeToken(ADDRESS));
+
+    const response = await press(
+      `http://localhost/api/newsletter/unsubscribe?token=${token}`,
+      new URLSearchParams(),
+    );
+
+    expect(response.status).toBe(303);
+    expect(response.headers.get("location")).toMatch(/\/sub\/unsubscribe\?done=1$/);
   });
 });
 

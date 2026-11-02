@@ -164,6 +164,27 @@ describe("sendTransactional", () => {
       headers: [{ "Reply-To": "Drops of Beauty <hello@example.com>" }],
     });
   });
+
+  it("sends a message's own headers next to the reply-to", async () => {
+    process.env.LISTMONK_REPLY_TO = "Drops of Beauty <hello@example.com>";
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      jsonResponse({ data: true }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await sendTransactional({
+      to: "reader@example.com",
+      subject: "Welcome",
+      html: "<p>Hello</p>",
+      headers: { "List-Unsubscribe": "<https://example.com/u>" },
+    });
+
+    const body = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
+    expect(body.headers).toEqual([
+      { "Reply-To": "Drops of Beauty <hello@example.com>" },
+      { "List-Unsubscribe": "<https://example.com/u>" },
+    ]);
+  });
 });
 
 describe("shared campaign transport", () => {

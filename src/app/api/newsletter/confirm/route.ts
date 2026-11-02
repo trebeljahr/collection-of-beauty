@@ -36,16 +36,22 @@ async function sendWelcomeIssue(email: string, siteUrl: string): Promise<boolean
   const editions = loadPublishedEditions();
   if (editions.length === 0) return false;
   const latest = editions[editions.length - 1];
-  const token = mintUnsubscribeToken(email);
+  const token = encodeURIComponent(mintUnsubscribeToken(email));
   const rendered = await renderEdition({
     edition: latest,
     siteUrl,
-    unsubscribeUrl: `${siteUrl}/sub/unsubscribe?token=${encodeURIComponent(token)}`,
+    unsubscribeUrl: `${siteUrl}/sub/unsubscribe?token=${token}`,
   });
   await sendTransactional({
     to: email,
     subject: `Welcome — ${rendered.subject}`,
     html: rendered.html,
+    // The mail client's own Unsubscribe button, which ListMonk adds to a
+    // campaign by itself.
+    headers: {
+      "List-Unsubscribe": `<${siteUrl}/api/newsletter/unsubscribe?token=${token}>`,
+      "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+    },
   });
   log("info", "welcome_sent", { edition: latest.fileSlug });
   return true;
