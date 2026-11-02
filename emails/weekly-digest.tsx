@@ -14,6 +14,7 @@ import {
 } from "@react-email/components";
 import * as React from "react";
 import { DEFAULT_WALL_PALETTE, type WallPalette } from "../src/lib/newsletter/wall-layout";
+import { Inset } from "./inset";
 
 void React; // referenced by JSX runtime under classic transform
 
@@ -115,7 +116,7 @@ export default function WeeklyDigest({
       </Head>
       <Preview>{previewText}</Preview>
       <Tailwind>
-        <Body className="bg-stone-50 font-serif text-stone-900">
+        <Body className="bg-white font-serif text-stone-900">
           <Container className="mx-auto max-w-[640px] bg-white px-0 py-0">
             {/*
               The wall image and the title cell share the wall's base
@@ -139,7 +140,7 @@ export default function WeeklyDigest({
                   }}
                 />
               )}
-              <Section className={`px-8 pb-10 text-center ${wall ? "pt-1" : "pt-10"}`}>
+              <Inset className={`px-8 pb-10 text-center ${wall ? "pt-1" : "pt-10"}`}>
                 <Text
                   className="m-0 text-[11px] uppercase tracking-[0.24em]"
                   style={{ color: palette.kicker }}
@@ -167,10 +168,10 @@ export default function WeeklyDigest({
                     Read on the web
                   </Link>
                 </Text>
-              </Section>
+              </Inset>
             </Section>
 
-            <Section className="px-8 py-10">
+            <Inset className="px-8 py-10">
               {introHtml.length > 0 && (
                 <>
                   <Section>
@@ -253,7 +254,7 @@ export default function WeeklyDigest({
                   All works public domain or openly licensed.
                 </Text>
               </Section>
-            </Section>
+            </Inset>
           </Container>
         </Body>
       </Tailwind>

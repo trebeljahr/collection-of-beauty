@@ -13,6 +13,7 @@ import {
   Text,
 } from "@react-email/components";
 import * as React from "react";
+import { Inset } from "./inset";
 
 void React; // referenced by JSX runtime under classic transform
 
@@ -42,13 +43,13 @@ export default function ConfirmSubscription({
       <Head />
       <Preview>One click to confirm your subscription to Drops of Beauty.</Preview>
       <Tailwind>
-        <Body className="bg-stone-50 font-serif text-stone-900">
+        <Body className="bg-white font-serif text-stone-900">
           <Container className="mx-auto max-w-[560px] bg-white px-0 py-0">
-            <Section className="px-8 pt-8 pb-2 text-center">
+            <Inset className="px-8 pt-8 pb-2 text-center">
               <Text className="m-0 text-[11px] uppercase tracking-[0.22em] text-stone-500">
                 Drops of Beauty
               </Text>
-            </Section>
+            </Inset>
 
             <Section className="px-0">
               <Link href={heroArtworkUrl} className="block no-underline">
@@ -59,7 +60,7 @@ export default function ConfirmSubscription({
               </Text>
             </Section>
 
-            <Section className="px-8 pt-8">
+            <Inset className="px-8 pt-8">
               <Heading
                 as="h1"
                 className="m-0 font-serif text-2xl font-normal tracking-tight text-stone-900"
@@ -82,18 +83,18 @@ export default function ConfirmSubscription({
                 full-resolution images, and a link back into the gallery for everything that catches
                 your eye.
               </Text>
-            </Section>
+            </Inset>
 
-            <Section className="my-8 px-8 text-center">
+            <Inset className="px-8 py-8 text-center">
               <Link
                 href={confirmUrl}
                 className="inline-block rounded-md bg-stone-900 px-7 py-3 text-sm font-medium text-white no-underline"
               >
                 Confirm my subscription
               </Link>
-            </Section>
+            </Inset>
 
-            <Section className="px-8">
+            <Inset className="px-8">
               <Text className="m-0 text-sm text-stone-500">
                 Or paste this URL into your browser:
               </Text>
@@ -102,11 +103,11 @@ export default function ConfirmSubscription({
                   {confirmUrl}
                 </Link>
               </Text>
-            </Section>
+            </Inset>
 
             <Hr className="my-8 border-stone-200" />
 
-            <Section className="px-8">
+            <Inset className="px-8">
               <Heading
                 as="h2"
                 className="m-0 font-serif text-base font-normal tracking-tight text-stone-700"
@@ -124,14 +125,16 @@ export default function ConfirmSubscription({
                 Nothing else, ever — no third-party sharing, no ads, no tracking pixels beyond the
                 open-rate ping that comes with the sending platform.
               </Text>
-            </Section>
+            </Inset>
 
-            <Section className="mt-8 border-t border-stone-200 px-8 py-6">
+            <Hr className="mt-8 mb-0 border-stone-200" />
+
+            <Inset className="px-8 py-6">
               <Text className="m-0 text-xs leading-relaxed text-stone-500">
                 If you didn't sign up, ignore this email — no list membership is created until you
                 click. The link expires in 21 days.
               </Text>
-            </Section>
+            </Inset>
           </Container>
         </Body>
       </Tailwind>
