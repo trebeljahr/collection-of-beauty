@@ -24,7 +24,7 @@ type Sentry = typeof import("@sentry/node-core/light");
 
 export interface ServerReportContext {
   /** `request` is Next's onRequestError; the others are a route handler's own catch. */
-  source: "request" | "newsletter.subscribe" | "newsletter.confirm";
+  source: "request" | "newsletter.subscribe" | "newsletter.confirm" | "newsletter.unsubscribe";
   /** What failed, for an error a route handler caught: `list_add_failed`. */
   event?: string;
   /** The request, as Next reports it. The query is cut before it is sent. */

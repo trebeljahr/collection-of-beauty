@@ -65,16 +65,15 @@ export type RenderEditionInput = {
   edition: Edition;
   siteUrl: string;
   /**
-   * Where the unsubscribe link comes from in the final email.
+   * The link behind "Unsubscribe" in the footer. Required, so no send can
+   * go out without one.
    *
-   *   - `"listmonk-campaign"` (default): emit ListMonk's `{{ UnsubscribeURL }}`
-   *     placeholder inline. ListMonk's Go template engine substitutes it
-   *     per recipient when the campaign body is rendered for delivery.
-   *   - `"tx-template"`: omit the in-body unsubscribe block entirely. The
-   *     ListMonk transactional template renders the already-built body
-   *     without trying to evaluate campaign-only unsubscribe helpers.
+   *   - A campaign passes `LISTMONK_UNSUBSCRIBE_URL`. ListMonk's Go template
+   *     engine substitutes it per recipient when it renders the body.
+   *   - A transactional send passes a signed link to `/sub/unsubscribe`. Its
+   *     body reaches ListMonk as data, so a placeholder would stay literal.
    */
-  unsubscribeMode?: "listmonk-campaign" | "tx-template";
+  unsubscribeUrl: string;
 };
 
 export function editionArchiveUrl(siteUrl: string, fileSlug: string): string {
@@ -82,7 +81,7 @@ export function editionArchiveUrl(siteUrl: string, fileSlug: string): string {
 }
 
 export async function renderEdition(input: RenderEditionInput): Promise<RenderedEdition> {
-  const { edition, siteUrl, unsubscribeMode = "listmonk-campaign" } = input;
+  const { edition, siteUrl, unsubscribeUrl } = input;
   const resolved = resolveEditionArtworks(edition);
   const digestArtworks = await Promise.all(
     resolved.map((r) => toDigestArtwork(r.artwork, r.note, siteUrl)),
@@ -105,9 +104,7 @@ export async function renderEdition(input: RenderEditionInput): Promise<Rendered
     artworks: digestArtworks,
     siteUrl,
     archiveUrl,
-    // Default prop is the ListMonk placeholder; setting `null` removes
-    // the block entirely for transactional sends.
-    unsubscribeUrl: unsubscribeMode === "tx-template" ? null : undefined,
+    unsubscribeUrl,
     wall: {
       imageUrl: wallUrl,
       width: wall.layout.width,

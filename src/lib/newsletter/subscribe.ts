@@ -1,4 +1,10 @@
-import { createHmac, timingSafeEqual } from "node:crypto";
+import {
+  createCipheriv,
+  createDecipheriv,
+  createHmac,
+  randomBytes,
+  timingSafeEqual,
+} from "node:crypto";
 import { render } from "@react-email/render";
 import { createElement } from "react";
 import AlreadySubscribed from "../../../emails/already-subscribed";
@@ -72,6 +78,44 @@ export function verifyConfirmToken(token: string, now: number = Date.now()): Ver
   }
   if (payload.x < now) return { ok: false, reason: "expired" };
   return { ok: true, email: payload.e, issuedAt: payload.x - CONFIRM_TOKEN_TTL_MS };
+}
+
+// An unsubscribe token has no expiry: an edition stays in an inbox for
+// years, and its link has to work on the day it is clicked. It sits in the
+// URL of a page that loads the site's scripts, so the address is encrypted,
+// not only signed. All it lets its holder do is take that one address off
+// the list. Rotating NEWSLETTER_TOKEN_SECRET breaks every link already sent.
+//
+// It has a key of its own. A confirm token must never pass here, and this
+// one must never pass `verifyConfirmToken`, which would subscribe the address.
+const UNSUBSCRIBE_IV_BYTES = 12;
+const UNSUBSCRIBE_TAG_BYTES = 16;
+
+function unsubscribeKey(): Buffer {
+  return createHmac("sha256", tokenSecret()).update("newsletter-unsubscribe").digest();
+}
+
+export function mintUnsubscribeToken(email: string): string {
+  const iv = randomBytes(UNSUBSCRIBE_IV_BYTES);
+  const cipher = createCipheriv("aes-256-gcm", unsubscribeKey(), iv);
+  const body = Buffer.concat([cipher.update(email.toLowerCase(), "utf8"), cipher.final()]);
+  return b64urlEncode(Buffer.concat([iv, cipher.getAuthTag(), body]));
+}
+
+/** The address a token was minted for, or `null` when it is not one of ours. */
+export function verifyUnsubscribeToken(token: string): string | null {
+  const key = unsubscribeKey();
+  const raw = b64urlDecode(token);
+  const bodyStart = UNSUBSCRIBE_IV_BYTES + UNSUBSCRIBE_TAG_BYTES;
+  if (raw.length <= bodyStart) return null;
+  try {
+    const decipher = createDecipheriv("aes-256-gcm", key, raw.subarray(0, UNSUBSCRIBE_IV_BYTES));
+    decipher.setAuthTag(raw.subarray(UNSUBSCRIBE_IV_BYTES, bodyStart));
+    const body = Buffer.concat([decipher.update(raw.subarray(bodyStart)), decipher.final()]);
+    return body.toString("utf8");
+  } catch {
+    return null;
+  }
 }
 
 // RFC 5322 is wildly permissive; this is the standard "good enough" check

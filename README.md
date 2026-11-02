@@ -152,7 +152,9 @@ is rendered from React Email (`emails/confirm-subscription.tsx`) and
 dispatched through ListMonk's transactional template, as is the note a
 confirmed subscriber gets in its place (`emails/already-subscribed.tsx`); digests
 go through ListMonk campaigns, which auto-substitute
-`{{ UnsubscribeURL }}` per recipient.
+`{{ UnsubscribeURL }}` per recipient. The welcome issue is transactional,
+where ListMonk substitutes no such link, so it carries a signed link to
+`/sub/unsubscribe`.
 Email image URLs always use the deployed assets bucket (or
 `NEWSLETTER_ASSETS_BASE_URL`) so inboxes never receive localhost-only
 image sources from local dev.

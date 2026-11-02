@@ -7,6 +7,7 @@ import {
   isListmonkUp,
   sendCampaign,
   sendTransactional,
+  unsubscribeFromList,
 } from "./listmonk";
 
 const subscriber = {
@@ -283,6 +284,39 @@ describe("confirmSubscription", () => {
       lists: [4],
       preconfirm_subscriptions: true,
     });
+  });
+});
+
+describe("unsubscribeFromList", () => {
+  function stubSubscriber(found: unknown) {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      jsonResponse({ data: { results: found ? [found] : [], total: found ? 1 : 0 } }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    return fetchMock;
+  }
+
+  it("marks this list's membership and sends no other write", async () => {
+    const fetchMock = stubSubscriber(subscriber);
+    await unsubscribeFromList(subscriber.email);
+    expect(writes(fetchMock.mock.calls)).toEqual(["PUT /api/subscribers/lists"]);
+    expect(body(fetchMock.mock.calls[1])).toEqual({
+      ids: [42],
+      action: "unsubscribe",
+      target_list_ids: [4],
+    });
+  });
+
+  it("writes nothing for an address already unsubscribed, on another list or unknown", async () => {
+    for (const found of [
+      { ...subscriber, lists: [{ ...subscriber.lists[0], subscription_status: "unsubscribed" }] },
+      { ...subscriber, lists: [{ ...subscriber.lists[0], id: 99 }] },
+      null,
+    ]) {
+      const fetchMock = stubSubscriber(found);
+      await unsubscribeFromList(subscriber.email);
+      expect(writes(fetchMock.mock.calls)).toEqual([]);
+    }
   });
 });
 

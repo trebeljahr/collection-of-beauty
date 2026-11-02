@@ -4,7 +4,11 @@ import { SITE_URL } from "@/lib/links";
 import { loadPublishedEditions } from "@/lib/newsletter/editions";
 import { isConfirmedOnList, sendTransactional } from "@/lib/newsletter/listmonk";
 import { renderEdition } from "@/lib/newsletter/render";
-import { confirmSubscription, verifyConfirmToken } from "@/lib/newsletter/subscribe";
+import {
+  confirmSubscription,
+  mintUnsubscribeToken,
+  verifyConfirmToken,
+} from "@/lib/newsletter/subscribe";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -21,10 +25,8 @@ function log(level: "info" | "error", event: string, extra: object = {}): void {
  * immediate look at what an issue actually feels like in their inbox.
  *
  * Goes through ListMonk's transactional API rather than a one-off
- * campaign. The tx template cannot use campaign-only unsubscribe
- * helpers, so we render the digest body with `unsubscribeMode:
- * "tx-template"` to suppress unsub placeholders that would not be
- * substituted on this path.
+ * campaign. ListMonk substitutes no unsubscribe link on this path, so the
+ * copy carries a signed link to our own page.
  *
  * Throws are swallowed by the caller — if the send blips here, the
  * confirmation has already succeeded; no point bouncing the user to the
@@ -34,10 +36,11 @@ async function sendWelcomeIssue(email: string, siteUrl: string): Promise<boolean
   const editions = loadPublishedEditions();
   if (editions.length === 0) return false;
   const latest = editions[editions.length - 1];
+  const token = mintUnsubscribeToken(email);
   const rendered = await renderEdition({
     edition: latest,
     siteUrl,
-    unsubscribeMode: "tx-template",
+    unsubscribeUrl: `${siteUrl}/sub/unsubscribe?token=${encodeURIComponent(token)}`,
   });
   await sendTransactional({
     to: email,

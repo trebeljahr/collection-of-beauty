@@ -121,9 +121,9 @@ export default function ConfirmSubscription({
                 until you click the button above.
               </Text>
               <Text className="mt-3 text-sm leading-relaxed text-stone-600">
-                After you confirm, every email carries a one-click unsubscribe link in the footer.
-                Nothing else, ever — no third-party sharing, no ads, no tracking pixels beyond the
-                open-rate ping that comes with the sending platform.
+                After you confirm, every edition carries an unsubscribe link in its footer. Nothing
+                else, ever — no third-party sharing, no ads, no tracking pixels beyond the open-rate
+                ping that comes with the sending platform.
               </Text>
             </Inset>
 

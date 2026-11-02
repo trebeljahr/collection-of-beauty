@@ -11,7 +11,8 @@
  *     template.
  *   - The weekly digest goes through `POST /api/campaigns` + status
  *     toggle, which lets ListMonk fan out per-recipient with native
- *     `{{ UnsubscribeURL }}` substitution.
+ *     `{{ UnsubscribeURL }}` substitution. The welcome issue has no such
+ *     substitution and links to our own page (see `unsubscribeFromList`).
  *
  * Required ListMonk setup (one-time, in the admin UI):
  *
@@ -278,6 +279,31 @@ export async function confirmSubscription(email: string, tokenIssuedAt?: number)
       action: "add",
       target_list_ids: [listId],
       status: "confirmed",
+    }),
+  });
+}
+
+/**
+ * Take `email` off the configured list, for the link in the welcome issue.
+ * It leaves what ListMonk's own unsubscribe page leaves after a campaign:
+ * the membership `unsubscribed` with a new date, on this list only, and the
+ * subscriber's status as it was.
+ *
+ * That page's query skips a membership already `unsubscribed`. This call
+ * does not, so the check is here: a second click must not move the date
+ * `confirmSubscription` compares a token with.
+ */
+export async function unsubscribeFromList(email: string): Promise<void> {
+  const listId = resolveListId();
+  const existing = await findSubscriber(email);
+  const membership = existing?.lists?.find((list) => list.id === listId);
+  if (!existing || !membership || membership.subscription_status === "unsubscribed") return;
+  await listmonkFetch("/api/subscribers/lists", {
+    method: "PUT",
+    body: JSON.stringify({
+      ids: [existing.id],
+      action: "unsubscribe",
+      target_list_ids: [listId],
     }),
   });
 }

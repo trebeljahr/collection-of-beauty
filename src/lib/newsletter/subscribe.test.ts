@@ -10,9 +10,50 @@ import {
   CONFIRM_TOKEN_TTL_MS,
   checkRateLimit,
   mintConfirmToken,
+  mintUnsubscribeToken,
   normalizeEmail,
   verifyConfirmToken,
+  verifyUnsubscribeToken,
 } from "./subscribe";
+
+describe("unsubscribe token", () => {
+  afterEach(() => {
+    vi.useRealTimers();
+    process.env.NEWSLETTER_TOKEN_SECRET = "test-secret-do-not-use-in-prod";
+  });
+
+  it("round-trips to the lowercased address", () => {
+    expect(verifyUnsubscribeToken(mintUnsubscribeToken("A@B.com"))).toBe("a@b.com");
+  });
+
+  it("does not show the address to whoever reads the URL", () => {
+    const decoded = Buffer.from(mintUnsubscribeToken("a@b.com"), "base64url").toString("latin1");
+    expect(decoded).not.toContain("a@b.com");
+  });
+
+  it("still works years later, as an old edition's link has to", () => {
+    const token = mintUnsubscribeToken("a@b.com");
+    vi.useFakeTimers({ now: Date.now() + 10 * 365 * 24 * 60 * 60 * 1000 });
+    expect(verifyUnsubscribeToken(token)).toBe("a@b.com");
+  });
+
+  it("rejects a changed token, garbage and a token from another secret", () => {
+    const token = mintUnsubscribeToken("a@b.com");
+    const raw = Buffer.from(token, "base64url");
+    raw[raw.length - 1] ^= 1;
+    expect(verifyUnsubscribeToken(raw.toString("base64url"))).toBeNull();
+    expect(verifyUnsubscribeToken("")).toBeNull();
+    expect(verifyUnsubscribeToken("garbage")).toBeNull();
+
+    process.env.NEWSLETTER_TOKEN_SECRET = "another-secret";
+    expect(verifyUnsubscribeToken(token)).toBeNull();
+  });
+
+  it("cannot stand in for a confirm token, or the reverse", () => {
+    expect(verifyConfirmToken(mintUnsubscribeToken("a@b.com")).ok).toBe(false);
+    expect(verifyUnsubscribeToken(mintConfirmToken("a@b.com"))).toBeNull();
+  });
+});
 
 describe("normalizeEmail", () => {
   it("lowercases + trims a valid address", () => {

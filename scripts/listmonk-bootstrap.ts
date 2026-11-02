@@ -11,7 +11,8 @@
  *      Body renders `{{ .Tx.Data.body | Safe }}`. ListMonk does not
  *      expose `{{ UnsubscribeURL }}` while compiling transactional
  *      templates in the deployed version, so unsubscribe substitution
- *      stays on the campaign send path.
+ *      stays on the campaign send path, and the welcome issue carries
+ *      a signed link to our own `/sub/unsubscribe`.
  *   2. A campaign template ("Collection of Beauty — Campaign Passthrough")
  *      consumed by `POST /api/campaigns` for the weekly digest. Body is
  *      just `{{ template "content" . }}` because the digest HTML already

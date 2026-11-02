@@ -29,6 +29,7 @@
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { LISTMONK_UNSUBSCRIBE_URL } from "../emails/weekly-digest";
 import { findEdition, loadPublishedEditions } from "../src/lib/newsletter/editions";
 import { describeListTarget, isProductionSend, sendCampaign } from "../src/lib/newsletter/listmonk";
 import { renderEdition } from "../src/lib/newsletter/render";
@@ -101,7 +102,11 @@ async function main(): Promise<void> {
   // sends via the tx path, so the `{{ UnsubscribeURL }}` literal in the
   // rendered HTML is exactly what ListMonk needs to substitute per
   // recipient when delivering the campaign.
-  const rendered = await renderEdition({ edition, siteUrl, unsubscribeMode: "listmonk-campaign" });
+  const rendered = await renderEdition({
+    edition,
+    siteUrl,
+    unsubscribeUrl: LISTMONK_UNSUBSCRIBE_URL,
+  });
 
   // The header image is rendered by the deployed site on first request.
   // Requesting it here proves the deploy serves it and warms its cache

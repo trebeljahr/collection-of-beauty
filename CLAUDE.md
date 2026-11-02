@@ -2360,6 +2360,34 @@ required by the Dockerfile — don't remove it.
   `send_failed`, and the visitor still reads "Check your inbox".
   `after()` needs Next's request scope: the route's tests stub it and run
   the queued work themselves.
+- **The welcome copy carries our own unsubscribe link.** ListMonk's
+  unsubscribe helpers are for campaigns. On v6.2.0 (3 November 2026, on a
+  local instance) a tx template with `{{ UnsubscribeURL }}`,
+  `{{ ManageURL }}` or `{{ RootURL }}` does not compile, and the body is
+  data, so a placeholder in it stays literal. `{{ .Subscriber.UUID }}`
+  compiles, but do not build `/subscription/<campaign>/<subscriber>` from
+  it: that query unsubscribes from the lists of the named campaign, so the
+  nil UUID answers "unsubscribed" and changes nothing, and before the first
+  campaign no other UUID exists. `?manage=true` shows the subscriber's lists
+  of other projects too. So the footer links to `/sub/unsubscribe?token=`,
+  and the page's button posts to `/api/newsletter/unsubscribe`. There is no
+  GET that unsubscribes, because mail filters open every link in an email.
+  ListMonk's own page is a link and a button too, so no copy says
+  "one-click".
+  - `unsubscribeFromList` leaves the row a campaign unsubscribe leaves:
+    `unsubscribed` with a new `updated_at`, on our list only, and
+    `subscribers.status` as it was. Compared in that instance's database.
+    `PUT /api/subscribers/lists` moves the date on every call and the
+    campaign query does not, so a membership already `unsubscribed` is
+    skipped: `confirmSubscription` compares a token with that date.
+  - The token has no expiry and its own key, derived from
+    `NEWSLETTER_TOKEN_SECRET`. A confirm token cannot stand in for it or
+    the reverse. The address is encrypted because the token sits in the URL
+    of a page that loads the site's scripts. Rotating the secret breaks
+    every link already sent, and the button then leads to a line with the
+    address to write to.
+  - `renderEdition` requires `unsubscribeUrl`, so no send can drop the
+    block. A campaign passes `LISTMONK_UNSUBSCRIBE_URL`.
 - **An outage still says "try again".** Before answering, the route calls
   `isListmonkUp()` (`GET /api/health`, 5 s timeout). It takes no address,
   so its 502 is the same for everyone, and it is reported as

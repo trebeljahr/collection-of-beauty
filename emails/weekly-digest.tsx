@@ -49,14 +49,11 @@ export type WeeklyDigestProps = {
   /** Permalink to the public archive page for this edition. */
   archiveUrl: string;
   /**
-   * Literal ListMonk variable for the per-recipient unsubscribe URL.
-   * Kept as a templated string so ListMonk substitutes per recipient
-   * when it renders the campaign body for delivery. Pass `null` to omit
-   * the unsubscribe block entirely — used when the email is sent
-   * through a ListMonk transactional template that injects its own
-   * unsubscribe footer.
+   * The footer's unsubscribe link. A campaign passes
+   * `LISTMONK_UNSUBSCRIBE_URL`; a transactional send passes a signed link
+   * of its own, because ListMonk substitutes nothing in its body.
    */
-  unsubscribeUrl?: string | null;
+  unsubscribeUrl?: string;
   /**
    * Header image: the issue's works hung on a gallery wall, plus the
    * colours the title under it is set in. Omitted, the header is the
@@ -77,7 +74,7 @@ export type DigestWall = {
 // ListMonk substitutes this in the rendered campaign body (Go template
 // engine). The double-brace literal stays verbatim in the HTML we hand
 // off, and ListMonk swaps it for the recipient's signed unsub URL.
-const LISTMONK_UNSUBSCRIBE_TOKEN = "{{ UnsubscribeURL }}";
+export const LISTMONK_UNSUBSCRIBE_URL = "{{ UnsubscribeURL }}";
 
 export default function WeeklyDigest({
   issueNumber = 1,
@@ -87,7 +84,7 @@ export default function WeeklyDigest({
   artworks = PREVIEW_ARTWORKS,
   siteUrl = "https://example.com",
   archiveUrl = "https://example.com/newsletter/0001-preview",
-  unsubscribeUrl = LISTMONK_UNSUBSCRIBE_TOKEN,
+  unsubscribeUrl = LISTMONK_UNSUBSCRIBE_URL,
   wall = null,
 }: WeeklyDigestProps) {
   const palette = wall?.palette ?? DEFAULT_WALL_PALETTE;
@@ -237,19 +234,17 @@ export default function WeeklyDigest({
                     Browse the full gallery
                   </Link>
                 </Text>
-                {unsubscribeUrl !== null && (
-                  <Text className="mt-6 text-xs leading-relaxed text-stone-500">
-                    You&apos;re receiving this because you subscribed to <em>Drops of Beauty</em>,
-                    the Collection of Beauty newsletter.
-                    <br />
-                    <Link
-                      href={unsubscribeUrl}
-                      className="text-stone-500 underline decoration-stone-300 underline-offset-2"
-                    >
-                      Unsubscribe
-                    </Link>
-                  </Text>
-                )}
+                <Text className="mt-6 text-xs leading-relaxed text-stone-500">
+                  You&apos;re receiving this because you subscribed to <em>Drops of Beauty</em>, the
+                  Collection of Beauty newsletter.
+                  <br />
+                  <Link
+                    href={unsubscribeUrl}
+                    className="text-stone-500 underline decoration-stone-300 underline-offset-2"
+                  >
+                    Unsubscribe
+                  </Link>
+                </Text>
                 <Text className="mt-4 text-[10px] uppercase tracking-widest text-stone-400">
                   All works public domain or openly licensed.
                 </Text>
