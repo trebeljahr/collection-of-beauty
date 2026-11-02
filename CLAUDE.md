@@ -2339,14 +2339,35 @@ required by the Dockerfile — don't remove it.
   prints the ids to paste into both env files.
 - **The app sends the opt-in email, not ListMonk.** The subscribe form
   creates the ListMonk subscriber on *no* list (`ensureSubscriber`) so
-  `/api/tx` can deliver the HMAC confirmation email; only the confirm
-  route adds `LISTMONK_LIST_ID`, as `confirmed`. Lists 3 (prod) and 4
+  `/api/tx` can deliver the confirmation email; only the confirm route's
+  POST adds `LISTMONK_LIST_ID`, as `confirmed`. Lists 3 (prod) and 4
   (test) are `optin: double` since 28 September 2026 (Hatchkit had
   created them single), so ListMonk campaigns reach `confirmed` members
   only. That holds only while membership is added as `confirmed`, with
   `preconfirm_subscriptions: true` on every create: ListMonk sends its
   own opt-in email (`app.send_optin_confirmation` is on) for an
   `unconfirmed` membership on a double list, next to ours.
+- **Confirming takes a button press.** Mail filters open every link in an
+  email, and anyone can type anyone's address into the form, so a GET that
+  confirmed could put a stranger on the list. That was read from the code on
+  3 November 2026; no real filter was tested, and a filter that presses
+  buttons would still get through. The email links to `/sub/confirm?token=`,
+  which reads nothing and changes nothing, and its button posts to
+  `/api/newsletter/confirm`, which adds the address and sends the welcome
+  copy.
+  - `GET /api/newsletter/confirm` only verifies the token and redirects to
+    that page, for links sent before the button. Keep it.
+  - The token is sealed (AES-GCM, `newsletter-confirm` key), because the
+    page's URL reaches Plausible and Cloudflare's page report. Until this
+    change it was `<payload>.<hmac>` with the address readable, and it only
+    ever saw a redirect. The GET seals an old one before the redirect, with
+    the date it was issued: minted with a new date, a link from before an
+    unsubscribe would pass the check in `confirmSubscription`.
+    `readSignedToken` can go 21 days after this change is deployed.
+  - A double click posts twice, and the second lookup can run before the
+    first write lands. The route holds the run for that address in memory
+    while it lasts (`running`), so one welcome copy goes out. That covers one
+    container, not two during a rolling release.
 - **The form's answer says nothing about the address.** Anyone can type
   anyone's address, so `POST /api/newsletter/subscribe` answers
   `{ ok: true }` for every valid one and does the rest in `after()`: a

@@ -9,7 +9,7 @@ import ConfirmSubscription from "../../../../../emails/confirm-subscription";
 process.env.NEWSLETTER_TOKEN_SECRET = "fixture-unsubscribe-secret";
 
 const route = await import("./route");
-const { GET: confirm } = await import("../confirm/route");
+const { GET: openConfirmLink, POST: confirm } = await import("../confirm/route");
 const { mintConfirmToken, mintUnsubscribeToken } = await import("@/lib/newsletter/subscribe");
 
 const ADDRESS = "reader@example.com";
@@ -69,9 +69,12 @@ function post(token: string): Promise<Response> {
   return route.POST(new NextRequest(url, { method: "POST" }));
 }
 
+function confirmUrl(token: string): string {
+  return `http://localhost/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
+}
+
 function confirmClick(token: string): Promise<Response> {
-  const url = `http://localhost/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
-  return confirm(new NextRequest(url));
+  return confirm(new NextRequest(confirmUrl(token), { method: "POST" }));
 }
 
 beforeEach(() => {
@@ -137,6 +140,48 @@ describe("the welcome copy's unsubscribe link", () => {
     expect(response.headers.get("location")).toContain("reason=list_add_failed");
     expect(listmonk.writes).toHaveLength(writesAfterUnsubscribe);
     expect(listmonk.mails).toHaveLength(0);
+  });
+
+  it("leaves the address suppressed when that link is opened first, as an old email's is", async () => {
+    const listmonk = fakeListmonk([
+      {
+        id: OUR_LIST,
+        subscription_status: "confirmed",
+        subscription_updated_at: "2026-01-01T00:00:00Z",
+      },
+    ]);
+    const staleConfirm = mintConfirmToken(ADDRESS, Date.now() - 60_000);
+
+    await post(mintUnsubscribeToken(ADDRESS));
+    const writesAfterUnsubscribe = listmonk.writes.length;
+    const opened = await openConfirmLink(new NextRequest(confirmUrl(staleConfirm)));
+    const sealed = new URL(opened.headers.get("location") ?? "").searchParams.get("token") ?? "";
+    const response = await confirmClick(sealed);
+
+    expect(response.headers.get("location")).toContain("reason=list_add_failed");
+    expect(listmonk.writes).toHaveLength(writesAfterUnsubscribe);
+    expect(listmonk.mails).toHaveLength(0);
+  });
+
+  it("calls ListMonk for nothing when the confirm link is only opened", async () => {
+    const listmonk = fakeListmonk([]);
+
+    const response = await openConfirmLink(new NextRequest(confirmUrl(mintConfirmToken(ADDRESS))));
+
+    expect(response.headers.get("location")).toContain("/sub/confirm?token=");
+    expect(listmonk.fetchMock).not.toHaveBeenCalled();
+  });
+
+  it("adds the address and sends one welcome copy when the confirm button is pressed", async () => {
+    const listmonk = fakeListmonk([]);
+
+    const response = await confirmClick(mintConfirmToken(ADDRESS));
+
+    expect(response.headers.get("location")).toMatch(/\/sub\/confirmed\?welcome=1$/);
+    expect(listmonk.lists).toEqual([
+      expect.objectContaining({ id: OUR_LIST, subscription_status: "confirmed" }),
+    ]);
+    expect(listmonk.mails).toHaveLength(1);
   });
 
   it("does not move the unsubscribe date on a second press", async () => {
@@ -283,13 +328,20 @@ describe("the mail client's own Unsubscribe button", () => {
 describe("what the pages promise", () => {
   it("/privacy and the confirmation email both say what ships", async () => {
     const privacy = readFileSync(path.join(process.cwd(), "src/app/privacy/page.tsx"), "utf8");
-    expect(privacy.replace(/\s+/g, " ")).toContain("the unsubscribe link in every issue");
+    const policy = privacy.replace(/\s+/g, " ");
+    expect(policy).toContain("the unsubscribe link in every issue");
+    expect(policy).toContain("press the button on that page");
+    expect(policy).not.toContain("clicking the confirmation link");
 
     const email = await render(createElement(ConfirmSubscription as React.ComponentType), {
       plainText: true,
     });
     const line = email.replace(/\s+/g, " ");
     expect(line).toContain("every edition carries an unsubscribe link in its footer");
-    expect(line).not.toContain("one-click");
+    expect(line).toContain("until you press that button");
+    expect(line).toContain("/sub/confirm?token=");
+    expect(line).not.toMatch(/one[- ]click/i);
+    expect(line).not.toContain("until you click");
+    expect(line).not.toContain("/api/newsletter/confirm");
   });
 });

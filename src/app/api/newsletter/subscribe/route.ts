@@ -82,7 +82,7 @@ async function mailAddress(email: string): Promise<void> {
   // Never derive this from the request: behind Coolify's proxy the
   // standalone server sees its own bind address (HOSTNAME=0.0.0.0,
   // PORT=80), and that is what ended up in the emailed link.
-  const confirmUrl = `${SITE_URL}/api/newsletter/confirm?token=${encodeURIComponent(token)}`;
+  const confirmUrl = `${SITE_URL}/sub/confirm?token=${encodeURIComponent(token)}`;
   const hero = resolveConfirmHero(SITE_URL);
 
   await sendConfirmationEmail({

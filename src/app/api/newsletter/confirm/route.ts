@@ -6,6 +6,7 @@ import { isConfirmedOnList, sendTransactional } from "@/lib/newsletter/listmonk"
 import { renderEdition } from "@/lib/newsletter/render";
 import {
   confirmSubscription,
+  mintConfirmToken,
   mintUnsubscribeToken,
   verifyConfirmToken,
 } from "@/lib/newsletter/subscribe";
@@ -57,6 +58,62 @@ async function sendWelcomeIssue(email: string, siteUrl: string): Promise<boolean
   return true;
 }
 
+/** Add the address to the list and answer with the page that says how it went. */
+async function confirm(email: string, issuedAt: number): Promise<string> {
+  // Re-confirmation case: the user pressed the button on a stale token for an
+  // address that's already subscribed. Skip the welcome send so they don't get
+  // a duplicate latest-issue email every time they revisit the link.
+  let alreadyConfirmed: boolean;
+  try {
+    alreadyConfirmed = await isConfirmedOnList(email);
+  } catch (err) {
+    void reportServerError(err, { source: "newsletter.confirm", event: "list_lookup_failed" });
+    log("error", "list_lookup_failed", {
+      message: err instanceof Error ? err.message : String(err),
+    });
+    return `${SITE_URL}/sub/error?reason=list_lookup_failed`;
+  }
+
+  try {
+    await confirmSubscription(email, issuedAt);
+  } catch (err) {
+    void reportServerError(err, { source: "newsletter.confirm", event: "list_add_failed" });
+    log("error", "list_add_failed", { message: (err as Error).message });
+    return `${SITE_URL}/sub/error?reason=list_add_failed`;
+  }
+
+  let welcomeSent = false;
+  if (!alreadyConfirmed) {
+    try {
+      welcomeSent = await sendWelcomeIssue(email, SITE_URL);
+    } catch (err) {
+      // Don't fail the confirmation over a welcome-send error — the
+      // subscription itself is already live. They'll get the next
+      // issue when it goes out.
+      void reportServerError(err, { source: "newsletter.confirm", event: "welcome_send_failed" });
+      log("error", "welcome_send_failed", { message: (err as Error).message });
+    }
+  }
+
+  log("info", "confirmed", { welcomeSent });
+  return welcomeSent ? `${SITE_URL}/sub/confirmed?welcome=1` : `${SITE_URL}/sub/confirmed`;
+}
+
+/**
+ * A double click posts twice, and the second lookup can run before the first
+ * write lands: two welcome copies. A press that finds one running waits for it
+ * and answers the same. The address is held only while that run lasts.
+ */
+const running = new Map<string, Promise<string>>();
+
+/**
+ * A link from an email changes nothing here: mail filters open every link in
+ * an email, and anyone can type anyone's address into the form. New emails link
+ * to `/sub/confirm` directly. Links sent before that lead here for 21 days,
+ * carrying the address readable, so the token is sealed before it reaches the
+ * page. It keeps its date, which `confirmSubscription` compares with an
+ * unsubscribe, and its expiry.
+ */
 export async function GET(request: NextRequest) {
   const token = request.nextUrl.searchParams.get("token");
   // Links and redirects use SITE_URL, never request.nextUrl.origin: behind
@@ -72,46 +129,30 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${SITE_URL}/sub/error?reason=${result.reason}`, { status: 303 });
   }
 
-  // Re-confirmation case: the user clicked a stale token for an address
-  // that's already subscribed. Skip the welcome send so they don't get a
-  // duplicate latest-issue email every time they revisit the link.
-  let alreadyConfirmed: boolean;
-  try {
-    alreadyConfirmed = await isConfirmedOnList(result.email);
-  } catch (err) {
-    void reportServerError(err, { source: "newsletter.confirm", event: "list_lookup_failed" });
-    log("error", "list_lookup_failed", {
-      message: err instanceof Error ? err.message : String(err),
-    });
-    return NextResponse.redirect(`${SITE_URL}/sub/error?reason=list_lookup_failed`, {
-      status: 303,
-    });
+  const sealed = mintConfirmToken(result.email, result.issuedAt);
+  return NextResponse.redirect(`${SITE_URL}/sub/confirm?token=${encodeURIComponent(sealed)}`, {
+    status: 303,
+  });
+}
+
+/** The button on `/sub/confirm` posts here. */
+export async function POST(request: NextRequest) {
+  const token = request.nextUrl.searchParams.get("token");
+
+  if (!token) {
+    return NextResponse.redirect(`${SITE_URL}/sub/error?reason=missing`, { status: 303 });
   }
 
-  try {
-    await confirmSubscription(result.email, result.issuedAt);
-  } catch (err) {
-    void reportServerError(err, { source: "newsletter.confirm", event: "list_add_failed" });
-    log("error", "list_add_failed", { message: (err as Error).message });
-    return NextResponse.redirect(`${SITE_URL}/sub/error?reason=list_add_failed`, { status: 303 });
+  const result = verifyConfirmToken(token);
+  if (!result.ok) {
+    log("info", "verify_failed", { reason: result.reason });
+    return NextResponse.redirect(`${SITE_URL}/sub/error?reason=${result.reason}`, { status: 303 });
   }
 
-  let welcomeSent = false;
-  if (!alreadyConfirmed) {
-    try {
-      welcomeSent = await sendWelcomeIssue(result.email, SITE_URL);
-    } catch (err) {
-      // Don't fail the confirmation over a welcome-send error — the
-      // subscription itself is already live. They'll get the next
-      // issue when it goes out.
-      void reportServerError(err, { source: "newsletter.confirm", event: "welcome_send_failed" });
-      log("error", "welcome_send_failed", { message: (err as Error).message });
-    }
+  let run = running.get(result.email);
+  if (!run) {
+    run = confirm(result.email, result.issuedAt).finally(() => running.delete(result.email));
+    running.set(result.email, run);
   }
-
-  log("info", "confirmed", { welcomeSent });
-  const destination = welcomeSent
-    ? `${SITE_URL}/sub/confirmed?welcome=1`
-    : `${SITE_URL}/sub/confirmed`;
-  return NextResponse.redirect(destination, { status: 303 });
+  return NextResponse.redirect(await run, { status: 303 });
 }

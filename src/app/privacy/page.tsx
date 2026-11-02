@@ -227,13 +227,13 @@ export default function PrivacyPage() {
             <p className="mt-2 text-[var(--muted-foreground)]">
               Legal basis: Art. 6(1)(a) GDPR — your explicit consent given at subscription. Consent
               is captured under a double opt-in flow: you enter your address, receive a confirmation
-              email, and only after clicking the confirmation link is the address marked as a
-              confirmed list member. If the address is already a confirmed list member, it receives
-              a short email saying so in place of the confirmation email, and the subscription does
-              not change. The subscription timestamp is logged by ListMonk; the originating IP
-              address is held only by the rate limiter for the configured window (currently 60
-              seconds) and then discarded. You may withdraw consent at any time, with effect for the
-              future, by using the unsubscribe link in every issue or by emailing{" "}
+              email, and only after you open its link and press the button on that page is the
+              address marked as a confirmed list member. If the address is already a confirmed list
+              member, it receives a short email saying so in place of the confirmation email, and
+              the subscription does not change. The subscription timestamp is logged by ListMonk;
+              the originating IP address is held only by the rate limiter for the configured window
+              (currently 60 seconds) and then discarded. You may withdraw consent at any time, with
+              effect for the future, by using the unsubscribe link in every issue or by emailing{" "}
               <a
                 href={`mailto:${IMPRINT_EMAIL}`}
                 className="underline hover:text-[var(--foreground)]"

@@ -1,3 +1,4 @@
+import { createHmac } from "node:crypto";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 
 // Pinned before importing the module under test — token mint/verify reads
@@ -104,6 +105,55 @@ describe("confirm token", () => {
     const tok = mintConfirmToken("a@b.com", issuedAt);
     const afterExpiry = issuedAt + CONFIRM_TOKEN_TTL_MS + 1;
     expect(verifyConfirmToken(tok, afterExpiry)).toEqual({ ok: false, reason: "expired" });
+  });
+
+  it("does not show the address to whoever reads the URL", () => {
+    const decoded = Buffer.from(mintConfirmToken("a@b.com"), "base64url").toString("latin1");
+    expect(decoded).not.toContain("a@b.com");
+  });
+
+  it("rejects a token from another secret", () => {
+    const tok = mintConfirmToken("a@b.com");
+    process.env.NEWSLETTER_TOKEN_SECRET = "another-secret";
+    expect(verifyConfirmToken(tok)).toEqual({ ok: false, reason: "bad_signature" });
+    process.env.NEWSLETTER_TOKEN_SECRET = "test-secret-do-not-use-in-prod";
+  });
+
+  describe("as emails carried it until November 2026", () => {
+    function signedToken(issuedAt: number, secret = "test-secret-do-not-use-in-prod"): string {
+      const payload = Buffer.from(
+        JSON.stringify({ e: "a@b.com", x: issuedAt + CONFIRM_TOKEN_TTL_MS }),
+      ).toString("base64url");
+      return `${payload}.${createHmac("sha256", secret).update(payload).digest("base64url")}`;
+    }
+
+    it("still verifies, with the date it was issued", () => {
+      const now = Date.now();
+      expect(verifyConfirmToken(signedToken(now), now)).toEqual({
+        ok: true,
+        email: "a@b.com",
+        issuedAt: now,
+      });
+    });
+
+    it("still expires", () => {
+      const issuedAt = 1_000_000;
+      expect(
+        verifyConfirmToken(signedToken(issuedAt), issuedAt + CONFIRM_TOKEN_TTL_MS + 1),
+      ).toEqual({ ok: false, reason: "expired" });
+    });
+
+    it("rejects a changed signature and another secret's", () => {
+      const now = Date.now();
+      expect(verifyConfirmToken(`${signedToken(now).slice(0, -2)}XX`, now)).toEqual({
+        ok: false,
+        reason: "bad_signature",
+      });
+      expect(verifyConfirmToken(signedToken(now, "another-secret"), now)).toEqual({
+        ok: false,
+        reason: "bad_signature",
+      });
+    });
   });
 });
 

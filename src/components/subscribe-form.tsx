@@ -117,8 +117,8 @@ export function SubscribeForm({
         <p className="font-medium">Check your inbox.</p>
         {!compact && (
           <p className="mt-1 text-[var(--muted-foreground)]">
-            If this address is new here, tap the confirmation link in the email to finish. Spam
-            folder is the usual suspect if it doesn't surface.
+            If this address is new here, open the link in the email and press the button on that
+            page to finish. Spam folder is the usual suspect if it doesn't surface.
           </p>
         )}
       </div>

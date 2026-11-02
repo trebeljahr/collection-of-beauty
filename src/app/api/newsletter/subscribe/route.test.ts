@@ -128,7 +128,7 @@ describe("POST /api/newsletter/subscribe", () => {
     expect(res.status).toBe(200);
     await runAfterTasks();
     const params = sendConfirmationEmail.mock.calls[0][0];
-    expect(params.confirmUrl.startsWith(`${SITE_URL}/api/newsletter/confirm?token=`)).toBe(true);
+    expect(params.confirmUrl.startsWith(`${SITE_URL}/sub/confirm?token=`)).toBe(true);
     expect(params.heroArtworkUrl.startsWith(`${SITE_URL}/artwork/`)).toBe(true);
     expect(params.confirmUrl).not.toContain("0.0.0.0");
   });
@@ -437,6 +437,7 @@ describe("POST /api/newsletter/subscribe → ListMonk", () => {
     expect(tx.subscriber_email).toBe("old@example.com");
     expect(tx.data.subject).toContain("already on the list");
     expect(tx.data.body).toContain(SITE_URL);
+    expect(tx.data.body).not.toContain("/sub/confirm?token=");
     expect(tx.data.body).not.toContain("/api/newsletter/confirm");
   });
 

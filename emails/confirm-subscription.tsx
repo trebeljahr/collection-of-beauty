@@ -18,7 +18,7 @@ import { Inset } from "./inset";
 void React; // referenced by JSX runtime under classic transform
 
 export type ConfirmSubscriptionProps = {
-  /** Fully-qualified confirmation URL the recipient should click. */
+  /** Fully-qualified URL of the page whose button confirms the subscription. */
   confirmUrl: string;
   /** Direct image URL for the hero artwork (1280w WebP works fine). */
   heroImageUrl: string;
@@ -31,7 +31,7 @@ export type ConfirmSubscriptionProps = {
 };
 
 export default function ConfirmSubscription({
-  confirmUrl = "https://example.com/api/newsletter/confirm?token=preview",
+  confirmUrl = "https://example.com/sub/confirm?token=preview",
   heroImageUrl = "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Caspar_David_Friedrich_-_Der_M%C3%B6nch_am_Meer_-_Google_Art_Project.jpg/1280px-Caspar_David_Friedrich_-_Der_M%C3%B6nch_am_Meer_-_Google_Art_Project.jpg",
   heroArtworkUrl = "https://example.com/artwork/preview",
   heroCaption = "The Monk by the Sea · Caspar David Friedrich · 1808",
@@ -41,7 +41,7 @@ export default function ConfirmSubscription({
   return (
     <Html>
       <Head />
-      <Preview>One click to confirm your subscription to Drops of Beauty.</Preview>
+      <Preview>Confirm your subscription to Drops of Beauty.</Preview>
       <Tailwind>
         <Body className="bg-white font-serif text-stone-900">
           <Container className="mx-auto max-w-[560px] bg-white px-0 py-0">
@@ -68,7 +68,7 @@ export default function ConfirmSubscription({
                 Confirm your subscription
               </Heading>
               <Text className="mt-4 text-base leading-relaxed text-stone-800">
-                You're one click away from <strong>Drops of Beauty</strong>, a newsletter from the{" "}
+                You're one step away from <strong>Drops of Beauty</strong>, a newsletter from the{" "}
                 <Link
                   href={siteUrl}
                   className="text-stone-900 underline decoration-stone-300 underline-offset-4"
@@ -90,7 +90,7 @@ export default function ConfirmSubscription({
                 href={confirmUrl}
                 className="inline-block rounded-md bg-stone-900 px-7 py-3 text-sm font-medium text-white no-underline"
               >
-                Confirm my subscription
+                Continue to confirm
               </Link>
             </Inset>
 
@@ -112,13 +112,14 @@ export default function ConfirmSubscription({
                 as="h2"
                 className="m-0 font-serif text-base font-normal tracking-tight text-stone-700"
               >
-                Why the extra click?
+                Why the extra steps?
               </Heading>
               <Text className="mt-2 text-sm leading-relaxed text-stone-600">
                 A confirmation step (called <em>double opt-in</em>) is how we verify you actually
                 own this address and didn't get signed up by a typo or a bot. It's also a
-                requirement under European privacy law — your address won't be added to any list
-                until you click the button above.
+                requirement under European privacy law. The link above opens a page with one button.
+                Mail filters open every link in an email, so a link alone could sign you up by
+                accident. Your address joins no list until you press that button.
               </Text>
               <Text className="mt-3 text-sm leading-relaxed text-stone-600">
                 After you confirm, every edition carries an unsubscribe link in its footer. Nothing
@@ -131,8 +132,8 @@ export default function ConfirmSubscription({
 
             <Inset className="px-8 py-6">
               <Text className="m-0 text-xs leading-relaxed text-stone-500">
-                If you didn't sign up, ignore this email — no list membership is created until you
-                click. The link expires in 21 days.
+                If you didn't sign up, ignore this email — no list membership is created until the
+                button on that page is pressed. The link expires in 21 days.
               </Text>
             </Inset>
           </Container>

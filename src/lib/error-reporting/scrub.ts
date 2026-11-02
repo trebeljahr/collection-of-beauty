@@ -12,8 +12,8 @@ import { isStaleDeployError } from "@/lib/stale-deploy";
  *    the SDK never asks the tracker to keep an IP address either.
  *  - No query string and no fragment, anywhere a URL appears: the page
  *    address, every stack frame, every breadcrumb and any URL inside an error
- *    message. `/api/newsletter/confirm?token=` carries the signed token that
- *    adds an address to the newsletter, and search and scope pages carry
+ *    message. `/sub/confirm?token=` carries the token that adds an address
+ *    to the newsletter, and search and scope pages carry
  *    what a visitor typed.
  *  - No headers but the browser identifier, no cookies, no request body.
  *  - No console output and no clicks or keystrokes in breadcrumbs: a console
