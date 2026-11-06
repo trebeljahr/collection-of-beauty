@@ -2,6 +2,17 @@
   "name": "collection-of-beauty",
   "version": "0.1.0",
   "private": true,
+  "description": "4,000+ handpicked public-domain artworks to browse by era, artist, colour or decade, or walk through in a 3D museum.",
+  "homepage": "https://collectionofbeauty.com",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/trebeljahr/collection-of-beauty.git"
+  },
+  "bugs": {
+    "url": "https://github.com/trebeljahr/collection-of-beauty/issues"
+  },
+  "license": "AGPL-3.0-or-later",
+  "author": "Rico Trebeljahr",
   "packageManager": "pnpm@10.33.2",
   "engines": {
     "node": ">=24"
