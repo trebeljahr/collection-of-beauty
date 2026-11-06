@@ -186,10 +186,14 @@ jobs:
 
   deploy:
     needs: build
+    # dependency-updates.yml dispatches `build` after merging a Dependabot PR
+    # (a merge made with GITHUB_TOKEN triggers no push); it releases like one.
     if: >-
       always() && !cancelled() &&
       github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' &&
-      ((github.event_name == 'push' && vars.COLLECTION_OF_BEAUTY_ROLLOUT_MODE == 'automatic' && needs.build.result == 'success') ||
+      ((
+        (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.operation == 'build')) &&
+        vars.COLLECTION_OF_BEAUTY_ROLLOUT_MODE == 'automatic' && needs.build.result == 'success') ||
        (github.event_name == 'workflow_dispatch' && (inputs.operation == 'deploy' || inputs.operation == 'rollback')))
     runs-on: ubuntu-latest
     timeout-minutes: 30
@@ -204,9 +208,10 @@ jobs:
       - name: Promote, queue this app, and verify the release
         env:
           ROLLOUT_MODE: ${{ vars.COLLECTION_OF_BEAUTY_ROLLOUT_MODE }}
-          OPERATION: ${{ github.event_name == 'workflow_dispatch' && inputs.operation || 'deploy' }}
-          TARGET_SHA: ${{ github.event_name == 'push' && github.sha || inputs.target_sha }}
-          TARGET_DIGEST: ${{ github.event_name == 'push' && needs.build.outputs.digest || inputs.image_digest }}
+          OPERATION: ${{ github.event_name == 'workflow_dispatch' && inputs.operation != 'build' && inputs.operation || 'deploy' }}
+          RELEASE_OPERATION: ${{ inputs.operation }}
+          TARGET_SHA: ${{ (github.event_name == 'push' || inputs.operation == 'build') && github.sha || inputs.target_sha }}
+          TARGET_DIGEST: ${{ (github.event_name == 'push' || inputs.operation == 'build') && needs.build.outputs.digest || inputs.image_digest }}
           EXPECTED_CURRENT_DIGEST: ${{ inputs.expected_current_digest }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           COOLIFY_BASE_URL: ${{ secrets.COOLIFY_BASE_URL }}
