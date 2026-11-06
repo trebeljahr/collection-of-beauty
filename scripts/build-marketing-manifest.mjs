@@ -8,7 +8,7 @@
 //                                     (served by the site, zipped by
 //                                     build-press-kit-zip.mjs)
 //   docs/marketing/screenshots/       screenshots of the 2D site
-//   docs/marketing/social-preview/    the GitHub social preview card
+//   docs/marketing/social-preview/    the GitHub social preview card options
 //
 // Run after any of the marketing scripts:
 //   pnpm marketing:manifest
@@ -96,7 +96,8 @@ async function main() {
         kind: "social-preview",
         purpose: `GitHub social preview, option ${variant.label}: ${variant.what}`,
         madeBy: "scripts/build-social-preview.mjs (pnpm marketing:social-preview)",
-        source: "docs/marketing/social-preview/template.html",
+        source:
+          "The press images' design at 2:1 (SOCIAL_PREVIEW_FORMATS in scripts/build-marketing-images.mjs); works named in docs/marketing/social-preview/credits.txt",
       }),
     );
   }

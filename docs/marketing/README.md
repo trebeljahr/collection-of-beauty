@@ -16,7 +16,7 @@ in them are in the public domain.
 | --- | --- | --- |
 | [`public/marketing/`](../../public/marketing/) | Press images and museum screenshots. The site serves them at `/marketing/<file>`, and `/press-kit.zip` holds them all. | `pnpm marketing:images`, `pnpm marketing:screenshots` |
 | [`screenshots/`](screenshots/) | Screenshots of the 2D site, for the README. | `pnpm marketing:site-screenshots` |
-| [`social-preview/`](social-preview/) | The GitHub social preview card, three options, and the template they are rendered from. | `pnpm marketing:social-preview` |
+| [`social-preview/`](social-preview/) | The GitHub social preview card, four options, and the works each shows. | `pnpm marketing:social-preview` |
 
 `public/marketing/` belongs to its two scripts: `pnpm marketing:images`
 deletes every file in it except the museum screenshots before it writes the
@@ -83,17 +83,25 @@ shuffles its grid).
 ## GitHub social preview
 
 Made by [`scripts/build-social-preview.mjs`](../../scripts/build-social-preview.mjs)
-from [`social-preview/template.html`](social-preview/template.html) on
-6 November 2026. 1280 × 640 PNG, each under 1 MB, text inside a 64 px margin.
-The template uses Georgia and the wall colours of the press images. Works
-are shown whole.
+on 7 November 2026. Each option is the press images' design at 2:1: the
+same walls, the same pool of works hung whole in justified rows, the same
+Georgia title block. The formats are `SOCIAL_PREVIEW_FORMATS` in
+[`scripts/build-marketing-images.mjs`](../../scripts/build-marketing-images.mjs),
+laid out by the same code as the press images. The counts in the text come
+from `src/data/summary.json` when the cards are rendered (4,000+ works).
+1280 × 640 PNG, each under 1 MB (saved as a 256-colour PNG when a
+full-colour one is larger), text 64 px or more from the edges.
+[`credits.txt`](social-preview/credits.txt) names the works on each card.
 
 | File | Option |
 | --- | --- |
-| `social-preview/social-preview-a.png` | A. Light. The Grand Salon of the museum beside the title. |
-| `social-preview/social-preview-b.png` | B. Light. The title over a row of five whole works. |
-| `social-preview/social-preview-c.png` | C. Dark. Three views of the museum over the title. |
+| `social-preview/social-preview-a.png` | A. Light. Works on the left, title on the right, as in the link preview and the 16:9 image. |
+| `social-preview/social-preview-b.png` | B. Dark. The same layout on the dark wall of the 16:9 dark image. |
+| `social-preview/social-preview-c.png` | C. Light. Works only, no text, as in the 16:9 works image. |
+| `social-preview/social-preview-d.png` | D. Light. Title on the left, works on the right, as in the 3:1 banner. |
 
-GitHub takes the card under Settings → General → Social preview; it has no
-API for it. `--review <folder>` also writes the three PNGs and a side-by-side
-`review-sheet.jpg` to that folder.
+The cards are not part of the press kit: `pnpm marketing:images` does not
+render them and `/press` does not list them. GitHub takes the card under
+Settings → General → Social preview; it has no API for it.
+`--review <folder>` also writes the four PNGs and a `review-sheet.jpg` of
+all four to that folder.

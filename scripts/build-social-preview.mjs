@@ -1,87 +1,52 @@
 #!/usr/bin/env node
 
-// Render the GitHub social preview card (1280 x 640) in its three
-// variants from docs/marketing/social-preview/template.html.
-//
-// The template reads the museum screenshots from public/marketing/ and
-// the works from the asset origin. When `assets-web/` is on disk (this
-// checkout or the main one), the works are served from it instead, so a
-// render needs no network for them.
+// Render the GitHub social preview card (1280 x 640) in its four options.
+// Each is the press images' design at 2:1: the same works hung whole on
+// the same walls, the same Georgia title block, laid out by the same code
+// (SOCIAL_PREVIEW_FORMATS and renderFormat in build-marketing-images.mjs).
+// The counts in the text come from src/data/summary.json at render time.
 //
 // GitHub wants the card under 1 MB. A render over that is saved as a
 // 256-colour PNG.
 //
 // Outputs:
-//   docs/marketing/social-preview/social-preview-{a,b,c}.png
-//   <dir>/review-sheet.jpg and the three PNGs, with --review <dir>
+//   docs/marketing/social-preview/social-preview-{a,b,c,d}.png
+//   docs/marketing/social-preview/credits.txt   works shown, per card
+//   <dir>/review-sheet.jpg and the four PNGs, with --review <dir>
 //
 // Run:
 //   pnpm marketing:social-preview
 //   pnpm marketing:social-preview --review /path/to/folder
 // then `pnpm marketing:manifest`.
 
-import { existsSync } from "node:fs";
-import { copyFile, mkdir, readdir, readFile, stat } from "node:fs/promises";
-import os from "node:os";
+import { copyFile, mkdir, stat, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { fileURLToPath, pathToFileURL } from "node:url";
-import { chromium } from "playwright-core";
+import { fileURLToPath } from "node:url";
 import sharp from "sharp";
+import {
+  displayTitle,
+  loadCatalogue,
+  renderFormat,
+  SITE_URL,
+  SOCIAL_PREVIEW_FORMATS,
+} from "./build-marketing-images.mjs";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const DIR = path.join(ROOT, "docs", "marketing", "social-preview");
-const TEMPLATE = path.join(DIR, "template.html");
-const ASSET_ORIGIN = "https://assets.collectionofbeauty.com/";
-const LOCAL_ASSETS = path.join(ROOT, "assets-web");
-const FALLBACK_ASSETS = "/Users/rico/projects/collection-of-beauty/assets-web";
-const ASSETS_WEB = [LOCAL_ASSETS, FALLBACK_ASSETS].find((dir) => existsSync(dir));
 const MAX_BYTES = 1_000_000;
 
-export const VARIANTS = [
-  { id: "a", label: "A", what: "Light. The Grand Salon of the 3D museum beside the title." },
-  { id: "b", label: "B", what: "Light. The title over a row of five whole works." },
-  { id: "c", label: "C", what: "Dark. Three views of the 3D museum over the title." },
-];
+export const VARIANTS = SOCIAL_PREVIEW_FORMATS.map(({ id, slug, what }) => ({
+  id,
+  slug,
+  label: id.toUpperCase(),
+  what,
+}));
 
 function arg(name) {
   const i = process.argv.indexOf(name);
   return i > 0 ? process.argv[i + 1] : undefined;
 }
 const REVIEW_DIR = arg("--review");
-
-/** Same launcher as build-museum-screenshots.mjs. */
-async function launch() {
-  const cache = path.join(os.homedir(), "Library", "Caches", "ms-playwright");
-  const shells = existsSync(cache)
-    ? (await readdir(cache)).filter((d) => d.startsWith("chromium_headless_shell-")).sort()
-    : [];
-  const shell = shells.at(-1);
-  const executablePath = shell
-    ? path.join(cache, shell, "chrome-headless-shell-mac-arm64", "chrome-headless-shell")
-    : undefined;
-  // File URLs may read their own folder's neighbours only with this.
-  const args = ["--allow-file-access-from-files"];
-  if (executablePath && existsSync(executablePath)) {
-    return chromium.launch({ executablePath, headless: true, args });
-  }
-  return chromium.launch({ channel: "chrome", headless: true, args });
-}
-
-/** Serve a work from assets-web/ when the file is there. */
-async function serveLocalWorks(page) {
-  if (!ASSETS_WEB) return;
-  await page.route(`${ASSET_ORIGIN}**`, async (route) => {
-    const rel = decodeURIComponent(new URL(route.request().url()).pathname.slice(1));
-    // Commons filenames reach the disk both NFC- and NFD-normalised.
-    for (const form of [rel, rel.normalize("NFC"), rel.normalize("NFD")]) {
-      const file = path.join(ASSETS_WEB, form);
-      if (existsSync(file)) {
-        return route.fulfill({ body: await readFile(file), contentType: "image/avif" });
-      }
-    }
-    return route.continue();
-  });
-}
 
 async function encode(png) {
   const full = await sharp(png).png({ compressionLevel: 9, effort: 10 }).toBuffer();
@@ -98,24 +63,28 @@ async function encode(png) {
     .toBuffer();
 }
 
+/** All options on one sheet, two to a row, each labelled. */
 async function reviewSheet(files, out) {
   const W = 1280;
   const H = 640;
   const pad = 48;
   const labelH = 72;
-  const sheetW = pad + VARIANTS.length * (W + pad);
-  const sheetH = pad + labelH + H + pad;
+  const cols = 2;
+  const rows = Math.ceil(VARIANTS.length / cols);
+  const sheetW = pad + cols * (W + pad);
+  const sheetH = pad + rows * (labelH + H + pad);
   const composites = [];
   for (const [i, variant] of VARIANTS.entries()) {
-    const x = pad + i * (W + pad);
+    const x = pad + (i % cols) * (W + pad);
+    const y = pad + Math.floor(i / cols) * (labelH + H + pad);
     const label = Buffer.from(
       `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${labelH}">` +
         `<text x="0" y="48" font-family="Georgia" font-size="44" font-weight="bold" fill="#1a1208">${variant.label}</text>` +
-        `<text x="56" y="48" font-family="Georgia" font-size="30" fill="#3a2a16">${variant.what}</text>` +
+        `<text x="56" y="48" font-family="Georgia" font-size="28" fill="#3a2a16">${variant.what}</text>` +
         "</svg>",
     );
-    composites.push({ input: label, left: x, top: pad });
-    composites.push({ input: files[i], left: x, top: pad + labelH });
+    composites.push({ input: label, left: x, top: y });
+    composites.push({ input: files[i], left: x, top: y + labelH });
   }
   // sharp resizes before it composites, so the sheet is built first.
   const sheet = await sharp({
@@ -131,26 +100,42 @@ async function reviewSheet(files, out) {
 }
 
 async function main() {
-  const browser = await launch();
+  const catalogue = await loadCatalogue();
+  const { byId } = catalogue;
+  await mkdir(DIR, { recursive: true });
+
   const outputs = [];
-  try {
-    const page = await browser.newPage({ viewport: { width: 1280, height: 640 } });
-    await serveLocalWorks(page);
-    for (const variant of VARIANTS) {
-      const url = `${pathToFileURL(TEMPLATE).href}?v=${variant.id}`;
-      await page.goto(url, { waitUntil: "load" });
-      await page.waitForSelector("body[data-ready]", { timeout: 60_000 });
-      const shot = await page.locator(`#${variant.id}`).screenshot({ type: "png" });
-      const file = path.join(DIR, `social-preview-${variant.id}.png`);
-      await sharp(await encode(shot)).toFile(file);
-      const { size } = await stat(file);
-      if (size > MAX_BYTES) throw new Error(`${file} is ${size} bytes, over GitHub's 1 MB`);
-      console.log(`${path.relative(ROOT, file)}  1280x640  ${Math.round(size / 1024)} KB`);
-      outputs.push(file);
-    }
-  } finally {
-    await browser.close();
+  const credits = [];
+  for (const format of SOCIAL_PREVIEW_FORMATS) {
+    const { png, works } = await renderFormat(format, catalogue);
+    const file = path.join(DIR, `social-preview-${format.id}.png`);
+    await writeFile(file, await encode(png));
+    const { size } = await stat(file);
+    if (size > MAX_BYTES) throw new Error(`${file} is ${size} bytes, over GitHub's 1 MB`);
+    console.log(
+      `${path.relative(ROOT, file)}  ${format.width}x${format.height}  ${Math.round(size / 1024)} KB  ${works.length} works`,
+    );
+    outputs.push(file);
+    credits.push(
+      `${path.basename(file)} (${format.width} x ${format.height})`,
+      ...works.map((id) => {
+        const a = byId.get(id);
+        return `  ${a.artist ?? "Unknown artist"}, ${displayTitle(a)}${a.year ? `, ${a.year}` : ""}. https://${SITE_URL}/artwork/${id}`;
+      }),
+      "",
+    );
   }
+  await writeFile(
+    path.join(DIR, "credits.txt"),
+    [
+      "Collection of Beauty GitHub social preview cards",
+      "",
+      "Every work shown is in the public domain and appears whole, without cropping.",
+      "The works in each card, top row first, left to right:",
+      "",
+      ...credits,
+    ].join("\n"),
+  );
 
   if (REVIEW_DIR) {
     await mkdir(REVIEW_DIR, { recursive: true });

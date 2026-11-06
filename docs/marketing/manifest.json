@@ -449,34 +449,45 @@
       "path": "docs/marketing/social-preview/social-preview-a.png",
       "width": 1280,
       "height": 640,
-      "bytes": 281179,
-      "sha256": "e3a7e5d17af8f75c791304f54322281e5e1df3ed22cc2f57b3573b636325b332",
+      "bytes": 247092,
+      "sha256": "d57cf6c89403946edf28f0d19eb7181b6290bbbff9db56e87fbd92b6fd2a1ba0",
       "kind": "social-preview",
-      "purpose": "GitHub social preview, option A: Light. The Grand Salon of the 3D museum beside the title.",
+      "purpose": "GitHub social preview, option A: Light. Works on the left, title on the right, as in the link preview and the 16:9 image.",
       "madeBy": "scripts/build-social-preview.mjs (pnpm marketing:social-preview)",
-      "source": "docs/marketing/social-preview/template.html"
+      "source": "The press images' design at 2:1 (SOCIAL_PREVIEW_FORMATS in scripts/build-marketing-images.mjs); works named in docs/marketing/social-preview/credits.txt"
     },
     {
       "path": "docs/marketing/social-preview/social-preview-b.png",
       "width": 1280,
       "height": 640,
-      "bytes": 255981,
-      "sha256": "61159f8df14fd6c848bd90e26f80d06f8e234a23ed18011cd9d9be213d8406cd",
+      "bytes": 224633,
+      "sha256": "365cb10850f3c1d45dbbe8292802d27dc6c1a9b84a3d759e8bbc3f05b3134f27",
       "kind": "social-preview",
-      "purpose": "GitHub social preview, option B: Light. The title over a row of five whole works.",
+      "purpose": "GitHub social preview, option B: Dark. The same layout on the dark wall of the 16:9 dark image.",
       "madeBy": "scripts/build-social-preview.mjs (pnpm marketing:social-preview)",
-      "source": "docs/marketing/social-preview/template.html"
+      "source": "The press images' design at 2:1 (SOCIAL_PREVIEW_FORMATS in scripts/build-marketing-images.mjs); works named in docs/marketing/social-preview/credits.txt"
     },
     {
       "path": "docs/marketing/social-preview/social-preview-c.png",
       "width": 1280,
       "height": 640,
-      "bytes": 189266,
-      "sha256": "685609a7fe72b90ea533ee812e9ab72f559757478ddeb50e9a6bda140a1a7d21",
+      "bytes": 314003,
+      "sha256": "f9f6bc355c01662c0fb7f9d955a109b59d6d764553c6cac75ac4da390bf54675",
       "kind": "social-preview",
-      "purpose": "GitHub social preview, option C: Dark. Three views of the 3D museum over the title.",
+      "purpose": "GitHub social preview, option C: Light. Works only, no text, as in the 16:9 works image.",
       "madeBy": "scripts/build-social-preview.mjs (pnpm marketing:social-preview)",
-      "source": "docs/marketing/social-preview/template.html"
+      "source": "The press images' design at 2:1 (SOCIAL_PREVIEW_FORMATS in scripts/build-marketing-images.mjs); works named in docs/marketing/social-preview/credits.txt"
+    },
+    {
+      "path": "docs/marketing/social-preview/social-preview-d.png",
+      "width": 1280,
+      "height": 640,
+      "bytes": 190526,
+      "sha256": "5761814a1ff64655913f61f2f88920879baa5a5e5b94c07a971c7db016b8d015",
+      "kind": "social-preview",
+      "purpose": "GitHub social preview, option D: Light. Title on the left, works on the right, as in the 3:1 banner.",
+      "madeBy": "scripts/build-social-preview.mjs (pnpm marketing:social-preview)",
+      "source": "The press images' design at 2:1 (SOCIAL_PREVIEW_FORMATS in scripts/build-marketing-images.mjs); works named in docs/marketing/social-preview/credits.txt"
     }
   ]
 }

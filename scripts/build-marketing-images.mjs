@@ -21,6 +21,10 @@
 //
 // Run:
 //   pnpm marketing:images && pnpm marketing:press-kit-zip
+//
+// The GitHub social preview cards (SOCIAL_PREVIEW_FORMATS) use the same
+// walls, works and type. build-social-preview.mjs renders them, outside
+// the press kit; this script does not.
 
 import { existsSync } from "node:fs";
 import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
@@ -41,7 +45,7 @@ const ASSETS_WEB = existsSync(LOCAL_ASSETS) ? LOCAL_ASSETS : FALLBACK_ASSETS;
 const OUT_DIR = path.join(ROOT, "public", "marketing");
 const OUT_OG = path.join(ROOT, "src", "app", "opengraph-image.png");
 const OUT_MANIFEST = path.join(ROOT, "src", "data", "press-images.json");
-const SITE_URL = "collectionofbeauty.com";
+export const SITE_URL = "collectionofbeauty.com";
 const FILE_PREFIX = "collection-of-beauty";
 
 // The largest ladder rung. Above it sit full-size encodes of up to 16,384px,
@@ -215,6 +219,65 @@ const FORMATS = [
   },
 ];
 
+// GitHub's social preview card, 1280 x 640: the press images' design at
+// 2:1. `pad` keeps the text 64 px (a tenth of the short side) off the
+// edges, as GitHub asks. Rendered by build-social-preview.mjs into
+// docs/marketing/social-preview/, so neither the press kit nor /press
+// lists them.
+export const SOCIAL_PREVIEW_FORMATS = [
+  {
+    id: "a",
+    slug: "2x1",
+    what: "Light. Works on the left, title on the right, as in the link preview and the 16:9 image.",
+    width: 1280,
+    height: 640,
+    theme: "light",
+    seed: 14,
+    count: [5, 9],
+    rows: [2, 3],
+    wall: { x: 0, y: 0, w: 0.6, h: 1 },
+    text: { x: 0.6, y: 0, w: 0.4, h: 1, size: 1.3, compact: true, pad: 0.1 },
+  },
+  {
+    id: "b",
+    slug: "2x1-dark",
+    what: "Dark. The same layout on the dark wall of the 16:9 dark image.",
+    width: 1280,
+    height: 640,
+    theme: "dark",
+    seed: 20,
+    count: [5, 9],
+    rows: [2, 3],
+    wall: { x: 0, y: 0, w: 0.6, h: 1 },
+    text: { x: 0.6, y: 0, w: 0.4, h: 1, size: 1.3, compact: true, pad: 0.1 },
+  },
+  {
+    id: "c",
+    slug: "2x1-works",
+    what: "Light. Works only, no text, as in the 16:9 works image.",
+    width: 1280,
+    height: 640,
+    theme: "light",
+    seed: 23,
+    count: [8, 14],
+    rows: [2, 3],
+    wall: { x: 0, y: 0, w: 1, h: 1 },
+  },
+  {
+    id: "d",
+    slug: "2x1-banner",
+    what: "Light. Title on the left, works on the right, as in the 3:1 banner.",
+    width: 1280,
+    height: 640,
+    theme: "light",
+    seed: 12,
+    count: [4, 8],
+    rows: [1, 2],
+    wall: { x: 0.4, y: 0, w: 0.6, h: 1 },
+    text: { x: 0, y: 0, w: 0.4, h: 1, size: 1.3, compact: true, pad: 0.1 },
+  },
+];
+
 // ─── Copy ──────────────────────────────────────────────────────────────────
 // Counts round down, as on /press: the collection only grows, so a rounded-
 // down figure baked into a JPEG stays true after every rebuild.
@@ -334,7 +397,7 @@ function sameArtistNeighbours(rows) {
  * best with rows of even height. Favoured works (early in POOL) earn a small
  * bonus, so the well-known pictures tend to make the cut.
  */
-function searchLayout(pool, format, area, gap) {
+export function searchLayout(pool, format, area, gap) {
   const rng = seedrandom(`press-images-${format.seed}`);
   const [minN, maxN] = format.count;
   const [minK, maxK] = format.rows;
@@ -457,7 +520,7 @@ async function stackText(format, copy, theme, unit) {
   const { width: W, height: H } = format;
   const t = format.text;
   const box = { x: t.x * W, y: t.y * H, w: t.w * W, h: t.h * H };
-  const padX = box.w * (t.compact ? 0.07 : 0.1);
+  const padX = t.pad ? t.pad * Math.min(W, H) : box.w * (t.compact ? 0.07 : 0.1);
   const innerW = box.w - padX * 2;
   const align = format.text.y > 0 ? "centre" : "left";
 
@@ -543,7 +606,7 @@ async function stackText(format, copy, theme, unit) {
   return composites;
 }
 
-function wallAreaFor(format) {
+export function wallAreaFor(format) {
   const { width: W, height: H } = format;
   const margin = Math.round(Math.min(W, H) * 0.045);
   const gap = Math.round(Math.min(W, H) * 0.022);
@@ -600,17 +663,20 @@ async function composeFormat(format, layout, copy, scale) {
 
 // Same rule as displayTitle() in src/lib/artwork-format.ts: many catalogue
 // titles are Commons filenames, and the English title is the readable one.
-function displayTitle(a) {
+export function displayTitle(a) {
   return a.englishTitle?.trim() || a.title;
 }
 
 function writeJpeg(png, outPath) {
-  return sharp(png).jpeg({ quality: 90, mozjpeg: true, chromaSubsampling: "4:4:4" }).toFile(outPath);
+  return sharp(png)
+    .jpeg({ quality: 90, mozjpeg: true, chromaSubsampling: "4:4:4" })
+    .toFile(outPath);
 }
 
 // ─── Main ──────────────────────────────────────────────────────────────────
 
-async function main() {
+/** The catalogue, the candidate works and the copy, read from src/data/. */
+export async function loadCatalogue() {
   const artworks = JSON.parse(await readFile(path.join(ROOT, "src/data/artworks.json"), "utf8"));
   const summary = JSON.parse(await readFile(path.join(ROOT, "src/data/summary.json"), "utf8"));
   const byId = new Map(artworks.map((a) => [a.id, a]));
@@ -619,7 +685,23 @@ async function main() {
     if (!a) throw new Error(`pool work not in the catalogue: ${id}`);
     return { ...a, rank, aspect: a.width / a.height };
   });
-  const copy = buildCopy(summary);
+  return { byId, pool, copy: buildCopy(summary) };
+}
+
+/** Lay out and draw one format at 1x. */
+export async function renderFormat(format, { pool, copy }) {
+  const { wallArea, gap } = wallAreaFor(format);
+  const layout = searchLayout(pool, format, wallArea, gap);
+  const { png } = await composeFormat(format, layout, copy, 1);
+  // Reading order: rows top to bottom, left to right within a row.
+  const works = [...layout.rects]
+    .sort((a, b) => Math.round(a.y) - Math.round(b.y) || a.x - b.x)
+    .map((r) => r.item.id);
+  return { png, layout, works };
+}
+
+async function main() {
+  const { byId, pool, copy } = await loadCatalogue();
 
   await mkdir(OUT_DIR, { recursive: true });
   // Clear the previous kit so a renamed or dropped format leaves no orphan
@@ -633,10 +715,8 @@ async function main() {
   const images = [];
   const credits = [];
   for (const format of FORMATS) {
-    const { wallArea, gap } = wallAreaFor(format);
-    const layout = searchLayout(pool, format, wallArea, gap);
-    const { rects, coverage } = layout;
-    const { png } = await composeFormat(format, layout, copy, 1);
+    const { png, layout, works } = await renderFormat(format, { pool, copy });
+    const { coverage } = layout;
     const file = `${FILE_PREFIX}-${format.slug}.jpg`;
     const outPath = path.join(OUT_DIR, file);
     await writeJpeg(png, outPath);
@@ -652,10 +732,6 @@ async function main() {
     if (format.alsoWrite) {
       await sharp(png).png({ compressionLevel: 9, palette: false }).toFile(format.alsoWrite);
     }
-    // Reading order: rows top to bottom, left to right within a row.
-    const works = [...rects]
-      .sort((a, b) => Math.round(a.y) - Math.round(b.y) || a.x - b.x)
-      .map((r) => r.item.id);
     const artists = [...new Set(works.map((id) => byId.get(id).artist).filter(Boolean))].slice(
       0,
       4,
@@ -719,7 +795,9 @@ async function main() {
   console.log(`wrote ${path.relative(ROOT, OUT_MANIFEST)} and credits.txt`);
 }
 
-main().catch((err) => {
-  console.error(err);
-  process.exit(1);
-});
+if (process.argv[1] === __filename) {
+  main().catch((err) => {
+    console.error(err);
+    process.exit(1);
+  });
+}
