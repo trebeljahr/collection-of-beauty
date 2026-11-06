@@ -113,6 +113,13 @@ ENV COB_SHARED_ASSETS=1
 # on any peer conflict (react 19.3 vs @react-three/fiber's `<19.3` peer range
 # broke the deploy). dotenvx needs none of those packages.
 RUN npm install --prefix /opt/dotenvx --no-audit --no-fund @dotenvx/dotenvx@1.64.0
+
+# apk upgrade picks up Alpine security fixes on every rebuild, before the node
+# base image is republished. Nothing at runtime calls npm or npx, and the npm
+# bundled in the base image carries its own vulnerable dependencies, so it is
+# removed once dotenvx is installed.
+RUN apk upgrade --no-cache \
+  && rm -rf /usr/local/lib/node_modules/npm /usr/local/bin/npm /usr/local/bin/npx
 COPY --from=build /app/.env.production ./.env.production
 COPY --chmod=755 drain-entrypoint.sh /usr/local/bin/drain-entrypoint
 COPY drain.cjs /usr/local/lib/drain.cjs
