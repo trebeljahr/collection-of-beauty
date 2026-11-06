@@ -105,3 +105,7 @@ render them and `/press` does not list them. GitHub takes the card under
 Settings → General → Social preview; it has no API for it.
 `--review <folder>` also writes the four PNGs and a `review-sheet.jpg` of
 all four to that folder.
+
+## Live GitHub social preview
+
+`social-preview/github-social-preview.jpg` is the card uploaded in Settings → Social preview on 2026-11-07. It is the existing link-preview card `public/marketing/collection-of-beauty-og-large.jpg`, center-cropped to 1280×640 with ImageMagick (`magick SRC -resize 1280x640^ -gravity center -extent 1280x640 -quality 90`); no new design. `github-social-preview-alt.jpg` is a second crop Rico also liked (the stair-hall museum shot).
