@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=1280">
+<title>Collection of Beauty social preview</title>
+<!--
+  GitHub social preview card, 1280 x 640, in three variants:
+    ?v=a  light, one museum screenshot beside the title
+    ?v=b  light, the title over a row of whole works
+    ?v=c  dark, three museum screenshots over the title
+  Rendered by scripts/build-social-preview.mjs. Opened by hand it works
+  too: museum shots come from public/marketing/, works from the asset
+  origin. Colours and type follow scripts/build-marketing-images.mjs
+  (Georgia, the cream and the dark wall). Every work is shown whole.
+-->
+<style>
+  :root {
+    --wall: #f7f3ec;
+    --title: #1a1208;
+    --body: #3a2a16;
+    --accent: #7a5a2f;
+    --shadow: rgba(40, 28, 12, 0.28);
+    --safe: 64px;
+  }
+  .dark {
+    --wall: #1c1917;
+    --title: #f5f1e8;
+    --body: #d6cbb8;
+    --accent: #b8996a;
+    --shadow: rgba(0, 0, 0, 0.6);
+  }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { background: #888; }
+  .card {
+    position: relative;
+    width: 1280px;
+    height: 640px;
+    overflow: hidden;
+    background: var(--wall);
+    color: var(--body);
+    font-family: Georgia, "Times New Roman", serif;
+  }
+  .card[hidden] { display: none; }
+  h1 {
+    color: var(--title);
+    font-weight: bold;
+    letter-spacing: -0.01em;
+    line-height: 1.04;
+  }
+  .lede { line-height: 1.34; text-wrap: pretty; }
+  .rule { height: 2px; background: var(--accent); }
+  .url { color: var(--accent); }
+  .work, .shot { box-shadow: 0 6px 16px var(--shadow); display: block; }
+
+  /* A: screenshot-led */
+  #a .shot {
+    position: absolute;
+    top: 0; right: 0;
+    width: 752px; height: 640px;
+    object-fit: cover;
+    object-position: 50% 50%;
+    box-shadow: none;
+  }
+  #a .text {
+    position: absolute;
+    top: 0; bottom: 0; left: var(--safe);
+    width: 420px;
+    display: flex; flex-direction: column; justify-content: center;
+  }
+  #a h1 { font-size: 72px; }
+  #a .lede { font-size: 30px; margin-top: 28px; }
+  #a .rule { margin-top: 36px; width: 100%; }
+  #a .url { font-size: 25px; margin-top: 20px; }
+
+  /* B: typographic, a row of works */
+  #b .stack {
+    position: absolute;
+    inset: var(--safe);
+    display: flex; flex-direction: column; align-items: center; justify-content: space-between;
+    text-align: center;
+  }
+  #b h1 { font-size: 92px; }
+  #b .lede { font-size: 33px; margin-top: 14px; }
+  #b .row { display: flex; gap: 16px; align-items: flex-end; }
+  #b .url { font-size: 25px; }
+
+  /* C: dark, three museum views */
+  #c .shots {
+    position: absolute;
+    top: var(--safe); left: var(--safe); right: var(--safe);
+    display: flex; gap: 16px;
+  }
+  #c .shots img { width: calc((100% - 32px) / 3); height: 276px; object-fit: cover; }
+  #c .text {
+    position: absolute;
+    left: var(--safe); right: var(--safe); bottom: var(--safe);
+  }
+  #c h1 { font-size: 76px; }
+  #c .foot { display: flex; justify-content: space-between; align-items: flex-end; gap: 48px; margin-top: 22px; }
+  #c .lede { font-size: 31px; max-width: 760px; }
+  #c .url { font-size: 25px; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<section class="card" id="a" hidden>
+  <img class="shot" src="../../../public/marketing/collection-of-beauty-museum-salon.jpg"
+       alt="The Grand Salon of the 3D museum, Michelangelo's Last Judgment on its far wall">
+  <div class="text">
+    <h1>Collection of Beauty</h1>
+    <p class="lede">Walk a museum of public&#8209;domain paintings, hung at their real size, in a browser tab.</p>
+    <div class="rule"></div>
+    <p class="url">collectionofbeauty.com</p>
+  </div>
+</section>
+
+<section class="card" id="b" hidden>
+  <div class="stack">
+    <div>
+      <h1>Collection of Beauty</h1>
+      <p class="lede">4,000+ handpicked public&#8209;domain paintings, prints and book plates</p>
+    </div>
+    <div class="row" data-row-width="1152" data-row-max-height="210">
+      <img class="work" data-work="audubon-birds/431_American_Flamingo" alt="Audubon, American Flamingo">
+      <img class="work" data-work="collection-of-beauty/Tsunami_by_hokusai_19th_century" alt="Hokusai, The Great Wave off Kanagawa">
+      <img class="work" data-work="collection-of-beauty/1665_Girl_with_a_Pearl_Earring" alt="Vermeer, Girl with a Pearl Earring">
+      <img class="work" data-work="collection-of-beauty/Sandro_Botticelli_-_La_nascita_di_Venere_-_Google_Art_Project_-_edited" alt="Botticelli, The Birth of Venus">
+      <img class="work" data-work="kunstformen-images/Haeckel_Actiniae" alt="Haeckel, Actiniae">
+    </div>
+    <p class="url">collectionofbeauty.com</p>
+  </div>
+</section>
+
+<section class="card dark" id="c" hidden>
+  <div class="shots">
+    <img class="shot" src="../../../public/marketing/collection-of-beauty-museum-stair-hall.jpg" alt="A grand staircase of the 3D museum">
+    <img class="shot" src="../../../public/marketing/collection-of-beauty-museum-court.jpg" alt="The central court of the 3D museum">
+    <img class="shot" src="../../../public/marketing/collection-of-beauty-museum-mona-lisa.jpg" alt="The Mona Lisa on a free-standing wall in a blue gallery">
+  </div>
+  <div class="text">
+    <h1>Collection of Beauty</h1>
+    <div class="foot">
+      <p class="lede">A 3D museum of four floors, with 1,400+ public&#8209;domain works on its walls, in your browser.</p>
+      <p class="url">collectionofbeauty.com</p>
+    </div>
+  </div>
+</section>
+
+<script>
+  const ASSETS = "https://assets.collectionofbeauty.com";
+  const v = new URLSearchParams(location.search).get("v") ?? "a";
+  for (const card of document.querySelectorAll(".card")) card.hidden = card.id !== v;
+
+  // Works load from the asset origin at their 960 px rung (each path
+  // segment encoded as the site's variantPath does).
+  const works = [...document.querySelectorAll("img[data-work]")];
+  for (const img of works) {
+    const key = img.dataset.work.split("/").map(encodeURIComponent).join("/");
+    img.src = `${ASSETS}/${key}/960.avif`;
+  }
+
+  // Justify each row: one height for every work, so each keeps its own
+  // aspect ratio and the row fills its width.
+  async function justify() {
+    await Promise.all(works.map((img) => img.decode().catch(() => {})));
+    for (const row of document.querySelectorAll(".row")) {
+      const imgs = [...row.querySelectorAll("img")];
+      const gap = parseFloat(getComputedStyle(row).columnGap) || 0;
+      const width = Number(row.dataset.rowWidth);
+      const sum = imgs.reduce((s, img) => s + img.naturalWidth / img.naturalHeight, 0);
+      const height = Math.min(Number(row.dataset.rowMaxHeight), (width - gap * (imgs.length - 1)) / sum);
+      for (const img of imgs) {
+        img.style.height = `${height}px`;
+        img.style.width = `${(height * img.naturalWidth) / img.naturalHeight}px`;
+      }
+    }
+    await Promise.all([...document.images].map((img) => img.decode().catch(() => {})));
+    document.body.dataset.ready = "1";
+  }
+  justify();
+</script>
+</body>
+</html>
