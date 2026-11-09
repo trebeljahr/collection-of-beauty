@@ -64,7 +64,7 @@
     "prepare": "husky"
   },
   "dependencies": {
-    "@aws-sdk/client-s3": "^3.1160.0",
+    "@aws-sdk/client-s3": "^3.1161.0",
     "@dimforge/rapier3d-compat": "^0.21.0",
     "@hatchkit/dev-plugin-next": "^0.1.47",
     "@react-email/components": "^1.0.12",
@@ -82,7 +82,7 @@
     "gray-matter": "^4.0.3",
     "image-size": "^2.0.4",
     "joystick-controller": "^2.0.0",
-    "lucide-react": "^1.65.0",
+    "lucide-react": "^1.66.0",
     "next": "^16.4.3",
     "openseadragon": "^6.1.1",
     "react": "^19.3.1",
