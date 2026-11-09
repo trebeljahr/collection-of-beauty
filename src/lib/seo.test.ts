@@ -5,6 +5,7 @@ import {
   artworkImageObjects,
   artworkJsonLd,
   collectionsIndexJsonLd,
+  homeCollectionJsonLd,
   ogImagesForArtwork,
   SITE_URL,
   websiteJsonLd,
@@ -249,6 +250,14 @@ describe("site author", () => {
     expect(ld.publisher).toEqual(rico);
     const parts = ld.hasPart as Record<string, unknown>[];
     expect(parts[0].author).toBeUndefined();
+  });
+
+  it("names Rico on the home page's collection and links it to the site", () => {
+    const ld = homeCollectionJsonLd();
+    expect(ld["@type"]).toBe("CollectionPage");
+    expect(ld.author).toEqual(rico);
+    expect(ld.url).toBe(`${SITE_URL}/`);
+    expect((ld.isPartOf as Record<string, unknown>).url).toBe(SITE_URL);
   });
 
   it("keeps the painter as creator on artworks", () => {

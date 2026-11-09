@@ -461,6 +461,25 @@ export function collectionsIndexJsonLd(
   };
 }
 
+/**
+ * schema.org/CollectionPage for the home page, which lists every work. The
+ * layout's WebSite node describes the site; this one describes the page.
+ */
+export function homeCollectionJsonLd(): Record<string, unknown> {
+  return {
+    "@context": "https://schema.org",
+    "@type": "CollectionPage",
+    name: "A personal gallery of beauty",
+    description: SITE_DESCRIPTION,
+    url: absoluteUrl("/"),
+    isPartOf: { "@type": "WebSite", name: SITE_NAME, url: SITE_URL },
+    inLanguage: "en",
+    author: SITE_AUTHOR,
+    publisher: SITE_AUTHOR,
+    isAccessibleForFree: true,
+  };
+}
+
 /** schema.org/WebSite for the root layout — helps Google understand the site. */
 export function websiteJsonLd(): Record<string, unknown> {
   return {

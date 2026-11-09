@@ -4,7 +4,13 @@ import { DEFAULT_ARTWORK_PAGE_SIZE } from "@/lib/artwork-page-schema";
 import { getArtworkListingPage } from "@/lib/artwork-pagination";
 import { summary } from "@/lib/data";
 import { ERAS } from "@/lib/gallery-eras";
-import { SITE_DESCRIPTION, SITE_NAME, SITE_TAGLINE } from "@/lib/seo";
+import {
+  homeCollectionJsonLd,
+  jsonLdScriptProps,
+  SITE_DESCRIPTION,
+  SITE_NAME,
+  SITE_TAGLINE,
+} from "@/lib/seo";
 
 export const metadata: Metadata = {
   // Absolute title on the home page — skips the "%s · Collection of Beauty"
@@ -19,6 +25,7 @@ export default function HomePage() {
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:py-12">
+      <script {...jsonLdScriptProps(homeCollectionJsonLd())} />
       <section className="mb-10">
         <h1 className="font-serif text-3xl tracking-tight md:text-4xl">
           A personal gallery of beauty
