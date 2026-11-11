@@ -518,8 +518,15 @@ export function grandFloorFor(hall: readonly GrandStair[], y: number, current: n
 }
 
 /** Where a visitor sent to a stair hall lands: on the hall floor inside
- *  the door the stair faces, clear of the flights and the opening. */
-export function grandHallArrival(stair: GrandStair): { x: number; z: number } {
+ *  the door the stair faces, clear of the flights and the opening. On a
+ *  floor of a court whose walkway runs the other way, at the head of
+ *  the walkway: from the door the stair faces, the visitor would look
+ *  over a balustrade across the whole view. */
+export function grandHallArrival(stair: GrandStair, floorIndex?: number): { x: number; z: number } {
+  const bridge = stair.bridges.find((b) => b.floor === floorIndex)?.rect;
+  if (bridge && bridge.xMax - bridge.xMin > bridge.zMax - bridge.zMin) {
+    return toStairWorld(stair, stair.half - 1.6, 0);
+  }
   return toStairWorld(stair, 0, stair.half - 1.6);
 }
 

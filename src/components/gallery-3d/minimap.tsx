@@ -243,10 +243,7 @@ export function Minimap({
       const rh = (room.cellBounds.zMax - room.cellBounds.zMin + 1) * scale;
       const cx = rx + rw / 2;
       const cy = ry + rh / 2;
-      // A grand stair hall says what it is on this floor: the stair
-      // leaves it, arrives on it, or only its open well passes through.
-      const stairGlyph = { up: "↑", down: "↓", both: "↕", void: "○" }[room.stairGlyph ?? "up"];
-      const glyph = room.isStairwell ? stairGlyph : room.roomNumber ? String(room.roomNumber) : "";
+      const glyph = roomGlyph(room);
       if (!glyph) continue;
       // Scale the numeral with the map so it stays readable on the
       // 220 px minimap and doesn't look lost on the 600 px big map.
@@ -408,6 +405,16 @@ function wrapLines(
     lines[lines.length - 1] = truncateToFit(ctx, `${last}…`, maxWidth) || last;
   }
   return lines;
+}
+
+/** What the map prints in a room: its number, or for a stair's room
+ *  what the stair is on this floor (it leaves it, arrives on it, or
+ *  only its open well passes through). */
+export function roomGlyph(room: Pick<RoomLayout, "isStairwell" | "roomNumber" | "stairGlyph">) {
+  if (room.isStairwell) {
+    return { up: "↑", down: "↓", both: "↕", void: "○" }[room.stairGlyph ?? "up"];
+  }
+  return room.roomNumber ? String(room.roomNumber) : "";
 }
 
 /** A room's colour on the map: the colour of its walls. */

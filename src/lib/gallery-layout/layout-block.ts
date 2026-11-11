@@ -108,6 +108,7 @@ import {
   type PaletteId,
 } from "@/lib/gallery-eras";
 import { slugify } from "@/lib/utils";
+import { type ArrivalView, roomArrivalView } from "./arrival-view";
 import { computeBlockedEdges } from "./blocked-edges";
 import { curatedQueue, roomDescription, roomTitle } from "./curation";
 import type { DividerStyle } from "./divider-plans";
@@ -121,14 +122,7 @@ import {
   screenBenches,
   wallIsland,
 } from "./feature-benches";
-import {
-  arrivalPoint,
-  benchClearOf,
-  benchRect,
-  ceilingHeightFor,
-  planBenches,
-  planDividers,
-} from "./fittings";
+import { benchClearOf, benchRect, ceilingHeightFor, planBenches, planDividers } from "./fittings";
 import {
   bucketByEra,
   dominantMovement,
@@ -825,18 +819,41 @@ function hangTallInSpirals(
   }
 }
 
-/** Where a visitor sent to a room lands. A hall's centre is a flight or
- *  the open well, so there it is inside the door its stair faces: floor
- *  on every storey of the hall. */
+/** Where a visitor sent to a room lands (`blockArrivalView`). */
 export function blockArrivalPoint(
   layout: MuseumLayout,
   room: RoomLayout,
 ): { x: number; z: number } {
+  const { x, z } = blockArrivalView(layout, room);
+  return { x, z };
+}
+
+/**
+ * Where a visitor sent to a room lands, and the point they face. A
+ * hall's centre is a flight or the open well, so there it is inside the
+ * door its stair faces, floor on every storey of the hall, looking at
+ * the stair or across the court or the salon. The spiral's room and the
+ * galleries are read off their plans (`roomArrivalView`): never on the
+ * stair, never facing a wall.
+ */
+export function blockArrivalView(layout: MuseumLayout, room: RoomLayout): ArrivalView {
   if (room.isStairwell) {
     const stair = layout.grandStairs?.find((s) => s.id.startsWith(`${hallKey(room)}-`));
-    if (stair) return grandHallArrival(stair);
+    if (stair) {
+      const { x, z } = grandHallArrival(stair, room.floorIndex);
+      return { x, z, lookX: stair.centerX, lookZ: stair.centerZ };
+    }
+    const b = room.cellBounds;
+    const spiral = layout.allStaircases.find(
+      (s) =>
+        s.centerX > b.xMin * CELL_SIZE &&
+        s.centerX < (b.xMax + 1) * CELL_SIZE &&
+        s.centerZ > b.zMin * CELL_SIZE &&
+        s.centerZ < (b.zMax + 1) * CELL_SIZE,
+    );
+    return roomArrivalView(room, spiral);
   }
-  return arrivalPoint(room);
+  return roomArrivalView(room);
 }
 
 // --- One floor ------------------------------------------------------------

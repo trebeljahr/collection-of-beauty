@@ -19,10 +19,10 @@ import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
 import { useAudioSettings } from "@/lib/audio-settings";
 import type { ArtworkListing } from "@/lib/data";
 import { COURT_BRIDGE_PATTERNS } from "@/lib/gallery-layout/grand-stair";
-import { blockArrivalPoint, layoutBlock } from "@/lib/gallery-layout/layout-block";
+import { blockArrivalView, layoutBlock } from "@/lib/gallery-layout/layout-block";
 import { eraOfRoom, floorBlurb, floorTitle, paletteOfRoom } from "@/lib/gallery-layout/room-era";
 import { shaftKey, wallSharers } from "@/lib/gallery-layout/room-visibility";
-import type { FloorLayout, MuseumLayout, Staircase } from "@/lib/gallery-layout/types";
+import type { FloorLayout, MuseumLayout, RoomLayout, Staircase } from "@/lib/gallery-layout/types";
 import {
   GALLERY_RELEASE_KEY,
   type GalleryPose,
@@ -42,7 +42,7 @@ import { GlowField } from "./glow-field";
 import { GrandStaircase } from "./grand-staircase";
 import { LandscapePrompt } from "./landscape-prompt";
 import { LodController } from "./lod-controller";
-import { Minimap, mapFillOf, type PlayerSample, roomRect } from "./minimap";
+import { Minimap, mapFillOf, type PlayerSample, roomGlyph, roomRect } from "./minimap";
 import { MusicPlayer } from "./music-player";
 import { Player, type PlayerHandle, type SeatState } from "./player";
 import { quietLock, requestPointerLockQuietly } from "./pointer-lock";
@@ -519,6 +519,9 @@ export function Gallery3D({ artworks, onEntryChange }: Props) {
   const spawnForFloor = useRef<[number, number, number]>(
     restoredVisit?.spawn ?? layout.entry.worldPosition,
   );
+  // The point a teleport faces, set with `spawnForFloor`. Null on entry,
+  // where Player faces the court.
+  const spawnLookRef = useRef<[number, number] | null>(null);
   // Bumped on every teleport so the new spawn array reaches Player even
   // when nothing else about the render changed — clicking the room you
   // already stand in changes neither floor nor active room, so without
@@ -563,35 +566,41 @@ export function Gallery3D({ artworks, onEntryChange }: Props) {
     [],
   );
 
-  const teleportToFloor = useCallback(
-    (idx: number) => {
-      const f = layout.floors[idx];
-      const anchor = f.rooms.find((r) => r.isAnchor) ?? f.rooms[0];
-      if (!anchor) return;
-      // A hall's centre can be its open well: land inside its door.
-      const arrival = blockArrivalPoint(layout, anchor);
-      spawnForFloor.current = [arrival.x, anchor.worldRect.y, arrival.z];
-      setCurrentFloorIdx(idx);
-      setActiveRoomIdx(-1);
+  // Put the visitor in a room, facing what the room is for: a hall's
+  // stair or void, a spiral's stair, a gallery's length
+  // (`blockArrivalView`). Never on a flight, never facing a wall.
+  const arriveIn = useCallback(
+    (floorIdx: number, room: RoomLayout) => {
+      const view = blockArrivalView(layout, room);
+      spawnForFloor.current = [view.x, room.worldRect.y, view.z];
+      spawnLookRef.current = [view.lookX, view.lookZ];
+      setCurrentFloorIdx(floorIdx);
       setSpawnNonce((n) => n + 1);
     },
     [layout],
   );
 
+  const teleportToFloor = useCallback(
+    (idx: number) => {
+      const f = layout.floors[idx];
+      const anchor = f.rooms.find((r) => r.isAnchor) ?? f.rooms[0];
+      if (!anchor) return;
+      arriveIn(idx, anchor);
+      setActiveRoomIdx(-1);
+    },
+    [layout, arriveIn],
+  );
+
   // Teleport straight into one room of one floor — driven by clicking a
-  // room on the big map. Lands on the room's interior centre, where the
-  // plan shows the number, or beside it when a bench stands there.
+  // room on the big map, stair halls, court and salon included.
   const teleportToRoom = useCallback(
     (floorIdx: number, roomIdx: number) => {
       const room = layout.floors[floorIdx]?.rooms[roomIdx];
       if (!room) return;
-      const arrival = blockArrivalPoint(layout, room);
-      spawnForFloor.current = [arrival.x, room.worldRect.y, arrival.z];
-      setCurrentFloorIdx(floorIdx);
+      arriveIn(floorIdx, room);
       setActiveRoomIdx(roomIdx);
-      setSpawnNonce((n) => n + 1);
     },
-    [layout],
+    [layout, arriveIn],
   );
 
   // Open the big-map overlay. Shared by the M-key shortcut (desktop) and
@@ -863,6 +872,7 @@ export function Gallery3D({ artworks, onEntryChange }: Props) {
                 const last = lastCameraRef.current;
                 if (last) {
                   spawnForFloor.current = [last.x, spawnForFloor.current[1], last.z];
+                  spawnLookRef.current = null;
                 }
                 resumePoseRef.current = poseRef.current ? structuredClone(poseRef.current) : null;
                 setContextLost(false);
@@ -943,6 +953,7 @@ export function Gallery3D({ artworks, onEntryChange }: Props) {
           allStaircases={layout.allStaircases}
           grandStairs={layout.grandStairs}
           spawnAt={spawnForFloor.current}
+          spawnLook={spawnLookRef.current}
           resumePose={resumePoseRef.current}
           onRoomChange={handleRoomChange}
           onFloorChange={handleStairFloorChange}
@@ -1701,10 +1712,10 @@ function BigMapOverlay({
                 cell geometry the canvas drew it with. Real buttons
                 rather than canvas hit-testing: hover cursor, focus ring
                 and Tab/Enter come for free, and screen readers get a
-                named control per room. The stairwell is skipped — its
-                centre is the open well, not somewhere to stand. */}
+                named control per room. Every room has one, the stair
+                halls, the court, the salon and the spiral's room too:
+                `blockArrivalView` lands a visitor off the stair. */}
             {floor.rooms.map((room, i) => {
-              if (room.isStairwell) return null;
               const r = roomRect(floor, room, size);
               const isHovered = hoveredRoomId === room.id;
               return (
@@ -1721,7 +1732,9 @@ function BigMapOverlay({
                   style={{ left: r.left, top: r.top, width: r.width, height: r.height }}
                 >
                   <span className="sr-only">
-                    Teleport to room {room.roomNumber ?? i + 1}, {room.title}
+                    {room.roomNumber != null
+                      ? `Teleport to room ${room.roomNumber}, ${room.title}`
+                      : `Teleport to the ${room.title}`}
                   </span>
                 </button>
               );
@@ -1752,47 +1765,85 @@ function BigMapOverlay({
             {floor.rooms
               .filter((room) => room.roomNumber != null)
               .sort((a, b) => (a.roomNumber ?? 0) - (b.roomNumber ?? 0))
-              .map((room) => {
-                const isActive = floor.rooms[activeRoomIdx]?.id === room.id;
-                const isHovered = hoveredRoomId === room.id;
-                const roomIdx = floor.rooms.indexOf(room);
-                return (
-                  <li key={room.id}>
-                    <button
-                      type="button"
-                      onClick={() => onRoomJump(roomIdx)}
-                      onMouseEnter={() => setHoveredRoomId(room.id)}
-                      onMouseLeave={() => setHoveredRoomId(null)}
-                      onFocus={() => setHoveredRoomId(room.id)}
-                      onBlur={() => setHoveredRoomId(null)}
-                      title={`Teleport to ${room.title}`}
-                      className={`flex w-full items-center gap-2 rounded px-1.5 py-0.5 text-left text-sm transition focus:outline-none ${
-                        isHovered
-                          ? "bg-amber-200/20 text-white"
-                          : isActive
-                            ? "bg-white/15 text-white"
-                            : "text-white/70"
-                      }`}
-                    >
-                      <span
-                        aria-hidden
-                        className="inline-block h-2.5 w-2.5 shrink-0 rounded-[2px] ring-1 ring-white/30"
-                        style={{ background: mapFillOf(room) }}
-                      />
-                      <span className="min-w-[1.25rem] text-right font-mono text-xs text-white/55">
-                        {room.roomNumber}
-                      </span>
-                      <span className="max-w-[15rem] truncate">{room.title}</span>
-                      <span className="ml-auto pl-2 text-xs text-white/40">
-                        {room.placements.length}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
+              .map((room) => (
+                <LegendRow
+                  key={room.id}
+                  room={room}
+                  isActive={floor.rooms[activeRoomIdx]?.id === room.id}
+                  isHovered={hoveredRoomId === room.id}
+                  onJump={() => onRoomJump(floor.rooms.indexOf(room))}
+                  onHover={setHoveredRoomId}
+                />
+              ))}
+          </ul>
+          <div className="mt-3 mb-2 px-1 text-[10px] uppercase tracking-wider text-white/45">
+            Halls &amp; stairs
+          </div>
+          <ul className="flex flex-col gap-1">
+            {floor.rooms
+              .filter((room) => room.roomNumber == null)
+              .map((room) => (
+                <LegendRow
+                  key={room.id}
+                  room={room}
+                  isActive={floor.rooms[activeRoomIdx]?.id === room.id}
+                  isHovered={hoveredRoomId === room.id}
+                  onJump={() => onRoomJump(floor.rooms.indexOf(room))}
+                  onHover={setHoveredRoomId}
+                />
+              ))}
           </ul>
         </div>
       </div>
     </div>
+  );
+}
+
+/** One room in the big map's legend: its colour, its number (or a stair
+ *  room's glyph), its title and how many works hang in it. A click
+ *  teleports there, as the room on the plan does. */
+function LegendRow({
+  room,
+  isActive,
+  isHovered,
+  onJump,
+  onHover,
+}: {
+  room: RoomLayout;
+  isActive: boolean;
+  isHovered: boolean;
+  onJump: () => void;
+  onHover: (id: string | null) => void;
+}) {
+  return (
+    <li>
+      <button
+        type="button"
+        onClick={onJump}
+        onMouseEnter={() => onHover(room.id)}
+        onMouseLeave={() => onHover(null)}
+        onFocus={() => onHover(room.id)}
+        onBlur={() => onHover(null)}
+        title={`Teleport to ${room.title}`}
+        className={`flex w-full items-center gap-2 rounded px-1.5 py-0.5 text-left text-sm transition focus:outline-none ${
+          isHovered
+            ? "bg-amber-200/20 text-white"
+            : isActive
+              ? "bg-white/15 text-white"
+              : "text-white/70"
+        }`}
+      >
+        <span
+          aria-hidden
+          className="inline-block h-2.5 w-2.5 shrink-0 rounded-[2px] ring-1 ring-white/30"
+          style={{ background: mapFillOf(room) }}
+        />
+        <span className="min-w-[1.25rem] text-right font-mono text-xs text-white/55">
+          {roomGlyph(room)}
+        </span>
+        <span className="max-w-[15rem] truncate">{room.title}</span>
+        <span className="ml-auto pl-2 text-xs text-white/40">{room.placements.length}</span>
+      </button>
+    </li>
   );
 }

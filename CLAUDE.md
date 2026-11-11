@@ -681,7 +681,8 @@ them as informational.
     camera reaches 3.42 m and the lowest ceiling is at 4.6 m; a ceiling
     under 3.6 m would need a clamp.
   - A bench can stand on a room's centre, so nothing sends the player
-    to a raw room centre: use `arrivalPoint`.
+    to a raw room centre: use `blockArrivalView` (block plan, "A hall's
+    centre is a flight or the open well", below).
   - Dividers and benches are part of `galleryLayoutIdentity`. Change
     where they stand and every saved visit restarts once in the court.
 - **Jump has one code path.** `jump()` in `player.tsx` checks `enabled`
@@ -936,9 +937,20 @@ them as informational.
       part of a hall drawn another way has to stay inside the wall
       lines itself.
     - A hall's centre is a flight or the open well. Send a visitor to
-      `blockArrivalPoint()`, never to the room's centre: the floor
-      keys, the map and a restored visit all use it. It answers for the
-      tower too.
+      `blockArrivalView()` (`blockArrivalPoint()` for the spot alone),
+      never to the room's centre: the floor keys, the map and a restored
+      visit all use it. A hall is entered inside the door its stair
+      faces, looking at the stair; a court floor with a walkway at the
+      walkway's head, looking along it. The spiral's room and every
+      gallery are read off the plan (`arrival-view.ts`): of the spots
+      and views along the room's axes or diagonals, the one that shows
+      the most floor and the most works face on, with nothing within
+      4 m ahead, no divider within 3 m anywhere in view and no divider's
+      end edge on near the middle. The big map has a button for every
+      room, the stair rooms included (Rico, 11 November 2026: "every
+      room on every floor ... including the stair case rooms"). A view
+      that moves the top storey of a stair hall up to its balustrade
+      was tried that day: the handrail filled the bottom of the screen.
     - In a hall the visitor counts as on its stair (`activeStairId`),
       on a flight or not, on any floor of it. The floor above and the
       floor below are then mounted in full (`activeHallFloors` in

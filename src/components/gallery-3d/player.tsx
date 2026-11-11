@@ -183,6 +183,7 @@ export function Player({
   allStaircases,
   grandStairs = NO_GRAND_STAIRS,
   spawnAt,
+  spawnLook,
   resumePose,
   onRoomChange,
   onFloorChange,
@@ -207,6 +208,10 @@ export function Player({
    *  no state. */
   grandStairs?: readonly GrandStair[];
   spawnAt: [number, number, number];
+  /** A point on the plan to face on spawn (`blockArrivalView`). Unset,
+   *  the visitor faces the middle of the hall they stand in, or the
+   *  nearest spiral. */
+  spawnLook?: readonly [number, number] | null;
   resumePose?: GalleryPose | null;
   onRoomChange?: (roomIndex: number) => void;
   /** Called when the player's Y crosses the midpoint between the
@@ -488,6 +493,10 @@ export function Player({
     bobOffset.current.set(0, 0, 0);
     const eyeY = spawnAt[1] + EYE_HEIGHT;
     camera.position.set(spawnAt[0], eyeY, spawnAt[2]);
+    if (spawnLook) {
+      camera.lookAt(spawnLook[0], eyeY, spawnLook[1]);
+      return;
+    }
     // Face the central spiral so the navigation affordance is the first
     // thing the player sees on spawn / teleport. Anchor and stair centres
     // aren't always axis-aligned (anchor centre X drifts off the stair X
@@ -511,7 +520,7 @@ export function Player({
     } else {
       camera.lookAt(spawnAt[0], eyeY, spawnAt[2] - 5);
     }
-  }, [camera, spawnAt, resumePose]);
+  }, [camera, spawnAt, spawnLook, resumePose]);
 
   useEffect(() => {
     const tryZoom = () => {

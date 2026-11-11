@@ -1,4 +1,5 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { blockArrivalPoint } from "./gallery-layout/layout-block";
 import type { MuseumLayout } from "./gallery-layout/types";
 import {
   GALLERY_RELEASE_KEY,
@@ -24,6 +25,7 @@ const layout = {
         cellBounds: { xMin: 0, xMax: 3, zMin: 0, zMax: 3 },
         dividers: [],
         benches: [],
+        placements: [],
         worldRect: { xMin: 0, xMax: 10, zMin: 0, zMax: 10, y: index * 6.12 },
       },
     ],
@@ -62,7 +64,11 @@ describe("gallery release recovery", () => {
     rememberReleaseState(GALLERY_RELEASE_KEY, { ...saved, layout: "old-geometry" });
     const restored = restoreGalleryVisit(layout, identity)!;
     expect(restored.pose).toBeNull();
-    expect(restored.spawn).toEqual([5, 6.12, 5]);
+    // Where the map would send a visitor to the anchor: inside the room,
+    // off its walls.
+    const anchor = blockArrivalPoint(layout, layout.floors[1].rooms[0]);
+    expect(restored.spawn).toEqual([anchor.x, 6.12, anchor.z]);
+    expect(Math.min(anchor.x, anchor.z, 10 - anchor.x, 10 - anchor.z)).toBeGreaterThanOrEqual(1.5);
     expect(restored.saved.artworkId).toBe(saved.artworkId);
   });
   it("refuses malformed poses and falls back from coordinates outside the walkable floor", () => {
