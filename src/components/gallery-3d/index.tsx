@@ -13,7 +13,6 @@ import {
   useSyncExternalStore,
 } from "react";
 import * as THREE from "three";
-import { GalleryCurtain } from "@/app/gallery-3d/gallery-curtain";
 import { useIs3DActive, useSetIs3DActive } from "@/components/gallery-3d-state";
 import { JOYSTICK_PAD_RADIUS, JOYSTICK_REACH, useJoystick } from "@/hooks/use-joystick";
 import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
@@ -102,7 +101,28 @@ function readCameraSide(): "left" | "right" | null {
   return null;
 }
 
-type Props = { artworks: ArtworkListing[] };
+/**
+ * What the entry curtain shows once the scene has mounted: the floor the
+ * visit starts on and how far its first room has loaded.
+ */
+export type GalleryEntry = {
+  title: string;
+  blurb?: string;
+  /** Share of the entry room's paintings settled, 0..1. */
+  progress: number;
+  ready: boolean;
+  failedCount: number;
+  status?: string;
+  onStart: () => void;
+  onRetry: () => void;
+};
+
+type Props = {
+  artworks: ArtworkListing[];
+  /** Called with the entry state while the curtain is up, and with
+   *  null once the visitor has entered. */
+  onEntryChange: (entry: GalleryEntry | null) => void;
+};
 
 /**
  * Multi-floor 3D museum. All era floors are stacked on Y; only the
@@ -111,7 +131,7 @@ type Props = { artworks: ArtworkListing[] };
  * floors; the spiral staircase at the centre of every floor handles
  * organic floor-to-floor walking.
  */
-export function Gallery3D({ artworks }: Props) {
+export function Gallery3D({ artworks, onEntryChange }: Props) {
   // The museum's plan (layout-block.ts): four floors of long galleries
   // round a court, a grand stair at each end and a spiral either side
   // of the court.
@@ -708,6 +728,73 @@ export function Gallery3D({ artworks }: Props) {
     };
   }, []);
 
+  // The Enter click. Read through a ref so the curtain, which lives in
+  // the route's client wrapper, holds one function for the whole load.
+  const startVisitRef = useRef(() => {});
+  startVisitRef.current = () => {
+    // Engage pointer lock inside the Enter click's user gesture so
+    // the very first painting click opens the inspect overlay
+    // instead of being consumed by drei's selector relock.
+    // Touch devices have no pointer lock — joysticks own look.
+    if (!isTouch) requestPointerLockQuietly(canvasRef.current);
+    // Site nav + page scrollbar are hidden via the Gallery3D
+    // context (driven by `hasStarted`) so the museum visit
+    // isn't framed by page chrome. Browser fullscreen stays
+    // user-driven through the settings modal — auto-engaging
+    // it on Enter would hide the page nav so completely that
+    // re-revealing it for the settings modal wouldn't work
+    // without yanking the user out of fullscreen.
+    if (restoredVisit) {
+      setZoomed(artworks.find((artwork) => artwork.id === restoredVisit.saved.artworkId) ?? null);
+      setMapOpen(restoredVisit.saved.mapOpen);
+      setSettingsOpen(restoredVisit.saved.settingsOpen);
+      const viewed = layout.floors.findIndex(
+        (floor) => floor.era.id === restoredVisit.saved.viewedFloorEra,
+      );
+      if (viewed >= 0) setViewedMapFloorIdx(viewed);
+    }
+    setHasStarted(true);
+  };
+  const startVisit = useCallback(() => startVisitRef.current(), []);
+
+  // The museum draws no loader of its own. It hands the entry room's
+  // state to the one curtain the route's client wrapper keeps mounted
+  // from the first paint to the Enter click (gallery-curtain.tsx).
+  // Before paint, so the era title and the room count land in the same
+  // frame as the scene's first commit.
+  const entryTitle = floorTitle(currentFloor);
+  const entryBlurb = floorBlurb(currentFloor);
+  const entryStatus = entryRoomReady
+    ? undefined
+    : `Loading first room… ${Math.min(entryRoomSettled, entryRoomTotal)}/${entryRoomTotal}`;
+  useLayoutEffect(() => {
+    onEntryChange(
+      hasStarted
+        ? null
+        : {
+            title: entryTitle,
+            blurb: entryBlurb,
+            progress: entryRoomProgress,
+            ready: entryRoomReady,
+            failedCount: entryRoomFailed,
+            status: entryStatus,
+            onStart: startVisit,
+            onRetry: retryEntryRoomLoads,
+          },
+    );
+  }, [
+    onEntryChange,
+    hasStarted,
+    entryTitle,
+    entryBlurb,
+    entryRoomProgress,
+    entryRoomReady,
+    entryRoomFailed,
+    entryStatus,
+    startVisit,
+    retryEntryRoomLoads,
+  ]);
+
   return (
     // `h-dvh`, not `h-screen`: on a phone 100vh is the viewport with the
     // browser's bars hidden, so while they show the museum and the HUD
@@ -919,52 +1006,6 @@ export function Gallery3D({ artworks }: Props) {
           />
         )}
       </Canvas>
-      {!hasStarted && (
-        // Same component the route fallback and the artworks-fetch wait
-        // render, so the entry sequence is one card whose bar keeps
-        // filling — the era title and the texture progress just drop into
-        // slots that were already holding their space.
-        <GalleryCurtain
-          overlay
-          title={floorTitle(currentFloor)}
-          blurb={floorBlurb(currentFloor)}
-          progress={entryRoomProgress}
-          ready={entryRoomReady}
-          failedCount={entryRoomFailed}
-          status={
-            entryRoomReady
-              ? undefined
-              : `Loading first room… ${Math.min(entryRoomSettled, entryRoomTotal)}/${entryRoomTotal}`
-          }
-          onRetry={retryEntryRoomLoads}
-          onStart={() => {
-            // Engage pointer lock inside the Enter click's user gesture so
-            // the very first painting click opens the inspect overlay
-            // instead of being consumed by drei's selector relock.
-            // Touch devices have no pointer lock — joysticks own look.
-            if (!isTouch) requestPointerLockQuietly(canvasRef.current);
-            // Site nav + page scrollbar are hidden via the Gallery3D
-            // context (driven by `hasStarted`) so the museum visit
-            // isn't framed by page chrome. Browser fullscreen stays
-            // user-driven through the settings modal — auto-engaging
-            // it on Enter would hide the page nav so completely that
-            // re-revealing it for the settings modal wouldn't work
-            // without yanking the user out of fullscreen.
-            if (restoredVisit) {
-              setZoomed(
-                artworks.find((artwork) => artwork.id === restoredVisit.saved.artworkId) ?? null,
-              );
-              setMapOpen(restoredVisit.saved.mapOpen);
-              setSettingsOpen(restoredVisit.saved.settingsOpen);
-              const viewed = layout.floors.findIndex(
-                (floor) => floor.era.id === restoredVisit.saved.viewedFloorEra,
-              );
-              if (viewed >= 0) setViewedMapFloorIdx(viewed);
-            }
-            setHasStarted(true);
-          }}
-        />
-      )}
       {/* Rotate-to-landscape guard — full-screen overlay shown to
           mobile users in portrait. Sits above every other layer so
           start screen, joysticks, and minimap are all hidden until
@@ -984,12 +1025,10 @@ export function Gallery3D({ artworks }: Props) {
       {/* WebGL context-loss curtain. Shown between webglcontextlost and
           webglcontextrestored — usually a few hundred ms. Above every
           other overlay so the user isn't staring at a frozen canvas
-          while Three rebuilds its GPU state on the next frame. The
-          shared loading-bar animation matches the route loading state
-          so the visual language stays consistent across "scene not
-          ready yet" moments. */}
-      {/* Not before Enter: the opaque curtain already hides the canvas, and
-          a context loss while the entry room decodes (common on phones)
+          while Three rebuilds its GPU state on the next frame. */}
+      {/* Not before Enter: the entry curtain (gallery-3d-client.tsx) is the
+          only loader until then. It already hides the canvas, and a
+          context loss while the entry room decodes (common on phones)
           would otherwise flash this card over the loading bar. */}
       {contextLost && hasStarted && (
         <div className="absolute inset-0 z-[60] flex items-center justify-center bg-black/80 backdrop-blur-sm">

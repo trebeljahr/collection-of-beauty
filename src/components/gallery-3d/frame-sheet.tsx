@@ -5,7 +5,7 @@
 // from the work's design, and lights it with the museum's environment
 // and frame materials, without the museum round it.
 
-import { MapControls, Text } from "@react-three/drei";
+import { MapControls } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import { useEffect, useMemo, useState } from "react";
 import * as THREE from "three";
@@ -28,6 +28,7 @@ import { frameMaterials } from "./frame-materials";
 import { FramePaint } from "./frame-paint";
 import { buildPanelGeometry } from "./panel-geometry";
 import { RoomEnvironment } from "./room-env-map";
+import { SceneText } from "./scene-text";
 import { isDeepWall } from "./wall-light";
 
 export type FrameSheetProps = {
@@ -152,7 +153,7 @@ function SheetWork({
           toneMapped={false}
         />
       </mesh>
-      <Text
+      <SceneText
         position={[0, -CELL_H / 2 + 0.2, 0]}
         fontSize={0.042}
         lineHeight={1.25}
@@ -164,7 +165,7 @@ function SheetWork({
         outlineColor="#000000"
       >
         {`${design.look} · ${finishes}\n${ornament || "plain"} · ${work.movement ?? "untagged"} ${work.year ?? ""}`}
-      </Text>
+      </SceneText>
     </group>
   );
 }

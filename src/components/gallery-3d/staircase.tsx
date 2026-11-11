@@ -1,6 +1,5 @@
 "use client";
 
-import { Text } from "@react-three/drei";
 import { useEffect, useMemo } from "react";
 import * as THREE from "three";
 import { mergeGeometries } from "three/examples/jsm/utils/BufferGeometryUtils.js";
@@ -17,6 +16,7 @@ import {
   RAIL_BAR_HEIGHT,
   RAIL_HEIGHT,
 } from "./rail-constants";
+import { SceneText } from "./scene-text";
 import {
   findStairAbove,
   findStairBelow,
@@ -1328,7 +1328,7 @@ export function StairSign({
         material={signGlyphMaterial}
         layers={UNREFLECTED_LAYER}
       />
-      <Text
+      <SceneText
         position={[0, -0.07, 0.014]}
         layers={UNREFLECTED_LAYER}
         // A floor name over 24 characters ("Natural History and East
@@ -1342,7 +1342,7 @@ export function StairSign({
         maxWidth={0.7}
       >
         {label}
-      </Text>
+      </SceneText>
     </group>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import { Text } from "@react-three/drei";
 import { useThree } from "@react-three/fiber";
 import { memo, useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
@@ -47,6 +46,7 @@ import { frameMaterials, plaqueBaseMaterial, plaqueMountMaterial } from "./palet
 import { buildPanelGeometry } from "./panel-geometry";
 import { setWorkBounds } from "./room-culling";
 import { inRoomLight } from "./room-light";
+import { SceneText } from "./scene-text";
 import { staticTransform } from "./static-transform";
 import {
   getHiRes,
@@ -684,7 +684,7 @@ function Plaque({
         <primitive object={inRoomLight(plaqueBaseMaterial, palette)} attach="material" />
       </mesh>
       {/* Title — bold and largest. */}
-      <Text
+      <SceneText
         position={[0, titleTopY, textZ]}
         layers={UNREFLECTED_LAYER}
         fontSize={PLAQUE_TITLE_FONT}
@@ -698,9 +698,9 @@ function Plaque({
         onSync={handleTitleSync}
       >
         {title}
-      </Text>
+      </SceneText>
       {/* Artist · year */}
-      <Text
+      <SceneText
         position={[0, bylineTopY, textZ]}
         layers={UNREFLECTED_LAYER}
         fontSize={PLAQUE_BYLINE_FONT}
@@ -713,11 +713,11 @@ function Plaque({
         onSync={handleBylineSync}
       >
         {byline}
-      </Text>
+      </SceneText>
       {/* Dimensions — smaller, slightly lighter. Never wraps (X × Y cm
           fits comfortably) so we don't need to measure it. */}
       {dims && (
-        <Text
+        <SceneText
           position={[0, dimsTopY, textZ]}
           layers={UNREFLECTED_LAYER}
           fontSize={PLAQUE_DIMS_FONT}
@@ -729,7 +729,7 @@ function Plaque({
           textAlign="center"
         >
           {dims}
-        </Text>
+        </SceneText>
       )}
     </group>
   );

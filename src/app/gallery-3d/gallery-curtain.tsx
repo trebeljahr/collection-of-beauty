@@ -3,15 +3,24 @@
 import { useEffect, useLayoutEffect, useState } from "react";
 import { useTouchDevice } from "@/hooks/use-touch-device";
 
-// The one and only pre-enter screen for the 3D museum. Every "scene not
-// ready yet" moment renders THIS component with the same card skeleton,
-// so entering the museum reads as a single screen that fills one bar and
-// ends on the enabled "Enter" button — not four cards flashing past:
-//   - loading.tsx        — route Suspense fallback (RSC navigation).
-//   - gallery-3d-client  — while /api/artworks is in flight AND as the
-//                          next/dynamic fallback for the Three.js chunk.
-//   - index.tsx          — once <Gallery3D> mounts, reporting the entry
-//                          room's texture decodes, then the Enter card.
+// The one and only pre-enter screen for the 3D museum: a single card
+// that fills one bar and ends on the enabled "Enter" button. It is
+// mounted in two places, never both at once:
+//   - loading.tsx        — route Suspense fallback, while a client-side
+//                          navigation fetches the route.
+//   - gallery-3d-client  — one instance from the page's first paint to
+//                          the Enter click: over a placeholder while the
+//                          artworks and the Three.js chunk download, then
+//                          over the scene, which reports its entry room's
+//                          texture decodes through `onEntryChange`.
+//
+// The scene draws no loader of its own, and next/dynamic's fallback is a
+// bare box. Until 11 November 2026 both were this card too, and a plaque's
+// <Text> suspending on its font hid the scene behind next/dynamic's
+// fallback: the card flipped between "Loading first room… n/N" and
+// "Preparing the exhibit…" with the bar jumping back. The texts are in
+// their own boundaries now (scene-text.tsx), and the wrapper's card sits
+// outside next/dynamic's boundary, so it stays put either way.
 //
 // Two rules keep it from jumping, and both are easy to break:
 //
@@ -24,12 +33,12 @@ import { useTouchDevice } from "@/hooks/use-touch-device";
 //
 // 2. NOTHING MOVES BUT THE BAR. Heading, controls hint, bar and button
 //    are in the same place in every phase, and the era title/blurb slot
-//    holds its height (MIN slot height) before the era is known. The
-//    card is also mounted three separate times across the sequence
-//    (route fallback → client wrapper → inside Gallery3D), so any state
-//    it holds has to be recomputable from scratch or it snaps backwards
-//    on remount — hence the wall-clock creep below rather than a
-//    per-instance animation that restarts at 0.
+//    holds its height (MIN slot height) before the era is known. A
+//    client-side navigation hands the card from the route fallback to
+//    the client wrapper, a remount, so any state it holds has to be
+//    recomputable from scratch or it snaps backwards — hence the
+//    wall-clock creep below rather than a per-instance animation that
+//    restarts at 0.
 
 /** Share of the track owned by the pre-mount phases. */
 const CREEP_CEILING = 0.35;
@@ -102,9 +111,10 @@ type Props = {
   onStart?: () => void;
   onRetry?: () => void;
   /**
-   * True when the card sits over the live canvas (inside Gallery3D)
-   * rather than standing in for the whole route. Only changes how the
-   * backdrop is painted — the card itself is identical either way.
+   * True when the card sits over the museum's box (the client wrapper)
+   * rather than standing in for the whole route (loading.tsx). Only
+   * changes how the backdrop is laid out — the card itself is identical
+   * either way.
    */
   overlay?: boolean;
 };
@@ -148,7 +158,10 @@ export function GalleryCurtain({
       // fit the card, and the museum is landscape-only on touch — without
       // a scroller the Enter button sits below the fold with no way down.
       className={`flex w-full overflow-y-auto px-4 py-6 text-white transition-colors duration-700 ${
-        overlay ? "absolute inset-0 z-10 h-full" : "h-screen"
+        // h-dvh, the museum host's height: with h-screen the card stood
+        // lower on a phone while the browser's bars showed, and moved up
+        // when the route fallback handed over.
+        overlay ? "absolute inset-0 z-10 h-full" : "h-dvh"
       } ${
         // Opaque for the whole load so the swap from route fallback to
         // in-canvas overlay isn't visible, then fades to reveal the room

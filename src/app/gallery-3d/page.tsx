@@ -6,7 +6,7 @@ import { Gallery3DClient } from "./gallery-3d-client";
 // Three.js + R3F + drei + postprocessing is ~600 KB gzipped; the
 // Gallery3DClient wrapper performs the `dynamic(..., { ssr: false })`
 // import (a Server Component can't do that directly in Next 16) so
-// the route shell renders immediately and the loading.tsx fallback
+// the route shell renders immediately and the wrapper's entry curtain
 // shows while the bundle downloads.
 
 // Floor count and the floor names at either end come from the floor plan
