@@ -92,5 +92,16 @@
       "scheme": "app",
       "host": "-"
     }
-  }
+  },
+  "deploymentMode": "cloudflare",
+  "clientHost": "cloudflare",
+  "clientWorker": "collection-of-beauty",
+  "clientWorkers": {
+    "www.collectionofbeauty.com": null,
+    "beauty.trebeljahr.com": null,
+    "collectionofbeauty.com/api/newsletter/*": "collection-of-beauty-api",
+    "collectionofbeauty.com/api/download/*": "collection-of-beauty-api"
+  },
+  "clientRelease": "repo",
+  "originPaths": ["/.well-known/acme-challenge"]
 }
