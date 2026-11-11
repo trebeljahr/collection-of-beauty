@@ -1,7 +1,6 @@
 import { getColorBucket } from "@/lib/color-buckets.mjs";
 import { getEra } from "@/lib/gallery-eras";
 import { type Scope, scopeSearch } from "@/lib/scope-href";
-import { isSurpriseWorthy } from "@/lib/surprise";
 import type { ArtworkPageQuery } from "@/lib/use-artwork-pagination";
 import { FULL_SIZE_MIN_WIDTH, VARIANT_WIDTHS } from "@/lib/variant-config.mjs";
 
@@ -12,9 +11,8 @@ import { FULL_SIZE_MIN_WIDTH, VARIANT_WIDTHS } from "@/lib/variant-config.mjs";
  *
  * Nothing here imports the data files, so the client view can use every
  * helper without pulling artworks.json into its chunk. The deck paging,
- * the rung choice, the pan geometry and the advance state machine all
- * live here so they can be pinned by plain vitest cases rather than by a
- * browser.
+ * the rung choice and the advance state machine all live here so they
+ * can be pinned by plain vitest cases rather than by a browser.
  */
 
 /** Listings per /api/artworks/page request. Pages are aligned to this,
@@ -52,14 +50,6 @@ export const WAKE_MOVE_PX = 8;
 export const MANUAL_HIDE_GRACE_MS = 1000;
 /** A spinner that flashes for 100 ms on every step reads as flicker. */
 export const SPINNER_DELAY_MS = 400;
-
-/** Largest zoom of the Ken Burns pan. The visible crop per axis is
- *  1 − 1/1.12 ≈ 10.7%, which keeps a signature or a plate number in view. */
-export const PAN_MAX_SCALE = 1.12;
-/** Drift at full zoom, in % of the stage box. Must stay at or below
- *  (PAN_MAX_SCALE − 1) / 2 × 100 = 6, or the drift uncovers the stage edge
- *  the zoom was covering. */
-export const PAN_SHIFT_PCT = 5;
 
 /** Past 2x a phone's 3x screen buys pixels nobody can see at arm's
  *  length, at 2.25x the decode. */
@@ -230,7 +220,7 @@ export function missingPageStarts(
 // ---------------------------------------------------------------------------
 // Which image to fetch
 
-/** The subset of `ArtworkListing` the rung and pan choices read.
+/** The subset of `ArtworkListing` the rung choice reads.
  *  Structural so a test can pass a three-field literal. */
 export type SlideSource = {
   width: number | null;
@@ -265,14 +255,11 @@ const LADDER = new Set<number>(VARIANT_WIDTHS);
  * will not survive. `variantWidths` lists filenames, not resolutions
  * (see variant-config.mjs), so every size below is clamped to the
  * source's own width.
- *
- * `headroom` is PAN_MAX_SCALE when the work will zoom, so the last frame
- * of the pan is as sharp as the first.
  */
 export function chooseSlideWidth(
   src: SlideSource,
   vp: SlideViewport,
-  opts: { slow: boolean; headroom: number },
+  opts: { slow: boolean },
 ): number | null {
   const widths = src.variantWidths;
   if (!widths || widths.length === 0) return null;
@@ -294,7 +281,7 @@ export function chooseSlideWidth(
   }
 
   const dpr = opts.slow ? 1 : Math.min(Math.max(vp.dpr || 1, 1), DPR_CAP);
-  let needed = containedCssWidth(src, vp) * dpr * opts.headroom;
+  let needed = containedCssWidth(src, vp) * dpr;
   if (opts.slow) needed = Math.min(needed, SLOW_MAX_WIDTH);
   const threshold = needed * RUNG_TOLERANCE;
 
@@ -308,62 +295,7 @@ export function chooseSlideWidth(
 }
 
 // ---------------------------------------------------------------------------
-// Ken Burns
-
-export type PanAxis = "x" | "y";
-/** `shift` is a percentage of the stage box. */
-export type PanFrame = { scale: number; shift: number };
-export type PanPlan = { axis: PanAxis; from: PanFrame; to: PanFrame } | null;
-
-/**
- * The slow zoom and drift for the work at `index`, or null for a static
- * slide.
- *
- * Static when the visitor asked for reduced motion, and for any work that
- * `/surprise` would not show full bleed: a low-resolution scan (zooming
- * it shows its pixels), a panorama past 4:1, or a work with no recorded
- * size. Those works are still shown, contained — skipping them would
- * leave holes in "play this artist".
- *
- * Tall works drift vertically, wide and square ones horizontally. Even
- * indices zoom in, odd ones zoom back out, and the drift direction flips
- * every two works, so consecutive slides never move the same way. The
- * plan depends only on the absolute index, so stepping back replays the
- * same motion.
- *
- * Invariant at both frames, and so everywhere between them under linear
- * interpolation: |shift| ≤ (scale − 1) / 2 × 100. The zoom's overhang
- * always covers the drift, so no stage edge is uncovered.
- */
-export function panPlan(src: SlideSource, index: number, reducedMotion: boolean): PanPlan {
-  if (reducedMotion || !isSurpriseWorthy(src)) return null;
-  const axis: PanAxis = sourceAspect(src) < 1 ? "y" : "x";
-  const zoomIn = index % 2 === 0;
-  const dir = Math.floor(index / 2) % 2 === 0 ? 1 : -1;
-  const s = PAN_SHIFT_PCT * dir;
-  if (zoomIn) {
-    return { axis, from: { scale: 1, shift: 0 }, to: { scale: PAN_MAX_SCALE, shift: -s } };
-  }
-  return { axis, from: { scale: PAN_MAX_SCALE, shift: s }, to: { scale: 1, shift: 0 } };
-}
-
-function frameTransform(axis: PanAxis, frame: PanFrame): string {
-  // `+ 0` folds a -0 into 0, so a zero drift never prints as "-0%".
-  const shift = frame.shift + 0;
-  const x = axis === "x" ? shift : 0;
-  const y = axis === "y" ? shift : 0;
-  return `translate3d(${x}%, ${y}%, 0) scale(${frame.scale})`;
-}
-
-/** Web Animations keyframes for a plan. The translate is written before
- *  the scale, so it is measured in unscaled stage units — the same units
- *  the invariant above is written in. */
-export function panKeyframes(plan: NonNullable<PanPlan>): Keyframe[] {
-  return [
-    { transform: frameTransform(plan.axis, plan.from) },
-    { transform: frameTransform(plan.axis, plan.to) },
-  ];
-}
+// Cross-fade
 
 /** Cross-fade length. A manual step answers a key press and has to feel
  *  immediate; an automatic advance is the slow dissolve the show is for,
@@ -601,9 +533,8 @@ export function playerReducer(state: PlayerState, event: PlayerEvent): PlayerSta
       return { ...state, stalled: false, failures: 0, targetReady: false };
 
     case "invalidate":
-      // The stage changed size (resize, fullscreen) or motion preference
-      // flipped: the waiting slide, ready or still loading, was sized and
-      // planned for the old one.
+      // The stage changed size (resize, fullscreen): the waiting slide,
+      // ready or still loading, was sized for the old one.
       return { ...state, targetReady: false, epoch: state.epoch + 1 };
 
     case "total": {

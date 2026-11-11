@@ -16,14 +16,10 @@ import {
   missingPageStarts,
   movedEnoughToWake,
   nextAvifSupport,
-  PAN_MAX_SCALE,
-  PAN_SHIFT_PCT,
   type PlayableScope,
   type PlayerEvent,
   type PlayerState,
   pageStartFor,
-  panKeyframes,
-  panPlan,
   parseStartParam,
   parseStoredInfo,
   parseStoredInterval,
@@ -221,41 +217,41 @@ describe("containedCssWidth", () => {
 });
 
 describe("chooseSlideWidth", () => {
-  const pan = { slow: false, headroom: PAN_MAX_SCALE };
-  const still = { slow: false, headroom: 1 };
+  const fast = { slow: false };
+  const slow = { slow: true };
 
   it.each([
-    ["TV, landscape", work(4000, 3000), vp(1920, 1080), pan, 1920],
-    ["TV, portrait", work(3000, 4000), vp(1920, 1080), pan, 960],
-    ["TV, 2:1", work(6000, 3000), vp(1920, 1080), pan, 2560],
-    ["laptop @2, landscape", work(4000, 3000), vp(1440, 900, 2), pan, 2560],
-    ["laptop @2, portrait", work(3000, 4000), vp(1440, 900, 2), pan, 1920],
-    ["iPhone @3 capped to 2", work(3000, 4000), vp(390, 844, 3), pan, 960],
-    ["iPhone landscape", work(4000, 3000), vp(844, 390, 3), pan, 1280],
-    ["TV, slow", work(4000, 3000), vp(1920, 1080), { slow: true, headroom: PAN_MAX_SCALE }, 1280],
-    ["TV, low-res holds 900 px", work(900, 1200), vp(1920, 1080), still, 960],
-    ["TV, smallest rung >= source", work(500, 700), vp(1920, 1080), still, 640],
+    ["TV, landscape", work(4000, 3000), vp(1920, 1080), fast, 1920],
+    ["TV, portrait", work(3000, 4000), vp(1920, 1080), fast, 960],
+    ["TV, 2:1", work(6000, 3000), vp(1920, 1080), fast, 1920],
+    ["laptop @2, landscape", work(4000, 3000), vp(1440, 900, 2), fast, 2560],
+    ["laptop @2, portrait", work(3000, 4000), vp(1440, 900, 2), fast, 1280],
+    ["iPhone @3 capped to 2", work(3000, 4000), vp(390, 844, 3), fast, 960],
+    ["iPhone landscape", work(4000, 3000), vp(844, 390, 3), fast, 960],
+    ["TV, slow", work(4000, 3000), vp(1920, 1080), slow, 1280],
+    ["TV, low-res holds 900 px", work(900, 1200), vp(1920, 1080), fast, 960],
+    ["TV, smallest rung >= source", work(500, 700), vp(1920, 1080), fast, 640],
     [
       "4K TV never takes the 6144 rung",
       work(12000, 6000, [...LADDER, 6144, 12000]),
       vp(3840, 2160),
-      pan,
+      fast,
       4096,
     ],
-    ["portrait monitor, 4096 over the pixel cap", work(5000, 10000), vp(2160, 3840, 2), pan, 2560],
+    ["portrait monitor, 4096 over the pixel cap", work(5000, 10000), vp(2160, 3840, 2), fast, 2560],
   ] as const)("%s", (_name, src, viewport, opts, expected) => {
     expect(chooseSlideWidth(src, viewport, opts)).toBe(expected);
   });
 
   it("returns null without a ladder", () => {
-    expect(chooseSlideWidth(work(4000, 3000, null as never), vp(1920, 1080), pan)).toBeNull();
-    expect(chooseSlideWidth(work(4000, 3000, []), vp(1920, 1080), pan)).toBeNull();
-    expect(chooseSlideWidth(work(12000, 6000, [6144, 12000]), vp(1920, 1080), pan)).toBeNull();
+    expect(chooseSlideWidth(work(4000, 3000, null as never), vp(1920, 1080), fast)).toBeNull();
+    expect(chooseSlideWidth(work(4000, 3000, []), vp(1920, 1080), fast)).toBeNull();
+    expect(chooseSlideWidth(work(12000, 6000, [6144, 12000]), vp(1920, 1080), fast)).toBeNull();
   });
 
   it("never exceeds 1280 on a slow connection when a smaller rung exists", () => {
     for (const viewport of [vp(3840, 2160, 2), vp(1920, 1080), vp(390, 844, 3)]) {
-      const w = chooseSlideWidth(work(8000, 6000), viewport, { slow: true, headroom: 1.12 });
+      const w = chooseSlideWidth(work(8000, 6000), viewport, slow);
       expect(w).not.toBeNull();
       expect(w as number).toBeLessThanOrEqual(1280);
     }
@@ -273,81 +269,13 @@ describe("chooseSlideWidth", () => {
     ];
     for (const viewport of viewports) {
       for (const [w, h] of sizes) {
-        for (const opts of [pan, still, { slow: true, headroom: 1 }]) {
+        for (const opts of [fast, slow]) {
           const r = chooseSlideWidth(work(w, h, widths), viewport, opts);
           expect(VARIANT_WIDTHS).toContain(r);
           expect(r as number).toBeLessThanOrEqual(FULL_SIZE_MIN_WIDTH);
         }
       }
     }
-  });
-});
-
-describe("panPlan", () => {
-  it("is static under reduced motion", () => {
-    expect(panPlan(work(4000, 3000), 0, true)).toBeNull();
-  });
-
-  it("is static for works /surprise would not show full bleed", () => {
-    expect(panPlan(work(1200, 900), 0, false)).toBeNull();
-    expect(panPlan(work(10000, 2000), 0, false)).toBeNull();
-    expect(panPlan(work(null, null), 0, false)).toBeNull();
-  });
-
-  it("drifts along the long axis", () => {
-    expect(panPlan(work(3000, 4000), 0, false)?.axis).toBe("y");
-    expect(panPlan(work(4000, 3000), 0, false)?.axis).toBe("x");
-    expect(panPlan(work(3000, 3000), 0, false)?.axis).toBe("x");
-  });
-
-  it("alternates zoom in and out, flipping drift every two works", () => {
-    const p0 = panPlan(work(4000, 3000), 0, false);
-    const p1 = panPlan(work(4000, 3000), 1, false);
-    const p2 = panPlan(work(4000, 3000), 2, false);
-    expect(p0?.from).toEqual({ scale: 1, shift: 0 });
-    expect(p0?.to.scale).toBe(PAN_MAX_SCALE);
-    expect(p1?.to).toEqual({ scale: 1, shift: 0 });
-    expect(Math.sign(p2?.to.shift ?? 0)).toBe(-Math.sign(p0?.to.shift ?? 0));
-    expect(Math.sign(p0?.to.shift ?? 0)).not.toBe(0);
-  });
-
-  it("never uncovers the stage edge", () => {
-    for (let i = 0; i < 8; i++) {
-      const plan = panPlan(work(4000, 3000), i, false);
-      expect(plan).not.toBeNull();
-      for (const frame of [plan?.from, plan?.to]) {
-        if (!frame) throw new Error("missing frame");
-        expect(Math.abs(frame.shift)).toBeLessThanOrEqual(((frame.scale - 1) / 2) * 100 + 1e-9);
-      }
-    }
-    expect(PAN_SHIFT_PCT).toBeLessThanOrEqual(((PAN_MAX_SCALE - 1) / 2) * 100);
-  });
-
-  it("crops at most 15% per axis", () => {
-    expect(1 - 1 / PAN_MAX_SCALE).toBeLessThanOrEqual(0.15);
-  });
-});
-
-describe("panKeyframes", () => {
-  it("writes the drift on the plan's axis", () => {
-    expect(
-      panKeyframes({ axis: "x", from: { scale: 1, shift: 0 }, to: { scale: 1.12, shift: -5 } }),
-    ).toEqual([
-      { transform: "translate3d(0%, 0%, 0) scale(1)" },
-      { transform: "translate3d(-5%, 0%, 0) scale(1.12)" },
-    ]);
-    expect(
-      panKeyframes({ axis: "y", from: { scale: 1.12, shift: 5 }, to: { scale: 1, shift: 0 } }),
-    ).toEqual([
-      { transform: "translate3d(0%, 5%, 0) scale(1.12)" },
-      { transform: "translate3d(0%, 0%, 0) scale(1)" },
-    ]);
-  });
-
-  it("never prints a negative zero", () => {
-    const plan = panPlan(work(4000, 3000), 3, false);
-    if (!plan) throw new Error("expected a plan");
-    for (const k of panKeyframes(plan)) expect(String(k.transform)).not.toContain("-0%");
   });
 });
 

@@ -4,9 +4,6 @@ import {
   chooseSlideWidth,
   INITIAL_AVIF_SUPPORT,
   nextAvifSupport,
-  PAN_MAX_SCALE,
-  type PanPlan,
-  panPlan,
   type SlideViewport,
 } from "@/lib/slideshow";
 import { fallbackVariant, fallbackVariantUrl, variantUrl } from "@/lib/utils";
@@ -15,7 +12,6 @@ export type PreparedSlide = {
   index: number;
   art: ArtworkListing;
   src: string;
-  plan: PanPlan;
   /** Held so the decoded bitmap is not collected before the slide is
    *  shown. The visible <img> reuses the same URL and so the same cache
    *  entry. */
@@ -93,7 +89,7 @@ function whenShown(signal: AbortSignal): Promise<void> {
 }
 
 /**
- * Get one work ready to show: choose its rung and its pan, then fetch and
+ * Get one work ready to show: choose its rung, then fetch and
  * decode the image before the slideshow is allowed to cross-fade to it.
  * That order is what keeps a half-loaded image off the screen.
  *
@@ -102,19 +98,17 @@ function whenShown(signal: AbortSignal): Promise<void> {
  * carries. Once AVIF has failed that way twice with no success, later
  * slides go to the WebP directly instead of downloading both. When both fail the promise rejects, and the player skips the
  * work. A low-resolution scan decodes like any other and is never
- * skipped; it just gets no pan.
+ * skipped.
  */
 export async function prepareSlide(input: {
   index: number;
   art: ArtworkListing;
   viewport: SlideViewport;
   slow: boolean;
-  reducedMotion: boolean;
   signal: AbortSignal;
 }): Promise<PreparedSlide> {
-  const { index, art, viewport, slow, reducedMotion, signal } = input;
-  const plan = panPlan(art, index, reducedMotion);
-  const width = chooseSlideWidth(art, viewport, { slow, headroom: plan ? PAN_MAX_SCALE : 1 });
+  const { index, art, viewport, slow, signal } = input;
+  const width = chooseSlideWidth(art, viewport, { slow });
   const fallback = fallbackVariantUrl(art.objectKey, art.variantWidths);
   // Only a WebP fallback says anything about AVIF: a work without the
   // 1280 rung falls back to another AVIF.
@@ -138,5 +132,5 @@ export async function prepareSlide(input: {
     if (learn) avif = nextAvifSupport(avif, "miss");
   }
   if (signal.aborted) throw abortError();
-  return { index, art, src, plan, image };
+  return { index, art, src, image };
 }

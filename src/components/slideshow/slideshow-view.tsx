@@ -20,7 +20,6 @@ import { artworkAlt } from "@/lib/artwork-format";
 import type { ArtworkListing } from "@/lib/data";
 import { pathnameOf, previousPathname } from "@/lib/navigation-history";
 import {
-  FADE_MS,
   fadeMs,
   failureBackoffMs,
   IDLE_HIDE_MS,
@@ -84,8 +83,7 @@ const RESIZE_DEBOUNCE_MS = 250;
  *    screen, pausing with the show and with a hidden tab.
  *
  * A work is never shown before it is decoded. If the timer wins the race,
- * the current work holds, its pan running out to its last frame, until the
- * next one is ready.
+ * the current work holds until the next one is ready.
  */
 export function SlideshowView({
   scope,
@@ -191,7 +189,6 @@ export function SlideshowView({
           // Read now rather than from the hook, which is false on its
           // first render and would size the first slide for a fast link.
           slow: isSlowConnection(),
-          reducedMotion: reduced,
           signal,
         });
         if (signal.aborted) throw new DOMException("Aborted", "AbortError");
@@ -220,7 +217,6 @@ export function SlideshowView({
     retryNonce,
     deck,
     measure,
-    reduced,
   ]);
 
   // --- commit --------------------------------------------------------------
@@ -236,7 +232,6 @@ export function SlideshowView({
       key: state.commits,
       slide,
       fadeMs: fadeMs(state.committedIntent ?? "auto", reduced),
-      panMs: intervalMs + FADE_MS,
     };
     // Two mounted layers is the steady state (outgoing under incoming).
     // A third only appears when steps outrun the fade; drop the oldest
@@ -303,14 +298,14 @@ export function SlideshowView({
   // Skips the mount run: the first prepare has just started with the
   // current values, and restarting it would fetch the first image twice.
   const stageMountedRef = useRef(false);
-  // biome-ignore lint/correctness/useExhaustiveDependencies: both values are triggers; the waiting slide was sized and planned for the old ones
+  // biome-ignore lint/correctness/useExhaustiveDependencies: the value is a trigger; the waiting slide was sized for the old stage
   useEffect(() => {
     if (!stageMountedRef.current) {
       stageMountedRef.current = true;
       return;
     }
     dispatch({ type: "invalidate" });
-  }, [fullscreen.active, reduced]);
+  }, [fullscreen.active]);
 
   // --- stall recovery ---------------------------------------------------------
   const retry = useCallback(() => {
@@ -566,14 +561,7 @@ export function SlideshowView({
         }}
       >
         {layers.map((layer) => (
-          <SlideLayer
-            key={layer.key}
-            layer={layer}
-            front={layer === front}
-            paused={!running}
-            reducedMotion={reduced}
-            onShown={onShown}
-          />
+          <SlideLayer key={layer.key} layer={layer} front={layer === front} onShown={onShown} />
         ))}
       </div>
 
