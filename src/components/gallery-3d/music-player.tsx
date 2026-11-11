@@ -23,7 +23,7 @@ export function MusicPlayer({ music, playing, onPlayingChange, className = "", s
   const { track } = music;
   return (
     <div
-      className={`pointer-events-auto absolute z-20 flex items-center gap-2 rounded-xl bg-black/55 py-1.5 pr-1.5 pl-3 text-white backdrop-blur ${className}`}
+      className={`pointer-events-auto absolute z-20 flex h-12 items-center gap-2 rounded-xl bg-black/55 py-1.5 pr-1.5 pl-3 text-white backdrop-blur ${className}`}
       style={style}
     >
       <div className="min-w-0 flex-1 text-xs leading-snug" aria-live="polite">

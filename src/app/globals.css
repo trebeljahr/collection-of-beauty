@@ -2,6 +2,9 @@
 @import "tw-animate-css";
 
 @custom-variant dark (&:is(.dark *));
+/* A screen with room for a sticky header: wide and tall, so a phone
+   held sideways (874 x 402) is not one. The site nav sticks only here. */
+@custom-variant roomy (@media (width >= 48rem) and (height >= 32rem));
 
 :root {
   --background: oklch(0.99 0.005 90);
@@ -87,17 +90,20 @@
   }
   html {
     scroll-behavior: smooth;
-    /* Sticky <SiteNav> in src/components/site-nav.tsx measures 69px
-       below md: py-3 (24px) + the size-11 (44px) hamburger button, its
-       tallest child, + the 1px bottom border. From md up the hamburger
-       is hidden and the bar shrinks to ~59px, so 69px is the bound to
-       clear. Without this offset any hash-anchor jump — the "Skip to
-       main content" link, the press page's section anchors, the
-       timeline-view decade anchors — lands with the target hidden under
-       the header. The previous 4rem (64px) was below the real height, so
-       targets landed 5px *under* the bar on phones; 5rem clears it with
-       an 11px breathing strip above the title. */
-    scroll-padding-top: 5rem;
+    /* <SiteNav> in src/components/site-nav.tsx is sticky on a roomy
+       screen (the variant above), where it measures ~59px. Without this offset any hash-anchor
+       jump — the "Skip to main content" link, the press page's section
+       anchors, the timeline-view decade anchors — lands with the target
+       hidden under the header; 5rem clears it with a breathing strip
+       above the title. On a phone the nav scrolls away with the page
+       (Rico, 11 November 2026: it took the top of a short screen), so a
+       jump keeps only a small strip. */
+    scroll-padding-top: 1rem;
+  }
+  @media (width >= 48rem) and (height >= 32rem) {
+    html {
+      scroll-padding-top: 5rem;
+    }
   }
 
   /* Default keyboard focus indicator for any interactive element that

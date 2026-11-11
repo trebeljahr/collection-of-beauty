@@ -6,6 +6,7 @@ import {
   type CSSProperties,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -13,8 +14,7 @@ import {
 } from "react";
 import * as THREE from "three";
 import { GalleryCurtain } from "@/app/gallery-3d/gallery-curtain";
-import { useSetIs3DActive } from "@/components/gallery-3d-state";
-import { useHomeScreenApp } from "@/hooks/use-home-screen-app";
+import { useIs3DActive, useSetIs3DActive } from "@/components/gallery-3d-state";
 import { JOYSTICK_PAD_RADIUS, JOYSTICK_REACH, useJoystick } from "@/hooks/use-joystick";
 import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
 import { useAudioSettings } from "@/lib/audio-settings";
@@ -70,22 +70,36 @@ const JUMP_BUTTON_GAP = 16;
 const SIT_BUTTON_OFFSET = 80;
 
 // The touch HUD's top row, left to right: the minimap, the room's name,
-// the music player and the settings cog. The name takes the gap the
-// other three leave, so it is placed from their widths.
+// the music player and the settings button, in the screen's top
+// corners. The name takes the gap the other three leave, so it is
+// placed from their widths.
 const TOUCH_MINIMAP_MAX = 196;
 const TOUCH_MINIMAP_MIN = 120;
 const TOUCH_PLAYER_WIDTH = "15rem";
-// The cog's pill in settings-modal.tsx: a 28 px button with px-2.
-const COG_PILL_WIDTH = "44px";
-const TOUCH_ROW_TOP = "calc(1rem + var(--hud-top))";
-const TOUCH_PLAYER_RIGHT = `calc(1rem + env(safe-area-inset-right, 0px) + ${COG_PILL_WIDTH} + 0.5rem)`;
-// Room kept over the HUD for a status bar the page cannot measure
-// (useHomeScreenApp), in CSS px.
-const STATUS_BAR_ALLOWANCE = 40;
+// The settings button is a square as tall as the music player (h-12).
+const TOUCH_BOX = "3rem";
+const TOUCH_ROW_TOP = "calc(1rem + env(safe-area-inset-top, 0px))";
+const TOUCH_ROW_LEFT = "calc(1rem + var(--hud-left))";
+const TOUCH_ROW_RIGHT = "calc(1rem + var(--hud-right))";
+const TOUCH_PLAYER_RIGHT = `calc(${TOUCH_ROW_RIGHT} + ${TOUCH_BOX} + 0.5rem)`;
+// Jump and Sit stand over the look stick, clear of its knob's throw,
+// and never higher than half a rem under the top row: with Safari's
+// bars up a landscape phone is under 300 px tall, and Jump touched the
+// settings button. Both buttons are 4 rem (size-16).
+const TOUCH_BUTTONS_BOTTOM = `min(calc(${LOOK_STICK_AT.y} + ${JOYSTICK_REACH + JUMP_BUTTON_GAP}px), calc(100% - 1rem - env(safe-area-inset-top, 0px) - ${TOUCH_BOX} - 0.5rem - 4rem))`;
 
 function subscribeToResize(onChange: () => void) {
   window.addEventListener("resize", onChange);
   return () => window.removeEventListener("resize", onChange);
+}
+
+/** The long side of a landscape screen the camera cut-out is on: the
+ *  side of the phone's top. 90° is a phone turned anticlockwise. */
+function readCameraSide(): "left" | "right" | null {
+  const angle = screen.orientation?.angle ?? 0;
+  if (angle === 90) return "left";
+  if (angle === 270 || angle === -90) return "right";
+  return null;
 }
 
 type Props = { artworks: ArtworkListing[] };
@@ -233,16 +247,13 @@ export function Gallery3D({ artworks }: Props) {
   // it disappears the moment the user enters the gallery.
   const touchDevice = useTouchDevice();
   const isTouch = touchDevice === true;
-  // Where the HUD's top row may start. As a Home Screen web app on a
-  // phone or tablet, iOS lays the status bar over the page and reports
-  // no inset for it (use-home-screen-app.ts), so the row keeps clear of
-  // it by a fixed allowance. Read by every top-anchored control below
-  // as `var(--hud-top)`.
-  const homeScreenApp = useHomeScreenApp();
-  const hudTop =
-    isTouch && homeScreenApp
-      ? `max(env(safe-area-inset-top, 0px), ${STATUS_BAR_ALLOWANCE}px)`
-      : "env(safe-area-inset-top, 0px)";
+  // The top row stands in the screen's corners. In landscape iOS
+  // reports the same inset on both long sides, but the notch or the
+  // Dynamic Island is on one of them, half-way down. Only that side
+  // keeps its inset (`--hud-left` / `--hud-right` on the host): there
+  // it would cover the minimap's foot. The other side's inset was a
+  // 60 px gap beside the row for nothing.
+  const cameraSide = useSyncExternalStore(subscribeToResize, readCameraSide);
   // The touch minimap stands over the move stick. Its side is the
   // most that leaves its foot clear of the stick's pad: where the
   // browser's bars are up a landscape phone is under 300 px tall, and
@@ -251,7 +262,7 @@ export function Gallery3D({ artworks }: Props) {
   const padTop =
     viewportHeight * (1 - Number.parseFloat(MOVE_STICK_AT.y) / 100) - JOYSTICK_PAD_RADIUS;
   // TOUCH_ROW_TOP in px; the map keeps 8 px off the pad.
-  const mapTop = 16 + (isTouch && homeScreenApp ? STATUS_BAR_ALLOWANCE : 0);
+  const mapTop = 16;
   const touchMinimapSize = Math.round(
     Math.min(TOUCH_MINIMAP_MAX, Math.max(TOUCH_MINIMAP_MIN, padTop - mapTop - 8)),
   );
@@ -280,16 +291,31 @@ export function Gallery3D({ artworks }: Props) {
 
   // Mirror `hasStarted` into the global Gallery3D context so the
   // SiteNav can hide itself and the body can lock vertical scroll
-  // while the player is inside the museum. While the settings modal
-  // is open the nav comes back so the user has a familiar way to
-  // navigate away — the modal already takes over the full screen, so
-  // restoring the page header underneath it doesn't fight for space.
+  // while the player is inside the museum. The nav stays hidden while
+  // the settings modal is open: it came back above the modal and
+  // pushed the museum down, so on a phone the modal no longer covered
+  // the screen. The modal's own "Exit to gallery" link is the way out.
   // Reset on unmount so a back-button exit restores both.
   const setIs3DActive = useSetIs3DActive();
   useEffect(() => {
-    setIs3DActive(hasStarted && !settingsOpen);
+    setIs3DActive(hasStarted);
     return () => setIs3DActive(false);
-  }, [hasStarted, settingsOpen, setIs3DActive]);
+  }, [hasStarted, setIs3DActive]);
+  // The visit starts with the museum filling the screen. On a phone the
+  // visitor scrolls down to reach the Enter button, since the nav scrolls
+  // with the page there, and the scroll lock then held the museum part
+  // way off the top with the footer showing under it. Run once the nav
+  // is gone (`is3DActive`), so its height is out of the page.
+  const is3DActive = useIs3DActive();
+  useLayoutEffect(() => {
+    if (!hasStarted || !is3DActive) return;
+    const host = galleryHostRef.current;
+    if (!host) return;
+    window.scrollTo({
+      top: host.getBoundingClientRect().top + window.scrollY,
+      behavior: "instant",
+    });
+  }, [hasStarted, is3DActive]);
 
   // Inside the museum the page behind it is black. iOS paints the strip
   // under the home indicator and Safari's toolbars in the page's own
@@ -690,7 +716,12 @@ export function Gallery3D({ artworks }: Props) {
     <div
       ref={galleryHostRef}
       className="relative w-full h-dvh bg-black"
-      style={{ "--hud-top": hudTop } as CSSProperties}
+      style={
+        {
+          "--hud-left": cameraSide === "left" ? "env(safe-area-inset-left, 0px)" : "0px",
+          "--hud-right": cameraSide === "right" ? "env(safe-area-inset-right, 0px)" : "0px",
+        } as CSSProperties
+      }
     >
       <Canvas
         // Bumped after a webglcontextlost event so the entire R3F tree
@@ -945,7 +976,7 @@ export function Gallery3D({ artworks }: Props) {
         <DebugOverlay
           className={
             isTouch
-              ? "top-[calc(1.5rem_+_196px_+_var(--hud-top))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
+              ? "top-[calc(1.5rem_+_196px_+_env(safe-area-inset-top,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
               : "top-[calc(5.25rem_+_env(safe-area-inset-top,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
           }
         />
@@ -990,14 +1021,16 @@ export function Gallery3D({ artworks }: Props) {
           className="pointer-events-none absolute flex justify-center"
           style={{
             top: TOUCH_ROW_TOP,
-            left: `calc(1rem + env(safe-area-inset-left, 0px) + ${touchMinimapSize}px + 0.75rem)`,
+            left: `calc(${TOUCH_ROW_LEFT} + ${touchMinimapSize}px + 0.75rem)`,
             right: `calc(${TOUCH_PLAYER_RIGHT} + ${TOUCH_PLAYER_WIDTH} + 0.75rem)`,
           }}
         >
-          <div className="max-w-full truncate rounded bg-black/60 px-3 py-1.5 text-sm font-semibold text-neutral-100">
-            {activeRoom
-              ? `${activeRoom.roomNumber ? `${activeRoom.roomNumber} · ` : ""}${activeRoom.title}`
-              : `Floor ${currentFloorIdx + 1} · ${floorLabel}`}
+          <div className="flex h-12 max-w-full items-center rounded-xl bg-black/55 px-4 text-sm font-semibold text-neutral-100 backdrop-blur">
+            <span className="truncate">
+              {activeRoom
+                ? `${activeRoom.roomNumber ? `${activeRoom.roomNumber} · ` : ""}${activeRoom.title}`
+                : `Floor ${currentFloorIdx + 1} · ${floorLabel}`}
+            </span>
           </div>
         </div>
       )}
@@ -1072,7 +1105,7 @@ export function Gallery3D({ artworks }: Props) {
           className="fixed z-40 flex size-16 -translate-x-1/2 touch-none select-none items-center justify-center rounded-full border-2 border-[rgba(255,245,220,0.7)] bg-black/50 text-xs font-semibold uppercase tracking-wider text-[rgb(250,240,220)] active:bg-black/75"
           style={{
             left: LOOK_STICK_AT.x,
-            bottom: `calc(${LOOK_STICK_AT.y} + ${JOYSTICK_REACH + JUMP_BUTTON_GAP}px)`,
+            bottom: TOUCH_BUTTONS_BOTTOM,
             animation: "joystick-fade-in 260ms ease-out",
             WebkitTouchCallout: "none",
             WebkitTapHighlightColor: "transparent",
@@ -1095,7 +1128,7 @@ export function Gallery3D({ artworks }: Props) {
           className="fixed z-40 flex size-16 -translate-x-1/2 touch-none select-none items-center justify-center rounded-full border-2 border-[rgba(255,245,220,0.7)] bg-black/50 text-xs font-semibold uppercase tracking-wider text-[rgb(250,240,220)] active:bg-black/75"
           style={{
             left: `calc(${LOOK_STICK_AT.x} - ${SIT_BUTTON_OFFSET}px)`,
-            bottom: `calc(${LOOK_STICK_AT.y} + ${JOYSTICK_REACH + JUMP_BUTTON_GAP}px)`,
+            bottom: TOUCH_BUTTONS_BOTTOM,
             animation: "joystick-fade-in 260ms ease-out",
             WebkitTouchCallout: "none",
             WebkitTapHighlightColor: "transparent",
@@ -1118,20 +1151,10 @@ export function Gallery3D({ artworks }: Props) {
           after the user clicks Enter; hidden under zoom/map overlays
           so it doesn't fight for the corner.
 
-          The cog anchors itself at `top-4 right-4` of its containing
-          block, so the only way to keep it off a landscape notch from
-          out here is to make *this* wrapper the containing block and
-          inset it. Absolute offsets resolve against the padding box, so
-          padding would not move the cog — the inset has to be on
-          top/right themselves. Left and bottom stay pinned at 0 on
-          purpose: Gallery3DSettings also renders its open modal as an
-          `inset-0` backdrop inside this box, and shrinking all four
-          sides would leave undimmed strips of live canvas along the
-          screen edges. Insetting only the two sides the cog actually
-          uses keeps that backdrop full-bleed everywhere except the top
-          and right. The top is `--hud-top`: the status bar of a Home
-          Screen app lies over that strip, so the cog and the modal's
-          close button have to stand below it. */}
+          The wrapper is the whole screen, because Gallery3DSettings
+          draws its open modal as an `inset-0` backdrop inside it; the
+          modal pads itself clear of the notch. On touch the button
+          stands at the end of the top row (`triggerStyle`). */}
       {hasStarted && !zoomed && !mapOpen && (
         <div
           // Full-bleed while closed would swallow every canvas click, and
@@ -1141,7 +1164,7 @@ export function Gallery3D({ artworks }: Props) {
           // both: transparent to aim/inspect clicks when closed,
           // interactive when the modal is up — and the modal covers the
           // canvas anyway, so nothing underneath needs the events then.
-          className={`absolute bottom-0 left-0 top-[var(--hud-top)] right-[env(safe-area-inset-right,0px)] ${
+          className={`absolute inset-0 ${
             settingsOpen ? "pointer-events-auto" : "pointer-events-none"
           }`}
         >
@@ -1150,12 +1173,13 @@ export function Gallery3D({ artworks }: Props) {
             isOpen={settingsOpen}
             onOpenChange={setSettingsOpen}
             music={music}
+            triggerStyle={isTouch ? { top: TOUCH_ROW_TOP, right: TOUCH_ROW_RIGHT } : undefined}
           />
         </div>
       )}
       {/* Music player. Top-left on desktop. On touch the minimap holds
           that corner and the move stick the space under it, so the
-          player stands in the top row beside the settings cog, clear of
+          player stands in the top row beside the settings button, clear of
           the jump button over the look stick. */}
       {hasStarted && !zoomed && !mapOpen && !settingsOpen && (
         <MusicPlayer
@@ -1189,7 +1213,8 @@ export function Gallery3D({ artworks }: Props) {
             type="button"
             onClick={openBigMap}
             aria-label="Open full map"
-            className="absolute top-[calc(1rem_+_var(--hud-top))] left-[calc(1rem_+_env(safe-area-inset-left,0px))] cursor-pointer appearance-none border-0 bg-transparent p-0 pointer-events-auto active:opacity-80"
+            className="absolute cursor-pointer appearance-none overflow-hidden rounded-xl border-0 bg-transparent p-0 pointer-events-auto active:opacity-80"
+            style={{ top: TOUCH_ROW_TOP, left: TOUCH_ROW_LEFT }}
           >
             <Minimap
               floor={currentFloor}
@@ -1201,7 +1226,7 @@ export function Gallery3D({ artworks }: Props) {
             {/* An expand mark in the bottom corner: the top one holds the
                 map's floor line, and the words "Tap to expand" covered
                 a row of rooms once the map shrinks on a short screen. */}
-            <span className="pointer-events-none absolute right-1 bottom-1 flex size-5 items-center justify-center rounded bg-black/55 text-white/85">
+            <span className="pointer-events-none absolute right-1.5 bottom-1.5 flex size-5 items-center justify-center rounded-md bg-black/55 text-white/85">
               <svg
                 width="12"
                 height="12"
@@ -1570,7 +1595,7 @@ function BigMapOverlay({
     // biome-ignore lint/a11y/noStaticElementInteractions: full-screen click target gating the overlay
     <div
       onClick={onClose}
-      className="absolute inset-0 z-30 flex items-center justify-center gap-6 bg-black/85 backdrop-blur-md pt-[calc(1.5rem_+_var(--hud-top))] pr-[calc(1.5rem_+_env(safe-area-inset-right,0px))] pb-[calc(1.5rem_+_env(safe-area-inset-bottom,0px))] pl-[calc(1.5rem_+_env(safe-area-inset-left,0px))]"
+      className="absolute inset-0 z-30 flex items-center justify-center gap-6 bg-black/85 backdrop-blur-md pt-[calc(1.5rem_+_env(safe-area-inset-top,0px))] pr-[calc(1.5rem_+_env(safe-area-inset-right,0px))] pb-[calc(1.5rem_+_env(safe-area-inset-bottom,0px))] pl-[calc(1.5rem_+_env(safe-area-inset-left,0px))]"
     >
       {/* Floor-stack picker — newest on top so it visually mirrors
           the building's vertical stack. Click any row to preview that

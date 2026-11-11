@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useCallback, useEffect, useState } from "react";
+import { type CSSProperties, useCallback, useEffect, useState } from "react";
 import { useAudioSettings } from "@/lib/audio-settings";
 import type { GalleryMusic } from "./use-gallery-music";
 
@@ -15,6 +15,9 @@ type Props = {
   onOpenChange: (open: boolean) => void;
   /** The piece playing now, and the way to skip it. */
   music: GalleryMusic;
+  /** Where the button stands, in place of 1 rem from the top right
+   *  corner (the touch HUD's top row). */
+  triggerStyle?: CSSProperties;
 };
 
 /**
@@ -30,7 +33,13 @@ type Props = {
  * page viewport. The cog trigger sits at the top-right corner of the
  * gallery (the slot the audio pill used to occupy).
  */
-export function Gallery3DSettings({ fullscreenTarget, isOpen, onOpenChange, music }: Props) {
+export function Gallery3DSettings({
+  fullscreenTarget,
+  isOpen,
+  onOpenChange,
+  music,
+  triggerStyle,
+}: Props) {
   const [audio, updateAudio] = useAudioSettings();
   const [fs, setFs] = useState(false);
 
@@ -79,23 +88,22 @@ export function Gallery3DSettings({ fullscreenTarget, isOpen, onOpenChange, musi
 
   return (
     <>
-      {/* Cog trigger pill — same visual language as other 3D HUD
-          elements (rounded-full, semi-transparent black, blurred). */}
-      <div className="pointer-events-auto absolute top-4 right-4">
-        <div className="flex items-center gap-1 rounded-full bg-black/55 px-2 py-1 text-white/85 backdrop-blur">
-          <button
-            type="button"
-            onClick={() => onOpenChange(true)}
-            title="Settings"
-            aria-label="Settings"
-            aria-expanded={isOpen}
-            aria-controls="gallery-3d-settings"
-            className="flex h-7 w-7 items-center justify-center rounded-full transition hover:bg-white/15"
-          >
-            <GearIcon />
-          </button>
-        </div>
-      </div>
+      {/* The settings button: a box like the music player's, as tall
+          as it, with the same corners, tint and blur. */}
+      <button
+        type="button"
+        onClick={() => onOpenChange(true)}
+        title="Settings"
+        aria-label="Settings"
+        aria-expanded={isOpen}
+        aria-controls="gallery-3d-settings"
+        className={`pointer-events-auto absolute flex size-12 items-center justify-center rounded-xl bg-black/55 text-white/85 backdrop-blur transition hover:bg-black/70 hover:text-white ${
+          triggerStyle ? "" : "top-4 right-4"
+        }`}
+        style={triggerStyle}
+      >
+        <GearIcon />
+      </button>
 
       {isOpen && (
         // biome-ignore lint/a11y/useKeyWithClickEvents: backdrop dismiss is a courtesy mouse shortcut; keyboard already maps Esc to close.
@@ -104,7 +112,9 @@ export function Gallery3DSettings({ fullscreenTarget, isOpen, onOpenChange, musi
           onClick={(e) => {
             if (e.target === e.currentTarget) onOpenChange(false);
           }}
-          className="absolute inset-0 z-30 flex flex-col bg-black/85 text-white backdrop-blur-md animate-nav-fade-in"
+          // The backdrop covers the whole screen; its padding keeps the
+          // header and the close button clear of a landscape notch.
+          className="absolute inset-0 z-30 flex flex-col bg-black/85 pt-[env(safe-area-inset-top,0px)] pr-[env(safe-area-inset-right,0px)] pb-[env(safe-area-inset-bottom,0px)] pl-[env(safe-area-inset-left,0px)] text-white backdrop-blur-md animate-nav-fade-in"
         >
           <div className="mx-auto flex w-full max-w-md flex-none items-center justify-between px-5 py-4 landscape:py-2">
             <h2 id="gallery-3d-settings" className="font-serif text-base tracking-wide">
@@ -255,8 +265,8 @@ function VolumeRow({
 function GearIcon() {
   return (
     <svg
-      width="14"
-      height="14"
+      width="18"
+      height="18"
       viewBox="0 0 24 24"
       fill="none"
       stroke="currentColor"

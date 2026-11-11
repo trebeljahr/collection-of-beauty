@@ -310,7 +310,10 @@ export function SiteNav() {
 
   return (
     <header
-      className={`sticky top-0 z-40 border-b border-[var(--border)] bg-[var(--background)]/80 backdrop-blur ${
+      // Sticky on a roomy screen only (globals.css): on a phone, in
+      // either orientation, it held the top of a short screen on every
+      // page, so there it scrolls away with the page.
+      className={`relative z-40 border-b roomy:sticky roomy:top-0 border-[var(--border)] bg-[var(--background)]/80 backdrop-blur ${
         slideInFromTop ? "animate-nav-slide-down-in" : ""
       }`}
     >

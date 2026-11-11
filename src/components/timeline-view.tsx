@@ -416,15 +416,15 @@ function DecadeSection({
   }, [decade, loaded, onVisible]);
 
   return (
-    // Deliberately no `scroll-mt-*`. The `scroll-padding-top: 5rem` on
-    // the scroll root in src/app/globals.css already offsets every hash
-    // jump past the sticky <SiteNav> (69px below md, ~59px above it). A
-    // scroll margin on the target *adds* to that padding rather than
-    // replacing it, so the old `scroll-mt-20` put `#decade-NNNN` 160px
-    // down the viewport on every breakpoint. The global rule alone lands
-    // the heading 11px under the phone header, 21px under the desktop one.
+    // Deliberately no `scroll-mt-*`. The `scroll-padding-top` on the
+    // scroll root in src/app/globals.css already offsets every hash
+    // jump past the <SiteNav>. A scroll margin on the target *adds* to
+    // that padding rather than replacing it, so the old `scroll-mt-20`
+    // put `#decade-NNNN` 160px down the viewport on every breakpoint.
+    // The heading sticks under the nav where the nav is sticky (the
+    // `roomy` variant), and at the top of the screen where it is not.
     <section ref={sectionRef} id={`decade-${decade}`} data-decade={decade}>
-      <div className="sticky top-14 z-10 -mx-4 mb-3 border-y border-[var(--border)] bg-[var(--background)]/90 px-4 py-2 backdrop-blur">
+      <div className="sticky top-0 z-10 -mx-4 mb-3 roomy:top-14 border-y border-[var(--border)] bg-[var(--background)]/90 px-4 py-2 backdrop-blur">
         <div className="flex items-baseline justify-between">
           <h2 className="font-serif text-xl">{decade}s</h2>
           <Badge variant="outline">{count}</Badge>
