@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { type CSSProperties, useCallback, useEffect, useState } from "react";
 import { useAudioSettings } from "@/lib/audio-settings";
+import { requestFullscreenQuietly } from "./fullscreen";
 import type { GalleryMusic } from "./use-gallery-music";
 
 type Props = {
@@ -72,13 +73,7 @@ export function Gallery3DSettings({
         console.warn("[gallery-3d] exitFullscreen rejected:", err);
       });
     } else {
-      const target = fullscreenTarget.current ?? document.documentElement;
-      target.requestFullscreen?.().catch((err) => {
-        // Safari + iOS UA-Webview deny here. Logging at warn so a
-        // user reporting "the fullscreen button does nothing" leaves a
-        // breadcrumb in the console rather than a silent no-op.
-        console.warn("[gallery-3d] requestFullscreen rejected:", err);
-      });
+      requestFullscreenQuietly(fullscreenTarget.current ?? document.documentElement);
     }
   }, [fullscreenTarget]);
 

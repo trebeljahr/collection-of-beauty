@@ -37,6 +37,7 @@ import { FOV_DEFAULT_DEG } from "./camera-config";
 import { DebugOverlay, DebugProbe, useGalleryDebug } from "./debug-overlay";
 import { UNREFLECTED_LAYER } from "./floor-mirror";
 import { FloorReflection } from "./floor-reflection";
+import { requestFullscreenQuietly } from "./fullscreen";
 import { GlowField } from "./glow-field";
 import { GrandStaircase } from "./grand-staircase";
 import { LandscapePrompt } from "./landscape-prompt";
@@ -737,13 +738,14 @@ export function Gallery3D({ artworks, onEntryChange }: Props) {
     // instead of being consumed by drei's selector relock.
     // Touch devices have no pointer lock — joysticks own look.
     if (!isTouch) requestPointerLockQuietly(canvasRef.current);
-    // Site nav + page scrollbar are hidden via the Gallery3D
-    // context (driven by `hasStarted`) so the museum visit
-    // isn't framed by page chrome. Browser fullscreen stays
-    // user-driven through the settings modal — auto-engaging
-    // it on Enter would hide the page nav so completely that
-    // re-revealing it for the settings modal wouldn't work
-    // without yanking the user out of fullscreen.
+    // On a phone or tablet the visit goes fullscreen at once: with
+    // the browser's bars up a landscape phone is under 300 px tall.
+    // Inside the same tap, or the browser refuses. The host is the
+    // target, so the joysticks, the HUD and the modals (all inside
+    // it) stay on screen. On a desktop fullscreen stays the settings
+    // modal's toggle. Site nav and page scrollbar are hidden via the
+    // Gallery3D context (driven by `hasStarted`) either way.
+    if (isTouch) requestFullscreenQuietly(galleryHostRef.current);
     if (restoredVisit) {
       setZoomed(artworks.find((artwork) => artwork.id === restoredVisit.saved.artworkId) ?? null);
       setMapOpen(restoredVisit.saved.mapOpen);
