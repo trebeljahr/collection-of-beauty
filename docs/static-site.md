@@ -78,6 +78,12 @@ and waits for a dispatch of `deploy`; `automatic` uploads, activates and
 verifies. Unset, a push changes nothing anywhere: the Coolify app keeps
 serving its last image until the routes below move the site.
 
+Two dispatch operations exist for the cutover and after it: `activate`
+turns a commit's uploaded versions on without the HTTP check (before the
+routes below exist, the public site is still Coolify and cannot show the
+commit; with no route, nothing a visitor sees changes), and `secrets` sets
+the API Worker's secrets from `.env.production` (see `workers/api/README.md`).
+
 Rollback: dispatch `deploy` with the earlier commit, or
 `npx wrangler versions deploy <version>@100% -c <config>`.
 

@@ -3,6 +3,12 @@
 // public site serves it.
 //
 //   node scripts/worker-release.mjs deploy <sha> [<site-version> <api-version>]
+//   node scripts/worker-release.mjs activate <sha> [<site-version> <api-version>]
+//
+// `activate` is for the cutover only: it activates both versions without
+// the HTTP check, because until the zone's routes point at the Workers the
+// public site is still the Coolify app and could never show the commit.
+// The Workers have no route then, so nothing a visitor sees changes.
 //
 // The build job uploads a version of each Worker tagged with the commit
 // (`wrangler versions upload --tag <sha>`); nothing is live until this
@@ -124,15 +130,20 @@ export async function deploy(sha, ids = [], { verify = verifyRelease } = {}) {
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
   const [operation, sha, ...ids] = process.argv.slice(2);
-  if (operation !== "deploy") {
+  if (operation !== "deploy" && operation !== "activate") {
     console.error(
-      "Usage: node scripts/worker-release.mjs deploy <sha> [<site-version> <api-version>]",
+      "Usage: node scripts/worker-release.mjs deploy|activate <sha> [<site-version> <api-version>]",
     );
     process.exit(2);
   }
   try {
-    const record = await deploy(sha, ids);
-    console.log(`Release ${sha} is live and verified (${record.samples} samples).`);
+    if (operation === "activate") {
+      await deploy(sha, ids, { verify: async () => ({ samples: 0 }) });
+      console.log(`Release ${sha} is active on both Workers; not checked over HTTP.`);
+    } else {
+      const record = await deploy(sha, ids);
+      console.log(`Release ${sha} is live and verified (${record.samples} samples).`);
+    }
   } catch (error) {
     console.error(error instanceof Error ? error.message : "Release failed.");
     process.exitCode = 1;

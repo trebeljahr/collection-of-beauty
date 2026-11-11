@@ -34,19 +34,17 @@ reaches the Worker with the next push.
 
 ## Secrets
 
-Set once, from the decrypted `.env.production`, never printed:
-
-```sh
-pnpm exec dotenvx run -f .env.production -- node -e '
-  const keys = ["LISTMONK_URL","LISTMONK_API_USER","LISTMONK_API_TOKEN","LISTMONK_LIST_ID",
-    "LISTMONK_TX_TEMPLATE_ID","LISTMONK_FROM","LISTMONK_REPLY_TO","SES_FROM_EMAIL","NEWSLETTER_TOKEN_SECRET",
-    "SENTRY_DSN"];
-  process.stdout.write(JSON.stringify(Object.fromEntries(keys.filter((k) => process.env[k]).map((k) => [k, process.env[k]]))));
-' | pnpm exec wrangler secret bulk -c workers/api/wrangler.jsonc
-```
+From the encrypted `.env.production`, by CI, never printed: dispatch the
+**Site on Cloudflare** workflow with operation `secrets`
+(`scripts/api-worker-secrets.mjs` piped into `wrangler secret bulk`). Run it
+once at the cutover and again after a value changes; each run deploys a new
+version of the API Worker with the code it already runs. Required:
+`LISTMONK_URL`, `LISTMONK_API_USER`, `LISTMONK_API_TOKEN`, `LISTMONK_LIST_ID`,
+`LISTMONK_TX_TEMPLATE_ID`, `LISTMONK_FROM`, `NEWSLETTER_TOKEN_SECRET`; also
+set when present: `LISTMONK_REPLY_TO`, `SES_FROM_EMAIL`, `SENTRY_DSN`.
 
 `NEWSLETTER_TOKEN_SECRET` must stay the value the Next server used, or every
-confirmation link already in an inbox fails with `bad_signature`.
+confirmation and unsubscribe link already in an inbox fails.
 
 ## Local
 

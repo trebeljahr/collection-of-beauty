@@ -23,9 +23,9 @@ on:
   workflow_dispatch:
     inputs:
       operation:
-        description: Build, deploy an uploaded release, or verify the live one
+        description: Build, deploy an uploaded release, verify the live one; activate (cutover only, no HTTP check) or secrets (API Worker secrets from .env.production)
         type: choice
-        options: [build, deploy, verify]
+        options: [build, deploy, verify, activate, secrets]
         default: build
       target_sha:
         description: Full commit SHA (required for deploy or verify)
@@ -51,7 +51,8 @@ jobs:
     if: >-
       github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' &&
       vars.COLLECTION_OF_BEAUTY_SITE_ROLLOUT_MODE != '' &&
-      inputs.operation != 'verify' && inputs.operation != 'deploy'
+      inputs.operation != 'verify' && inputs.operation != 'deploy' &&
+      inputs.operation != 'activate' && inputs.operation != 'secrets'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -79,7 +80,8 @@ jobs:
     if: >-
       github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' &&
       vars.COLLECTION_OF_BEAUTY_SITE_ROLLOUT_MODE != '' &&
-      inputs.operation != 'verify' && inputs.operation != 'deploy'
+      inputs.operation != 'verify' && inputs.operation != 'deploy' &&
+      inputs.operation != 'activate' && inputs.operation != 'secrets'
     needs: test
     runs-on: ubuntu-latest
     timeout-minutes: 45
@@ -184,7 +186,7 @@ jobs:
       github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' &&
       (((github.event_name == 'push' || inputs.operation == 'build') &&
         vars.COLLECTION_OF_BEAUTY_SITE_ROLLOUT_MODE == 'automatic' && needs.build.result == 'success') ||
-       (github.event_name == 'workflow_dispatch' && inputs.operation == 'deploy'))
+       (github.event_name == 'workflow_dispatch' && (inputs.operation == 'deploy' || inputs.operation == 'activate')))
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
@@ -208,10 +210,42 @@ jobs:
           API_VERSION: ${{ (github.event_name == 'push' || inputs.operation == 'build') && needs.build.outputs.api_version || '' }}
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-        run: node scripts/worker-release.mjs deploy "$TARGET_SHA" $SITE_VERSION $API_VERSION
+          OPERATION: ${{ inputs.operation == 'activate' && 'activate' || 'deploy' }}
+        run: node scripts/worker-release.mjs "$OPERATION" "$TARGET_SHA" $SITE_VERSION $API_VERSION
       - uses: actions/upload-artifact@v4
         if: always()
         with:
           name: rollout-${{ github.run_id }}-${{ github.run_attempt }}
           path: rollout.json
           if-no-files-found: warn
+
+  # Sets the API Worker's secrets from the encrypted .env.production, the
+  # way the Coolify container read them: run once at the cutover and after
+  # a secret changes. Prints secret names only. Setting a secret deploys a
+  # new version of the API Worker with the code it already runs.
+  secrets:
+    if: >-
+      github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' &&
+      github.event_name == 'workflow_dispatch' && inputs.operation == 'secrets'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+      - name: Enable pnpm
+        run: corepack enable
+      - name: Install dependencies
+        env:
+          HUSKY: "0"
+        run: pnpm install --frozen-lockfile
+      - name: Set the API Worker's secrets
+        env:
+          DOTENV_PRIVATE_KEY_PRODUCTION: ${{ secrets.DOTENV_PRIVATE_KEY_PRODUCTION }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: |
+          set -o pipefail
+          pnpm exec dotenvx run --quiet -f .env.production -- node scripts/api-worker-secrets.mjs \
+            | pnpm exec wrangler secret bulk -c workers/api/wrangler.jsonc
