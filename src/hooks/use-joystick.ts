@@ -49,11 +49,10 @@ const defaultParameters: JoystickOptions = {
   opacity: 1,
   // 60 px max throw — knob can drift past the pad edge by 30 px at
   // full deflection (pad-radius minus knob-radius is 30), but the
-  // Player's deadzone is set in pixels-equivalent so the engagement
-  // threshold stays around ~9 px regardless of this value. Bigger
-  // throw room gives the thumb more "give" without changing when
-  // the stick fires; binary speed past the deadzone means it never
-  // matters how far past you drag.
+  // Player's deadzone is a fraction of this value, ~9 px. The move
+  // stick walks at one speed past the deadzone; the look stick turns
+  // faster the further it is dragged, up to its full rate near this
+  // throw (`look-stick.ts`), so changing it changes the look curve.
   maxRange: MAX_RANGE,
   radius: JOYSTICK_PAD_RADIUS,
   joystickRadius: KNOB_RADIUS,

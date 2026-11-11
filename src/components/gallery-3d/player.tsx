@@ -30,6 +30,7 @@ import {
   createGalleryCollisionController,
   type GalleryCollisionController,
 } from "./gallery-physics";
+import { LOOK_SPEED, lookStickRate } from "./look-stick";
 import { raycastNearestPainting } from "./painting-registry";
 import {
   findStairAbove,
@@ -86,22 +87,16 @@ const DOORWAY_NUDGE_MAX_CORRECTION = 0.35;
 // purely the visual hover threshold so the cursor only changes when the
 // player is right up against the painting they're looking at.
 const AIM_MAX_DIST = 2;
-// Look joystick → angular velocity. The stick is binary above the
-// deadzone (no faster-with-more-drag), so this is the actual turn
-// rate while engaged — not a max. 1.2 rad/s ≈ 69°/sec feels
-// deliberate without being sluggish; fine aim comes from short
-// stick taps, not partial deflection.
-const LOOK_SPEED = 1.2;
 // Joystick max-range in pixels — must match `defaultParameters.maxRange`
 // in `use-joystick.ts`. Used to normalise the library's raw x/y back
-// into a [-1, 1] range so the deadzone fractions below are anchored
-// to the right scale.
+// into a [-1, 1] range so the deadzone fractions are anchored to the
+// right scale. The look stick's deadzone and response curve are in
+// `look-stick.ts`.
 const JOYSTICK_MAX_RANGE = 60;
-// Radial deadzone (fraction of full deflection) — inputs below this
-// magnitude are treated as zero, anything past it engages at full
-// rate. 0.15 of 60 px ≈ 9 px of physical throw before either stick
-// fires, regardless of how big maxRange is set.
-const LOOK_DEADZONE = 0.15;
+// Radial deadzone of the move stick (fraction of full deflection) —
+// inputs below this magnitude are treated as zero, anything past it
+// walks at full speed. 0.15 of 60 px ≈ 9 px of physical throw before
+// the stick fires, regardless of how big maxRange is set.
 const MOVE_DEADZONE = 0.15;
 // Radius (m) at which the player counts as "approaching" a staircase.
 // Past this distance the FloorPreloader has time to fetch + GPU-upload
@@ -268,8 +263,8 @@ export function Player({
    *  works without jankily fighting itself. Falsy → keyboard only. */
   joystickMoveGetter?: () => JoystickOnMove;
   /** Polled each frame for right-stick look. Same raw x/y read as the
-   *  move stick. Drives yaw (X) and pitch (Y) at LOOK_SPEED radians per
-   *  second after a quadratic response curve. */
+   *  move stick. Drives yaw (X) and pitch (Y) at up to LOOK_SPEED
+   *  radians per second, through the curve in `lookStickRate`. */
   joystickLookGetter?: () => JoystickOnMove;
 }) {
   const { camera, gl } = useThree();
@@ -693,25 +688,25 @@ export function Player({
       }
     }
 
-    // Look stick → constant-rate yaw/pitch. We extract the camera's
-    // current Euler each frame so PointerLockControls (desktop) and
-    // the joystick (mobile) coexist without fighting over a stored
-    // look state. Binary above the deadzone: any drag past LOOK_DEADZONE
-    // turns at LOOK_SPEED in the stick's direction, so dragging further
-    // doesn't accelerate the rotation — fine aim is a short tap, full
-    // turn is a sustained hold. Direction is still continuous (any
-    // angle around the stick), only magnitude is gated.
+    // Look stick → yaw/pitch. We extract the camera's current Euler
+    // each frame so PointerLockControls (desktop) and the joystick
+    // (mobile) coexist without fighting over a stored look state. The
+    // turn rate grows with the drag (`lookStickRate`): slow just past
+    // the deadzone for fine aim, LOOK_SPEED at full throw. Direction
+    // comes from the stick's angle alone, so a diagonal does not pull
+    // onto an axis.
     if (joystickLookGetter) {
       const look = joystickLookGetter();
       const lx = look.x / JOYSTICK_MAX_RANGE;
       const ly = look.y / JOYSTICK_MAX_RANGE;
       const lmag = Math.hypot(lx, ly);
-      if (lmag > LOOK_DEADZONE) {
+      const rate = lookStickRate(lmag) * LOOK_SPEED;
+      if (rate > 0) {
         const nx = lx / lmag;
         const ny = ly / lmag;
         _lookEuler.setFromQuaternion(camera.quaternion, "YXZ");
-        _lookEuler.y -= nx * LOOK_SPEED * dt;
-        _lookEuler.x += ny * LOOK_SPEED * dt;
+        _lookEuler.y -= nx * rate * dt;
+        _lookEuler.x += ny * rate * dt;
         if (_lookEuler.x > PITCH_LIMIT) _lookEuler.x = PITCH_LIMIT;
         if (_lookEuler.x < -PITCH_LIMIT) _lookEuler.x = -PITCH_LIMIT;
         _lookEuler.z = 0;
