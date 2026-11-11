@@ -1,5 +1,6 @@
 "use client";
 
+import type { CSSProperties } from "react";
 import type { GalleryMusic } from "./use-gallery-music";
 
 type Props = {
@@ -8,6 +9,8 @@ type Props = {
   playing: boolean;
   onPlayingChange: (playing: boolean) => void;
   className?: string;
+  /** Placement computed from the HUD's other controls (touch layout). */
+  style?: CSSProperties;
 };
 
 /**
@@ -16,11 +19,12 @@ type Props = {
  * settings cog. The keyboard's media keys reach the same controls
  * through the Media Session (use-gallery-music.ts).
  */
-export function MusicPlayer({ music, playing, onPlayingChange, className = "" }: Props) {
+export function MusicPlayer({ music, playing, onPlayingChange, className = "", style }: Props) {
   const { track } = music;
   return (
     <div
       className={`pointer-events-auto absolute z-20 flex items-center gap-2 rounded-xl bg-black/55 py-1.5 pr-1.5 pl-3 text-white backdrop-blur ${className}`}
+      style={style}
     >
       <div className="min-w-0 flex-1 text-xs leading-snug" aria-live="polite">
         {track ? (

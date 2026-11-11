@@ -303,8 +303,10 @@ export function ZoomModal({
       )}
 
       {/* Top bar: close button. Pointer-events scoped so it doesn't
-          swallow drags on the image itself. */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-end p-4">
+          swallow drags on the image itself. Inset past a Home Screen
+          app's status bar and a landscape notch: `--hud-top` is set on
+          the museum's host (index.tsx). */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-end p-4 pt-[calc(1rem_+_var(--hud-top,0px))] pr-[calc(1rem_+_env(safe-area-inset-right,0px))]">
         <button
           type="button"
           onClick={() => onClose(true)}

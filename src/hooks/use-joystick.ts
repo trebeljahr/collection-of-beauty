@@ -30,6 +30,8 @@ const ZERO: JoystickOnMove = {
 
 const MAX_RANGE = 60;
 const KNOB_RADIUS = 40;
+/** Radius of the pad the knob rests in, in px. */
+export const JOYSTICK_PAD_RADIUS = 70;
 
 /** How far the knob's edge gets from the pad's centre at full throw, in
  *  px. A control placed beside a stick starts past this, or a thumb
@@ -53,7 +55,7 @@ const defaultParameters: JoystickOptions = {
   // the stick fires; binary speed past the deadzone means it never
   // matters how far past you drag.
   maxRange: MAX_RANGE,
-  radius: 70,
+  radius: JOYSTICK_PAD_RADIUS,
   joystickRadius: KNOB_RADIUS,
   joystickClass: "gallery-joystick-knob",
   controllerClass: "gallery-joystick-pad",

@@ -20,6 +20,9 @@ type Props = {
    *  expanded big-map view when the user is previewing a floor that
    *  isn't the one they're physically standing on. Default: true. */
   showPlayer?: boolean;
+  /** When false, the map alone: no panel under it naming the room.
+   *  The touch HUD names the room in its top row. Default: true. */
+  footer?: boolean;
 };
 
 const PAD = 6;
@@ -62,10 +65,11 @@ export function Minimap({
   size = 220,
   className,
   showPlayer = true,
+  footer = true,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const staticRef = useRef<HTMLCanvasElement | null>(null);
-  const totalH = size + FOOTER_H;
+  const totalH = size + (footer ? FOOTER_H : 0);
 
   // Re-bake the static floor plan whenever floor or active room changes.
   useEffect(() => {
@@ -86,10 +90,12 @@ export function Minimap({
     ctx.lineWidth = 1;
     ctx.strokeRect(0.5, 0.5, size - 1, totalH - 1);
     // Divider above the footer.
-    ctx.beginPath();
-    ctx.moveTo(0, size);
-    ctx.lineTo(size, size);
-    ctx.stroke();
+    if (footer) {
+      ctx.beginPath();
+      ctx.moveTo(0, size);
+      ctx.lineTo(size, size);
+      ctx.stroke();
+    }
 
     // Each room in the colour of its walls, so the map reads as the
     // building does: crimson where the walls are crimson. The room the
@@ -260,10 +266,10 @@ export function Minimap({
 
     // Footer — active room title + description, or a hint when the
     // player isn't standing in any one room.
-    drawFooter(ctx, size, FOOTER_H, size, floor.rooms[activeRoomIdx]);
+    if (footer) drawFooter(ctx, size, FOOTER_H, size, floor.rooms[activeRoomIdx]);
 
     staticRef.current = off;
-  }, [floor, activeRoomIdx, size, totalH]);
+  }, [floor, activeRoomIdx, size, totalH, footer]);
 
   // Live loop — composites the cached floor plan with the player arrow.
   useEffect(() => {

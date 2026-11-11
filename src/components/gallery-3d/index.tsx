@@ -2,11 +2,20 @@
 
 import { PointerLockControls } from "@react-three/drei";
 import { Canvas, useThree } from "@react-three/fiber";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  type CSSProperties,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  useSyncExternalStore,
+} from "react";
 import * as THREE from "three";
 import { GalleryCurtain } from "@/app/gallery-3d/gallery-curtain";
 import { useSetIs3DActive } from "@/components/gallery-3d-state";
-import { JOYSTICK_REACH, useJoystick } from "@/hooks/use-joystick";
+import { useHomeScreenApp } from "@/hooks/use-home-screen-app";
+import { JOYSTICK_PAD_RADIUS, JOYSTICK_REACH, useJoystick } from "@/hooks/use-joystick";
 import { useNeedsRotate, useTouchDevice } from "@/hooks/use-touch-device";
 import { useAudioSettings } from "@/lib/audio-settings";
 import type { ArtworkListing } from "@/lib/data";
@@ -48,9 +57,10 @@ import { preloadCached, roomLoadZone } from "./texture-cache";
 import { useGalleryMusic } from "./use-gallery-music";
 import { ZoomModal } from "./zoom-modal";
 
-// Centre of the look stick's pad, from the viewport's left and bottom
+// Centre of each stick's pad, from the viewport's left and bottom
 // edges, as joystick-controller reads it. The jump button is placed
-// from the same pair.
+// from the look stick's pair, the minimap's size from the move stick's.
+const MOVE_STICK_AT = { x: "12%", y: "18%" };
 const LOOK_STICK_AT = { x: "88%", y: "18%" };
 // Clear space in px between the look stick's knob at full throw and the
 // jump button above it.
@@ -58,6 +68,25 @@ const JUMP_BUTTON_GAP = 16;
 // The Sit button stands to the left of Jump, this far centre to centre:
 // above the move stick it lay over the minimap on a landscape phone.
 const SIT_BUTTON_OFFSET = 80;
+
+// The touch HUD's top row, left to right: the minimap, the room's name,
+// the music player and the settings cog. The name takes the gap the
+// other three leave, so it is placed from their widths.
+const TOUCH_MINIMAP_MAX = 196;
+const TOUCH_MINIMAP_MIN = 120;
+const TOUCH_PLAYER_WIDTH = "15rem";
+// The cog's pill in settings-modal.tsx: a 28 px button with px-2.
+const COG_PILL_WIDTH = "44px";
+const TOUCH_ROW_TOP = "calc(1rem + var(--hud-top))";
+const TOUCH_PLAYER_RIGHT = `calc(1rem + env(safe-area-inset-right, 0px) + ${COG_PILL_WIDTH} + 0.5rem)`;
+// Room kept over the HUD for a status bar the page cannot measure
+// (useHomeScreenApp), in CSS px.
+const STATUS_BAR_ALLOWANCE = 40;
+
+function subscribeToResize(onChange: () => void) {
+  window.addEventListener("resize", onChange);
+  return () => window.removeEventListener("resize", onChange);
+}
 
 type Props = { artworks: ArtworkListing[] };
 
@@ -204,6 +233,28 @@ export function Gallery3D({ artworks }: Props) {
   // it disappears the moment the user enters the gallery.
   const touchDevice = useTouchDevice();
   const isTouch = touchDevice === true;
+  // Where the HUD's top row may start. As a Home Screen web app on a
+  // phone or tablet, iOS lays the status bar over the page and reports
+  // no inset for it (use-home-screen-app.ts), so the row keeps clear of
+  // it by a fixed allowance. Read by every top-anchored control below
+  // as `var(--hud-top)`.
+  const homeScreenApp = useHomeScreenApp();
+  const hudTop =
+    isTouch && homeScreenApp
+      ? `max(env(safe-area-inset-top, 0px), ${STATUS_BAR_ALLOWANCE}px)`
+      : "env(safe-area-inset-top, 0px)";
+  // The touch minimap stands over the move stick. Its side is the
+  // most that leaves its foot clear of the stick's pad: where the
+  // browser's bars are up a landscape phone is under 300 px tall, and
+  // at 196 px the map lay across the pad.
+  const viewportHeight = useSyncExternalStore(subscribeToResize, () => window.innerHeight);
+  const padTop =
+    viewportHeight * (1 - Number.parseFloat(MOVE_STICK_AT.y) / 100) - JOYSTICK_PAD_RADIUS;
+  // TOUCH_ROW_TOP in px; the map keeps 8 px off the pad.
+  const mapTop = 16 + (isTouch && homeScreenApp ? STATUS_BAR_ALLOWANCE : 0);
+  const touchMinimapSize = Math.round(
+    Math.min(TOUCH_MINIMAP_MAX, Math.max(TOUCH_MINIMAP_MIN, padTop - mapTop - 8)),
+  );
   // Dev-only HUD: texture on the aimed painting + frame / renderer /
   // texture-pool stats. Backquote toggles; `?debug` forces it on.
   const debug = useGalleryDebug();
@@ -215,7 +266,7 @@ export function Gallery3D({ artworks }: Props) {
     isTouch && hasStarted && !zoomed && !mapOpen && !settingsOpen && !needsRotate;
   const moveJoystick = useJoystick({
     enabled: joysticksActive,
-    params: { x: "12%", y: "18%" },
+    params: MOVE_STICK_AT,
     parentRef: galleryHostRef,
   });
   const lookJoystick = useJoystick({
@@ -239,6 +290,25 @@ export function Gallery3D({ artworks }: Props) {
     setIs3DActive(hasStarted && !settingsOpen);
     return () => setIs3DActive(false);
   }, [hasStarted, settingsOpen, setIs3DActive]);
+
+  // Inside the museum the page behind it is black. iOS paints the strip
+  // under the home indicator and Safari's toolbars in the page's own
+  // background, which on this site is near-white, and it showed as a
+  // white edge along the bottom of the museum. Set for the whole visit,
+  // the settings modal included, so the strip does not flash white
+  // while the nav comes back.
+  useEffect(() => {
+    if (!hasStarted) return;
+    const html = document.documentElement.style;
+    const body = document.body.style;
+    const before = [html.backgroundColor, body.backgroundColor] as const;
+    html.backgroundColor = "#000";
+    body.backgroundColor = "#000";
+    return () => {
+      html.backgroundColor = before[0];
+      body.backgroundColor = before[1];
+    };
+  }, [hasStarted]);
 
   // ── Audio ────────────────────────────────────────────────────────
   // Background music, a shuffled round of free recordings
@@ -613,7 +683,15 @@ export function Gallery3D({ artworks }: Props) {
   }, []);
 
   return (
-    <div ref={galleryHostRef} className="relative w-full h-screen bg-black">
+    // `h-dvh`, not `h-screen`: on a phone 100vh is the viewport with the
+    // browser's bars hidden, so while they show the museum and the HUD
+    // pinned to its bottom run past the screen. dvh is the screen the
+    // visitor has.
+    <div
+      ref={galleryHostRef}
+      className="relative w-full h-dvh bg-black"
+      style={{ "--hud-top": hudTop } as CSSProperties}
+    >
       <Canvas
         // Bumped after a webglcontextlost event so the entire R3F tree
         // unmounts and rebuilds with a fresh WebGLRenderer — see the
@@ -867,7 +945,7 @@ export function Gallery3D({ artworks }: Props) {
         <DebugOverlay
           className={
             isTouch
-              ? "top-[calc(14rem_+_env(safe-area-inset-top,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
+              ? "top-[calc(1.5rem_+_196px_+_var(--hud-top))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
               : "top-[calc(5.25rem_+_env(safe-area-inset-top,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
           }
         />
@@ -903,14 +981,28 @@ export function Gallery3D({ artworks }: Props) {
           fallback makes every one of these a no-op on hardware (and in
           non-fullscreen contexts) that reports no insets, so nothing
           shifts on desktop. */}
-      {hasStarted && !mapOpen && (
+      {/* Touch: the room's name on one line, in the gap the minimap and
+          the music player leave in the top row. The minimap names the
+          floor, and the floor line and the room's description crowded
+          the player off the row on a phone. */}
+      {hasStarted && !mapOpen && isTouch && (
         <div
-          className={`absolute bg-black/60 text-neutral-100 px-4 py-2 rounded text-sm pointer-events-none ${
-            isTouch
-              ? "top-[calc(1rem_+_env(safe-area-inset-top,0px))] left-1/2 -translate-x-1/2"
-              : "bottom-[calc(1rem_+_env(safe-area-inset-bottom,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
-          }`}
+          className="pointer-events-none absolute flex justify-center"
+          style={{
+            top: TOUCH_ROW_TOP,
+            left: `calc(1rem + env(safe-area-inset-left, 0px) + ${touchMinimapSize}px + 0.75rem)`,
+            right: `calc(${TOUCH_PLAYER_RIGHT} + ${TOUCH_PLAYER_WIDTH} + 0.75rem)`,
+          }}
         >
+          <div className="max-w-full truncate rounded bg-black/60 px-3 py-1.5 text-sm font-semibold text-neutral-100">
+            {activeRoom
+              ? `${activeRoom.roomNumber ? `${activeRoom.roomNumber} · ` : ""}${activeRoom.title}`
+              : `Floor ${currentFloorIdx + 1} · ${floorLabel}`}
+          </div>
+        </div>
+      )}
+      {hasStarted && !mapOpen && !isTouch && (
+        <div className="absolute bottom-[calc(1rem_+_env(safe-area-inset-bottom,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))] bg-black/60 text-neutral-100 px-4 py-2 rounded text-sm pointer-events-none">
           <div className="text-xs text-neutral-500">
             Floor {currentFloorIdx + 1} · {floorLabel}
           </div>
@@ -1037,7 +1129,9 @@ export function Gallery3D({ artworks }: Props) {
           sides would leave undimmed strips of live canvas along the
           screen edges. Insetting only the two sides the cog actually
           uses keeps that backdrop full-bleed everywhere except the top
-          and right, and in landscape `safe-area-inset-top` is 0 anyway. */}
+          and right. The top is `--hud-top`: the status bar of a Home
+          Screen app lies over that strip, so the cog and the modal's
+          close button have to stand below it. */}
       {hasStarted && !zoomed && !mapOpen && (
         <div
           // Full-bleed while closed would swallow every canvas click, and
@@ -1047,7 +1141,7 @@ export function Gallery3D({ artworks }: Props) {
           // both: transparent to aim/inspect clicks when closed,
           // interactive when the modal is up — and the modal covers the
           // canvas anyway, so nothing underneath needs the events then.
-          className={`absolute bottom-0 left-0 top-[env(safe-area-inset-top,0px)] right-[env(safe-area-inset-right,0px)] ${
+          className={`absolute bottom-0 left-0 top-[var(--hud-top)] right-[env(safe-area-inset-right,0px)] ${
             settingsOpen ? "pointer-events-auto" : "pointer-events-none"
           }`}
         >
@@ -1061,8 +1155,8 @@ export function Gallery3D({ artworks }: Props) {
       )}
       {/* Music player. Top-left on desktop. On touch the minimap holds
           that corner and the move stick the space under it, so the
-          player sits under the settings cog, above the jump button, and
-          narrow enough to clear the floor banner at the top centre. */}
+          player stands in the top row beside the settings cog, clear of
+          the jump button over the look stick. */}
       {hasStarted && !zoomed && !mapOpen && !settingsOpen && (
         <MusicPlayer
           music={music}
@@ -1070,15 +1164,21 @@ export function Gallery3D({ artworks }: Props) {
           onPlayingChange={setMusicPlaying}
           className={
             isTouch
-              ? "w-56 top-[calc(3.75rem_+_env(safe-area-inset-top,0px))] right-[calc(1rem_+_env(safe-area-inset-right,0px))]"
+              ? ""
               : "w-80 top-[calc(1rem_+_env(safe-area-inset-top,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))]"
+          }
+          style={
+            isTouch
+              ? { width: TOUCH_PLAYER_WIDTH, top: TOUCH_ROW_TOP, right: TOUCH_PLAYER_RIGHT }
+              : undefined
           }
         />
       )}
       {/* Minimap. Bottom-right on desktop; top-left on mobile so the
           look joystick (bottom-right) and audio controls (top-right)
-          don't collide with it. Smaller size on mobile to leave room
-          for the centred floor banner on narrow viewports. */}
+          don't collide with it. On touch it is the map alone: the room
+          panel under it reached down onto the move stick, and the room's
+          name is in the top row. */}
       {hasStarted &&
         !zoomed &&
         !mapOpen &&
@@ -1089,16 +1189,32 @@ export function Gallery3D({ artworks }: Props) {
             type="button"
             onClick={openBigMap}
             aria-label="Open full map"
-            className="absolute top-[calc(1rem_+_env(safe-area-inset-top,0px))] left-[calc(1rem_+_env(safe-area-inset-left,0px))] cursor-pointer appearance-none border-0 bg-transparent p-0 pointer-events-auto active:opacity-80"
+            className="absolute top-[calc(1rem_+_var(--hud-top))] left-[calc(1rem_+_env(safe-area-inset-left,0px))] cursor-pointer appearance-none border-0 bg-transparent p-0 pointer-events-auto active:opacity-80"
           >
             <Minimap
               floor={currentFloor}
               activeRoomIdx={activeRoomIdx}
               playerRef={lastCameraRef}
-              size={196}
+              size={touchMinimapSize}
+              footer={false}
             />
-            <span className="pointer-events-none absolute top-1 right-1 rounded bg-black/55 px-1.5 py-0.5 text-[10px] font-medium text-white/85">
-              Tap to expand
+            {/* An expand mark in the bottom corner: the top one holds the
+                map's floor line, and the words "Tap to expand" covered
+                a row of rooms once the map shrinks on a short screen. */}
+            <span className="pointer-events-none absolute right-1 bottom-1 flex size-5 items-center justify-center rounded bg-black/55 text-white/85">
+              <svg
+                width="12"
+                height="12"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+              </svg>
             </span>
           </button>
         ) : (
@@ -1454,7 +1570,7 @@ function BigMapOverlay({
     // biome-ignore lint/a11y/noStaticElementInteractions: full-screen click target gating the overlay
     <div
       onClick={onClose}
-      className="absolute inset-0 z-30 flex items-center justify-center gap-6 bg-black/85 backdrop-blur-md pt-[calc(1.5rem_+_env(safe-area-inset-top,0px))] pr-[calc(1.5rem_+_env(safe-area-inset-right,0px))] pb-[calc(1.5rem_+_env(safe-area-inset-bottom,0px))] pl-[calc(1.5rem_+_env(safe-area-inset-left,0px))]"
+      className="absolute inset-0 z-30 flex items-center justify-center gap-6 bg-black/85 backdrop-blur-md pt-[calc(1.5rem_+_var(--hud-top))] pr-[calc(1.5rem_+_env(safe-area-inset-right,0px))] pb-[calc(1.5rem_+_env(safe-area-inset-bottom,0px))] pl-[calc(1.5rem_+_env(safe-area-inset-left,0px))]"
     >
       {/* Floor-stack picker — newest on top so it visually mirrors
           the building's vertical stack. Click any row to preview that
