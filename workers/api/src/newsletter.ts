@@ -27,10 +27,10 @@ import {
 } from "../../../src/lib/newsletter/email-placeholders";
 import {
   confirmSubscription,
-  ensureSubscriber,
   isConfirmedOnList,
   isListmonkUp,
   sendTransactional,
+  signupState,
   unsubscribeFromList,
 } from "../../../src/lib/newsletter/listmonk";
 import {
@@ -49,19 +49,19 @@ export interface RateLimit {
 
 export type ListmonkClient = {
   confirmSubscription: typeof confirmSubscription;
-  ensureSubscriber: typeof ensureSubscriber;
   isConfirmedOnList: typeof isConfirmedOnList;
   isListmonkUp: typeof isListmonkUp;
   sendTransactional: typeof sendTransactional;
+  signupState: typeof signupState;
   unsubscribeFromList: typeof unsubscribeFromList;
 };
 
 const LISTMONK: ListmonkClient = {
   confirmSubscription,
-  ensureSubscriber,
   isConfirmedOnList,
   isListmonkUp,
   sendTransactional,
+  signupState,
   unsubscribeFromList,
 };
 
@@ -148,23 +148,25 @@ type SubscribeBody = {
  */
 async function mailAddress(email: string, deps: NewsletterDeps): Promise<void> {
   const client = lm(deps);
-  // A lookup that fails falls through to the confirmation email, which
-  // confirms nothing on its own.
-  const confirmed = await client.isConfirmedOnList(email).catch(() => false);
-  if (confirmed) {
+  const state = await client.signupState(email);
+  if (state === "suppressed") {
+    log("newsletter.subscribe", "info", "suppressed");
+    return;
+  }
+  if (state === "confirmed") {
     await client.sendTransactional({ to: email, ...deps.emails.alreadySubscribed });
     log("newsletter.subscribe", "info", "already_subscribed");
     return;
   }
-
-  // The recipient must exist as a ListMonk subscriber before /api/tx will
-  // accept the send. It stays off the list until the button is pressed.
-  await client.ensureSubscriber(email);
+  // Nothing is written to ListMonk here. A new address has no record until
+  // the confirm press creates it on the list (signupState says why), so its
+  // confirmation goes out in tx `external` mode.
   const { subject, html } = deps.emails.confirm;
   await client.sendTransactional({
     to: email,
     subject,
     html: fillToken(html, CONFIRM_TOKEN_PLACEHOLDER, mintConfirmToken(email)),
+    ...(state === "new" ? { external: true } : {}),
   });
   log("newsletter.subscribe", "info", "confirmation_sent");
 }

@@ -1,12 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import {
   confirmSubscription,
-  ensureSubscriber,
   findSubscriber,
   isConfirmedOnList,
   isListmonkUp,
   sendCampaign,
   sendTransactional,
+  signupState,
   unsubscribeFromList,
 } from "./listmonk";
 
@@ -187,6 +187,24 @@ describe("sendTransactional", () => {
   });
 });
 
+describe("sendTransactional external mode", () => {
+  it("sends to an address with no record as subscriber_mode external", async () => {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      jsonResponse({ data: true }),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+    await sendTransactional({ to: "New@Example.com", subject: "s", html: "<p/>", external: true });
+    await sendTransactional({ to: "new@example.com", subject: "s", html: "<p/>" });
+    const first = JSON.parse((fetchMock.mock.calls[0][1] as RequestInit).body as string);
+    const second = JSON.parse((fetchMock.mock.calls[1][1] as RequestInit).body as string);
+    expect(first).toMatchObject({
+      subscriber_email: "new@example.com",
+      subscriber_mode: "external",
+    });
+    expect(second.subscriber_mode).toBeUndefined();
+  });
+});
+
 describe("shared campaign transport", () => {
   it("targets only the configured project list with branded reply headers", async () => {
     process.env.LISTMONK_FROM = "A Drop of Beauty <newsletter@mail.collectionofbeauty.com>";
@@ -237,36 +255,33 @@ function body(call: FetchCall): unknown {
   return JSON.parse(call[1]?.body as string);
 }
 
-describe("ensureSubscriber", () => {
-  it("creates a missing subscriber on no list", async () => {
-    const fetchMock = vi
-      .fn(async (_input: RequestInfo | URL, _init?: RequestInit) => jsonResponse({}))
-      .mockResolvedValueOnce(jsonResponse({ data: { results: [], total: 0 } }))
-      .mockResolvedValueOnce(jsonResponse({ data: { ...subscriber, lists: [] } }));
+describe("signupState", () => {
+  function found(value: object | null) {
+    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
+      jsonResponse({ data: { results: value ? [value] : [], total: value ? 1 : 0 } }),
+    );
     vi.stubGlobal("fetch", fetchMock);
+    return fetchMock;
+  }
 
-    await ensureSubscriber("Reader@Example.com");
-
-    expect(writes(fetchMock.mock.calls)).toEqual(["POST /api/subscribers"]);
-    expect(body(fetchMock.mock.calls[1])).toMatchObject({
-      email: "reader@example.com",
-      lists: [],
-    });
-  });
-
-  it("leaves an existing subscriber's lists alone", async () => {
-    // Unsubscribed from ours: submitting the form again must not re-add it.
-    const existing = {
+  it("reads each state and writes nothing", async () => {
+    const unsubscribed = {
       ...subscriber,
       lists: [{ ...subscriber.lists[0], subscription_status: "unsubscribed" as const }],
     };
-    const fetchMock = vi.fn(async (_input: RequestInfo | URL, _init?: RequestInit) =>
-      jsonResponse({ data: { results: [existing], total: 1 } }),
-    );
-    vi.stubGlobal("fetch", fetchMock);
-
-    await expect(ensureSubscriber("reader@example.com")).resolves.toEqual(existing);
-    expect(writes(fetchMock.mock.calls)).toEqual([]);
+    const cases: Array<[object | null, string]> = [
+      [null, "new"],
+      [subscriber, "confirmed"],
+      [unsubscribed, "known"],
+      [{ ...subscriber, lists: [] }, "known"],
+      [{ ...subscriber, lists: [{ ...subscriber.lists[0], id: 99 }] }, "known"],
+      [{ ...subscriber, status: "blocklisted" }, "suppressed"],
+    ];
+    for (const [value, state] of cases) {
+      const fetchMock = found(value);
+      await expect(signupState("Reader@Example.com")).resolves.toBe(state);
+      expect(writes(fetchMock.mock.calls)).toEqual([]);
+    }
   });
 });
 
@@ -356,7 +371,7 @@ describe("consent and suppression", () => {
   ])("does not confirm or send confirmation to %s subscribers", async (status) => {
     const fetchMock = existing({ ...subscriber, status });
     await expect(isConfirmedOnList(subscriber.email)).resolves.toBe(false);
-    await expect(ensureSubscriber(subscriber.email)).rejects.toThrow(/suppressed/);
+    await expect(signupState(subscriber.email)).resolves.toBe("suppressed");
     await expect(confirmSubscription(subscriber.email, Date.now())).rejects.toThrow(/suppressed/);
     expect(writes(fetchMock.mock.calls)).toEqual([]);
   });

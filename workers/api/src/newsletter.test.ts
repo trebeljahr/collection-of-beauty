@@ -18,11 +18,19 @@ const ADDRESS = "new@example.com";
 function listmonkFake() {
   return {
     confirmSubscription: vi.fn(async (_email: string, _issuedAt?: number) => {}),
-    ensureSubscriber: vi.fn(async (email: string) => ({ id: 1, email }) as never),
+    signupState: vi.fn(
+      async (_email: string): Promise<"new" | "known" | "confirmed" | "suppressed"> => "new",
+    ),
     isConfirmedOnList: vi.fn(async (_email: string) => false),
     isListmonkUp: vi.fn(async () => true),
     sendTransactional: vi.fn(
-      async (_p: { to: string; subject: string; html: string; headers?: object }) => {},
+      async (_p: {
+        to: string;
+        subject: string;
+        html: string;
+        headers?: object;
+        external?: boolean;
+      }) => {},
     ),
     unsubscribeFromList: vi.fn(async (_email: string) => {}),
   };
@@ -116,13 +124,15 @@ describe("POST /api/newsletter/subscribe", () => {
     const res = await nl.handleSubscribe(subscribe({ email: "New@Example.com" }), h);
     expect(res.status).toBe(200);
     expect(await res.json()).toEqual({ ok: true });
-    expect(h.listmonk.isConfirmedOnList).not.toHaveBeenCalled();
+    expect(h.listmonk.signupState).not.toHaveBeenCalled();
     expect(h.listmonk.sendTransactional).not.toHaveBeenCalled();
 
     await h.settle();
-    expect(h.listmonk.ensureSubscriber).toHaveBeenCalledWith(ADDRESS);
+    expect(h.listmonk.signupState).toHaveBeenCalledWith(ADDRESS);
     const [sent] = h.listmonk.sendTransactional.mock.calls[0];
     expect(sent.to).toBe(ADDRESS);
+    // A new address has no ListMonk record: the mail goes out in external mode.
+    expect(sent.external).toBe(true);
     const link = /href="([^"]+)"/.exec(sent.html)?.[1] ?? "";
     // From the configured origin, never the request's host.
     expect(link.startsWith(`${SITE}/sub/confirm?token=`)).toBe(true);
@@ -149,24 +159,42 @@ describe("POST /api/newsletter/subscribe", () => {
     expect(h.listmonk.isListmonkUp).not.toHaveBeenCalled();
   });
 
-  it("mails a confirmed member the note, with no token and no new subscriber", async () => {
+  it("mails a confirmed member the note, with no token", async () => {
     const h = harness();
-    h.listmonk.isConfirmedOnList.mockResolvedValue(true);
+    h.listmonk.signupState.mockResolvedValue("confirmed");
     await nl.handleSubscribe(subscribe({ email: ADDRESS }), h);
     await h.settle();
-    expect(h.listmonk.ensureSubscriber).not.toHaveBeenCalled();
     expect(h.listmonk.sendTransactional).toHaveBeenCalledWith({
       to: ADDRESS,
       ...h.emails.alreadySubscribed,
     });
   });
 
+  it("mails a known, unconfirmed record the confirmation in default mode", async () => {
+    const h = harness();
+    h.listmonk.signupState.mockResolvedValue("known");
+    await nl.handleSubscribe(subscribe({ email: ADDRESS }), h);
+    await h.settle();
+    const [sent] = h.listmonk.sendTransactional.mock.calls[0];
+    expect(sent.subject).toBe(h.emails.confirm.subject);
+    expect(sent.external).toBeUndefined();
+  });
+
+  it("sends a suppressed address nothing, and answers as for any other", async () => {
+    const h = harness();
+    h.listmonk.signupState.mockResolvedValue("suppressed");
+    const res = await nl.handleSubscribe(subscribe({ email: ADDRESS }), h);
+    expect(await res.json()).toEqual({ ok: true });
+    await h.settle();
+    expect(h.listmonk.sendTransactional).not.toHaveBeenCalled();
+  });
+
   it("answers a new, a confirmed and a failing address with the same bytes", async () => {
     const answers = [];
     for (const setup of [
-      (h: Harness) => h.listmonk.isConfirmedOnList.mockResolvedValue(false),
-      (h: Harness) => h.listmonk.isConfirmedOnList.mockResolvedValue(true),
-      (h: Harness) => h.listmonk.isConfirmedOnList.mockRejectedValue(new Error("down")),
+      (h: Harness) => h.listmonk.signupState.mockResolvedValue("new"),
+      (h: Harness) => h.listmonk.signupState.mockResolvedValue("confirmed"),
+      (h: Harness) => h.listmonk.signupState.mockRejectedValue(new Error("down")),
     ]) {
       const h = harness();
       setup(h);

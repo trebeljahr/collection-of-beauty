@@ -195,10 +195,11 @@ export async function isConfirmedOnList(email: string): Promise<boolean> {
 
 // Double opt-in and list membership
 //
-// An address goes on the list only after the HMAC link in our
-// confirmation email is clicked, and then as `confirmed`. Until then it
-// exists as a subscriber with no lists, which is all `/api/tx` needs to
-// deliver the confirmation email.
+// An address goes on the list only after the confirm button is pressed,
+// and then as `confirmed`. Until then a new address has no ListMonk record
+// at all: its confirmation email goes out in tx `external` mode, and the
+// press creates the record on the list (see `signupState` for why no
+// record on no list).
 //
 // The lists are `optin: double` (since 2026-09-28), so campaigns reach
 // `confirmed` members only. That is a second guard, not the mechanism:
@@ -230,24 +231,41 @@ async function createSubscriber(email: string, listIds: number[]): Promise<Listm
 }
 
 /**
- * Make sure `email` exists as a ListMonk subscriber, without adding it
- * to any list. Call this before sending the confirmation email.
+ * Where `email` stands before the confirmation email goes out:
  *
- * An existing subscriber is returned untouched. It may belong to other
- * projects' lists, or be `unsubscribed` from ours, and submitting the
- * form again must not put it on our list before the confirm click.
+ *   · `new` — ListMonk has no record of it;
+ *   · `confirmed` — a confirmed member of the configured list;
+ *   · `suppressed` — disabled or blocklisted: send nothing;
+ *   · `known` — a record exists but is not a confirmed member here
+ *     (unsubscribed from this list, on another project's lists, or left on
+ *     no list by the flow before November 2026).
+ *
+ * Signup writes nothing. A new address gets its record only when the
+ * confirm button is pressed (`confirmSubscription` creates it on the list):
+ * Listmonk lets a project's API user change only subscribers already on one
+ * of its lists (`hasSubPerm` in cmd/subscribers.go), so a record created on
+ * no list could never be confirmed (2026-11-11, "Permission denied:
+ * subscriber: 165"). The confirmation goes out in tx `external` mode, which
+ * needs no record.
  */
-export async function ensureSubscriber(email: string): Promise<ListmonkSubscriber> {
+export async function signupState(
+  email: string,
+): Promise<"new" | "known" | "confirmed" | "suppressed"> {
   const existing = await findSubscriber(email);
-  if (existing && existing.status !== "enabled") {
-    throw new Error("Subscriber is suppressed; confirmation mail is not allowed.");
-  }
-  return existing ?? (await createSubscriber(email, []));
+  if (!existing) return "new";
+  if (existing.status !== "enabled") return "suppressed";
+  const listId = resolveListId();
+  const entry = existing.lists?.find((list) => list.id === listId);
+  return entry?.subscription_status === "confirmed" ? "confirmed" : "known";
 }
 
 /**
- * Add `email` to the configured list as `confirmed`. Only the confirm
- * route calls this after verifying the token. Suppression wins over consent.
+ * Add `email` to the configured list as `confirmed`, creating its record
+ * when it has none. Only the confirm route calls this after verifying the
+ * token. Suppression wins over consent. A record this project's lists do
+ * not hold (left on no list by the flow before November 2026, or only on
+ * another project's lists) cannot be changed by the project's API user:
+ * Listmonk answers 403 "Permission denied: subscriber".
  * An unsubscribed member needs a token issued after that unsubscribe.
  * Unknown unsubscribe dates fail closed.
  */
@@ -318,6 +336,9 @@ export type SendTransactionalParams = {
   html: string;
   /** Mail headers for this message, next to the configured Reply-To. */
   headers?: Record<string, string>;
+  /** The recipient has no ListMonk record (tx `subscriber_mode: "external"`):
+   *  a new address's confirmation email. */
+  external?: boolean;
 };
 
 /**
@@ -326,8 +347,9 @@ export type SendTransactionalParams = {
  * `LISTMONK_TX_TEMPLATE_ID` — that template should consume
  * `{{ .Tx.Data.subject }}` and `{{ .Tx.Data.body | Safe }}`.
  *
- * The recipient must already exist as a subscriber. Call
- * `ensureSubscriber` before sending the confirmation email.
+ * The recipient must already exist as a subscriber, unless `external`
+ * (ListMonk v5+ `subscriber_mode`), which the confirmation email to a new
+ * address uses: see `signupState`.
  */
 export async function sendTransactional(params: SendTransactionalParams): Promise<void> {
   const templateId = Number(required("LISTMONK_TX_TEMPLATE_ID"));
@@ -336,6 +358,7 @@ export async function sendTransactional(params: SendTransactionalParams): Promis
     method: "POST",
     body: JSON.stringify({
       subscriber_email: params.to.toLowerCase(),
+      ...(params.external ? { subscriber_mode: "external" } : {}),
       template_id: templateId,
       from_email: resolveFromAddress(),
       ...(headers.length > 0 ? { headers } : {}),
