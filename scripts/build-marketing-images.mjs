@@ -16,7 +16,10 @@
 //   public/marketing/collection-of-beauty-*.jpg   press kit images, each
 //                                                  with a *-large.jpg twin
 //   public/marketing/credits.txt                   works shown, per image
-//   src/app/opengraph-image.png (+ .alt.txt)       site-wide link preview
+//   src/app/opengraph-image.alt.txt                alt text of the site-wide
+//                                                  link preview (the image is
+//                                                  build-social-preview.mjs's
+//                                                  og-wordmark card, same works)
 //   src/data/press-images.json                     manifest read by /press
 //
 // Run:
@@ -43,7 +46,7 @@ const FALLBACK_ASSETS = "/Users/rico/projects/collection-of-beauty/assets-web";
 const ASSETS_WEB = existsSync(LOCAL_ASSETS) ? LOCAL_ASSETS : FALLBACK_ASSETS;
 
 const OUT_DIR = path.join(ROOT, "public", "marketing");
-const OUT_OG = path.join(ROOT, "src", "app", "opengraph-image.png");
+const OUT_OG_ALT = path.join(ROOT, "src", "app", "opengraph-image.alt.txt");
 const OUT_MANIFEST = path.join(ROOT, "src", "data", "press-images.json");
 export const SITE_URL = "collectionofbeauty.com";
 const FILE_PREFIX = "collection-of-beauty";
@@ -219,7 +222,7 @@ export const FORMATS = [
     rows: [2, 3],
     wall: { x: 0, y: 0, w: 0.62, h: 1 },
     text: { x: 0.62, y: 0, w: 0.38, h: 1, size: 1.3, compact: true },
-    alsoWrite: OUT_OG,
+    altFile: OUT_OG_ALT,
   },
 ];
 
@@ -731,17 +734,12 @@ async function main() {
     const largeFile = `${FILE_PREFIX}-${format.slug}-large.jpg`;
     const largePath = path.join(OUT_DIR, largeFile);
     await writeJpeg(large.png, largePath);
-    if (format.alsoWrite) {
-      await sharp(png).png({ compressionLevel: 9, palette: false }).toFile(format.alsoWrite);
-    }
     const artists = [...new Set(works.map((id) => byId.get(id).artist).filter(Boolean))].slice(
       0,
       4,
     );
     const alt = `${format.text ? `${copy.title}: ` : ""}${works.length} public-domain works shown whole on a ${format.theme} wall, including works by ${artists.slice(0, -1).join(", ")} and ${artists.at(-1)}.`;
-    if (format.alsoWrite) {
-      await writeFile(format.alsoWrite.replace(/\.png$/, ".alt.txt"), alt);
-    }
+    if (format.altFile) await writeFile(format.altFile, alt);
     images.push({
       slug: format.slug,
       label: format.label,

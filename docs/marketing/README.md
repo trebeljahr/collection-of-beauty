@@ -39,7 +39,7 @@ on a plain wall, in justified rows, in each format. Every file has a
 | `collection-of-beauty-4x5.jpg` | 1080 × 1350 | Instagram feed post. |
 | `collection-of-beauty-9x16-dark.jpg` | 1080 × 1920 | Story. |
 | `collection-of-beauty-3x1.jpg` | 1500 × 500 | X or LinkedIn header, newsletter banner. |
-| `collection-of-beauty-og.jpg` | 1200 × 630 | Link preview. The site ships the same image as `src/app/opengraph-image.png`. |
+| `collection-of-beauty-og.jpg` | 1200 × 630 | Link preview design. The site ships this card without the URL line as `src/app/opengraph-image.jpg`: `social-preview/og-wordmark.png` as JPEG, written by `pnpm marketing:social-preview`. |
 
 The two 16:9 images with a stats line say "250+ artists", the count when
 they were rendered. The catalogue has 312 artists today, so the next

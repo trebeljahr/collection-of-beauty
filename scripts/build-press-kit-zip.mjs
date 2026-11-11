@@ -30,8 +30,7 @@ const OUT_ZIP = path.join(ROOT, "public", "press-kit.zip");
 const MAX_ZIP_BYTES = 200 * 1024 * 1024;
 
 const OG_CANDIDATES = [
-  { source: path.join(ROOT, "src", "app", "opengraph-image.png"), zipPath: "opengraph-image.png" },
-  { source: path.join(ROOT, "public", "opengraph-image.png"), zipPath: "opengraph-image.png" },
+  { source: path.join(ROOT, "src", "app", "opengraph-image.jpg"), zipPath: "opengraph-image.jpg" },
 ];
 
 const WORDMARK_CANDIDATES = [

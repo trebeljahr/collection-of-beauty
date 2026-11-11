@@ -148,9 +148,9 @@ export function absoluteUrl(path: string): string {
 // ────────────────────────────────────────────────────────────────────────────
 
 /**
- * The site-wide OG image, served by the `src/app/opengraph-image.png` file
- * convention at `/opengraph-image.png` (1200×630 mosaic composited by
- * scripts/build-marketing-images.mjs).
+ * The site-wide OG image, served by the `src/app/opengraph-image.jpg` file
+ * convention at `/opengraph-image.jpg` (the 1200×630 og-wordmark card of
+ * scripts/build-social-preview.mjs: works hung whole beside the title).
  *
  * A frame from the museum itself would be the stronger share card — it is
  * the one thing about this site a thumbnail can show that no other
@@ -161,10 +161,11 @@ export function absoluteUrl(path: string): string {
  * is a description of the image, and this image is not a museum.
  */
 const SITE_OG_IMAGE = {
-  url: absoluteUrl("/opengraph-image.png"),
+  url: absoluteUrl("/opengraph-image.jpg"),
+  type: "image/jpeg",
   width: 1200,
   height: 630,
-  alt: `${SITE_NAME} — a mosaic of six public-domain paintings beside the wordmark`,
+  alt: `${SITE_NAME}: five public-domain works hung whole on a light wall beside the title`,
 };
 
 /**

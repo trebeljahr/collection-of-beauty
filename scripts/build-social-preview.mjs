@@ -25,6 +25,7 @@
 // Outputs:
 //   docs/marketing/social-preview/social-preview-{a,b,c,d}.png
 //   docs/marketing/social-preview/og-{wordmark,clean}.png
+//   src/app/opengraph-image.jpg   og-wordmark.png as JPEG, the site's link preview
 //   docs/marketing/social-preview/credits.txt   works shown, per card
 //   <dir>/review-sheet.jpg and the four PNGs, with --review <dir>
 //
@@ -125,6 +126,19 @@ async function renderOgCards({ byId, pool, copy }) {
   const noUrl = { ...og, text: { ...og.text, url: false } };
   const wordmark = await composeFormat(noUrl, ogLayout, copy, largeScaleFor(og));
   toOgSize(wordmark.png, path.join(DIR, "og-wordmark.png"));
+  // The site's link preview (src/app/opengraph-image.jpg, Next's file
+  // convention) is this card as JPEG: quality 88, 4:4:4, progressive, no metadata.
+  execFileSync("magick", [
+    path.join(DIR, "og-wordmark.png"),
+    "-strip",
+    "-interlace",
+    "Plane",
+    "-sampling-factor",
+    "4:4:4",
+    "-quality",
+    "88",
+    path.join(ROOT, "src", "app", "opengraph-image.jpg"),
+  ]);
   const format = { width: 1200, height: 630, theme: "light", wall: { x: 0, y: 0, w: 1, h: 1 } };
   const { wallArea, gap } = wallAreaFor(format);
   const rows = OG_CLEAN_ROWS.map((ids) =>

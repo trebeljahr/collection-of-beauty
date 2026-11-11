@@ -84,9 +84,9 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: `${SITE_NAME} — ${SITE_TAGLINE}`,
     description: SITE_DESCRIPTION,
-    // Image comes from src/app/opengraph-image.png (file convention),
-    // a 1200x630 PNG composited by scripts/build-marketing-images.mjs
-    // (works hung whole beside the title). Alt text in opengraph-image.alt.txt.
+    // Image comes from src/app/opengraph-image.jpg (file convention): the
+    // og-wordmark card of scripts/build-social-preview.mjs as JPEG (works hung
+    // whole beside the title). Alt text in opengraph-image.alt.txt.
   },
   twitter: {
     card: "summary_large_image",
