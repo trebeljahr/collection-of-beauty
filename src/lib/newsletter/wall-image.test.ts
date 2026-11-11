@@ -61,4 +61,31 @@ describe("renderWallJpeg", () => {
     );
     await expect(renderWallJpeg(testWall(WALL_COLOURS.green.base))).rejects.toThrow(/404/);
   });
+
+  it("retries a timeout or a 5xx, but not a missing image", async () => {
+    const { fetchImage } = await import("./wall-image");
+    const wait = async () => {};
+    let calls = 0;
+    const flaky = async () => {
+      calls++;
+      if (calls === 1)
+        throw new DOMException("The operation was aborted due to timeout", "TimeoutError");
+      if (calls === 2) return new Response("busy", { status: 503 });
+      return new Response(new Uint8Array([1, 2, 3]));
+    };
+    expect([
+      ...(await fetchImage("https://cdn.test/a.jpg", { request: flaky as typeof fetch, wait })),
+    ]).toEqual([1, 2, 3]);
+    expect(calls).toBe(3);
+
+    let missing = 0;
+    const gone = async () => {
+      missing++;
+      return new Response("no", { status: 404 });
+    };
+    await expect(
+      fetchImage("https://cdn.test/b.jpg", { request: gone as typeof fetch, wait }),
+    ).rejects.toThrow(/404/);
+    expect(missing).toBe(1);
+  });
 });
