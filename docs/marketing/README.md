@@ -114,7 +114,7 @@ Made by the same script, `pnpm marketing:social-preview`, on 11 November
 
 | File | Shows |
 | --- | --- |
-| `social-preview/og-wordmark.png` | The link-preview card `public/marketing/collection-of-beauty-og-large.jpg`, downscaled from 2400 × 1260. |
+| `social-preview/og-wordmark.png` | The link-preview card `public/marketing/collection-of-beauty-og-large.jpg` without the URL and its rule: same works and title block, drawn at 2400 × 1260 and downscaled. |
 | `social-preview/og-clean.png` | No text: that card's wall widened to the full card. Its five works keep their places; Hokusai's wave and Seurat's Grande Jatte continue the two rows. Drawn at 2× and downscaled. |
 
 ## Live GitHub social preview

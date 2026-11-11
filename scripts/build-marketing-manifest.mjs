@@ -112,7 +112,7 @@ async function main() {
         source:
           card.id === "og-clean"
             ? "Whole public-domain works on the press images' wall; works named in docs/marketing/social-preview/credits.txt"
-            : "public/marketing/collection-of-beauty-og-large.jpg, made by scripts/build-marketing-images.mjs",
+            : "the og format of scripts/build-marketing-images.mjs (as public/marketing/collection-of-beauty-og-large.jpg), drawn without the URL",
       }),
     );
   }

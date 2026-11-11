@@ -10,9 +10,10 @@
 // 256-colour PNG.
 //
 // It also writes two og:image cards, 1200 x 630:
-//   og-wordmark.png  the site's link-preview card,
-//     public/marketing/collection-of-beauty-og-large.jpg (made by
-//     build-marketing-images.mjs), downscaled from 2400 x 1260
+//   og-wordmark.png  the site's link-preview card (the "og" format of
+//     build-marketing-images.mjs: same works, places and title block as
+//     public/marketing/collection-of-beauty-og-large.jpg) without the URL
+//     and its rule, drawn at the large file's scale and downscaled
 //   og-clean.png  that card's design with the title panel gone and the wall
 //     widened to the full card. The five works of the link-preview card keep
 //     their places on the left (Caravaggio and Botticelli's Venus above;
@@ -40,11 +41,14 @@ import sharp from "sharp";
 import {
   composeFormat,
   displayTitle,
+  FORMATS,
+  largeScaleFor,
   layoutRows,
   loadCatalogue,
   renderFormat,
   SITE_URL,
   SOCIAL_PREVIEW_FORMATS,
+  searchLayout,
   wallAreaFor,
 } from "./build-marketing-images.mjs";
 
@@ -68,7 +72,7 @@ const REVIEW_DIR = arg("--review");
 export const OG_CARDS = [
   {
     id: "og-wordmark",
-    what: "The link-preview card (public/marketing/collection-of-beauty-og-large.jpg), downscaled.",
+    what: "The link-preview card (public/marketing/collection-of-beauty-og-large.jpg) without the URL and its rule.",
   },
   {
     id: "og-clean",
@@ -112,11 +116,15 @@ function toOgSize(input, out) {
   }
 }
 
-async function renderOgCards({ byId, copy }) {
-  toOgSize(
-    path.join(ROOT, "public", "marketing", "collection-of-beauty-og-large.jpg"),
-    path.join(DIR, "og-wordmark.png"),
-  );
+async function renderOgCards({ byId, pool, copy }) {
+  // The link-preview format's own (seeded) layout, so the works match the
+  // live card; only the text block changes.
+  const og = FORMATS.find((f) => f.slug === "og");
+  const ogArea = wallAreaFor(og);
+  const ogLayout = searchLayout(pool, og, ogArea.wallArea, ogArea.gap);
+  const noUrl = { ...og, text: { ...og.text, url: false } };
+  const wordmark = await composeFormat(noUrl, ogLayout, copy, largeScaleFor(og));
+  toOgSize(wordmark.png, path.join(DIR, "og-wordmark.png"));
   const format = { width: 1200, height: 630, theme: "light", wall: { x: 0, y: 0, w: 1, h: 1 } };
   const { wallArea, gap } = wallAreaFor(format);
   const rows = OG_CLEAN_ROWS.map((ids) =>

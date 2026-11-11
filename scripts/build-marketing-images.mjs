@@ -89,6 +89,10 @@ const POOL = [
 // 7680: an 8K JPEG of 20 paintings is ~10 MB for no screen anyone owns.
 const LARGE_SCALE = 2;
 const LARGE_MAX_SIDE = 5120;
+/** The scale of a format's -large file. */
+export function largeScaleFor(format) {
+  return Math.min(LARGE_SCALE, LARGE_MAX_SIDE / Math.max(format.width, format.height));
+}
 
 const THEMES = {
   light: {
@@ -110,7 +114,7 @@ const THEMES = {
 // Each format names its purpose, because that is what a reader picks by.
 // `wall` is the area the works hang in and `text` the title block, both as
 // fractions of the canvas. `rows` bounds the layout search.
-const FORMATS = [
+export const FORMATS = [
   {
     slug: "16x9",
     label: "Landscape 16:9",
@@ -501,7 +505,9 @@ async function textBlock(markup, { font, width, align = "left", spacing = 0 }) {
 }
 
 /**
- * Title block: title, lede, body, then a rule with stats and URL. Sizes
+ * Title block: title, lede, body, then a rule with stats and URL
+ * (`text.url: false` leaves the URL out, and the rule too when no stats
+ * follow it; the shorter stack is centred the same way). Sizes
  * start from the canvas's short side times the format's `size` factor and
  * shrink until the title keeps to its line budget and the whole stack fits
  * the box, so one set of proportions serves every format.
@@ -562,23 +568,23 @@ async function stackText(format, copy, theme, unit) {
         width: innerW,
         align,
       });
-  const url = await textBlock(
-    `<span foreground="${theme.accent}">${escapeMarkup(copy.url)}</span>`,
-    {
-      font: metaFont,
-      width: innerW,
-      align,
-    },
-  );
+  const url =
+    t.url === false
+      ? null
+      : await textBlock(`<span foreground="${theme.accent}">${escapeMarkup(copy.url)}</span>`, {
+          font: metaFont,
+          width: innerW,
+          align,
+        });
 
   const ruleThickness = Math.max(1, Math.round(2 * unit));
   const steps = [
     { img: title, gap: 0 },
     { img: lede, gap: 30 * unit },
     ...(body ? [{ img: body, gap: 22 * unit }] : []),
-    { rule: true, gap: 44 * unit },
+    ...(stats || url ? [{ rule: true, gap: 44 * unit }] : []),
     ...(stats ? [{ img: stats, gap: 24 * unit }] : []),
-    { img: url, gap: stats ? 10 * unit : 24 * unit },
+    ...(url ? [{ img: url, gap: stats ? 10 * unit : 24 * unit }] : []),
   ];
   const stackH = steps.reduce((s, st) => s + st.gap + (st.rule ? ruleThickness : st.img.height), 0);
   if (stackH > box.h * 0.86) return null;
@@ -721,11 +727,7 @@ async function main() {
     const outPath = path.join(OUT_DIR, file);
     await writeJpeg(png, outPath);
 
-    const largeScale = Math.min(
-      LARGE_SCALE,
-      LARGE_MAX_SIDE / Math.max(format.width, format.height),
-    );
-    const large = await composeFormat(format, layout, copy, largeScale);
+    const large = await composeFormat(format, layout, copy, largeScaleFor(format));
     const largeFile = `${FILE_PREFIX}-${format.slug}-large.jpg`;
     const largePath = path.join(OUT_DIR, largeFile);
     await writeJpeg(large.png, largePath);

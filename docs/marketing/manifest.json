@@ -493,12 +493,12 @@
       "path": "docs/marketing/social-preview/og-wordmark.png",
       "width": 1200,
       "height": 630,
-      "bytes": 813371,
-      "sha256": "74b2840424f388722d718044461f2dfc3f99cc27ba86d189156d79e1006481c1",
+      "bytes": 829546,
+      "sha256": "bd2793bde99bfdb88d0ee0179273389fab304edebdf262744fd6b05ee76c3a92",
       "kind": "og-image",
-      "purpose": "og:image card: The link-preview card (public/marketing/collection-of-beauty-og-large.jpg), downscaled.",
+      "purpose": "og:image card: The link-preview card (public/marketing/collection-of-beauty-og-large.jpg) without the URL and its rule.",
       "madeBy": "scripts/build-social-preview.mjs (pnpm marketing:social-preview)",
-      "source": "public/marketing/collection-of-beauty-og-large.jpg, made by scripts/build-marketing-images.mjs"
+      "source": "the og format of scripts/build-marketing-images.mjs (as public/marketing/collection-of-beauty-og-large.jpg), drawn without the URL"
     },
     {
       "path": "docs/marketing/social-preview/og-clean.png",
