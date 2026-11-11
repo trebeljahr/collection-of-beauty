@@ -61,7 +61,20 @@ function listVersions(worker) {
 }
 
 function currentDeployment(worker) {
-  return JSON.parse(wrangler(["deployments", "status", "--json", "-c", worker.config]));
+  try {
+    return JSON.parse(
+      execFileSync("npx", [...WRANGLER, "deployments", "status", "--json", "-c", worker.config], {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "pipe"],
+      }),
+    );
+  } catch (error) {
+    // A Worker that was never deployed (the first activation at the
+    // cutover) has nothing to roll back to.
+    if (String(error?.stderr ?? "").includes("has no deployments")) return null;
+    if (error?.stderr) process.stderr.write(error.stderr);
+    throw error;
+  }
 }
 
 function activate(worker, versionId, message) {
