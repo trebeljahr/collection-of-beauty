@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { SlideshowView, type SlideshowViewProps } from "@/components/slideshow/slideshow-view";
 import { getColorBucket } from "@/lib/color-buckets.mjs";
 import { getEra } from "@/lib/gallery-eras";
@@ -44,6 +44,13 @@ function labelOf(scope: Scope, labels: ScopeLabels): string {
   return getEra(scope.id).title;
 }
 
+/** The query less `start`: what names the selection, not where in it. */
+function scopeQueryOf(params: URLSearchParams): string {
+  const query = new URLSearchParams(params);
+  query.delete("start");
+  return query.toString();
+}
+
 type State =
   | { status: "loading" }
   | { status: "missing" }
@@ -57,21 +64,32 @@ type State =
  */
 export function PlayClient({ labels }: { labels: ScopeLabels }) {
   const params = useSearchParams();
-  const search = params.toString();
+  // The show writes `start` itself on every advance, so a reload resumes
+  // there, and Next hands that replaceState back through useSearchParams.
+  // Keyed and loaded on the whole query, each advance remounted the show
+  // from its old props, on the work it had just left: it never got past
+  // its second work. So only the scope part restarts it, and `start` is
+  // read once, when the scope loads.
+  const scopeQuery = scopeQueryOf(new URLSearchParams(params.toString()));
+  const startRef = useRef(params.get("start"));
+  startRef.current = params.get("start");
   const [state, setState] = useState<State>({ status: "loading" });
 
   useEffect(() => {
-    const query = new URLSearchParams(search);
+    const query = new URLSearchParams(scopeQuery);
     const scope = readScope(query);
     if (!scope) {
       setState({ status: "missing" });
       return;
     }
+    // A new scope must not mount under the old one's props: the view's
+    // reducer reads them once.
+    setState({ status: "loading" });
     const controller = new AbortController();
     (async () => {
       const ids = await fetchScopeIds(scope, controller.signal);
       if (ids.length === 0) return setState({ status: "missing" });
-      const startId = parseStartParam(query.get("start"));
+      const startId = parseStartParam(startRef.current);
       const found = startId ? ids.indexOf(startId) : -1;
       const startIndex = found < 0 ? 0 : found;
       // Aligned to the client deck's pages, so the first page the deck
@@ -101,9 +119,9 @@ export function PlayClient({ labels }: { labels: ScopeLabels }) {
       if (!controller.signal.aborted) setState({ status: "missing" });
     });
     return () => controller.abort();
-  }, [search, labels]);
+  }, [scopeQuery, labels]);
 
-  if (state.status === "ready") return <SlideshowView key={search} {...state.props} />;
+  if (state.status === "ready") return <SlideshowView key={scopeQuery} {...state.props} />;
   if (state.status === "missing") {
     return (
       <div className="mx-auto max-w-xl px-4 py-24 text-center">
