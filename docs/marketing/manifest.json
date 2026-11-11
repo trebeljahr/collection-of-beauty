@@ -488,6 +488,28 @@
       "purpose": "GitHub social preview, option D: Light. Title on the left, works on the right, as in the 3:1 banner.",
       "madeBy": "scripts/build-social-preview.mjs (pnpm marketing:social-preview)",
       "source": "The press images' design at 2:1 (SOCIAL_PREVIEW_FORMATS in scripts/build-marketing-images.mjs); works named in docs/marketing/social-preview/credits.txt"
+    },
+    {
+      "path": "docs/marketing/social-preview/og-wordmark.png",
+      "width": 1200,
+      "height": 630,
+      "bytes": 813371,
+      "sha256": "74b2840424f388722d718044461f2dfc3f99cc27ba86d189156d79e1006481c1",
+      "kind": "og-image",
+      "purpose": "og:image card: The link-preview card (public/marketing/collection-of-beauty-og-large.jpg), downscaled.",
+      "madeBy": "scripts/build-social-preview.mjs (pnpm marketing:social-preview)",
+      "source": "public/marketing/collection-of-beauty-og-large.jpg, made by scripts/build-marketing-images.mjs"
+    },
+    {
+      "path": "docs/marketing/social-preview/og-clean.png",
+      "width": 1200,
+      "height": 630,
+      "bytes": 1269564,
+      "sha256": "da085cdeb0266e4b12fff2b0c358bb63f8b4d74596c8b950c5079688232f7234",
+      "kind": "og-image",
+      "purpose": "og:image card: Works only, no text: the link-preview card's wall widened to the full card.",
+      "madeBy": "scripts/build-social-preview.mjs (pnpm marketing:social-preview)",
+      "source": "Whole public-domain works on the press images' wall; works named in docs/marketing/social-preview/credits.txt"
     }
   ]
 }

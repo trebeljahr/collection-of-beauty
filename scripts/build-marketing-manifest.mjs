@@ -9,6 +9,7 @@
 //                                     build-press-kit-zip.mjs)
 //   docs/marketing/screenshots/       screenshots of the 2D site
 //   docs/marketing/social-preview/    the GitHub social preview card options
+//                                     and the og:image cards
 //
 // Run after any of the marketing scripts:
 //   pnpm marketing:manifest
@@ -18,7 +19,7 @@ import { readdir, readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import sharp from "sharp";
-import { VARIANTS } from "./build-social-preview.mjs";
+import { OG_CARDS, VARIANTS } from "./build-social-preview.mjs";
 import { SHOTS } from "./capture-site-screenshots.mjs";
 
 const ROOT = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
@@ -98,6 +99,20 @@ async function main() {
         madeBy: "scripts/build-social-preview.mjs (pnpm marketing:social-preview)",
         source:
           "The press images' design at 2:1 (SOCIAL_PREVIEW_FORMATS in scripts/build-marketing-images.mjs); works named in docs/marketing/social-preview/credits.txt",
+      }),
+    );
+  }
+
+  for (const card of OG_CARDS) {
+    files.push(
+      await describe(`docs/marketing/social-preview/${card.id}.png`, {
+        kind: "og-image",
+        purpose: `og:image card: ${card.what}`,
+        madeBy: "scripts/build-social-preview.mjs (pnpm marketing:social-preview)",
+        source:
+          card.id === "og-clean"
+            ? "Whole public-domain works on the press images' wall; works named in docs/marketing/social-preview/credits.txt"
+            : "public/marketing/collection-of-beauty-og-large.jpg, made by scripts/build-marketing-images.mjs",
       }),
     );
   }

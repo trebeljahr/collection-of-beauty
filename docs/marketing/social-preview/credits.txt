@@ -1,4 +1,4 @@
-Collection of Beauty GitHub social preview cards
+Collection of Beauty GitHub social preview and og:image cards
 
 Every work shown is in the public domain and appears whole, without cropping.
 The works in each card, top row first, left to right:
@@ -32,3 +32,12 @@ social-preview-d.png (1280 x 640)
   Johannes Vermeer, Girl with a Pearl Earring, 1665. https://collectionofbeauty.com/artwork/collection-of-beauty-1665-girl-with-a-pearl-earring
   Georges Seurat, A Sunday on La Grande Jatte, 1884. https://collectionofbeauty.com/artwork/collection-of-beauty-a-sunday-on-la-grande-jatte-georges-seurat-1884
   Caravaggio, Boy with a Basket of Fruit, 1593. https://collectionofbeauty.com/artwork/collection-of-beauty-boy-with-a-basket-of-fruit-caravaggio-1593
+
+og-clean.png (1200 x 630)
+  Caravaggio, Boy with a Basket of Fruit, 1593. https://collectionofbeauty.com/artwork/collection-of-beauty-boy-with-a-basket-of-fruit-caravaggio-1593
+  Sandro Botticelli, The Birth of Venus, 1485. https://collectionofbeauty.com/artwork/collection-of-beauty-sandro-botticelli-la-nascita-di-venere-google-art-project-edited
+  Katsushika Hokusai, The Great Wave off Kanagawa, 1830. https://collectionofbeauty.com/artwork/collection-of-beauty-tsunami-by-hokusai-19th-century
+  Johannes Vermeer, Girl with a Pearl Earring, 1665. https://collectionofbeauty.com/artwork/collection-of-beauty-1665-girl-with-a-pearl-earring
+  Ernst Haeckel, Actiniae, 1904. https://collectionofbeauty.com/artwork/kunstformen-images-haeckel-actiniae
+  Claude Monet, Bouquet of Sunflowers, 1881. https://collectionofbeauty.com/artwork/collection-of-beauty-claude-monet-052
+  Georges Seurat, A Sunday on La Grande Jatte, 1884. https://collectionofbeauty.com/artwork/collection-of-beauty-a-sunday-on-la-grande-jatte-georges-seurat-1884

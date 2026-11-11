@@ -16,7 +16,7 @@ in them are in the public domain.
 | --- | --- | --- |
 | [`public/marketing/`](../../public/marketing/) | Press images and museum screenshots. The site serves them at `/marketing/<file>`, and `/press-kit.zip` holds them all. | `pnpm marketing:images`, `pnpm marketing:screenshots` |
 | [`screenshots/`](screenshots/) | Screenshots of the 2D site, for the README. | `pnpm marketing:site-screenshots` |
-| [`social-preview/`](social-preview/) | The GitHub social preview card, four options, and the works each shows. | `pnpm marketing:social-preview` |
+| [`social-preview/`](social-preview/) | The GitHub social preview card, four options, the og:image cards, and the works each shows. | `pnpm marketing:social-preview` |
 
 `public/marketing/` belongs to its two scripts: `pnpm marketing:images`
 deletes every file in it except the museum screenshots before it writes the
@@ -105,6 +105,17 @@ render them and `/press` does not list them. GitHub takes the card under
 Settings → General → Social preview; it has no API for it.
 `--review <folder>` also writes the four PNGs and a `review-sheet.jpg` of
 all four to that folder.
+
+## og:image cards
+
+Made by the same script, `pnpm marketing:social-preview`, on 11 November
+2026. 1200 × 630 PNG, the og:image size. The downscale needs ImageMagick
+(`magick`).
+
+| File | Shows |
+| --- | --- |
+| `social-preview/og-wordmark.png` | The link-preview card `public/marketing/collection-of-beauty-og-large.jpg`, downscaled from 2400 × 1260. |
+| `social-preview/og-clean.png` | No text: that card's wall widened to the full card. Its five works keep their places; Hokusai's wave and Seurat's Grande Jatte continue the two rows. Drawn at 2× and downscaled. |
 
 ## Live GitHub social preview
 

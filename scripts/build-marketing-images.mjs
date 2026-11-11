@@ -348,7 +348,7 @@ function partitionRows(items, k, width, gap, targetRowH) {
 }
 
 /** Place justified rows inside `area`. Returns rectangles plus a score. */
-function layoutRows(rows, area, gap) {
+export function layoutRows(rows, area, gap) {
   const heights = rows.map(
     (row) => (area.w - (row.length - 1) * gap) / row.reduce((s, it) => s + it.aspect, 0),
   );
@@ -632,7 +632,7 @@ export function wallAreaFor(format) {
  * scaled here, so the large file shows the same works in the same places
  * as the regular one instead of whatever a second search would pick.
  */
-async function composeFormat(format, layout, copy, scale) {
+export async function composeFormat(format, layout, copy, scale) {
   const W = Math.round(format.width * scale);
   const H = Math.round(format.height * scale);
   const theme = THEMES[format.theme];
