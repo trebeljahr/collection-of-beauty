@@ -25,7 +25,10 @@
   "preview_urls": false,
   "vars": {
     "SITE_URL": "https://collectionofbeauty.com",
-    "ASSETS_BASE_URL": "https://assets.collectionofbeauty.com"
+    "ASSETS_BASE_URL": "https://assets.collectionofbeauty.com",
+    // `hatchkit listmonk broker`: lets someone already on another project's
+    // list confirm here (our own add answers 403 for them).
+    "LISTMONK_CONFIRM_BROKER_URL": "https://listmonk-broker.trebeljahr.com"
   },
   // Five subscribe posts per minute per client IP.
   "ratelimits": [
