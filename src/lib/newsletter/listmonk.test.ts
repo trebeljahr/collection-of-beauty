@@ -305,6 +305,33 @@ describe("confirmSubscription", () => {
     });
   });
 
+  it("asks the confirm broker when the subscriber is on another project's list", async () => {
+    const onOther = { ...subscriber, lists: [{ id: 21, subscription_status: "confirmed" }] };
+    const fetchMock = vi
+      .fn(async (_input: RequestInfo | URL, _init?: RequestInit) => jsonResponse({ ok: true }))
+      .mockResolvedValueOnce(jsonResponse({ data: { results: [onOther], total: 1 } }))
+      .mockResolvedValueOnce(jsonResponse({ message: "Permission denied: subscriber: 42" }, 403));
+    vi.stubGlobal("fetch", fetchMock);
+
+    // No broker: the 403 is the answer.
+    delete process.env.LISTMONK_CONFIRM_BROKER_URL;
+    await expect(confirmSubscription("reader@example.com")).rejects.toThrow(/403/);
+
+    fetchMock
+      .mockResolvedValueOnce(jsonResponse({ data: { results: [onOther], total: 1 } }))
+      .mockResolvedValueOnce(jsonResponse({ message: "Permission denied: subscriber: 42" }, 403));
+    process.env.LISTMONK_CONFIRM_BROKER_URL = "https://broker.test/";
+    try {
+      await confirmSubscription("reader@example.com");
+    } finally {
+      delete process.env.LISTMONK_CONFIRM_BROKER_URL;
+    }
+    const [url, init] = fetchMock.mock.calls[4] as unknown as [string, RequestInit];
+    expect(url).toBe("https://broker.test/confirm");
+    expect((init.headers as Record<string, string>).Authorization).toBe("token api-user:api-token");
+    expect(JSON.parse(String(init.body))).toEqual({ email: "reader@example.com", list_id: 4 });
+  });
+
   it("recreates a missing subscriber on the list, preconfirmed", async () => {
     const fetchMock = vi
       .fn(async (_input: RequestInfo | URL, _init?: RequestInit) => jsonResponse({}))

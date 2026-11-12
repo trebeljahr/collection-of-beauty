@@ -265,7 +265,9 @@ export async function signupState(
  * token. Suppression wins over consent. A record this project's lists do
  * not hold (left on no list by the flow before November 2026, or only on
  * another project's lists) cannot be changed by the project's API user:
- * Listmonk answers 403 "Permission denied: subscriber".
+ * Listmonk answers 403 "Permission denied: subscriber". For one on another
+ * project's list, `confirmThroughBroker` adds this list instead when
+ * LISTMONK_CONFIRM_BROKER_URL is set.
  * An unsubscribed member needs a token issued after that unsubscribe.
  * Unknown unsubscribe dates fail closed.
  */
@@ -290,15 +292,46 @@ export async function confirmSubscription(email: string, tokenIssuedAt?: number)
       throw new Error("Confirmation predates unsubscribe or consent timing is unknown.");
     }
   }
-  await listmonkFetch("/api/subscribers/lists", {
-    method: "PUT",
-    body: JSON.stringify({
-      ids: [existing.id],
-      action: "add",
-      target_list_ids: [listId],
-      status: "confirmed",
-    }),
+  try {
+    await listmonkFetch("/api/subscribers/lists", {
+      method: "PUT",
+      body: JSON.stringify({
+        ids: [existing.id],
+        action: "add",
+        target_list_ids: [listId],
+        status: "confirmed",
+      }),
+    });
+  } catch (err) {
+    const broker = process.env.LISTMONK_CONFIRM_BROKER_URL;
+    const denied = /: 403 .*Permission denied: subscriber/.test((err as Error).message);
+    if (!broker || !denied) throw err;
+    await confirmThroughBroker(broker, email, listId);
+  }
+}
+
+/**
+ * One email is one ListMonk subscriber across every project on the
+ * instance, and this project's API user may change only subscribers already
+ * on one of its lists. For a person on another project's list (say
+ * Mesozoic Protocol's), the confirm broker (`hatchkit listmonk broker`)
+ * checks with this project's own credential that the list is ours and adds
+ * it, as `confirmed`; nothing else.
+ */
+async function confirmThroughBroker(
+  brokerUrl: string,
+  email: string,
+  listId: number,
+): Promise<void> {
+  const res = await fetch(`${brokerUrl.replace(/\/$/, "")}/confirm`, {
+    method: "POST",
+    headers: { Authorization: authHeader(), "Content-Type": "application/json" },
+    body: JSON.stringify({ email: email.toLowerCase(), list_id: listId }),
+    cache: "no-store",
   });
+  if (!res.ok) {
+    throw new Error(`listmonk confirm broker: ${res.status} ${(await res.text()).slice(0, 200)}`);
+  }
 }
 
 /**
