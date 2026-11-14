@@ -37,9 +37,6 @@
     "tokenId": "a3b9d58e512e903f4fa0fba28efb4c7a",
     "accountId": "236db6b7957ea3079844334856fc162e"
   },
-  "localDev": {
-    "slug": "collection-of-beauty"
-  },
   "email": {
     "transactional": "none",
     "mailingList": "none"

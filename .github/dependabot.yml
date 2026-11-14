@@ -35,8 +35,6 @@ updates:
         update-types: ["version-update:semver-minor"]
       - dependency-name: "class-variance-authority"
         update-types: ["version-update:semver-minor"]
-      - dependency-name: "@hatchkit/dev-plugin-next"
-        update-types: ["version-update:semver-minor"]
       # Biome minors change its config schema and rules; they need
       # `biome migrate` and a lint pass by a person.
       - dependency-name: "@biomejs/biome"

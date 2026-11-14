@@ -1,4 +1,3 @@
-import { withLocalDev } from "@hatchkit/dev-plugin-next";
 import bundleAnalyzer from "@next/bundle-analyzer";
 import { pressKitRedirects } from "./scripts/press-kit-download.mjs";
 import { FIXED_REDIRECTS, SECURITY_HEADERS, toNextRedirects } from "./scripts/static-routing.mjs";
@@ -47,8 +46,6 @@ const nextConfig = {
           "192.168.1.119",
           "192.168.1.*",
           "*.local",
-          "*.local.ricoslabs.com",
-          "collection-of-beauty.local.ricoslabs.com",
         ],
         async rewrites() {
           return [
@@ -70,5 +67,4 @@ const nextConfig = {
     : {}),
 };
 
-const __hatchkitLocalDevConfig = withBundleAnalyzer(nextConfig);
-export default withLocalDev(__hatchkitLocalDevConfig, { slug: "collection-of-beauty" });
+export default withBundleAnalyzer(nextConfig);
