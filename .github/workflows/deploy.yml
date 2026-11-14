@@ -55,8 +55,8 @@ jobs:
       inputs.operation != 'activate' && inputs.operation != 'secrets'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: "24"
       # corepack honours the `packageManager` field, so CI and local agree
@@ -89,8 +89,8 @@ jobs:
       site_version: ${{ steps.upload.outputs.site_version }}
       api_version: ${{ steps.upload.outputs.api_version }}
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: "24"
       - name: Enable pnpm
@@ -156,7 +156,7 @@ jobs:
           API_VERSION: ${{ steps.upload.outputs.api_version }}
         run: |
           printf '{"commit":"%s","site_version":"%s","api_version":"%s"}\n' "$GITHUB_SHA" "$SITE_VERSION" "$API_VERSION" > release.json
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         with:
           name: release-${{ github.sha }}-${{ github.run_id }}-${{ github.run_attempt }}
           path: release.json
@@ -168,8 +168,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: "24"
       - name: Verify the serving commit
@@ -190,8 +190,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: "24"
       - name: Enable pnpm
@@ -212,7 +212,7 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
           OPERATION: ${{ inputs.operation == 'activate' && 'activate' || 'deploy' }}
         run: node scripts/worker-release.mjs "$OPERATION" "$TARGET_SHA" $SITE_VERSION $API_VERSION
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v7
         if: always()
         with:
           name: rollout-${{ github.run_id }}-${{ github.run_attempt }}
@@ -230,8 +230,8 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-node@v6
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: "24"
       - name: Enable pnpm
