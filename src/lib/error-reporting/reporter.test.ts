@@ -70,7 +70,14 @@ describe("with a DSN", () => {
       dsn: "https://key@glitchtip.example.com/2",
       release: "collection-of-beauty@eef0ebdd83da",
       environment: "production",
-      sendDefaultPii: false,
+      dataCollection: {
+        userInfo: false,
+        cookies: false,
+        httpHeaders: { request: { allow: ["user-agent"] }, response: false },
+        httpBodies: [],
+        urlQueryParams: false,
+      },
+      attachStacktrace: false,
       sendClientReports: false,
       defaultIntegrations: false,
       initialScope: { tags: { platform: "web" } },
@@ -81,8 +88,10 @@ describe("with a DSN", () => {
     expect(names).not.toContain("BrowserSession");
     expect(names).not.toContain("BrowserTracing");
     expect(names).not.toContain("Replay");
+    // Sentry 11 moved console breadcrumbs into their own integration.
+    expect(names).not.toContain("Console");
     expect(sdk.breadcrumbsIntegration).toHaveBeenCalledWith(
-      expect.objectContaining({ console: false, dom: false }),
+      expect.objectContaining({ dom: false }),
     );
   });
 

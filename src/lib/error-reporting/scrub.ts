@@ -8,7 +8,7 @@ import { isStaleDeployError } from "@/lib/stale-deploy";
  *
  * The policy, which the privacy page states in plain words:
  *
- *  - No person. `user` is dropped whole, and `sendDefaultPii` stays off, so
+ *  - No person. `user` is dropped whole, and `dataCollection.userInfo` stays off, so
  *    the SDK never asks the tracker to keep an IP address either.
  *  - No query string and no fragment, anywhere a URL appears: the page
  *    address, every stack frame, every breadcrumb and any URL inside an error
