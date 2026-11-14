@@ -75,7 +75,7 @@
     "@react-email/render": "^2.2.0",
     "@react-three/drei": "^10.7.9",
     "@react-three/fiber": "^9.8.2",
-    "@sentry/browser": "^10.78.0",
+    "@sentry/browser": "^11.11.0",
     "@three.ez/instanced-mesh": "^0.3.16",
     "canvas-confetti": "^1.9.4",
     "class-variance-authority": "^0.7.1",
