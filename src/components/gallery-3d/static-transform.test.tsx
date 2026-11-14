@@ -55,6 +55,7 @@ describe("React-owned static transforms", () => {
   it("makes local transforms available to mount effects before the first render", async () => {
     let mesh: THREE.Mesh | null = null;
     let registered: THREE.Vector3 | undefined;
+    // biome-ignore lint/correctness/noComponentHookFactories: a test component closes over the test's own locals
     function Registration() {
       useEffect(() => {
         registered = mesh!.getWorldPosition(new THREE.Vector3());
@@ -114,6 +115,7 @@ describe("React-owned static transforms", () => {
   it("handles async child-only layout updates while leaving unowned descendants dynamic", async () => {
     let resize: (height: number) => void = () => {};
     let parentRenders = 0;
+    // biome-ignore lint/correctness/noComponentHookFactories: a test component closes over the test's own locals
     function PlaqueLikeChild() {
       const [height, setHeight] = useState(2);
       useEffect(() => {
@@ -128,6 +130,7 @@ describe("React-owned static transforms", () => {
         </group>
       );
     }
+    // biome-ignore lint/correctness/noComponentHookFactories: a test component closes over the test's own locals
     function Parent() {
       parentRenders++;
       return (

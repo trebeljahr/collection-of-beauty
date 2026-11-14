@@ -127,7 +127,7 @@ describe("with a DSN", () => {
     const { sdk, init } = fakeSdk();
     const reporter = createErrorReporter(options("https://k@h/1", async () => sdk));
     await reporter.start();
-    const { beforeSend } = init.mock.calls[0]?.[0] as {
+    const { beforeSend } = init.mock.calls[0]![0] as {
       beforeSend: (
         event: Record<string, unknown>,
         hint: Record<string, unknown>,
