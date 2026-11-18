@@ -86,7 +86,7 @@
     "image-size": "^2.0.4",
     "joystick-controller": "^2.0.0",
     "lucide-react": "^1.66.0",
-    "next": "^16.4.3",
+    "next": "^16.4.5",
     "openseadragon": "^6.1.1",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
