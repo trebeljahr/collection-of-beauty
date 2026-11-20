@@ -179,8 +179,8 @@ jobs:
 
   deploy:
     needs: build
-    # dependency-updates.yml dispatches `build` after merging a Dependabot PR
-    # (a merge made with GITHUB_TOKEN triggers no push); it releases like one.
+    # deps-land.yml dispatches `build` after fast-forwarding main (a push made
+    # with GITHUB_TOKEN triggers no push workflows); it releases like a push.
     if: >-
       always() && !cancelled() &&
       github.repository == 'trebeljahr/collection-of-beauty' && github.ref == 'refs/heads/main' &&
